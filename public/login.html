@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T4L | Login</title>
+    <link rel="icon" type="image/x-icon" href="immagini/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="overflow: hidden;">
+  <img src="immagini/top-right.png" alt="" class="top-right">
+  <img src="immagini/bottom-left.png" alt="" class="bottom-left">
+  <div class="three-columns">
+
+    <div class="col">
+      <img src="immagini/overlimits.png" alt="" class="col-image" style="max-width: 75%; float: right; margin-right: 17px;">
+    </div>
+
+    <div class="col">
+      <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="" class="col-image">
+    </div>
+
+    <div class="col">
+      <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="" class="col-image" style="margin-bottom: 5px; ">
+    </div>
+
+  </div>
+
+  <div class="login-container">
+    <form class="login-form" id="login-form">
+      <h2 id="titolo-login">LOGIN</h2>
+      <div class="input-wrap">
+        <input id="username" class="colored-input" type="text" autocomplete="off" name="username" placeholder="Username" required>
+      </div>
+      <div class="input-wrap">
+        <input id="password" class="colored-input" type="password" autocomplete="off" name="password" placeholder="Password" required>
+        <img draggable="false" id="eyeicon" src="immagini/view.png" style="cursor:pointer;" />
+      </div>
+      <button class="login-button">Accedi</button>
+      <div id="message">❌Credenziali non messe</div>
+  </div>
+
+    <script>
+
+    const form = document.getElementById('login-form');
+    const messageDiv = document.getElementById('message');
+    messageDiv.style.opacity = "0";
+    const eyeicon = document.getElementById('eyeicon');
+    const passwordInput = document.getElementById('password');
+
+    // Mostra/nascondi password
+    eyeicon.onclick = () => {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        eyeicon.src = "immagini/hide.png";
+      } else {
+        passwordInput.type = "password";
+        eyeicon.src = "immagini/view.png";
+      }
+    };
+
+    // login/registrazione
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      
+
+      const data = new URLSearchParams();
+      data.append('username', username);
+      data.append('password', password);
+
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: data.toString()
+        });
+
+        const text = await response.text();
+
+        if (response.ok) {
+          messageDiv.textContent = text;
+          messageDiv.style.opacity = "1";
+
+          localStorage.setItem('username', username);
+
+          // Indirizzamento a index.html
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 100);
+
+        } else {
+          messageDiv.textContent = text;
+          messageDiv.style.opacity = "1";
+        }
+      } catch (err) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Errore di connessione al server';
+        console.error(err);
+      }
+    });
+
+    </script>
+
+</body>
+</html>
