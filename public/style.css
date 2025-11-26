@@ -179,8 +179,8 @@ input::placeholder {
 .login-button {
     width: 30%;
     display: block;
-    margin-top: 3rem;
     margin: 0 auto;
+    margin-top: 3rem;
     padding: 0.9rem;
     background: linear-gradient(90deg, #640a35, #af145f);
     color: white;
@@ -198,13 +198,13 @@ input::placeholder {
 }
 
 #message{
-  margin-top: 20px;
-  font-family: "korcyN";
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 0.8em;
-  color: rgb(0, 0, 0);
-  position: relative;
+    margin-top: 20px;
+    font-family: "korcyN";
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.8em;
+    color: rgb(0, 0, 0);
+    position: relative;
     text-align: center;
 }
 
