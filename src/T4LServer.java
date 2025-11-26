@@ -8,7 +8,7 @@ import java.security.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class ChatServer {
+public class T4LServer {
     private static final int PORT = 8080;
     private static final String PUBLIC_DIR = "public";
     private static final Map<String, List<String>> rooms = new ConcurrentHashMap<>();
@@ -78,7 +78,7 @@ public class ChatServer {
                 String password = getValue(parts, "password");
 
                 if (username != null && password != null) {
-                    synchronized (ChatServer.class) {
+                    synchronized (T4LServer.class) {
                         File dataDir = new File("data");
                         if (!dataDir.exists()) {
                             sendText(exchange, "Cartella data inesistente", 500);
