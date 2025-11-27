@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4L | Login</title>
-    <link rel="icon" type="image/x-icon" href="immagini/favicon.ico">
+    <link rel="icon" href="immagini/Icona.ico">
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2B2B30">
+
 </head>
 <body style="overflow: hidden;">
   <img src="immagini/top-right.png" alt="" class="top-right">
@@ -41,6 +44,15 @@
   </div>
 
     <script>
+
+      if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js')
+                  .then(reg => console.log("SW registrato:", reg))
+                  .catch(err => console.log("SW fallito:", err));
+          });
+      }
+
 
     const form = document.getElementById('login-form');
     const messageDiv = document.getElementById('message');
