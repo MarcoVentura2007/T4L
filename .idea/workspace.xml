@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f765b64c-f2a8-42db-8431-671edc717521" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/utenti.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/utenti.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ChatServer/ChatServer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ChatServer.java" beforeDir="false" />
-    </list>
+    <list default="true" id="f765b64c-f2a8-42db-8431-671edc717521" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,7 +34,7 @@
     "Application.T4LServer.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "branch-server",
+    "git-widget-placeholder": "branch-web",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/mar20/OneDrive/Desktop/Progetto_fine/ChatServer/lib/gson-2.10.1.jar",
@@ -61,6 +54,14 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\mar20\OneDrive\Desktop\Progetto_fine\ChatServer\out\production\ChatServer" />
     </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.25659.39" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.25659.39" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -115,6 +116,8 @@
       <workItem from="1761903233955" duration="324000" />
       <workItem from="1761904497841" duration="644000" />
       <workItem from="1761997061601" duration="864000" />
+      <workItem from="1764244603596" duration="258000" />
+      <workItem from="1764255824648" duration="2782000" />
     </task>
     <servers />
   </component>

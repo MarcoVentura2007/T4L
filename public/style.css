@@ -67,7 +67,7 @@ a{
 .three-columns {
     display: flex;
     gap: 60px;
-    max-width: 40%;
+    max-width: 45%;
     margin: 50px auto;
     margin-top: 4rem;
     align-items: baseline;
@@ -208,6 +208,7 @@ input::placeholder {
     text-align: center;
 }
 
+/* NAVIGAZIONE */
 #navigazione{
     height: 6rem;
     top:0; 
@@ -234,6 +235,7 @@ input::placeholder {
     filter: brightness(1.2);
 }
 
+/* USERNAME */
 .username{
   position: absolute;
   display: flex;
@@ -257,6 +259,79 @@ input::placeholder {
     margin: 0;
 }
 
+/* HAMBURGER BUTTON — contenitore quadrato */
+.menu-hamburger {
+    position: absolute;
+    right: 4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;   /* larghezza linee */
+    height: 14px;  /* altezza totale per 2 linee + gap */
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* spaziatura automatica */
+    z-index: 99999;
+}
+
+/* LINEE */
+.menu-hamburger span {
+    display: block;
+    width: 100%;
+    height: 3px;        /* linee uguali */
+    background: white;
+    border-radius: 3px;
+    transition: 0.3s ease;
+}
+
+/* ANIMAZIONE X */
+.menu-hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(0, 7px);
+}
+
+.menu-hamburger.active span:nth-child(2) {
+    transform: rotate(-45deg) translate(0, -8px);
+}
+
+/* DROPDOWN */
+.menu-dropdown {
+    position: absolute;
+    right: 2rem;
+    top: 5rem;
+    width: 190px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    overflow: hidden;
+    z-index: 9999;
+    animation: fadeIn 0.25s ease;
+}
+
+.menu-dropdown p {
+    margin: 0;
+    padding: 14px 18px;
+    font-family: 'Cinzel', serif;
+    color: #2b2b2b;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.menu-dropdown p:hover {
+    background: #eeeeee;
+    font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* TESTI */
 .titolo-principale{
     text-align: center;
     font-family: 'Cinzel', serif;
@@ -275,6 +350,7 @@ input::placeholder {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
+/* COLONNE */
 .tow-columns{
     display: flex;
     gap: 40px;
@@ -314,7 +390,7 @@ input::placeholder {
     }
 }
 
-
+/* BOX SCELTE */
 #scelta-operazioni{
     max-width: 55%;
     gap: 140px;
@@ -330,7 +406,6 @@ input::placeholder {
     text-align: center;
     font-family: 'Cinzel', serif;
     font-size: 1.4rem;
-    margin-top: 0rem;
     color: #2b2b2b;
 }
 
@@ -353,6 +428,7 @@ input::placeholder {
     height: 140px;
     padding: 50px;
 }
+
 
 /* Container Swiper */
 .swiper {
