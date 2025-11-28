@@ -10,11 +10,11 @@
     <meta name="theme-color" content="#2B2B30">
 
     <script>
-      const username = localStorage.getItem("username");
+      const username = sessionStorage.getItem("username");
       if (!username || username.trim() === "") {
         window.location.href = "login.html";
       }
-      
+
     </script>
 </head>
 <body style="overflow: hidden;">

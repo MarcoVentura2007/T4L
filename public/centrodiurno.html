@@ -11,7 +11,7 @@
 
     <script>
         
-      const username = localStorage.getItem("username");
+      const username = sessionStorage.getItem("username");
       if (!username || username.trim() === "") {
         window.location.href = "login.html";
       }
