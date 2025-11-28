@@ -11,6 +11,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body style="overflow: hidden;">
+
+    <script>
+        
+      const username = localStorage.getItem("username");
+      if (!username || username.trim() === "") {
+        window.location.href = "login.html";
+      }
+      
+    </script>
   
   <!-- NAVIGAZIONE -->
       <div id="navigazione">
@@ -83,8 +92,6 @@
 
 
         <script>
-
-            const username = localStorage.getItem("username");
             const username_nav = document.getElementById("username-nav") ;
             username_nav.textContent = username;
 
