@@ -317,9 +317,19 @@ input::placeholder {
 }
 
 .menu-dropdown p:hover {
-    background: #eeeeee;
-    font-weight: bold;
+    font-size: 1.05rem;
 }
+
+.data-centro:hover{
+    color: #640a35;
+    background-color: rgb(215, 215, 215);
+}
+
+.data-ergo:hover{
+    color: #0f4e64;
+    background-color: rgb(215, 215, 215);
+}
+
 
 .hidden {
     display: none;

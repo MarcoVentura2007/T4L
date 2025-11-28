@@ -16,7 +16,7 @@
       <div id="navigazione">
         <div class="username">
             <a href="login.html"><img src="immagini/profile-picture.png" alt=""></a>
-            <p>Andrea Rossi</p>
+             <p id="username-text"><span id="username-nav"></span></p>
         </div>
           <div class="nav-wrapper">
               <img src="immagini/Logo-centrodiurno.png" alt="">
@@ -83,6 +83,11 @@
 
 
         <script>
+
+            const username = localStorage.getItem("username");
+            const username_nav = document.getElementById("username-nav") ;
+            username_nav.textContent = username;
+
             var swiper = new Swiper(".mySwiper", {
                 slidesPerView: 3,
                 spaceBetween: 10,
@@ -108,8 +113,6 @@
                     },
                 },
             });
-
-
 
         </script>
 

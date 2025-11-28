@@ -14,7 +14,7 @@
       
       <div class="username">
           <a href="login.html"><img src="immagini/profile-picture.png" alt=""></a>
-          <p id="username-text">Andrea Rossi</p>
+          <p id="username-text"><span id="username-nav"></span></p>
       </div>
 
       <div class="nav-wrapper">
@@ -31,8 +31,8 @@
 
       <!-- DROPDOWN -->
       <div class="menu-dropdown hidden" id="menuDropdown">
-          <p data-link="centrodiurno.html">Centro Diurno</p>
-          <p data-link="index-ergo.html">Ergoterapeutica</p>
+          <p data-link="centrodiurno.html" class="data-centro">Centro Diurno</p>
+          <p data-link="index-ergo.html" class="data-ergo">Ergoterapeutica</p>
       </div>
 
 
@@ -67,6 +67,9 @@
       const username = localStorage.getItem("username");
       const nomeutente = document.getElementById("nomeutente") ;
       nomeutente.textContent = username;
+
+      const username_nav = document.getElementById("username-nav") ;
+      username_nav.textContent = username;
       
 
       const menuBtn = document.getElementById("menuHamburger");

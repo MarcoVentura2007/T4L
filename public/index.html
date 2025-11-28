@@ -16,7 +16,7 @@
       <div id="navigazione">
         <div class="username">
             <a href="login.html"><img src="immagini/profile-picture.png" alt=""></a>
-            <p>Andrea Rossi</p>
+            <p><span id="username-nav"></span></p>
         </div>
           <div class="nav-wrapper">
               <img src="immagini/overlimits.png" alt="">
@@ -43,6 +43,13 @@
             </div>
         </div>
       </div>
+
+      <script>
+        const username = localStorage.getItem("username");
+        const username_nav = document.getElementById("username-nav") ;
+        username_nav.textContent = username;
+
+      </script>
 
 </body>
 </html>
