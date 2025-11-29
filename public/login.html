@@ -75,8 +75,6 @@
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      
-
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       
@@ -95,7 +93,7 @@
         });
 
         const text = await response.text();
-
+        
         if (response.ok) {
           messageDiv.textContent = text;
           messageDiv.style.opacity = "1";
@@ -105,7 +103,7 @@
           setTimeout(() => {
             window.location.href = 'index.html';
           }, 100);
-
+          
         } else {
           messageDiv.textContent = text;
           messageDiv.style.opacity = "1";
