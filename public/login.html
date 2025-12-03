@@ -100,7 +100,8 @@
           messageDiv.textContent = text;
           messageDiv.style.opacity = "1";
 
-          sessionStorage.setItem('username', username);
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("username", username)
 
           setTimeout(() => {
             window.location.href = 'index.html';
