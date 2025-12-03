@@ -10,10 +10,19 @@
     <meta name="theme-color" content="#2B2B30">
 
     <script>
-      const username = sessionStorage.getItem("username");
-      if (!username || username.trim() === "") {
-        window.location.href = "login.html";
-      }
+      const token = sessionStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login.html";
+            }
+
+            fetch("/verify-token?token=" + token)
+                .then(r => r.text())
+                .then(t => {
+                    if (t !== "ok") {
+                        sessionStorage.clear();
+                        window.location.href = "/login.html";
+                   }
+        });
 
     </script>
 </head>

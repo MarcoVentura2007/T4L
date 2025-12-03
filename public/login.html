@@ -8,116 +8,108 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2B2B30">
-
 </head>
+
 <body style="overflow: hidden;">
+
   <img src="immagini/top-right.png" alt="" class="top-right">
   <img src="immagini/bottom-left.png" alt="" class="bottom-left">
+
   <div class="three-columns">
-
     <div class="col">
-      <img src="immagini/overlimits.png" alt="" class="col-image" style="max-width: 75%; float: right; margin-right: 17px;">
+      <img src="immagini/overlimits.png" class="col-image" style="max-width: 75%; float: right; margin-right: 17px;">
     </div>
 
     <div class="col">
-      <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="" class="col-image">
+      <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" class="col-image">
     </div>
 
     <div class="col">
-      <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="" class="col-image" style="margin-bottom: 5px; ">
+      <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" class="col-image" style="margin-bottom: 5px;">
     </div>
-
   </div>
 
   <div class="login-container">
-    <form class="login-form" id="login-form">
+    <form class="login-form" id="loginForm">
       <h2 id="titolo-login">LOGIN</h2>
+
       <div class="input-wrap">
         <input id="username" class="colored-input" type="text" autocomplete="off" name="username" placeholder="Username" required>
       </div>
+
       <div class="input-wrap">
         <input id="password" class="colored-input" type="password" autocomplete="off" name="password" placeholder="Password" required>
-        <img draggable="false" id="eyeicon" src="immagini/view.png" style="cursor:pointer;" />
+        <img draggable="false" id="eyeicon" src="immagini/view.png" style="cursor:pointer;">
       </div>
+
       <button class="login-button">Accedi</button>
-      <div id="message">❌Credenziali non messe</div>
+
+      <div id="message" style="opacity: 0;">❌Credenziali non valide</div>
+    </form>
   </div>
 
-    <script>
+<script>
 
-      if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-              navigator.serviceWorker.register('/sw.js')
-                  .then(reg => console.log("SW registrato:", reg))
-                  .catch(err => console.log("SW fallito:", err));
-          });
-      }
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log("SW registrato:", reg))
+                .catch(err => console.log("SW fallito:", err));
+        });
+    }
 
+    const form = document.getElementById("loginForm");
+    const messageDiv = document.getElementById("message");
+    const eyeicon = document.getElementById("eyeicon");
+    const passwordInput = document.getElementById("password");
 
-    const form = document.getElementById('login-form');
-    const messageDiv = document.getElementById('message');
-    messageDiv.style.opacity = "0";
-    const eyeicon = document.getElementById('eyeicon');
-    const passwordInput = document.getElementById('password');
-
-    // Mostra/nascondi password
+    // Mostra/Nascondi password
     eyeicon.onclick = () => {
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        eyeicon.src = "immagini/hide.png";
-      } else {
-        passwordInput.type = "password";
-        eyeicon.src = "immagini/view.png";
-      }
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            eyeicon.src = "immagini/hide.png";
+        } else {
+            passwordInput.type = "password";
+            eyeicon.src = "immagini/view.png";
+        }
     };
 
-    // login/registrazione
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    // LOGIN UNIFICATO
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-      
+        try {
+            const response = await fetch("/login", {
+                method: "POST",
+                body: new FormData(form)
+            });
 
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      
+            const data = await response.json();
 
-      const data = new URLSearchParams();
-      data.append('username', username);
-      data.append('password', password);
+            if (data.token) {
+              
+                sessionStorage.setItem("token", data.token);
 
-      try {
-        const response = await fetch('/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: data.toString()
-        });
+              
+                if (data.username) {
+                    sessionStorage.setItem("username", data.username);
+                }
 
-        const text = await response.text();
+                window.location.href = "index.html";
+            } else {
+                messageDiv.textContent = "❌ Credenziali errate";
+                messageDiv.style.opacity = "1";
+            }
 
-        if (response.ok) {
-          messageDiv.textContent = text;
-          messageDiv.style.opacity = "1";
-
-          sessionStorage.setItem('username', username);
-
-          setTimeout(() => {
-            window.location.href = 'index.html';
-          }, 100);
-
-        } else {
-          messageDiv.textContent = text;
-          messageDiv.style.opacity = "1";
+        } catch (err) {
+            console.error(err);
+            messageDiv.textContent = "⚠ Errore di connessione";
+            messageDiv.style.opacity = "1";
         }
-      } catch (err) {
-        messageDiv.style.color = 'red';
-        messageDiv.textContent = 'Errore di connessione al server';
-        console.error(err);
-      }
     });
 
-    </script>
+</script>
 
 </body>
 </html>
