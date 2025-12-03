@@ -88,10 +88,10 @@
             const data = await response.json();
 
             if (data.token) {
-                // 🔥 salva token sicuro
+              
                 sessionStorage.setItem("token", data.token);
 
-                // eventuale username (se lo mandi dal server)
+              
                 if (data.username) {
                     sessionStorage.setItem("username", data.username);
                 }
