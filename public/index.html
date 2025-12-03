@@ -10,6 +10,7 @@
     <meta name="theme-color" content="#2B2B30">
 
     <script>
+<<<<<<< HEAD
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -38,6 +39,21 @@
           window.location.href = "login.html";
         });
       }
+=======
+      const token = sessionStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login.html";
+            }
+
+            fetch("/verify-token?token=" + token)
+                .then(r => r.text())
+                .then(t => {
+                    if (t !== "ok") {
+                        sessionStorage.clear();
+                        window.location.href = "/login.html";
+                   }
+        });
+>>>>>>> 9870ab85662ab62bbe227d1f4a71acc866502e8a
 
     </script>
 </head>
