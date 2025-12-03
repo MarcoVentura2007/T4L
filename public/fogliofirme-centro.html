@@ -11,6 +11,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body style="overflow: hidden;">
+
+    <script>
+
+      const token = sessionStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login.html";
+            }
+
+            fetch("/verify-token?token=" + token)
+                .then(r => r.text())
+                .then(t => {
+                    if (t !== "ok") {
+                        sessionStorage.clear();
+                        window.location.href = "/login.html";
+                   }
+        });
+      
+    </script>
   
   <!-- NAVIGAZIONE -->
       <div id="navigazione">
@@ -83,8 +101,6 @@
 
 
         <script>
-
-            const username = localStorage.getItem("username");
             const username_nav = document.getElementById("username-nav") ;
             username_nav.textContent = username;
 

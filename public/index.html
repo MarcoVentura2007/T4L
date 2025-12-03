@@ -9,47 +9,62 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2B2B30">
 
+    <script>
+      const token = sessionStorage.getItem("token");
+            if (!token) {
+                window.location.href = "/login.html";
+            }
+
+            fetch("/verify-token?token=" + token)
+                .then(r => r.text())
+                .then(t => {
+                    if (t !== "ok") {
+                        sessionStorage.clear();
+                        window.location.href = "/login.html";
+                   }
+        });
+
+    </script>
 </head>
 <body style="overflow: hidden;">
   
   <!-- NAVIGAZIONE -->
-      <div id="navigazione">
-        <div class="username">
-            <a href="login.html"><img src="immagini/profile-picture.png" alt=""></a>
-            <p><span id="username-nav"></span></p>
+  <div id="navigazione">
+    <div class="username">
+        <a href="login.html"><img src="immagini/profile-picture.png" alt=""></a>
+        <p><span id="username-nav"></span></p>
+    </div>
+    <div class="nav-wrapper">
+        <img src="immagini/overlimits.png" alt="">
+
+        <a href="index.html"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
+
+        <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="">
+    </div>
+  </div>
+
+  <div class="contenuto-principale">
+    <h1 class="titolo-principale">Scegli la sezione</h1>
+
+    <div class="tow-columns">
+        <div class="column">
+            <a href="centrodiurno.html">
+                <img src="immagini/Logo-centrodiurno.png" alt="">
+            </a>
         </div>
-          <div class="nav-wrapper">
-              <img src="immagini/overlimits.png" alt="">
-
-              <a href="index.html"></a><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
-
-              <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt=""></a>
-          </div>
-      </div>
-
-      <div class="contenuto-principale">
-        <h1 class="titolo-principale">Scegli la sezione</h1>
-
-        <div class="tow-columns">
-            <div class="column">
-                <a href="centrodiurno.html">
-                    <img src="immagini/Logo-centrodiurno.png" alt="">
-                </a>
-            </div>
-            <div class="column">
-                <a href="">
-                    <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="">
-                </a>
-            </div>
+        <div class="column">
+            <a href="">
+                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="">
+            </a>
         </div>
-      </div>
+    </div>
+  </div>
 
-      <script>
-        const username = localStorage.getItem("username");
-        const username_nav = document.getElementById("username-nav") ;
-        username_nav.textContent = username;
-
-      </script>
+  <script>
+    
+    const username_nav = document.getElementById("username-nav");
+    username_nav.textContent = username;
+  </script>
 
 </body>
 </html>
