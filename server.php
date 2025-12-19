@@ -8,6 +8,10 @@ $TOKEN_FILE = $DATA_DIR . "/tokens.txt";
 $PUBLIC_DIR = __DIR__ . "/public";
 $LOGIN_PAGE = $PUBLIC_DIR . "/login.html";
 
+// Pepper globale
+require_once __DIR__ . "/config.php";
+
+// Creazione cartelle e file se non esistono
 if (!file_exists($DATA_DIR)) mkdir($DATA_DIR, 0777, true);
 if (!file_exists($USER_FILE)) file_put_contents($USER_FILE, "");
 if (!file_exists($TOKEN_FILE)) file_put_contents($TOKEN_FILE, "");
@@ -41,22 +45,23 @@ if ($request_uri === "/login" && $method === "POST") {
     $newUser = false;
 
     if (isset($users[$username])) {
-        if (!password_verify($password, $users[$username])) {
+        // verifica password con pepper
+        if (!password_verify($password . PEPPER, $users[$username])) {
             respond(["error" => "Invalid credentials"], 401);
         }
     } else {
-        // registrazione
-        $hash = password_hash($password, PASSWORD_DEFAULT);
+        // registrazione nuovo utente con hash + pepper
+        $hash = password_hash($password . PEPPER, PASSWORD_DEFAULT);
         file_put_contents($USER_FILE, "$username:$hash\n", FILE_APPEND);
         $newUser = true;
     }
 
-    // invalida eventuali token precedenti
+    // pulizia e rimozione token precedenti dello stesso utente
     removeUserTokens($username);
 
-    // genera token
+    // genera nuovo token sicuro
     $token  = bin2hex(random_bytes(32));
-    $expiry = time() + 3600;
+    $expiry = time() + 3600; // valido 1 ora
 
     file_put_contents($TOKEN_FILE, "$username:$token:$expiry\n", FILE_APPEND);
 
@@ -80,7 +85,7 @@ if ($request_uri === "/logout" && $method === "POST") {
 }
 
 // ============================================
-// VALIDAZIONE TOKEN (DEBUG / CLIENT)
+// VALIDAZIONE TOKEN (per client debug o fetch)
 // ============================================
 if ($request_uri === "/validate-token" && $method === "POST") {
     $input = json_decode(file_get_contents("php://input"), true);
@@ -95,7 +100,7 @@ if ($request_uri === "/validate-token" && $method === "POST") {
 }
 
 // ============================================
-// ACCESSO PROTETTO
+// ACCESSO PROTETTO PER FILE PUBBLICI
 // ============================================
 $token = getBearerToken();
 $username = validateToken($token);
@@ -104,9 +109,7 @@ if (!$username) {
     respond(["error" => "Unauthorized"], 401);
 }
 
-// ============================================
-// FILE PUBBLICI
-// ============================================
+// Percorso completo file richiesto
 $file = realpath($PUBLIC_DIR . $request_uri);
 
 if ($file === false || !str_starts_with($file, realpath($PUBLIC_DIR))) {
@@ -117,6 +120,7 @@ if (file_exists($file) && is_file($file)) {
     serveFile($file);
 }
 
+// Nessun file trovato
 respond(["error" => "Not found"], 404);
 
 // ============================================
@@ -142,22 +146,22 @@ function validateToken($token) {
 
     $validLines = [];
     $userFound = false;
+    $now = time();
 
     foreach (file($TOKEN_FILE, FILE_IGNORE_NEW_LINES) as $line) {
         if (!str_contains($line, ":")) continue;
 
         [$user, $tok, $expiry] = explode(":", $line);
 
-        if ($expiry < time()) continue; // scaduto
+        // scarta token scaduti
+        if ($expiry < $now) continue;
 
-        if ($tok === $token) {
-            $userFound = $user;
-        }
+        if ($tok === $token) $userFound = $user;
 
         $validLines[] = "$user:$tok:$expiry";
     }
 
-    // pulizia token scaduti
+    // sovrascrive file rimuovendo token scaduti
     file_put_contents($TOKEN_FILE, implode("\n", $validLines) . "\n");
 
     return $userFound;
