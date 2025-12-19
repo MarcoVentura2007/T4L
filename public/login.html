@@ -50,67 +50,50 @@
 <script>
 
     const form = document.getElementById("loginForm");
-const messageDiv = document.getElementById("message");
-const eyeicon = document.getElementById("eyeicon");
-const passwordInput = document.getElementById("password");
+    const messageDiv = document.getElementById("message");
+    const eyeicon = document.getElementById("eyeicon");
+    const passwordInput = document.getElementById("password");
 
-// Mostra/Nascondi password
-eyeicon.onclick = () => {
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        eyeicon.src = "immagini/hide.png";
-    } else {
-        passwordInput.type = "password";
-        eyeicon.src = "immagini/view.png";
-    }
-};
-
-// LOGIN UNIFICATO
-form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    try {
-        const response = await fetch("/login", {
-            method: "POST",
-            body: new FormData(form)
-        });
-
-        // Il server potrebbe rispondere anche con HTML (es. error page)
-        const text = await response.text();
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-            console.error("Risposta non JSON dal server:", text);
-            messageDiv.textContent = "⚠ Errore dal server";
-            messageDiv.style.opacity = "1";
-            return;
-        }
-
-        if (data.token) {
-            localStorage.setItem("token", data.token);
-            // Usa username ritornato dal server o quello del form
-            localStorage.setItem("username", data.username || document.getElementById('username').value);
-
-            if (data.username) {
-                sessionStorage.setItem("username", data.username);
-            }
-
-            window.location.href = "index.html";
-        } else if (data.error) {
-            messageDiv.textContent = "❌ " + data.error;
-            messageDiv.style.opacity = "1";
+    // Mostra/Nascondi password
+    eyeicon.onclick = () => {
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            eyeicon.src = "immagini/hide.png";
         } else {
-            messageDiv.textContent = "❌ Credenziali errate";
-            messageDiv.style.opacity = "1";
+            passwordInput.type = "password";
+            eyeicon.src = "immagini/view.png";
         }
+    };
 
-    } catch (err) {
-        console.error(err);
-        messageDiv.textContent = "⚠ Errore di connessione";
-        messageDiv.style.opacity = "1";
-    }
-});
+    // LOGIN UNIFICATO
+    document.getElementById("loginForm").addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const form = e.target;
+      const data = new FormData(form);
+
+      const res = await fetch("/login", {
+        method: "POST",
+        body: data
+      });
+
+      const json = await res.json();
+
+      if (res.ok) {
+        // 🔐 salva token
+        localStorage.setItem("token", json.token);
+        localStorage.setItem("token_expiry", json.expires);
+        
+
+          window.location.href = "index.html";
+            } else if (data.error) {
+                messageDiv.textContent = "❌ " + data.error;
+                messageDiv.style.opacity = "1";
+            } else {
+                messageDiv.textContent = "❌ Credenziali errate";
+                messageDiv.style.opacity = "1";
+            }
+    });
 
 
 </script>
