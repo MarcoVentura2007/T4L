@@ -11,9 +11,33 @@
 
     <script>
         
-      const username = sessionStorage.getItem("username");
-      if (!username || username.trim() === "") {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        // Se non c’è token, vai al login
         window.location.href = "login.html";
+      } else {
+        // Verifica lato server che il token sia valido
+        fetch("/validate-token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ token })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("Token non valido");
+          return res.json();
+        })
+        .then(data => {
+          // Mostra l’username nella pagina
+          document.getElementById("username-nav").textContent = data.username;
+        })
+        .catch(err => {
+          // Token scaduto o non valido → ritorno al login
+          localStorage.removeItem("token");
+          window.location.href = "login.html";
+        });
       }
       
     </script>
