@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="body-font-family">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/public/font/body-font-family.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

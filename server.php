@@ -14,20 +14,30 @@ if (!file_exists($USER_FILE)) file_put_contents($USER_FILE, "");
 if (!file_exists($TOKEN_FILE)) file_put_contents($TOKEN_FILE, "");
 
 // ============================================
-// ROUTING BASE
+// REQUEST
 // ============================================
 $request_uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 $method      = $_SERVER["REQUEST_METHOD"];
 
 // ============================================
-// 1) LOGIN PAGE (solo GET / o /login.html)
+// 0 - FILE STATICI CHE DEVONO ESSERE ACCESSIBILI
+// ============================================
+$static_files = ["/sw.js", "/manifest.json", "/style.css"];
+
+if (in_array($request_uri, $static_files)) {
+    $file = realpath($PUBLIC_DIR . $request_uri);
+    serveFile($file);
+}
+
+// ============================================
+// 1 - LOGIN PAGE (GET /login.html o /)
 // ============================================
 if ($request_uri === "/" || $request_uri === "/login.html") {
     serveFile($LOGIN_PAGE);
 }
 
 // ============================================
-// 2) LOGIN o REGISTRAZIONE (POST /login)
+// 2 - LOGIN/REGISTRAZIONE
 // ============================================
 if ($request_uri === "/login" && $method === "POST") {
 
@@ -38,10 +48,8 @@ if ($request_uri === "/login" && $method === "POST") {
         respond(["error" => "Missing username or password"], 400);
     }
 
-    // Hash identico a Java
     $password_hash = hash("sha256", $password);
 
-    // Carica utenti
     $users = [];
     foreach (file($USER_FILE, FILE_IGNORE_NEW_LINES) as $line) {
         if (str_contains($line, ":")) {
@@ -52,34 +60,31 @@ if ($request_uri === "/login" && $method === "POST") {
 
     $newUser = false;
 
-    // L’utente esiste?
     if (isset($users[$username])) {
         if ($users[$username] !== $password_hash) {
             respond(["error" => "Invalid username or password"], 401);
         }
     } else {
-        // Registrazione nuovo utente
         file_put_contents($USER_FILE, "$username:$password_hash\n", FILE_APPEND);
         $newUser = true;
     }
 
-    // GENERA TOKEN SICURO
     $token = bin2hex(random_bytes(32));
-    $expiry = time() + 3600; // valido 1 ora
+    $expiry = time() + 3600;
 
-    // SALVA TOKEN
     file_put_contents($TOKEN_FILE, "$username:$token:$expiry\n", FILE_APPEND);
 
     respond([
         "success" => true,
         "newUser" => $newUser,
         "token" => $token,
+        "username" => $username,
         "expires" => $expiry
     ]);
 }
 
 // ============================================
-// 2b) VALIDAZIONE TOKEN (POST /validate-token)
+// 3 - VALIDAZIONE TOKEN (POST /validate-token)
 // ============================================
 if ($request_uri === "/validate-token" && $method === "POST") {
     $input = json_decode(file_get_contents("php://input"), true);
@@ -94,63 +99,71 @@ if ($request_uri === "/validate-token" && $method === "POST") {
 }
 
 // ============================================
-// 3) TUTTO IL RESTO → ACCESSO PROTETTO
+// 4 - PROTEZIONE (richiede token)
 // ============================================
 $token = $_GET["token"] ?? ($_SERVER["HTTP_AUTHORIZATION"] ?? null);
 
-// Gestione header Authorization: Bearer xxx
 if ($token && str_starts_with($token, "Bearer ")) {
     $token = substr($token, 7);
 }
 
-// Validazione token
 $username = validateToken($token);
 if (!$username) {
     respond(["error" => "Unauthorized"], 401);
 }
 
-// Percorso completo del file richiesto
+// Serve file richiesto
 $file = realpath($PUBLIC_DIR . $request_uri);
 
-// Verifica che il file sia dentro /public (no accesso a file esterni)
 if ($file === false || !str_starts_with($file, realpath($PUBLIC_DIR))) {
     respond(["error" => "Forbidden"], 403);
 }
 
-// Serve il file se esiste
 if (file_exists($file) && is_file($file)) {
     serveFile($file);
 }
 
-// Se non esiste, torna 404
 respond(["error" => "File not found"], 404);
+
 
 // ============================================
 // FUNZIONI
 // ============================================
-
 function validateToken($token) {
     global $TOKEN_FILE;
 
     if (!$token) return false;
 
-    $lines = file($TOKEN_FILE, FILE_IGNORE_NEW_LINES);
-    foreach ($lines as $line) {
+    foreach (file($TOKEN_FILE, FILE_IGNORE_NEW_LINES) as $line) {
         if (!str_contains($line, ":")) continue;
 
         list($user, $tok, $expiry) = explode(":", $line);
 
         if ($tok === $token && $expiry >= time()) {
-            return $user; // token valido
+            return $user;
         }
     }
-    return false; // token non valido
+
+    return false;
 }
 
 function serveFile($file) {
-    $mime = mime_content_type($file) ?: "application/octet-stream";
+    if (!file_exists($file)) return false;
 
-    header("Content-Type: $mime");
+    $ext = pathinfo($file, PATHINFO_EXTENSION);
+
+    $mimes = [
+        "html" => "text/html",
+        "css"  => "text/css",
+        "js"   => "application/javascript",
+        "json" => "application/json",
+        "png"  => "image/png",
+        "jpg"  => "image/jpeg",
+        "jpeg" => "image/jpeg",
+        "ico"  => "image/x-icon"
+    ];
+
+    header("Content-Type: " . ($mimes[$ext] ?? "application/octet-stream"));
     readfile($file);
     exit;
 }
