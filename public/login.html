@@ -50,50 +50,51 @@
 <script>
 
     const form = document.getElementById("loginForm");
-    const messageDiv = document.getElementById("message");
-    const eyeicon = document.getElementById("eyeicon");
-    const passwordInput = document.getElementById("password");
+const messageDiv = document.getElementById("message");
 
-    // Mostra/Nascondi password
-    eyeicon.onclick = () => {
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            eyeicon.src = "immagini/hide.png";
-        } else {
-            passwordInput.type = "password";
-            eyeicon.src = "immagini/view.png";
-        }
-    };
+form.addEventListener("submit", async e => {
+  e.preventDefault(); // blocca submit normale
 
-    // LOGIN UNIFICATO
-    document.getElementById("loginForm").addEventListener("submit", async e => {
-      e.preventDefault();
+  const formData = new FormData(form);
 
-      const form = e.target;
-      const data = new FormData(form);
-
-      const res = await fetch("/login", {
-        method: "POST",
-        body: data
-      });
-
-      const json = await res.json();
-
-      if (res.ok) {
-        // 🔐 salva token
-        localStorage.setItem("token", json.token);
-        localStorage.setItem("token_expiry", json.expires);
-        
-
-          window.location.href = "index.html";
-            } else if (data.error) {
-                messageDiv.textContent = "❌ " + data.error;
-                messageDiv.style.opacity = "1";
-            } else {
-                messageDiv.textContent = "❌ Credenziali errate";
-                messageDiv.style.opacity = "1";
-            }
+  try {
+    const res = await fetch("/login", {
+      method: "POST",
+      body: formData
     });
+
+    const json = await res.json();
+    console.log("Risposta server:", json); // debug
+
+    if (res.ok) {
+      // 🔐 salva token
+      localStorage.setItem("token", json.token);
+      localStorage.setItem("token_expiry", json.expires);
+
+      // ✅ mostra messaggio di conferma
+      messageDiv.textContent = "✅ Login effettuato!";
+      messageDiv.style.color = "green";
+      messageDiv.style.opacity = "1";
+
+      // redirect dopo 1 secondo
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1000);
+
+    } else {
+      // mostra errore
+      messageDiv.textContent = "❌ " + (json.error || "Credenziali errate");
+      messageDiv.style.color = "red";
+      messageDiv.style.opacity = "1";
+    }
+
+  } catch (err) {
+    messageDiv.textContent = "❌ Errore di connessione";
+    messageDiv.style.color = "red";
+    messageDiv.style.opacity = "1";
+    console.error(err);
+  }
+});
 
 
 </script>
