@@ -58,7 +58,7 @@ form.addEventListener("submit", async e => {
   const formData = new FormData(form);
 
   try {
-    const res = await fetch("public/login", {
+    const res = await fetch("server.php/login", {
       method: "POST",
       body: formData
     });
