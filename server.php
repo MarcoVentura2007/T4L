@@ -4,14 +4,12 @@
 // ============================================
 $DATA_DIR   = __DIR__ . "/data";
 $USER_FILE  = $DATA_DIR . "/utenti.txt";
-$TOKEN_FILE = $DATA_DIR . "/tokens.txt";
 $PUBLIC_DIR = __DIR__ . "/public";
 $LOGIN_PAGE = $PUBLIC_DIR . "/login.html";
 
 // Crea cartelle e file se non esistono
 if (!file_exists($DATA_DIR)) mkdir($DATA_DIR, 0777, true);
 if (!file_exists($USER_FILE)) file_put_contents($USER_FILE, "");
-if (!file_exists($TOKEN_FILE)) file_put_contents($TOKEN_FILE, "");
 
 // ============================================
 // ROUTING BASE
@@ -63,12 +61,6 @@ if ($request_uri === "/login" && $method === "POST") {
         $newUser = true;
     }
 
-    // GENERA TOKEN SICURO
-    $token = bin2hex(random_bytes(32));
-    $expiry = time() + 3600; // valido 1 ora
-
-    // SALVA TOKEN
-    file_put_contents($TOKEN_FILE, "$username:$token:$expiry\n", FILE_APPEND);
 
     respond([
         "success" => true,
@@ -78,36 +70,11 @@ if ($request_uri === "/login" && $method === "POST") {
     ]);
 }
 
-// ============================================
-// 2b) VALIDAZIONE TOKEN (POST /validate-token)
-// ============================================
-if ($request_uri === "/validate-token" && $method === "POST") {
-    $input = json_decode(file_get_contents("php://input"), true);
-    $token = $input['token'] ?? null;
-
-    $username = validateToken($token);
-    if ($username) {
-        respond(["username" => $username]);
-    } else {
-        respond(["error" => "Token non valido"], 401);
-    }
-}
 
 // ============================================
 // 3) TUTTO IL RESTO → ACCESSO PROTETTO
 // ============================================
-$token = $_GET["token"] ?? ($_SERVER["HTTP_AUTHORIZATION"] ?? null);
 
-// Gestione header Authorization: Bearer xxx
-if ($token && str_starts_with($token, "Bearer ")) {
-    $token = substr($token, 7);
-}
-
-// Validazione token
-$username = validateToken($token);
-if (!$username) {
-    respond(["error" => "Unauthorized"], 401);
-}
 
 // Percorso completo del file richiesto
 $file = realpath($PUBLIC_DIR . $request_uri);
@@ -129,23 +96,6 @@ respond(["error" => "File not found"], 404);
 // FUNZIONI
 // ============================================
 
-function validateToken($token) {
-    global $TOKEN_FILE;
-
-    if (!$token) return false;
-
-    $lines = file($TOKEN_FILE, FILE_IGNORE_NEW_LINES);
-    foreach ($lines as $line) {
-        if (!str_contains($line, ":")) continue;
-
-        list($user, $tok, $expiry) = explode(":", $line);
-
-        if ($tok === $token && $expiry >= time()) {
-            return $user; // token valido
-        }
-    }
-    return false; // token non valido
-}
 
 function serveFile($file) {
     $mime = mime_content_type($file) ?: "application/octet-stream";
