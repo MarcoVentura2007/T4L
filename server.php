@@ -2,38 +2,44 @@
 // ============================================
 // CONFIGURAZIONE
 // ============================================
-session_start();
-
 $DATA_DIR   = __DIR__ . "/data";
 $USER_FILE  = $DATA_DIR . "/utenti.txt";
+$TOKEN_FILE = $DATA_DIR . "/tokens.txt";
 $PUBLIC_DIR = __DIR__ . "/public";
 $LOGIN_PAGE = $PUBLIC_DIR . "/login.html";
 
-// Creazione cartelle/file se mancanti
+// Crea cartelle e file se non esistono
 if (!file_exists($DATA_DIR)) mkdir($DATA_DIR, 0777, true);
 if (!file_exists($USER_FILE)) file_put_contents($USER_FILE, "");
-
-// Carica PEPPER
-require_once __DIR__ . "/config.php";
+if (!file_exists($TOKEN_FILE)) file_put_contents($TOKEN_FILE, "");
 
 // ============================================
-// ROUTING
+// ROUTING BASE
 // ============================================
 $request_uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 $method      = $_SERVER["REQUEST_METHOD"];
 
 // ============================================
-// LOGIN / REGISTRAZIONE
+// 1) LOGIN PAGE (solo GET / o /login.html)
+// ============================================
+if ($request_uri === "/" || $request_uri === "/login.html") {
+    serveFile($LOGIN_PAGE);
+}
+
+// ============================================
+// 2) LOGIN o REGISTRAZIONE (POST /login)
 // ============================================
 if ($request_uri === "/login" && $method === "POST") {
 
-    $username = $_POST["username"] ?? null;
-    $password = $_POST["password"] ?? null;
+    $username = trim($_POST["username"] ?? "");
+    $password = trim($_POST["password"] ?? "");
 
-    if (!$username || !$password) respond("❌ Username o Password mancanti", 400);
+    if ($username === "" || $password === "") {
+        respond(["error" => "Missing username or password"], 400);
+    }
 
-    // Pepper: hash iniziale
-    $peppered = hash_hmac("sha256", $password, PEPPER);
+    // Hash identico a Java
+    $password_hash = hash("sha256", $password);
 
     // Carica utenti
     $users = [];
@@ -44,85 +50,114 @@ if ($request_uri === "/login" && $method === "POST") {
         }
     }
 
-    // LOGIN
+    $newUser = false;
+
+    // L’utente esiste?
     if (isset($users[$username])) {
-        $stored_hash = $users[$username];
-
-        if (password_verify($peppered, $stored_hash)) {
-            // Rehash opzionale
-            if (password_needs_rehash($stored_hash, PASSWORD_ARGON2ID)) {
-                $new_hash = password_hash($peppered, PASSWORD_ARGON2ID);
-                salvaNuovoHash($USER_FILE, $username, $new_hash);
-            }
-
-            $_SESSION["username"] = $username;
-            respond("✔️ Login avvenuto con successo");
+        if ($users[$username] !== $password_hash) {
+            respond(["error" => "Invalid username or password"], 401);
         }
-
-        respond("❌ Username o password errati", 401);
+    } else {
+        // Registrazione nuovo utente
+        file_put_contents($USER_FILE, "$username:$password_hash\n", FILE_APPEND);
+        $newUser = true;
     }
 
-    // REGISTRAZIONE NUOVO UTENTE
-    $password_hash = password_hash($peppered, PASSWORD_ARGON2ID);
-    file_put_contents($USER_FILE, "$username:$password_hash\n", FILE_APPEND);
+    // GENERA TOKEN SICURO
+    $token = bin2hex(random_bytes(32));
+    $expiry = time() + 3600; // valido 1 ora
 
-    $_SESSION["username"] = $username;
-    respond("☑️ Utente registrato con successo");
+    // SALVA TOKEN
+    file_put_contents($TOKEN_FILE, "$username:$token:$expiry\n", FILE_APPEND);
+
+    respond([
+        "success" => true,
+        "newUser" => $newUser,
+        "token" => $token,
+        "expires" => $expiry
+    ]);
 }
 
 // ============================================
-// LOGOUT
+// 2b) VALIDAZIONE TOKEN (POST /validate-token)
 // ============================================
-if ($request_uri === "/logout") {
-    $_SESSION = [];
-    session_destroy();
-    respond("✔️ Logout completato");
+if ($request_uri === "/validate-token" && $method === "POST") {
+    $input = json_decode(file_get_contents("php://input"), true);
+    $token = $input['token'] ?? null;
+
+    $username = validateToken($token);
+    if ($username) {
+        respond(["username" => $username]);
+    } else {
+        respond(["error" => "Token non valido"], 401);
+    }
 }
 
 // ============================================
-// SERVIZIO FILE STATICI
+// 3) TUTTO IL RESTO → ACCESSO PROTETTO
 // ============================================
+$token = $_GET["token"] ?? ($_SERVER["HTTP_AUTHORIZATION"] ?? null);
+
+// Gestione header Authorization: Bearer xxx
+if ($token && str_starts_with($token, "Bearer ")) {
+    $token = substr($token, 7);
+}
+
+// Validazione token
+$username = validateToken($token);
+if (!$username) {
+    respond(["error" => "Unauthorized"], 401);
+}
+
+// Percorso completo del file richiesto
 $file = realpath($PUBLIC_DIR . $request_uri);
 
-if ($file && is_file($file) && str_starts_with($file, realpath($PUBLIC_DIR))) {
-    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-    $mime = match($ext) {
-        'css'  => 'text/css',
-        'js'   => 'application/javascript',
-        'png'  => 'image/png',
-        'jpg', 'jpeg' => 'image/jpeg',
-        'gif'  => 'image/gif',
-        'svg'  => 'image/svg+xml',
-        'html','htm' => 'text/html',
-        default => 'application/octet-stream',
-    };
+// Verifica che il file sia dentro /public (no accesso a file esterni)
+if ($file === false || !str_starts_with($file, realpath($PUBLIC_DIR))) {
+    respond(["error" => "Forbidden"], 403);
+}
+
+// Serve il file se esiste
+if (file_exists($file) && is_file($file)) {
+    serveFile($file);
+}
+
+// Se non esiste, torna 404
+respond(["error" => "File not found"], 404);
+
+// ============================================
+// FUNZIONI
+// ============================================
+
+function validateToken($token) {
+    global $TOKEN_FILE;
+
+    if (!$token) return false;
+
+    $lines = file($TOKEN_FILE, FILE_IGNORE_NEW_LINES);
+    foreach ($lines as $line) {
+        if (!str_contains($line, ":")) continue;
+
+        list($user, $tok, $expiry) = explode(":", $line);
+
+        if ($tok === $token && $expiry >= time()) {
+            return $user; // token valido
+        }
+    }
+    return false; // token non valido
+}
+
+function serveFile($file) {
+    $mime = mime_content_type($file) ?: "application/octet-stream";
+
     header("Content-Type: $mime");
     readfile($file);
     exit;
 }
 
-respond("❌ File non trovato", 404);
-
-// ============================================
-// FUNZIONI
-// ============================================
-function respond($text, $code = 200) {
+function respond($data, $code = 200) {
+    header("Content-Type: application/json");
     http_response_code($code);
-    echo $text;
+    echo json_encode($data, JSON_PRETTY_PRINT);
     exit;
-}
-
-function salvaNuovoHash($file, $username, $newhash) {
-    $lines = file($file, FILE_IGNORE_NEW_LINES);
-    $out = [];
-
-    foreach ($lines as $line) {
-        if (str_starts_with($line, $username . ":")) {
-            $out[] = "$username:$newhash";
-        } else {
-            $out[] = $line;
-        }
-    }
-
-    file_put_contents($file, implode("\n", $out) . "\n");
 }
