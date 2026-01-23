@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4L | Sezioni</title>
     <link rel="icon" href="immagini/Icona.ico">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body style="overflow: hidden;">
 
@@ -13,7 +13,7 @@
         
       const username = sessionStorage.getItem("username");
       if (!username || username.trim() === "") {
-        window.location.href = "login.html";
+        window.location.href = "login.php";
       }
       
     </script>
@@ -22,13 +22,13 @@
   <div id="navigazione">
       
       <div class="username">
-          <a href="login.html"><img src="immagini/profile-picture.png" alt=""></a>
+          <a href="login.php"><img src="immagini/profile-picture.png" alt=""></a>
           <p id="username-text"><span id="username-nav"></span></p>
       </div>
 
       <div class="nav-wrapper">
           <img src="immagini/Logo-centrodiurno.png" alt="">
-          <a href="index.html"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
+          <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
           <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="">
       </div>
 
@@ -40,8 +40,8 @@
 
       <!-- DROPDOWN -->
       <div class="menu-dropdown hidden" id="menuDropdown">
-          <p data-link="centrodiurno.html" class="data-centro"><img src="immagini/Logo-centrodiurno.png" alt="" class="img_ham">Centro Diurno</p>
-          <p data-link="index-ergo.html" class="data-ergo"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="" class="img_ham">Ergoterapeutica</p>
+          <p data-link="centrodiurno.php" class="data-centro"><img src="immagini/Logo-centrodiurno.png" alt="" class="img_ham">Centro Diurno</p>
+          <p data-link="index-ergo.php" class="data-ergo"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="" class="img_ham">Ergoterapeutica</p>
       </div>
   </div>
 
@@ -55,7 +55,7 @@
 
       <div class="tow-columns" id="scelta-operazioni">
           <div class="column scelta">
-              <a href="fogliofirme-centro.html">
+              <a href="fogliofirme-centro.php">
                   <img src="immagini/foglio-over.png" alt="">
                   <h2 class="titolo-paragrafo">Foglio Firme</h2>
               </a>

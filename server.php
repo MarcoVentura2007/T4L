@@ -61,6 +61,9 @@ if ($request_uri === "/login" && $method === "POST") {
         $newUser = true;
     }
 
+    // Token semplice (per esempio, puoi migliorarlo dopo)
+    $token = bin2hex(random_bytes(16));
+    $expiry = time() + 3600; // 1 ora
 
     respond([
         "success" => true,
@@ -70,11 +73,9 @@ if ($request_uri === "/login" && $method === "POST") {
     ]);
 }
 
-
 // ============================================
 // 3) TUTTO IL RESTO → ACCESSO PROTETTO
 // ============================================
-
 
 // Percorso completo del file richiesto
 $file = realpath($PUBLIC_DIR . $request_uri);
@@ -96,10 +97,17 @@ respond(["error" => "File not found"], 404);
 // FUNZIONI
 // ============================================
 
-
 function serveFile($file) {
-    $mime = mime_content_type($file) ?: "application/octet-stream";
+    $ext = pathinfo($file, PATHINFO_EXTENSION);
 
+    // Se è PHP, eseguilo
+    if ($ext === "php") {
+        require $file;
+        exit;
+    }
+
+    // Altrimenti servilo come file statico
+    $mime = mime_content_type($file) ?: "application/octet-stream";
     header("Content-Type: $mime");
     readfile($file);
     exit;

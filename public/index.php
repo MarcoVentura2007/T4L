@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4L | Sezioni</title>
     <link rel="icon" href="immagini/Icona.ico">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2B2B30">
 
     <script>
       const username = sessionStorage.getItem("username");
       if (!username || username.trim() === "") {
-        window.location.href = "login.html";
+        window.location.href = "login.php";
       }
 
     </script>
@@ -28,7 +28,7 @@
     <div class="nav-wrapper">
         <img src="immagini/overlimits.png" alt="">
 
-        <a href="index.html"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
+        <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
 
         <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="">
     </div>
@@ -39,7 +39,7 @@
 
     <div class="tow-columns">
         <div class="column">
-            <a href="centrodiurno.html">
+            <a href="centrodiurno.php">
                 <img src="immagini/Logo-centrodiurno.png" alt="">
             </a>
         </div>

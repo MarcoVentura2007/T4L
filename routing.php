@@ -34,7 +34,7 @@ $_SESSION['last_activity'] = time();
 $PUBLIC_DIR = __DIR__ . "/public";
 $DATA_DIR = __DIR__ . "/data";
 $USER_FILE = $DATA_DIR . "/utenti.txt";
-$LOGIN_PAGE = $PUBLIC_DIR . "/login.html";
+$LOGIN_PAGE = $PUBLIC_DIR . "/login.php";
 
 // Crea cartelle e file se non esistono
 if (!file_exists($DATA_DIR)) mkdir($DATA_DIR, 0777, true);
@@ -69,7 +69,6 @@ if ($request_uri === "/login" && $method === "POST") {
 
     if (isset($users[$username])) {
         if ($users[$username] === $password_hash) {
-            // Utente loggato → rigenera ID sessione
             session_regenerate_id(true);
             $_SESSION['username'] = $username;
             $_SESSION['last_activity'] = time();
@@ -100,17 +99,25 @@ if ($request_uri === "/logout") {
         );
     }
     session_destroy();
-    header("Location: /login.html");
+    header("Location: /login.php");
     exit;
 }
 
 // ============================================
-// SERVE FILE STATICI PUBBLICI
+// SERVE FILE STATICI O PHP
 // ============================================
 $file_path = realpath($PUBLIC_DIR . $request_uri);
 
 if ($file_path && is_file($file_path) && str_starts_with($file_path, realpath($PUBLIC_DIR))) {
     $ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+
+    // Se PHP → esegui
+    if ($ext === 'php') {
+        require $file_path;
+        exit;
+    }
+
+    // File statici → CSS, JS, immagini, HTML
     $mime = match($ext) {
         'css'  => 'text/css',
         'js'   => 'application/javascript',
@@ -129,32 +136,45 @@ if ($file_path && is_file($file_path) && str_starts_with($file_path, realpath($P
 // ============================================
 // BLOCCO ACCESSO PAGINE PRIVATE
 // ============================================
-if (!isset($_SESSION['username']) && $request_uri !== "/login.html" && $request_uri !== "/login") {
-    header("Location: /login.html");
+// Definisci le cartelle/file pubblici che NON richiedono login
+$public_pages = [
+    '/login.php',
+    '/login.html',
+    '/login',
+    '/css',    // cartella CSS
+    '/js',     // cartella JS
+    '/images', // cartella immagini
+];
+
+// Controlla se la richiesta inizia con un percorso pubblico
+$allowed = false;
+foreach ($public_pages as $pp) {
+    if (str_starts_with($request_uri, $pp)) {
+        $allowed = true;
+        break;
+    }
+}
+
+// Se non loggato e non è pubblico → redirect login
+if (!isset($_SESSION['username']) && !$allowed) {
+    header("Location: /login.php");
     exit;
 }
 
 // ============================================
-// REDIRECT FORZATO A LOGIN.HTML
+// REDIRECT ROOT
 // ============================================
 if ($request_uri === "/" || $request_uri === "") {
-    header("Location: /login.html");
+    header("Location: /login.php");
     exit;
 }
 
 // ============================================
-// SERVE LOGIN.HTML
+// 404
 // ============================================
-if ($request_uri === "/login.html") {
-    if (!file_exists($LOGIN_PAGE)) {
-        header("HTTP/1.1 404 Not Found");
-        echo "❌ File non trovato: $LOGIN_PAGE";
-        exit;
-    }
-    header("Content-Type: text/html");
-    readfile($LOGIN_PAGE);
-    exit;
-}
+header("HTTP/1.1 404 Not Found");
+echo "❌ File non trovato: $request_uri";
+exit;
 
 // ============================================
 // FUNZIONE RESPOND
