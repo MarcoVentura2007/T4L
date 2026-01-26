@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Se l'utente non è loggato → redirect a login.php
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,18 +18,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flickity/2.2.2/flickity.min.css" integrity="sha512-BiFZ6oflftBIwm6lYCQtQ5DIRQ6tm02svznor2GYQOfAlT3pnVJ10xCrU3XuXnUrWQ4EG8GKxntXnYEdKY0Ugg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body style="overflow: hidden;">
 
-    <script>
 
-      const username = sessionStorage.getItem("username");
-      if (!username || username.trim() === "") {
-        window.location.href = "login.php";
-      }
-      
-    </script>
   
   <!-- NAVIGAZIONE -->
       <div id="navigazione">

@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (isset($_SESSION['username'])) {
+    header("Location: index.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,28 +12,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4L | Login</title>
     <link rel="icon" href="immagini/Icona.ico">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2B2B30">
-
 </head>
 <body style="overflow: hidden;">
   <img src="immagini/top-right.png" alt="" class="top-right">
   <img src="immagini/bottom-left.png" alt="" class="bottom-left">
   <div class="three-columns">
-
     <div class="col">
       <img src="immagini/overlimits.png" alt="" class="col-image" style="max-width: 75%; float: right; margin-right: 17px;">
     </div>
-
     <div class="col">
       <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="" class="col-image">
     </div>
-
     <div class="col">
-      <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="" class="col-image" style="margin-bottom: 5px; ">
+      <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="" class="col-image" style="margin-bottom: 5px;">
     </div>
-
   </div>
 
   <div class="login-container">
@@ -40,23 +42,13 @@
         <img draggable="false" id="eyeicon" src="immagini/view.png" style="cursor:pointer;" />
       </div>
       <button class="login-button">Accedi</button>
-      <div id="message">❌Credenziali non messe</div>
+      <div id="message" style="opacity:0;"></div>
+    </form>
   </div>
 
-    <script>
-
-      if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-              navigator.serviceWorker.register('/sw.js')
-                  .then(reg => console.log("SW registrato:", reg))
-                  .catch(err => console.log("SW fallito:", err));
-          });
-      }
-
-
+  <script>
     const form = document.getElementById('login-form');
     const messageDiv = document.getElementById('message');
-    messageDiv.style.opacity = "0";
     const eyeicon = document.getElementById('eyeicon');
     const passwordInput = document.getElementById('password');
 
@@ -75,49 +67,34 @@
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      
-
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
-      
-
-      const data = new URLSearchParams();
-      data.append('username', username);
-      data.append('password', password);
 
       try {
-        const response = await fetch('/login', {
+        const response = await fetch('api/api_login.php', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: data.toString()
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
         });
 
-        const text = await response.text();
+        const result = await response.json();
 
-        if (response.ok) {
-          messageDiv.textContent = text;
-          messageDiv.style.opacity = "1";
+        messageDiv.textContent = result.message;
+        messageDiv.style.opacity = "1";
+        messageDiv.style.color = result.success ? "green" : "red";
 
-          sessionStorage.setItem('username', username);
-
+        if (result.success) {
           setTimeout(() => {
             window.location.href = 'index.php';
-          }, 100);
-
-        } else {
-          messageDiv.textContent = text;
-          messageDiv.style.opacity = "1";
+          }, 300);
         }
       } catch (err) {
         messageDiv.style.color = 'red';
         messageDiv.textContent = 'Errore di connessione al server';
+        messageDiv.style.opacity = "1";
         console.error(err);
       }
     });
-
-    </script>
-
+  </script>
 </body>
 </html>

@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Se l'utente non è loggato → redirect a login.php
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,18 +15,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4L | Sezioni</title>
     <link rel="icon" href="immagini/Icona.ico">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body style="overflow: hidden;">
 
-    <script>
-        
-      const username = sessionStorage.getItem("username");
-      if (!username || username.trim() === "") {
-        window.location.href = "login.php";
-      }
-      
-    </script>
+
   
   <!-- NAVIGAZIONE -->
   <div id="navigazione">

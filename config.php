@@ -1,2 +1,7 @@
 <?php
-define("PEPPER", "rJWQTCnL9Ff6IwHrdeQNUK88TlmujMcYDo32Wsr7iUnZFl9Ofuzj6mUdSVG/wFRadTQxCdMLV7kGLaNFyAgPAw==");
+// percorso dove salvi gli utenti (cartella 'data' nella root)
+define('DATA_DIR', __DIR__ . '/data');
+define('USER_FILE', DATA_DIR . '/utenti.txt');
+
+// pepper per hash password
+define('PEPPER', 'CAMBIA_QUESTA_STRINGA_MOLTO_LUNGA');
