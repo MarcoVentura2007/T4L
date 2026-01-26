@@ -6,6 +6,8 @@ if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit;
 }
+
+$username = $_SESSION['username'];
 ?>
 
 <!DOCTYPE html>
@@ -23,22 +25,14 @@ if (!isset($_SESSION['username'])) {
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
 
-<<<<<<< HEAD:public/fogliofirme-centro.html
 <body style="overflow:hidden;">
 
-<script>
-const username = sessionStorage.getItem("username");
-if(!username || username.trim()===""){
-    window.location.href="login.html";
-}
-</script>
-
-<!-- NAVBAR (NON TOCCATA) -->
+<!-- NAVBAR -->
 <header class="navbar">
 
     <div class="user-box">
         <img src="immagini/profile-picture.png">
-        <span id="username-nav"></span>
+        <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
     </div>
 
     <div class="logo-area">
@@ -54,28 +48,15 @@ if(!username || username.trim()===""){
     </div>
 
     <div class="dropdown" id="dropdown">
-        <div data-link="centrodiurno.html">
+        <div data-link="centrodiurno.php">
             <img src="immagini/Logo-centrodiurno.png"> Centro Diurno
-=======
-
-  
-  <!-- NAVIGAZIONE -->
-      <div id="navigazione">
-        <div class="username">
-            <a href="login.php"><img src="immagini/profile-picture.png" alt=""></a>
-             <p id="username-text"><span id="username-nav"></span></p>
->>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:fogliofirme-centro.php
         </div>
-        <div data-link="index-ergo.html">
+        <div data-link="#">
             <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"> Ergoterapeutica
         </div>
     </div>
 
-<<<<<<< HEAD:public/fogliofirme-centro.html
 </header>
-=======
-              <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
->>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:fogliofirme-centro.php
 
 
 <!-- CONTENUTO -->
@@ -142,22 +123,12 @@ if(!username || username.trim()===""){
         <div class="swiper-button-prev"></div>
         <div class="swiper-pagination"></div>
 
-<<<<<<< HEAD:public/fogliofirme-centro.html
     </div>
-=======
-        <script>
-            let username;
-            const username_nav = document.getElementById("username-nav") ;
-            username_nav.textContent = username;
->>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:fogliofirme-centro.php
 
 </main>
 
 
 <script>
-
-document.getElementById("username-nav").textContent = username;
-
 /* SWIPER */
 
 const swiper = new Swiper(".mySwiper", {
