@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Se l'utente non è loggato → redirect a login.php
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,13 +19,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2B2B30">
 
-    <script>
-      const username = sessionStorage.getItem("username");
-      if (!username || username.trim() === "") {
-        window.location.href = "login.html";
-      }
-
-    </script>
 </head>
 <body style="overflow: hidden;">
   
@@ -28,7 +31,7 @@
     <div class="nav-wrapper">
         <img src="immagini/overlimits.png" alt="">
 
-        <a href="index.html"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
+        <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
 
         <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="">
     </div>
@@ -39,7 +42,7 @@
 
     <div class="tow-columns">
         <div class="column">
-            <a href="centrodiurno.html">
+            <a href="centrodiurno.php">
                 <img src="immagini/Logo-centrodiurno.png" alt="">
             </a>
         </div>

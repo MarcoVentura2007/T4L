@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Se l'utente non è loggato → redirect a login.php
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -13,6 +23,7 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
 
+<<<<<<< HEAD:public/fogliofirme-centro.html
 <body style="overflow:hidden;">
 
 <script>
@@ -45,13 +56,26 @@ if(!username || username.trim()===""){
     <div class="dropdown" id="dropdown">
         <div data-link="centrodiurno.html">
             <img src="immagini/Logo-centrodiurno.png"> Centro Diurno
+=======
+
+  
+  <!-- NAVIGAZIONE -->
+      <div id="navigazione">
+        <div class="username">
+            <a href="login.php"><img src="immagini/profile-picture.png" alt=""></a>
+             <p id="username-text"><span id="username-nav"></span></p>
+>>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:fogliofirme-centro.php
         </div>
         <div data-link="index-ergo.html">
             <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"> Ergoterapeutica
         </div>
     </div>
 
+<<<<<<< HEAD:public/fogliofirme-centro.html
 </header>
+=======
+              <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
+>>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:fogliofirme-centro.php
 
 
 <!-- CONTENUTO -->
@@ -118,7 +142,14 @@ if(!username || username.trim()===""){
         <div class="swiper-button-prev"></div>
         <div class="swiper-pagination"></div>
 
+<<<<<<< HEAD:public/fogliofirme-centro.html
     </div>
+=======
+        <script>
+            let username;
+            const username_nav = document.getElementById("username-nav") ;
+            username_nav.textContent = username;
+>>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:fogliofirme-centro.php
 
 </main>
 

@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Se l'utente non è loggato → redirect a login.php
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -12,16 +22,43 @@
 </head>
 <body>
 
+<<<<<<< HEAD:public/centrodiurno.html
 <script>
 const username = sessionStorage.getItem("username");
 
 if(!username || username.trim() === ""){
     window.location.href = "login.html";
 }
+=======
+
+  
+  <!-- NAVIGAZIONE -->
+  <div id="navigazione">
+      
+      <div class="username">
+          <a href="login.php"><img src="immagini/profile-picture.png" alt=""></a>
+          <p id="username-text"><span id="username-nav"></span></p>
+      </div>
+
+      <div class="nav-wrapper">
+          <img src="immagini/Logo-centrodiurno.png" alt="">
+          <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
+          <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="">
+      </div>
+>>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:centrodiurno.php
 
 </script>
 
+<<<<<<< HEAD:public/centrodiurno.html
 <header class="navbar">
+=======
+      <!-- DROPDOWN -->
+      <div class="menu-dropdown hidden" id="menuDropdown">
+          <p data-link="centrodiurno.php" class="data-centro"><img src="immagini/Logo-centrodiurno.png" alt="" class="img_ham">Centro Diurno</p>
+          <p data-link="index-ergo.php" class="data-ergo"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="" class="img_ham">Ergoterapeutica</p>
+      </div>
+  </div>
+>>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:centrodiurno.php
 
     <div class="user-box">
         <img src="immagini/profile-picture.png">
@@ -34,11 +71,21 @@ if(!username || username.trim() === ""){
         <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
     </div>
 
+<<<<<<< HEAD:public/centrodiurno.html
     <div class="hamburger" id="hamburger">
         <span></span>
         <span></span>
         <span></span>
     </div>
+=======
+      <div class="tow-columns" id="scelta-operazioni">
+          <div class="column scelta">
+              <a href="fogliofirme-centro.php">
+                  <img src="immagini/foglio-over.png" alt="">
+                  <h2 class="titolo-paragrafo">Foglio Firme</h2>
+              </a>
+          </div>
+>>>>>>> 1b6796a96fa400fc0cd8b216e2433a416a563389:centrodiurno.php
 
     <div class="dropdown" id="dropdown">
         <div data-link="centrodiurno.html"><img src="immagini/Logo-centrodiurno.png" alt="">Centro Diurno</div>
