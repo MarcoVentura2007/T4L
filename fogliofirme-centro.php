@@ -36,8 +36,8 @@ $username = $_SESSION['username'];
     </div>
 
     <div class="logo-area">
-        <img src="immagini/Logo-centrodiurno.png">
-        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png">
+        <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
+        <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
         <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
     </div>
 
@@ -48,10 +48,10 @@ $username = $_SESSION['username'];
     </div>
 
     <div class="dropdown" id="dropdown">
-        <div data-link="centrodiurno.php">
+        <div data-link="centrodiurno.php" class="data-link-centro">
             <img src="immagini/Logo-centrodiurno.png"> Centro Diurno
         </div>
-        <div data-link="#">
+        <div data-link="#" class="data-link-ergo">
             <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"> Ergoterapeutica
         </div>
     </div>

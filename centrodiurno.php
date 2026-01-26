@@ -34,7 +34,7 @@ $username = $_SESSION['username'];
 
     <div class="logo-area">
         <img src="immagini/Logo-centrodiurno.png">
-        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png">
+        <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
         <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
     </div>
 
@@ -45,11 +45,11 @@ $username = $_SESSION['username'];
     </div>
 
     <div class="dropdown" id="dropdown">
-        <div data-link="centrodiurno.php">
+        <div data-link="centrodiurno.php" class="data-link-centro">
             <img src="immagini/Logo-centrodiurno.png"> 
             Centro Diurno
         </div>
-        <div data-link="#">
+        <div data-link="#" class="data-link-ergo">
             <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
             Ergoterapeutica
         </div>
@@ -60,7 +60,7 @@ $username = $_SESSION['username'];
 
 <main class="dashboard">
 
-    <h1>Benvenuto, <span id="nomeutente"></span></h1>
+    <h1>Benvenuto, <span id="nomeutente"> <?php echo htmlspecialchars($username); ?> </span></h1>
     <p class="subtitle">Cosa desideri fare oggi?</p>
 
     <section class="cards">

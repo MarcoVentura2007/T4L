@@ -47,10 +47,10 @@ $username = $_SESSION['username'];
     </div>
 
     <div class="dropdown" id="dropdown">
-        <div data-link="centrodiurno.php">
+        <div data-link="centrodiurno.php" class="data-link-centro">
             <img src="immagini/Logo-centrodiurno.png"> Centro Diurno
         </div>
-        <div data-link="#">
+        <div data-link="#" class="data-link-ergo">
             <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"> Ergoterapeutica
         </div>
     </div>
