@@ -6,96 +6,103 @@ if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit;
 }
+
+$username = $_SESSION['username'];
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T4L | Sezioni</title>
-    <link rel="icon" href="immagini/Icona.ico">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>T4L | Dashboard</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="immagini/Icona.ico">
+
 </head>
-<body style="overflow: hidden;">
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+
+    <div class="user-box">
+        <img src="immagini/profile-picture.png">
+        <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
+    </div>
+
+    <div class="logo-area">
+        <img src="immagini/Logo-centrodiurno.png">
+        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png">
+        <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+    </div>
+
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="dropdown" id="dropdown">
+        <div data-link="centrodiurno.php">
+            <img src="immagini/Logo-centrodiurno.png"> 
+            Centro Diurno
+        </div>
+        <div data-link="#">
+            <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+            Ergoterapeutica
+        </div>
+    </div>
+
+</header>
 
 
-  
-  <!-- NAVIGAZIONE -->
-  <div id="navigazione">
-      
-      <div class="username">
-          <a href="login.php"><img src="immagini/profile-picture.png" alt=""></a>
-          <p id="username-text"><span id="username-nav"></span></p>
-      </div>
+<main class="dashboard">
 
-      <div class="nav-wrapper">
-          <img src="immagini/Logo-centrodiurno.png" alt="">
-          <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
-          <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="">
-      </div>
+    <h1>Benvenuto, <span id="nomeutente"></span></h1>
+    <p class="subtitle">Cosa desideri fare oggi?</p>
 
-      <!-- HAMBURGER MENU -->
-      <div class="menu-hamburger" id="menuHamburger">
-          <span></span>
-          <span></span>
-      </div>
+    <section class="cards">
 
-      <!-- DROPDOWN -->
-      <div class="menu-dropdown hidden" id="menuDropdown">
-          <p data-link="centrodiurno.php" class="data-centro"><img src="immagini/Logo-centrodiurno.png" alt="" class="img_ham">Centro Diurno</p>
-          <p data-link="index-ergo.php" class="data-ergo"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt="" class="img_ham">Ergoterapeutica</p>
-      </div>
-  </div>
+        <a href="fogliofirme-centro.php" class="card">
+            <img src="immagini/foglio-over.png">
+            <h3>Foglio Firme</h3>
+        </a>
+        <a href="attivita-centro.php" class="card" style=" opacity: 0.7;">
+            <img src="immagini/gestionale-over.png" style="height: 140px;">
+            <h3>Gestionale</h3>
+            <span>In arrivo</span>
+        </a>
 
-  <!-- CONTENUTO PRINCIPALE -->
-  <div class="contenuto-principale">
-      <h1 class="titolo-principale" id="titolo-principale">Bentornato, 
-          <span id="nomeutente"></span>.
-      </h1>
+    </section>
 
-      <h2 class="sottotitolo-principale">Cosa desideri fare?</h2>
-
-      <div class="tow-columns" id="scelta-operazioni">
-          <div class="column scelta">
-              <a href="fogliofirme-centro.php">
-                  <img src="immagini/foglio-over.png" alt="">
-                  <h2 class="titolo-paragrafo">Foglio Firme</h2>
-              </a>
-          </div>
-
-          <div class="column scelta">
-              <img src="immagini/gestionale-over.png" alt="">
-              <h2 class="titolo-paragrafo">Gestionale</h2>
-          </div>
-      </div>
-  </div>
-
-  <script>
-      const nomeutente = document.getElementById("nomeutente") ;
-      nomeutente.textContent = username;
-
-      const username_nav = document.getElementById("username-nav") ;
-      username_nav.textContent = username;
-      
-
-      const menuBtn = document.getElementById("menuHamburger");
-      const dropdown = document.getElementById("menuDropdown");
-
-      menuBtn.addEventListener("click", () => {
-          menuBtn.classList.toggle("active");
-          dropdown.classList.toggle("hidden");
-      });
-
-      // click sulle voci -> cambia pagina
-      dropdown.querySelectorAll("p").forEach(item => {
-          item.addEventListener("click", () => {
-              window.location.href = item.getAttribute("data-link");
-          });
-      });
+</main>
 
 
-  </script>
+<script>
+const ham = document.getElementById("hamburger");
+const drop = document.getElementById("dropdown");
+
+ham.onclick = () => {
+    ham.classList.toggle("active");
+    drop.classList.toggle("show");
+};
+
+drop.querySelectorAll("div").forEach(item => {
+    item.onclick = () => {
+        window.location.href = item.dataset.link;
+    }
+});
+
+document.addEventListener("click", e => {
+    if(!ham.contains(e.target) && !drop.contains(e.target)){
+        ham.classList.remove("active");
+        drop.classList.remove("show");
+    }
+});
+
+</script>
 
 </body>
 </html>

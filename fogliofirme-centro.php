@@ -6,128 +6,180 @@ if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit;
 }
+
+$username = $_SESSION['username'];
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T4L | Carousel</title>
-    <link rel="icon" href="immagini/Icona.ico">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flickity/2.2.2/flickity.min.css" integrity="sha512-BiFZ6oflftBIwm6lYCQtQ5DIRQ6tm02svznor2GYQOfAlT3pnVJ10xCrU3XuXnUrWQ4EG8GKxntXnYEdKY0Ugg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>T4L | Selezione</title>
+
+<link rel="icon" href="immagini/Icona.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
-<body style="overflow: hidden;">
 
+<body style="overflow:hidden;">
 
-  
-  <!-- NAVIGAZIONE -->
-      <div id="navigazione">
-        <div class="username">
-            <a href="login.php"><img src="immagini/profile-picture.png" alt=""></a>
-             <p id="username-text"><span id="username-nav"></span></p>
+<!-- NAVBAR -->
+<header class="navbar">
+
+    <div class="user-box">
+        <img src="immagini/profile-picture.png">
+        <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
+    </div>
+
+    <div class="logo-area">
+        <img src="immagini/Logo-centrodiurno.png">
+        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png">
+        <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+    </div>
+
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="dropdown" id="dropdown">
+        <div data-link="centrodiurno.php">
+            <img src="immagini/Logo-centrodiurno.png"> Centro Diurno
         </div>
-          <div class="nav-wrapper">
-              <img src="immagini/Logo-centrodiurno.png" alt="">
+        <div data-link="#">
+            <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"> Ergoterapeutica
+        </div>
+    </div>
 
-              <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt=""></a>
+</header>
 
-              <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png" alt=""></a>
-          </div>
-      </div>
 
-      <div class="contenuto-principale">
-        <h1 class="titolo-principale">Selezionati sullo schermo per firmare!</h1>
+<!-- CONTENUTO -->
 
-        <div class="swiper mySwiper">
-            <div class="swiper-wrapper">
+<main class="carousel-dashboard">
 
-                <div class="swiper-slide card-item">
-                <a href="">
-                    <img src="immagini/Cristian_Moretti.png" alt="">
+    <h1 class="carousel-title">
+        Seleziona la persona per firmare
+    </h1>
+
+    <p class="carousel-subtitle">
+        Scorri le schede e clicca sul profilo desiderato
+    </p>
+
+    <div class="swiper mySwiper">
+
+        <div class="swiper-wrapper">
+
+            <div class="swiper-slide profile-card">
+                <a href="#">
+                    <img src="immagini/Cristian_Moretti.png">
                     <h3>Cristian Moretti</h3>
                 </a>
-                </div>
-
-                <div class="swiper-slide card-item">
-                <a href="">
-                    <img src="immagini/Gabriele_Corona.png" alt="">
-                    <h3>Gabriele Corona</h3>
-                </a>
-                </div>
-
-                <div class="swiper-slide card-item">
-                <a href="">
-                    <img src="immagini/Jacopo_Bertolasi.png" alt="">
-                    <h3>Jacopo Bertolasi</h3>
-                </a>
-                </div>
-
-                <div class="swiper-slide card-item">
-                <a href="">
-                    <img src="immagini/Cristian_Moretti.png" alt="">
-                    <h3>Cristian Moretti</h3>
-                </a>
-                </div>
-
-                <div class="swiper-slide card-item">
-                <a href="">
-                    <img src="immagini/Gabriele_Corona.png" alt="">
-                    <h3>Gabriele Corona</h3>
-                </a>
-                </div>
-
-                <div class="swiper-slide card-item">
-                <a href="">
-                    <img src="immagini/Jacopo_Bertolasi.png" alt="">
-                    <h3>Jacopo Bertolasi</h3>
-                </a>
-                </div>
             </div>
 
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-pagination"></div>
+            <div class="swiper-slide profile-card">
+                <a href="#">
+                    <img src="immagini/Gabriele_Corona.png">
+                    <h3>Gabriele Corona</h3>
+                </a>
+            </div>
+
+            <div class="swiper-slide profile-card">
+                <a href="#">
+                    <img src="immagini/Jacopo_Bertolasi.png">
+                    <h3>Jacopo Bertolasi</h3>
+                </a>
+            </div>
+
+            <div class="swiper-slide profile-card">
+                <a href="#">
+                    <img src="immagini/Cristian_Moretti.png">
+                    <h3>Cristian Moretti</h3>
+                </a>
+            </div>
+
+            <div class="swiper-slide profile-card">
+                <a href="#">
+                    <img src="immagini/Gabriele_Corona.png">
+                    <h3>Gabriele Corona</h3>
+                </a>
+            </div>
+
+            <div class="swiper-slide profile-card">
+                <a href="#">
+                    <img src="immagini/Jacopo_Bertolasi.png">
+                    <h3>Jacopo Bertolasi</h3>
+                </a>
+            </div>
+
         </div>
 
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
 
-        <script>
-            let username;
-            const username_nav = document.getElementById("username-nav") ;
-            username_nav.textContent = username;
+    </div>
 
-            var swiper = new Swiper(".mySwiper", {
-                slidesPerView: 3,
-                spaceBetween: 10,
-                centeredSlides: true,
-                grabCursor: true,
-                loop: false,
-                navigation: {
-                    nextEl: ".swiper-button-next",
-                    prevEl: ".swiper-button-prev",
-                },
-                on: {
-                    slideChangeTransitionStart: function () {
-                        // Aggiorna opacità e scale
-                        this.slides.forEach((slide, index) => {
-                            if(index === this.activeIndex) {
-                                slide.style.opacity = 1;
-                                slide.style.transform = "scale(1)";
-                            } else {
-                                slide.style.opacity = 0.8;
-                                slide.style.transform = "scale(0.8)";
-                            }
-                        });
-                    },
-                },
-            });
+</main>
 
-        </script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/flickity/2.2.2/flickity.pkgd.min.js"></script>
+<script>
+/* SWIPER */
+
+const swiper = new Swiper(".mySwiper", {
+    slidesPerView: 3,
+    spaceBetween: 80,
+    centeredSlides: true,
+    grabCursor: true,
+    loop: false,
+
+    navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+    },
+
+    pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+    },
+
+    breakpoints: {
+        0: { slidesPerView: 1.2 },
+        700: { slidesPerView: 2 },
+        1100: { slidesPerView: 3 }
+    }
+});
+
+
+/* MENU */
+
+const ham = document.getElementById("hamburger");
+const drop = document.getElementById("dropdown");
+
+ham.onclick = () => {
+    ham.classList.toggle("active");
+    drop.classList.toggle("show");
+};
+
+drop.querySelectorAll("div").forEach(item => {
+    item.onclick = () => {
+        window.location.href = item.dataset.link;
+    }
+});
+
+document.addEventListener("click", e => {
+    if(!ham.contains(e.target) && !drop.contains(e.target)){
+        ham.classList.remove("active");
+        drop.classList.remove("show");
+    }
+});
+
+</script>
 
 </body>
 </html>

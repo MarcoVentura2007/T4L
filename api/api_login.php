@@ -43,3 +43,4 @@ if (isset($users[$username])) {
     $_SESSION['username'] = $username;
     echo json_encode(['success'=>true, 'message'=>'Utente registrato e loggato!']);
 }
+    
