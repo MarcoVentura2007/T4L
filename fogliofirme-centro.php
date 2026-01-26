@@ -95,6 +95,7 @@ if (!isset($_SESSION['username'])) {
 
 
         <script>
+            let username;
             const username_nav = document.getElementById("username-nav") ;
             username_nav.textContent = username;
 
