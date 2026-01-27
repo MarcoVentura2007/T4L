@@ -27,10 +27,33 @@ $username = $_SESSION['username'];
 <!-- NAVBAR -->
 <header class="navbar">
 
-    <div class="user-box">
-        <img src="immagini/profile-picture.png">
-        <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
-    </div>
+    <div class="user-box" id="userBox">
+            <img src="immagini/profile-picture.png" alt="Profile">
+            <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
+
+            <div class="user-dropdown" id="userDropdown">
+                <a href="impostazioni.php">
+                    <span class="icon">⚙</span>
+                    <span class="text">Impostazioni</span>
+                </a>
+                <a href="#" class="danger" id="logoutBtn">
+                    <span class="icon">⏻</span>
+                    <span class="text">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="logout-overlay" id="logoutOverlay"></div>
+
+        <div class="logout-modal" id="logoutModal">
+            <h3>Conferma logout</h3>
+            <p>Sei sicuro di voler uscire dal tuo account?</p>
+
+            <div class="logout-actions">
+                <button class="btn-cancel" id="cancelLogout">Annulla</button>
+                <button class="btn-logout" id="confirmLogout">Logout</button>
+            </div>
+        </div>
 
     <div class="logo-area">
         <img src="immagini/Logo-centrodiurno.png">
@@ -81,26 +104,45 @@ $username = $_SESSION['username'];
 
 
 <script>
-const ham = document.getElementById("hamburger");
-const drop = document.getElementById("dropdown");
+const userBox = document.getElementById("userBox");
+    const userDropdown = document.getElementById("userDropdown");
 
-ham.onclick = () => {
-    ham.classList.toggle("active");
-    drop.classList.toggle("show");
-};
+    userBox.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        userDropdown.classList.toggle("show");
+    });
 
-drop.querySelectorAll("div").forEach(item => {
-    item.onclick = () => {
-        window.location.href = item.dataset.link;
+    document.addEventListener("click",(e)=>{
+        if(!userBox.contains(e.target)){
+            userDropdown.classList.remove("show");
+        }
+    });
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutOverlay = document.getElementById("logoutOverlay");
+    const logoutModal = document.getElementById("logoutModal");
+    const cancelLogout = document.getElementById("cancelLogout");
+    const confirmLogout = document.getElementById("confirmLogout");
+
+    logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        logoutOverlay.classList.add("show");
+        logoutModal.classList.add("show");
+    });
+
+    // Chiudi popup
+    cancelLogout.onclick = closeLogout;
+    logoutOverlay.onclick = closeLogout;
+
+    function closeLogout(){
+        logoutOverlay.classList.remove("show");
+        logoutModal.classList.remove("show");
     }
-});
 
-document.addEventListener("click", e => {
-    if(!ham.contains(e.target) && !drop.contains(e.target)){
-        ham.classList.remove("active");
-        drop.classList.remove("show");
-    }
-});
+    // Conferma logout
+    confirmLogout.onclick = () => {
+        window.location.href = "logout.php";
+    };
 
 </script>
 

@@ -32,15 +32,15 @@ foreach(file(USER_FILE, FILE_IGNORE_NEW_LINES) as $line) {
 if (isset($users[$username])) {
     if (password_verify($password . PEPPER, $users[$username])) {
         $_SESSION['username'] = $username;
-        echo json_encode(['success'=>true, 'message'=>'Login riuscito!']);
+        echo json_encode(['success'=>true, 'message'=>'Login avvenuto con successo!']);
     } else {
-        echo json_encode(['success'=>false, 'message'=>'Password errata']);
+        echo json_encode(['success'=>false, 'message'=>'Username o password errati!']);
     }
 } else {
     // registrazione automatica
     $hash = password_hash($password . PEPPER, PASSWORD_DEFAULT);
     file_put_contents(USER_FILE, "$username:$hash\n", FILE_APPEND);
     $_SESSION['username'] = $username;
-    echo json_encode(['success'=>true, 'message'=>'Utente registrato e loggato!']);
+    echo json_encode(['success'=>true, 'message'=>'Da rimuovere presto!']);
 }
     
