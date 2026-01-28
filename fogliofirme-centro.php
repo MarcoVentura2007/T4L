@@ -87,7 +87,7 @@ $username = $_SESSION['username'];
 <main class="carousel-dashboard">
 
     <h1 class="carousel-title">
-        Seleziona la persona per firmare
+        Selezionati sullo schermo per firmare
     </h1>
 
     <p class="carousel-subtitle">
@@ -154,32 +154,52 @@ $username = $_SESSION['username'];
 <script>
 /* SWIPER */
 
-const swiper = new Swiper(".mySwiper", {
-    slidesPerView: 3,
-    spaceBetween: 80,
-    centeredSlides: true,
-    grabCursor: true,
-    loop: false,
+    const swiper = new Swiper(".mySwiper", {
+        slidesPerView: 3,
+        spaceBetween: 80,
+        centeredSlides: true,
+        grabCursor: true,
+        loop: false,
 
-    navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-    },
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
 
-    pagination: {
-        el: ".swiper-pagination",
-        clickable: true,
-    },
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+        },
 
-    breakpoints: {
-        0: { slidesPerView: 1.2 },
-        700: { slidesPerView: 2 },
-        1100: { slidesPerView: 3 }
-    }
-});
+        breakpoints: {
+            0: { slidesPerView: 1.2 },
+            700: { slidesPerView: 2 },
+            1100: { slidesPerView: 3 }
+        }
+    });
 
+    const ham = document.getElementById("hamburger");
+    const drop = document.getElementById("dropdown");
 
-const userBox = document.getElementById("userBox");
+    ham.onclick = () => {
+        ham.classList.toggle("active");
+        drop.classList.toggle("show");
+    };
+
+    drop.querySelectorAll("div").forEach(item => {
+        item.onclick = () => {
+            window.location.href = item.dataset.link;
+        }
+    });
+
+    document.addEventListener("click", e => {
+        if(!ham.contains(e.target) && !drop.contains(e.target)){
+            ham.classList.remove("active");
+            drop.classList.remove("show");
+        }
+    });
+
+    const userBox = document.getElementById("userBox");
     const userDropdown = document.getElementById("userDropdown");
 
     userBox.addEventListener("click", (e)=>{

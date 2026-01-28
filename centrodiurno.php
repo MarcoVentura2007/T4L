@@ -104,7 +104,29 @@ $username = $_SESSION['username'];
 
 
 <script>
-const userBox = document.getElementById("userBox");
+
+    const ham = document.getElementById("hamburger");
+    const drop = document.getElementById("dropdown");
+
+    ham.onclick = () => {
+        ham.classList.toggle("active");
+        drop.classList.toggle("show");
+    };
+
+    drop.querySelectorAll("div").forEach(item => {
+        item.onclick = () => {
+            window.location.href = item.dataset.link;
+        }
+    });
+
+    document.addEventListener("click", e => {
+        if(!ham.contains(e.target) && !drop.contains(e.target)){
+            ham.classList.remove("active");
+            drop.classList.remove("show");
+        }
+    });
+    
+    const userBox = document.getElementById("userBox");
     const userDropdown = document.getElementById("userDropdown");
 
     userBox.addEventListener("click", (e)=>{
