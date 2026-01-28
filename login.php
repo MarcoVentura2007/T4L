@@ -42,59 +42,100 @@ if (isset($_SESSION['username'])) {
         <img draggable="false" id="eyeicon" src="immagini/view.png" style="cursor:pointer;" />
       </div>
       <button class="login-button">Accedi</button>
-      <div id="message" style="opacity:0;"></div>
+      <div id="notify" class="notify hidden">
+        <div class="icon" id="notify-icon"></div>
+        <div class="text" id="notify-text"></div>
+      </div>
+
     </form>
   </div>
 
-  <script>
-    const form = document.getElementById('login-form');
-    const messageDiv = document.getElementById('message');
-    const eyeicon = document.getElementById('eyeicon');
-    const passwordInput = document.getElementById('password');
 
-    // Mostra/nascondi password
-    eyeicon.onclick = () => {
-      if (passwordInput.type === "password") {
+    <script>
+ 
+const form = document.getElementById('login-form');
+const eyeicon = document.getElementById('eyeicon');
+const passwordInput = document.getElementById('password');
+
+// Mostra/nascondi password
+eyeicon.onclick = () => {
+    if (passwordInput.type === "password") {
         passwordInput.type = "text";
         eyeicon.src = "immagini/hide.png";
-      } else {
+    } else {
         passwordInput.type = "password";
         eyeicon.src = "immagini/view.png";
-      }
-    };
+    }
+};
 
-    // login/registrazione
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+// Funzione per mostrare banner professionale con entrata/uscita
+function showNotification(success = true, message = "Messaggio") {
+    const notify = document.createElement('div');
+    notify.classList.add('notify');
+    notify.classList.add(success ? 'success' : 'error');
 
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
+    const iconWrapper = document.createElement('div');
+    iconWrapper.classList.add('icon-wrapper');
 
-      try {
+    const circle = document.createElement('div');
+    circle.classList.add('circle');
+    iconWrapper.appendChild(circle);
+
+    const icon = document.createElement('span');
+    icon.classList.add('icon');
+    icon.textContent = success ? "✔" : "✖";
+    iconWrapper.appendChild(icon);
+
+    notify.appendChild(iconWrapper);
+
+    const text = document.createElement('span');
+    text.textContent = message;
+    notify.appendChild(text);
+
+    document.body.appendChild(notify);
+
+    // Mostra con animazione
+    setTimeout(() => notify.classList.add('show'), 10);
+
+    // Nascondi dopo 3 secondi con animazione uscita
+    setTimeout(() => {
+        notify.classList.remove('show');
+        notify.classList.add('hide');
+        notify.addEventListener('animationend', () => notify.remove());
+    }, 3000);
+}
+
+// Login AJAX
+form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
         const response = await fetch('api/api_login.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
         });
 
         const result = await response.json();
 
-        messageDiv.textContent = result.message;
-        messageDiv.style.opacity = "1";
-        messageDiv.style.color = result.success ? "green" : "red";
-
         if (result.success) {
-          setTimeout(() => {
-            window.location.href = 'index.php';
-          }, 300);
+            showNotification(true, "Login avvenuto con successo");
+            setTimeout(() => { window.location.href = 'index.php'; }, 1000);
+        } else {
+            showNotification(false, result.message);
         }
-      } catch (err) {
-        messageDiv.style.color = 'red';
-        messageDiv.textContent = 'Errore di connessione al server';
-        messageDiv.style.opacity = "1";
+    } catch (err) {
+        showNotification(false, "Errore di connessione al server");
         console.error(err);
-      }
-    });
-  </script>
+    }
+});
+
+
+</script>
+
+
 </body>
 </html>

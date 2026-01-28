@@ -27,14 +27,37 @@ $username = $_SESSION['username'];
 <!-- NAVBAR -->
 <header class="navbar">
 
-    <div class="user-box">
-        <img src="immagini/profile-picture.png">
-        <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
-    </div>
+    <div class="user-box" id="userBox">
+            <img src="immagini/profile-picture.png" alt="Profile">
+            <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
+
+            <div class="user-dropdown" id="userDropdown">
+                <a href="impostazioni.php">
+                    <span class="icon">⚙</span>
+                    <span class="text">Impostazioni</span>
+                </a>
+                <a href="#" class="danger" id="logoutBtn">
+                    <span class="icon">⏻</span>
+                    <span class="text">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="logout-overlay" id="logoutOverlay"></div>
+
+        <div class="logout-modal" id="logoutModal">
+            <h3>Conferma logout</h3>
+            <p>Sei sicuro di voler uscire dal tuo account?</p>
+
+            <div class="logout-actions">
+                <button class="btn-cancel" id="cancelLogout">Annulla</button>
+                <button class="btn-logout" id="confirmLogout">Logout</button>
+            </div>
+        </div>
 
     <div class="logo-area">
         <img src="immagini/Logo-centrodiurno.png">
-        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png">
+        <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
         <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
     </div>
 
@@ -45,11 +68,11 @@ $username = $_SESSION['username'];
     </div>
 
     <div class="dropdown" id="dropdown">
-        <div data-link="centrodiurno.php">
+        <div data-link="centrodiurno.php" class="data-link-centro">
             <img src="immagini/Logo-centrodiurno.png"> 
             Centro Diurno
         </div>
-        <div data-link="#">
+        <div data-link="#" class="data-link-ergo">
             <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
             Ergoterapeutica
         </div>
@@ -60,7 +83,7 @@ $username = $_SESSION['username'];
 
 <main class="dashboard">
 
-    <h1>Benvenuto, <span id="nomeutente"></span></h1>
+    <h1>Benvenuto, <span id="nomeutente"> <?php echo htmlspecialchars($username); ?> </span></h1>
     <p class="subtitle">Cosa desideri fare oggi?</p>
 
     <section class="cards">
@@ -81,26 +104,67 @@ $username = $_SESSION['username'];
 
 
 <script>
-const ham = document.getElementById("hamburger");
-const drop = document.getElementById("dropdown");
 
-ham.onclick = () => {
-    ham.classList.toggle("active");
-    drop.classList.toggle("show");
-};
+    const ham = document.getElementById("hamburger");
+    const drop = document.getElementById("dropdown");
 
-drop.querySelectorAll("div").forEach(item => {
-    item.onclick = () => {
-        window.location.href = item.dataset.link;
+    ham.onclick = () => {
+        ham.classList.toggle("active");
+        drop.classList.toggle("show");
+    };
+
+    drop.querySelectorAll("div").forEach(item => {
+        item.onclick = () => {
+            window.location.href = item.dataset.link;
+        }
+    });
+
+    document.addEventListener("click", e => {
+        if(!ham.contains(e.target) && !drop.contains(e.target)){
+            ham.classList.remove("active");
+            drop.classList.remove("show");
+        }
+    });
+    
+    const userBox = document.getElementById("userBox");
+    const userDropdown = document.getElementById("userDropdown");
+
+    userBox.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        userDropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click",(e)=>{
+        if(!userBox.contains(e.target)){
+            userDropdown.classList.remove("show");
+        }
+    });
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutOverlay = document.getElementById("logoutOverlay");
+    const logoutModal = document.getElementById("logoutModal");
+    const cancelLogout = document.getElementById("cancelLogout");
+    const confirmLogout = document.getElementById("confirmLogout");
+
+    logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        logoutOverlay.classList.add("show");
+        logoutModal.classList.add("show");
+    });
+
+    // Chiudi popup
+    cancelLogout.onclick = closeLogout;
+    logoutOverlay.onclick = closeLogout;
+
+    function closeLogout(){
+        logoutOverlay.classList.remove("show");
+        logoutModal.classList.remove("show");
     }
-});
 
-document.addEventListener("click", e => {
-    if(!ham.contains(e.target) && !drop.contains(e.target)){
-        ham.classList.remove("active");
-        drop.classList.remove("show");
-    }
-});
+    // Conferma logout
+    confirmLogout.onclick = () => {
+        window.location.href = "logout.php";
+    };
 
 </script>
 
