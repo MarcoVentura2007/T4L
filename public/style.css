@@ -1163,7 +1163,85 @@ body.popup-open{
 }
 
 
+.success-popup {
+    position: fixed;
+    inset: 0;
+    padding: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: .4s ease;
+    z-index: 10002;
+}
 
+.success-popup.show {
+    opacity: 1;
+    pointer-events: auto;
+}
 
+.success-content {
+    background: white;
+    padding: 20px 40px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.45);
+    transform: translateY(40px) scale(.9);
+    opacity: 0;
+    animation: successFloat .6s cubic-bezier(.22,1,.36,1) forwards;
+}
+
+@keyframes successFloat {
+    to { transform: translateY(0) scale(1); opacity:1; }
+}
+
+.success-icon {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.success-icon svg {
+    width: 56px;
+    height: 56px;
+}
+
+.check-circle {
+    stroke: #640a35;
+    stroke-width: 4;
+    stroke-dasharray: 157;
+    stroke-dashoffset: 157;
+    animation: draw-circle 0.6s forwards;
+}
+
+@keyframes draw-circle {
+    to { stroke-dashoffset: 0; }
+}
+
+.check-check {
+    stroke: #640a35;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 36;
+    stroke-dashoffset: 36;
+}
+
+.success-text {
+    font-size: 1.4rem;
+    letter-spacing: .4px;
+    color: #222;
+}
+
+.success-popup.show .check-check {
+    animation: draw-check 0.5s 0.6s forwards ease-out;
+}
+
+@keyframes draw-check {
+    to { stroke-dashoffset: 0; }
+}
 
 

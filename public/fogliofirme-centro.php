@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Se l'utente non è loggato → redirect a login.php
+// Redirect a login.php
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit;
@@ -13,7 +13,7 @@ $username = $_SESSION['username'];
 $host = "localhost";    // server
 $user = "root";         // utente XAMPP
 $pass = "";             // password di default
-$db   = "time4all"; // cambia con il tuo database
+$db   = "time4all"; // nome del database
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
@@ -21,7 +21,7 @@ if ($conn->connect_error) {
 }
 
 // Preleva i profili dal DB
-$sql = "SELECT nome, cognome, fotografia FROM iscritto ORDER BY nome ASC";
+$sql = "SELECT nome, cognome, fotografia FROM iscritto ORDER BY cognome ASC";
 $result = $conn->query($sql);
 ?>
 
@@ -41,6 +41,8 @@ $result = $conn->query($sql);
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script src="https://cdn.tailwindcss.com"></script>
 
 </head>
 
@@ -100,7 +102,7 @@ $result = $conn->query($sql);
 
     </header>
 
-    <!-- CONTENUTO -->
+    <!-- CONTENUTO PRINCIPALE -->
     <main class="carousel-dashboard">
 
         <h1 class="carousel-title">
@@ -144,7 +146,7 @@ $result = $conn->query($sql);
         <!-- POPUP OVERLAY -->
         <div class="popup-overlay" id="popupOverlay"></div>
 
-        <!-- STEP 1 ORARI -->
+        <!-- ORARI -->
         <div class="popup big" id="timePopup">
             <div class="popup-content">
                 <div class="popup-left">
@@ -153,7 +155,7 @@ $result = $conn->query($sql);
                 </div>
 
                 <div class="popup-right">
-                    <h2>Inserisci orari</h2>
+                    <h2 class="popup-title">Inserisci orari</h2>
                     <div class="time-box">
                         <div class="time-row">
                             <label>Ora ingresso</label>
@@ -164,12 +166,14 @@ $result = $conn->query($sql);
                             <input type="time" id="timeOut">
                         </div>
                     </div>
+                    
+
                     <button class="btn-next" id="goSignature">Continua</button>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 2 FIRMA -->
+        <!-- FIRMA -->
         <div class="popup big" id="signaturePopup">
             <div class="popup-content">
                 <div class="popup-left">
@@ -178,16 +182,12 @@ $result = $conn->query($sql);
                 </div>
 
                 <div class="popup-right">
-                    <!-- X chiudi -->
                     <button class="close-popup" id="closeSignaturePopup">✖</button>
 
-                    <!-- Titolo -->
                     <h2 class="popup-title">Firma nella casella qua sotto</h2>
 
-                    <!-- Canvas firma -->
                     <canvas id="signatureCanvas"></canvas>
 
-                    <!-- Azioni -->
                     <div class="sign-actions">
                         <button id="clearSign">Pulisci</button>
                         <button id="confirmSign" class="btn-confirm">Conferma</button>
@@ -195,10 +195,29 @@ $result = $conn->query($sql);
                 </div>
             </div>
         </div>
+        <!-- POPUP CONFERMA FIRMA -->
+        <div class="popup success-popup" id="successPopup">
+            <div class="success-content">
+                <div class="success-icon">
+                <svg viewBox="-2 -2 56 56">
+                    <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
+                </svg>
+                </div>
+                <p class="success-text">Firma completata!!</p>
+            </div>
+        </div>
+
+
+
+
+
 
     </main>
 
     <script>
+
+        
         /* SWIPER */
         const swiper = new Swiper(".mySwiper", {
             slidesPerView: 3,
@@ -221,6 +240,9 @@ $result = $conn->query($sql);
             }
         });
 
+
+
+
         /* HAMBURGER */
         const ham = document.getElementById("hamburger");
         const drop = document.getElementById("dropdown");
@@ -240,6 +262,9 @@ $result = $conn->query($sql);
             }
         });
 
+
+
+
         /* USER DROPDOWN */
         const userBox = document.getElementById("userBox");
         const userDropdown = document.getElementById("userDropdown");
@@ -252,6 +277,9 @@ $result = $conn->query($sql);
                 userDropdown.classList.remove("show");
             }
         });
+
+
+
 
         /* LOGOUT */
         const logoutBtn = document.getElementById("logoutBtn");
@@ -277,6 +305,9 @@ $result = $conn->query($sql);
             window.location.href = "logout.php";
         };
 
+
+
+
         /* POPUP PROFILI */
         const overlay = document.getElementById("popupOverlay");
         const timePopup = document.getElementById("timePopup");
@@ -286,7 +317,6 @@ $result = $conn->query($sql);
         const img2 = document.getElementById("popupUserImg2");
         const name2 = document.getElementById("popupUserName2");
 
-        /* APRI POPUP QUANDO CLICCHI PROFILO */
         document.querySelectorAll(".profile-card").forEach(card => {
             card.onclick = () => {
                 const img = card.querySelector("img").src;
@@ -303,13 +333,15 @@ $result = $conn->query($sql);
             };
         });
 
-        /* PASSA A FIRMA */
         document.getElementById("goSignature").onclick = () => {
             timePopup.classList.remove("show");
             signPopup.classList.add("show");
         };
 
-        /* CHIUDI TUTTO */
+
+
+
+        /* PER USCIRE */
         overlay.onclick = closePopups;
         function closePopups(){
             overlay.classList.remove("show");
@@ -318,7 +350,10 @@ $result = $conn->query($sql);
             document.body.classList.remove("popup-open");
         }
 
-        /* FIRMA */
+
+
+
+        /* DISEGNO */
         const canvas = document.getElementById("signatureCanvas");
         const ctx = canvas.getContext("2d");
         function resizeCanvas(){
@@ -347,14 +382,21 @@ $result = $conn->query($sql);
             ctx.clearRect(0,0,canvas.width,canvas.height);
         };
 
+
+
+
         /* CHIUDI POPUP FIRMA CON X */
         const closeSignBtn = document.getElementById("closeSignaturePopup");
         closeSignBtn.onclick = () => {
-            signPopup.classList.remove("show");
+            signPopup.classList.remove("show"); 
             overlay.classList.remove("show");
             document.body.classList.remove("popup-open");
         };
 
+
+
+
+        /* CONFEMMA FIRMA */
         const confirmSignBtn = document.getElementById("confirmSign");
         confirmSignBtn.onclick = () => {
             signPopup.classList.remove("show");
@@ -362,26 +404,50 @@ $result = $conn->query($sql);
             document.body.classList.remove("popup-open");
         };
 
-        flatpickr("#timeIn", {
+
+
+
+        /* INSERIMENTO ORA */
+        const timeInPicker = flatpickr("#timeIn", {
             enableTime: true,
             noCalendar: true,
             dateFormat: "H:i",
             time_24hr: true,
             minuteIncrement: 15,
-            nextArrow: '<span style="font-size:1.2rem;">&#9650;</span>',
-            prevArrow: '<span style="font-size:1.2rem;">&#9660;</span>'
+
+            onChange: function(selectedDates, dateStr) {
+                timeOutPicker.set("minTime", dateStr);
+
+                if(timeOutPicker.input.value && timeOutPicker.input.value < dateStr){
+                    timeOutPicker.clear();
+                }
+            }
         });
 
-        flatpickr("#timeOut", {
+        const timeOutPicker = flatpickr("#timeOut", {
             enableTime: true,
             noCalendar: true,
             dateFormat: "H:i",
             time_24hr: true,
-            minuteIncrement: 15,
-            nextArrow: '<span style="font-size:1.2rem;">&#9650;</span>',
-            prevArrow: '<span style="font-size:1.2rem;">&#9660;</span>'
+            minuteIncrement: 15
         });
 
+
+
+
+
+        /* POPUP SUCCESSO */
+        document.querySelector(".btn-confirm").onclick = () => {
+
+            signPopup.classList.remove("show");
+            successPopup.classList.add("show");
+
+            setTimeout(()=>{
+                successPopup.classList.remove("show");
+                overlay.classList.remove("show");
+                document.body.classList.remove("popup-open");
+            },1800); 
+        };
 
     </script>
 

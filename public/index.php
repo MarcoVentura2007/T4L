@@ -22,7 +22,7 @@ $username = $_SESSION['username'];
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2B2B30">
 
-
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body style="overflow:hidden;">

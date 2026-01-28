@@ -20,7 +20,7 @@ $username = $_SESSION['username'];
 
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="immagini/Icona.ico">
-
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 

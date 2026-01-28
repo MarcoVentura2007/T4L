@@ -16,7 +16,7 @@ if (isset($_SESSION['username'])) {
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2B2B30">
 
-    
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body style="overflow: hidden;">
   <img src="immagini/top-right.png" alt="" class="top-right">
