@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS `Overlimits`;
-USE `Overlimits`;
+CREATE DATABASE IF NOT EXISTS `Time4All`;
+USE `Time4All`;
 
 CREATE TABLE `Iscritto` (
     `id` INT NOT NULL AUTO_INCREMENT,

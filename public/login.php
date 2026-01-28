@@ -15,6 +15,8 @@ if (isset($_SESSION['username'])) {
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2B2B30">
+
+    
 </head>
 <body style="overflow: hidden;">
   <img src="immagini/top-right.png" alt="" class="top-right">
@@ -113,11 +115,15 @@ form.addEventListener('submit', async (event) => {
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('api/api_login.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
-        });
+        const response = await fetch('./api/api_login.php', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest' // <-- questo serve per il blocco
+        },
+        body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+    });
+
 
         const result = await response.json();
 

@@ -22,6 +22,7 @@ $username = $_SESSION['username'];
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2B2B30">
 
+
 </head>
 
 <body style="overflow:hidden;">
