@@ -298,7 +298,6 @@ input::placeholder {
 .sections-title{
     font-size:3rem;
     margin-bottom:14px;
-    color:#1f1f1f;
 }
 
 .sections-subtitle{
@@ -1006,14 +1005,12 @@ body.popup-open{
     pointer-events: auto;
 }
 
-/* STRUTTURA POPUP */
 .popup-content{
     display: flex;
     width: 100%;
     height: 100%;
 }
 
-/* LATO SINISTRO (INFO UTENTE) */
 .popup-left{
     width: 35%;
     background: linear-gradient(180deg,#f4f4f9,#e2e2e8);
@@ -1244,4 +1241,383 @@ body.popup-open{
     to { stroke-dashoffset: 0; }
 }
 
+body{
+    margin:0;
+    background:#f7f8fb;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:#111827;
+}
+
+/* LAYOUT */
+
+.app-layout{
+    display:flex;
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.side-nav{
+    width:240px;
+    background: #1f2933;
+    color:#cbd5e1;
+    padding:28px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:40px;
+    position: fixed;
+    top:5rem;
+    bottom:0;
+}
+
+.brand img{
+    width:90px;
+    display:block;
+    margin:auto;
+}
+
+.side-nav nav{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.nav-item{
+    padding:12px 16px;
+    border-radius:10px;
+    text-decoration:none;
+    color:#cbd5e1;
+    cursor:pointer;
+    font-size:.95rem;
+    transition:.2s;
+}
+
+.nav-item:hover{
+    background:#1e293b;
+}
+
+.nav-item.active{
+    background:#1e293b;
+    color:white;
+}
+
+/* CONTENT */
+
+.main-content{
+    flex:1;
+    margin-left:240px;
+    margin-top:80px;
+    padding:48px;
+}
+
+/* HEADER */
+
+.page-header{
+    margin-bottom:36px;
+}
+
+.page-header h1{
+    font-size:1.8rem;
+    font-weight:600;
+    margin:0;
+}
+
+.page-header p{
+    margin-top:6px;
+    color:#6b7280;
+}
+
+/* TABLE BOX */
+
+.users-table-box{
+    background:white;
+    border-radius:8px;
+    padding:24px;
+    box-shadow:0 8px 28px rgba(0,0,0,.05);
+}
+
+/* TABLE */
+
+.users-table{
+    width:100%;
+}
+
+.users-table thead{
+    border-bottom:1px solid #e5e7eb;
+}
+
+.users-table th{
+    text-align:left;
+    font-weight:500;
+    font-size:.9rem;
+    color:#6b7280;
+    padding:14px 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table td{
+    padding:16px 12px;
+    font-size:.95rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table tbody tr{
+    transition:.15s;
+}
+
+.users-table tbody tr:hover{
+    background:#f9fafb;
+}
+
+/* AVATAR */
+
+.user-avatar{
+    width:82px;
+    height:82px;
+    object-fit:cover;
+    border-radius:12px;
+}
+
+/* BUTTON */
+
+td img{
+    width:25px;
+    cursor:pointer;
+    transition:.2s;
+    margin: 0.6rem;
+}
+
+td img:hover{
+    transform:scale(1.08);
+}
+
+/* MODAL OVERLAY */
+
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+    backdrop-filter:blur(6px);
+    opacity:0;
+    pointer-events:none;
+    transition:.3s;
+    z-index:999;
+}
+
+.modal-overlay.show{
+    opacity:1;
+    pointer-events:auto;
+}
+
+/* MODAL BOX */
+
+.modal-box{
+    position:fixed;
+    top:50%;
+    left:50%;
+    max-height: 95vh;
+    transform:translate(-50%,-45%) scale(.95);
+    background:white;
+    width:420px;
+    border-radius:8px;
+    padding:28px;
+    box-shadow:0 30px 80px rgba(0,0,0,.25);
+    opacity:0;
+    pointer-events:none;
+    transition:.35s cubic-bezier(.16,1,.3,1);
+    z-index:1000;
+
+}
+
+.modal-box.show{
+    opacity:1;
+    pointer-events:auto;
+    transform:translate(-50%,-50%) scale(1);
+}
+
+.modal-box h3{
+    margin:0 0 18px;
+    font-size:1.2rem;
+    font-weight:600;
+}
+
+/* CONTENT */
+
+.modal-content{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    color:#374151;
+}
+
+.modal-content input,
+.modal-content textarea{
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid #e5e7eb;
+    font-size:.95rem;
+    outline:none;
+}
+
+.modal-content textarea{
+    resize:none;
+    min-height:90px;
+}
+
+/* ACTIONS */
+
+.modal-actions{
+    margin-top:26px;
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+}
+
+/* BUTTONS */
+
+.btn-primary{
+    background:#0f172a;
+    color:white;
+    padding:10px 20px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+
+.btn-secondary{
+    background:#f3f4f6;
+    border:none;
+    padding:10px 20px;
+    border-radius:12px;
+    cursor:pointer;
+    transition: all 0.25s ease;
+}
+
+
+.btn-secondary:hover{
+    background:#e5e7eb;
+    transform: scale(1.02);
+}
+
+.btn-danger{
+    background:#dc2626;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+/* DELETE STYLE */
+
+.modal-box.danger h3{
+    color:#dc2626;
+}
+
+/* LARGE MODAL */
+
+.modal-box.large{
+    width:720px;
+    max-width:92%;
+    padding:34px;
+}
+
+/* PROFILE HEADER */
+
+.profile-header{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    margin-bottom:28px;
+}
+
+.profile-avatar{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #e5e7eb;
+}
+
+.profile-main h3{
+    margin:0;
+    font-size:1.5rem;
+    font-weight:600;
+}
+
+.profile-main span{
+    color:#6b7280;
+    font-size:.95rem;
+}
+
+/* GRID INFO */
+
+.profile-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+/* INFO CARD */
+
+.profile-field{
+    background:#f9fafb;
+    border:1px solid #e5e7eb;
+    border-radius:6px;
+    padding:14px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.profile-field label{
+    font-size:.8rem;
+    text-transform:uppercase;
+    color:#6b7280;
+    letter-spacing:.04em;
+}
+
+.profile-field span{
+    font-size:1rem;
+    color:#111827;
+    font-weight:500;
+}
+
+/* EDIT MODAL */
+.edit-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.edit-field label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+    color: #374151;
+}
+
+.edit-field input,
+.edit-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.edit-field input:focus,
+.edit-field textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+}
+
+.edit-field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
 

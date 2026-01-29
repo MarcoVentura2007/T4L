@@ -92,10 +92,9 @@ $username = $_SESSION['username'];
             <img src="immagini/foglio-over.png">
             <h3>Foglio Firme</h3>
         </a>
-        <a href="attivita-centro.php" class="card" style=" opacity: 0.7;">
+        <a href="gestionale_utenti.php" class="card">
             <img src="immagini/gestionale-over.png" style="height: 140px;">
             <h3>Gestionale</h3>
-            <span>In arrivo</span>
         </a>
 
     </section>
