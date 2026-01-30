@@ -1,4 +1,4 @@
-<?php
+ <?php
 session_start();
 
 // Se l'utente non è loggato → redirect a login.php
