@@ -21,6 +21,8 @@ if (!$username || !$password) {
     exit;
 }
 
+
+/*
 // Leggi utenti
 $users = [];
 if (file_exists(USER_FILE)) {
@@ -31,10 +33,37 @@ if (file_exists(USER_FILE)) {
         }
     }
 }
+*/
+
+// Connessione al DB XAMPP
+$host = "localhost";    // server
+$user = "root";         // utente XAMPP
+$pass = "";             // password di default
+$db   = "time4all"; // nome del database
+
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    die("Connessione fallita: " . $conn->connect_error);
+}
+
+// Preleva i profili dal DB
+// sql = "SELECT password FROM Account WHERE nome_utente = '$username'"; sfunzionza
+$stmt = $conn->prepare(
+    "SELECT password FROM Account WHERE nome_utente = ?"
+);
+
+$stmt->bind_param("s", $username);
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+$conn->close();
+
+
 
 // Login
-if (isset($users[$username])) {
-    if (password_verify($password . PEPPER, $users[$username])) {
+if ($result->num_rows > 0) {
+    if (password_verify($password . PEPPER, $result->fetch_assoc()['password'])) {
         $_SESSION['username'] = $username;
         echo json_encode(['success'=>true]);
     } else {
@@ -42,6 +71,6 @@ if (isset($users[$username])) {
     }
 } 
 else {
-    echo json_encode(['success'=>false, 'message'=>'Username o password errati']);
+    echo json_encode(['success'=>false, 'message'=>'GROSSO ERRORE']);
 }
 exit;

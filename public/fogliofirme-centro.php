@@ -23,6 +23,8 @@ if ($conn->connect_error) {
 // Preleva i profili dal DB
 $sql = "SELECT nome, cognome, fotografia FROM iscritto ORDER BY cognome ASC";
 $result = $conn->query($sql);
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
