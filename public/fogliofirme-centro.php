@@ -458,20 +458,21 @@ $conn->close();
                 })
             })
             .then(res => res.json())
-            .then(data) => {
+            .then(data => {
                 if (!data.success) {
                     alert("Errore nel salvataggio firma");
                     return;
                 }
 
-            signPopup.classList.remove("show");
-            successPopup.classList.add("show");
+                signPopup.classList.remove("show");
+                successPopup.classList.add("show");
 
-            setTimeout(()=>{
-                successPopup.classList.remove("show");
-                overlay.classList.remove("show");
-                document.body.classList.remove("popup-open");
-            },1800); 
+                setTimeout(()=>{
+                    successPopup.classList.remove("show");
+                    overlay.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+                },1800);
+            });
         };
 
     </script>
