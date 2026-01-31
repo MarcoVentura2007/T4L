@@ -13,6 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
 }
 
 // --- FINE BLOCCO ---
+
+
 $username = trim($_POST['username'] ?? '');
 $password = $_POST['password'] ?? '';
 
