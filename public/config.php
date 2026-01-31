@@ -11,6 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
 
 // --- FINE BLOCCO ---
 
+define('DATA_DIR', dirname(__DIR__) . '/data');
+
 define('PEPPER_FILE', DATA_DIR . '/pepper.txt');
 
 if (!file_exists(PEPPER_FILE)) {
