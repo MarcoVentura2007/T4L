@@ -21,7 +21,19 @@ if ($conn->connect_error) {
 }
 
 // Preleva i profili dal DB
-$sql = "SELECT id, nome, cognome, fotografia FROM iscritto ORDER BY cognome ASC";
+$oggi = date('Y-m-d');
+
+$sql = "
+    SELECT i.id, i.nome, i.cognome, i.fotografia
+    FROM iscritto i
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM Presenza p
+        WHERE p.ID_Iscritto = i.id
+        AND DATE(p.Ingresso) = '$oggi'
+    )
+    ORDER BY i.cognome ASC
+";
 $result = $conn->query($sql);
 
 $conn->close();
@@ -471,13 +483,11 @@ $conn->close();
                 successPopup.classList.remove("show");
                 overlay.classList.remove("show");
                 document.body.classList.remove("popup-open");
+                location.reload();
             },1800); 
-        })
-        .catch(error => {
-            console.error("Errore:", error);
-            alert("Errore nella richiesta");
+            
         });
-    };
+    }
 
     </script>
 

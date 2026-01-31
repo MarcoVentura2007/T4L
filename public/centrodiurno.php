@@ -8,6 +8,28 @@ if (!isset($_SESSION['username'])) {
 }
 
 $username = $_SESSION['username'];
+
+// Connessione al DB
+$host = "localhost";    
+$user = "root";         
+$pass = "";             
+$db   = "time4all"; 
+
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    die("Connessione fallita: " . $conn->connect_error);
+}
+
+// Prendi la classe dell'utente loggato
+$resultClasse = $conn->query("SELECT classe FROM Account WHERE nome_utente = '$username'");
+if($resultClasse && $resultClasse->num_rows > 0){
+    $rowClasse = $resultClasse->fetch_assoc();
+    $classe = $rowClasse['classe'];
+} else {
+    $classe = ""; // default se non trovato
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -92,7 +114,18 @@ $username = $_SESSION['username'];
             <img src="immagini/foglio-over.png">
             <h3>Foglio Firme</h3>
         </a>
-        <a href="gestionale_utenti.php" class="card">
+
+        <?php
+        if($classe === 'Educatore'){
+            $gestionalePage = "gestionale_utenti.php";
+        } elseif($classe === 'Contabile'){
+            $gestionalePage = "gestionale_contabile.php";
+        } else {
+            $gestionalePage = "#"; // default se classe sconosciuta
+        }
+        ?>
+
+        <a href="<?php echo $gestionalePage; ?>" class="card">
             <img src="immagini/gestionale-over.png" style="height: 140px;">
             <h3>Gestionale</h3>
         </a>
