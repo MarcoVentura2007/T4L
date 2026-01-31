@@ -443,6 +443,27 @@ $conn->close();
             const check_firma = 1;
             const idIscritto = selectedIdIscritto;
 
+            // INVIO DATI A api_firma.php
+            fetch("/api/api_firma.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    id_iscritto: idIscritto,
+                    ora_ingresso: timeIn,
+                    ora_uscita: timeOut,
+                    check_firma: check_firma
+                })
+            })
+            .then(res => res.json())
+            .then(data) => {
+                if (!data.success) {
+                    alert("Errore nel salvataggio firma");
+                    return;
+                }
+
             signPopup.classList.remove("show");
             successPopup.classList.add("show");
 
