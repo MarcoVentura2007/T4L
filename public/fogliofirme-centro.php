@@ -444,7 +444,7 @@ $conn->close();
             const idIscritto = selectedIdIscritto;
 
             // INVIO DATI A api_firma.php
-            fetch("/api/api_firma.php", {
+            fetch("api/api_firma.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
