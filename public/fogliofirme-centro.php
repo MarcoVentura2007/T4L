@@ -21,8 +21,10 @@ if ($conn->connect_error) {
 }
 
 // Preleva i profili dal DB
-$sql = "SELECT nome, cognome, fotografia FROM iscritto ORDER BY cognome ASC";
+$sql = "SELECT id, nome, cognome, fotografia FROM iscritto ORDER BY cognome ASC";
 $result = $conn->query($sql);
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -123,7 +125,7 @@ $result = $conn->query($sql);
                         $cognome = htmlspecialchars($row['cognome']);
                         $img = htmlspecialchars($row['fotografia']);
                         echo '
-                        <div class="swiper-slide profile-card">
+                        <div class="swiper-slide profile-card" data-id="' . $row['id'] . '">
                             <a href="#">
                                 <img src="' . $img . '">
                                 <h3>' . $nome . " " . $cognome . '</h3>
@@ -209,7 +211,7 @@ $result = $conn->query($sql);
         </div>
 
 
-
+        
 
 
 
@@ -317,6 +319,8 @@ $result = $conn->query($sql);
         const img2 = document.getElementById("popupUserImg2");
         const name2 = document.getElementById("popupUserName2");
 
+        let selectedIdIscritto = null;
+
         document.querySelectorAll(".profile-card").forEach(card => {
             card.onclick = () => {
                 const img = card.querySelector("img").src;
@@ -326,6 +330,9 @@ $result = $conn->query($sql);
                 name1.textContent = name;
                 img2.src = img;
                 name2.textContent = name;
+
+                // Salvo l'ID per quando confermo la firma
+                selectedIdIscritto = card.getAttribute("data-id");
 
                 overlay.classList.add("show");
                 timePopup.classList.add("show");
@@ -394,15 +401,8 @@ $result = $conn->query($sql);
         };
 
 
+        
 
-
-        /* CONFEMMA FIRMA */
-        const confirmSignBtn = document.getElementById("confirmSign");
-        confirmSignBtn.onclick = () => {
-            signPopup.classList.remove("show");
-            overlay.classList.remove("show");
-            document.body.classList.remove("popup-open");
-        };
 
 
 
@@ -438,6 +438,10 @@ $result = $conn->query($sql);
 
         /* POPUP SUCCESSO */
         document.querySelector(".btn-confirm").onclick = () => {
+            const timeIn = document.getElementById("timeIn").value;
+            const timeOut = document.getElementById("timeOut").value;
+            const check_firma = 1;
+            const idIscritto = selectedIdIscritto;
 
             signPopup.classList.remove("show");
             successPopup.classList.add("show");

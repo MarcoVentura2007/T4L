@@ -13,7 +13,6 @@ if (isset($_SESSION['username'])) {
     <title>T4L | Login</title>
     <link rel="icon" href="immagini/Icona.ico">
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2B2B30">
 
     <script src="https://cdn.tailwindcss.com"></script>
