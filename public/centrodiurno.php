@@ -90,15 +90,54 @@ if($resultClasse && $resultClasse->num_rows > 0){
     </div>
 
     <div class="dropdown" id="dropdown">
-        <div data-link="centrodiurno.php" class="data-link-centro">
-            <img src="immagini/Logo-centrodiurno.png"> 
-            Centro Diurno
+
+        <div class="menu-group">
+
+            <div class="menu-main" data-target="centroMenu">
+                <img src="immagini/Logo-centrodiurno.png">
+                Centro Diurno
+            </div>
+
+            <div class="submenu" id="centroMenu">
+                <div class="menu-item" data-link="fogliofirme-centro.php">
+                    <img src="immagini/foglio-over.png" alt="">
+                    Foglio firme
+                </div>
+                <?php
+                        if($classe === 'Educatore'){
+                            $gestionalePage = "gestionale_utenti.php";
+                        } elseif($classe === 'Contabile'){
+                            $gestionalePage = "gestionale_contabile.php";
+                        } else {
+                            $gestionalePage = "#"; // default se classe sconosciuta
+                        }
+                    ?>
+                <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
+                    <img src="immagini/gestionale-over.png" alt="">
+                    Gestionale
+                </div>
+            </div>
+
         </div>
-        <div data-link="#" class="data-link-ergo">
-            <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
-            Ergoterapeutica
+
+
+        <div class="menu-group">
+
+            <div class="menu-main" data-target="ergoMenu">
+                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+                Ergoterapeutica
+            </div>
+
+            <div class="submenu" id="ergoMenu">
+                <div class="menu-item" data-link="riconoscimento.php">Riconoscimento facciale</div>
+                <div class="menu-item" data-link="gestionale_contabile.php">Gestionale</div>
+            </div>
+
         </div>
+
     </div>
+
+
 
 </header>
 
@@ -145,11 +184,35 @@ if($resultClasse && $resultClasse->num_rows > 0){
         drop.classList.toggle("show");
     };
 
-    drop.querySelectorAll("div").forEach(item => {
+    document.querySelectorAll(".menu-main").forEach(main => {
+        main.addEventListener("click", () => {
+
+            const targetId = main.dataset.target;
+            const targetMenu = document.getElementById(targetId);
+
+            // chiudi tutti gli altri submenu
+            document.querySelectorAll(".submenu").forEach(menu => {
+                if(menu !== targetMenu){
+                    menu.classList.remove("open");
+                    menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                }
+            });
+
+            // toggle quello cliccato
+            targetMenu.classList.toggle("open");
+            main.classList.toggle("open"); // per la freccetta
+        });
+
+    });
+
+
+
+    document.querySelectorAll(".menu-item").forEach(item => {
         item.onclick = () => {
             window.location.href = item.dataset.link;
         }
     });
+
 
     document.addEventListener("click", e => {
         if(!ham.contains(e.target) && !drop.contains(e.target)){

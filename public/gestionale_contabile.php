@@ -20,6 +20,15 @@ if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);
 }
 
+// Prendi la classe dell'utente loggato
+$resultClasse = $conn->query("SELECT classe FROM Account WHERE nome_utente = '$username'");
+if($resultClasse && $resultClasse->num_rows > 0){
+    $rowClasse = $resultClasse->fetch_assoc();
+    $classe = $rowClasse['classe'];
+} else {
+    $classe = ""; // default se non trovato
+}
+
 // Preleva i profili dal DB
 $sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
         FROM iscritto ORDER BY cognome ASC";
@@ -93,52 +102,131 @@ $resultPresenze = $conn->query($sqlPresenze);
         </div>
 
         <div class="dropdown" id="dropdown">
-            <div data-link="centrodiurno.php" class="data-link-centro">
-                <img src="immagini/Logo-centrodiurno.png"> Centro Diurno
+
+        <div class="menu-group">
+
+            <div class="menu-main" data-target="centroMenu">
+                <img src="immagini/Logo-centrodiurno.png">
+                Centro Diurno
             </div>
-            <div data-link="#" class="data-link-ergo">
-                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"> Ergoterapeutica
+
+            <div class="submenu" id="centroMenu">
+                <div class="menu-item" data-link="fogliofirme-centro.php">
+                    <img src="immagini/foglio-over.png" alt="">
+                    Foglio firme
+                </div>
+                <?php
+                        if($classe === 'Educatore'){
+                            $gestionalePage = "gestionale_utenti.php";
+                        } elseif($classe === 'Contabile'){
+                            $gestionalePage = "gestionale_contabile.php";
+                        } else {
+                            $gestionalePage = "#"; // default se classe sconosciuta
+                        }
+                    ?>
+                <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
+                    <img src="immagini/gestionale-over.png" alt="">
+                    Gestionale
+                </div>
             </div>
+
         </div>
 
+
+        <div class="menu-group">
+
+            <div class="menu-main" data-target="ergoMenu">
+                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+                Ergoterapeutica
+            </div>
+
+            <div class="submenu" id="ergoMenu">
+                <div class="menu-item" data-link="riconoscimento.php">Riconoscimento facciale</div>
+                <div class="menu-item" data-link="gestionale_contabile.php">Gestionale</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    </div>
     </header>
 
     <div class="app-layout">
  
         <!-- SIDEBAR -->
-        <aside class="side-nav">
-            <div class="brand">
-                <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" style="max-width:150px;">
-            </div>
-            <nav>
-                <a class="nav-item tab-link active" data-tab="tab-utenti">Utenti</a>
-                <a class="nav-item tab-link" data-tab="tab-presenze">Presenze</a>
-                <a class="nav-item tab-link" data-tab="tab-agenda">Agenda</a>
-                <a class="nav-item tab-link" data-tab="tab-contabilita">Contabilità</a>
+        <!-- SIDEBAR -->
+        <aside class="vertical-sidebar">
+            <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
+            <nav class="sidebar-nav">
+                <header>
+                    <div class="sidebar__toggle-container">
+                        <label tabindex="0" for="checkbox-input" id="label-for-checkbox-input" class="nav__toggle">
+                            <span class="toggle--icons" aria-hidden="true">
+                                <!-- Icone di toggle, puoi lasciare SVG o cambiare con immagini se vuoi -->
+                                <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--open">
+                                    <path d="M3 5a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2zM2 12a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1M2 18a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1"></path>
+                                </svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--close">
+                                    <path d="M18.707 6.707a1 1 0 0 0-1.414-1.414L12 10.586 6.707 5.293a1 1 0 0 0-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 1 0 1.414 1.414L12 13.414l5.293 5.293a1 1 0 0 0 1.414-1.414L13.414 12z"></path>
+                                </svg>
+                            </span>
+                        </label>
+                    </div>
+                    <figure>
+                        <img class="sidebar-logo" src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Logo" />
+                    </figure>
+                </header>
+                <section class="sidebar__wrapper">
+                    <ul class="sidebar__list list--primary">
+                        <li class="sidebar__item item--heading">
+                            <h2 class="sidebar__item--heading">Pagine</h2>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-utenti" data-tooltip="Utenti">
+                                <span class="sidebar-icon"><img src="immagini/group.png" alt=""></span>
+                                <span class="text">Utenti</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-presenze" data-tooltip="Presenze">
+                                <span class="sidebar-icon"><img src="immagini/attendance.png" alt=""></span>
+                                <span class="text">Presenze</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-agenda" data-tooltip="Agenda">
+                                <span class="sidebar-icon"><img src="immagini/book.png" alt=""></span>
+                                <span class="text">Agenda</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </section>
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="main-content">
+            <!-- TAB UTENTI -->
+            <div class="page-tab" id="tab-utenti">
+                <div class="page-header">
+                    <h1>Utenti</h1>
+                    <p>Elenco iscritti registrati</p>
+                </div>
 
-            <div class="page-header">
-                <h1>Utenti</h1>
-                <p>Elenco iscritti registrati</p>
-            </div>
-
-            <div class="users-table-box">
-                <table class="users-table">
-                    <thead>
-                        <tr>
-                            <th>Fotografia</th>
-                            <th>Nome</th>
-                            <th>Cognome</th>
-                            <th>Data di nascita</th>
-                            <th>Note</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Fotografia</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Data di nascita</th>
+                                <th>Note</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         <?php
                         if($result && $result->num_rows > 0){
                             while($row = $result->fetch_assoc()){
@@ -156,10 +244,10 @@ $resultPresenze = $conn->query($sqlPresenze);
                                         data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
                                     >
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
-                                        <td>'.$row['nome'].'</td>
-                                        <td>'.$row['cognome'].'</td>
-                                        <td>'.$row['data_nascita'].'</td>
-                                        <td>'.$row['note'].'</td>
+                                        <td>'.htmlspecialchars($row['nome']).'</td>
+                                        <td>'.htmlspecialchars($row['cognome']).'</td>
+                                        <td>'.htmlspecialchars($row['data_nascita']).'</td>
+                                        <td>'.htmlspecialchars($row['note']).'</td>
                                         <td>
                                             <button class="view-btn"><img src="immagini/open-eye.png"></button>
                                             <button class="edit-btn"><img src="immagini/edit.png"></button>
@@ -170,126 +258,86 @@ $resultPresenze = $conn->query($sqlPresenze);
                             }
                         }
                         ?>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
 
-                <!-- MODAL OVERLAY -->
-                <div class="modal-overlay" id="modalOverlay"></div>
-
-                <!-- VIEW USER MODAL -->
-                <div class="modal-box large" id="viewModal">
-                    <div class="profile-header">
-                        <img id="viewAvatar" class="profile-avatar">
-                        <div class="profile-main">
-                            <h3 id="viewFullname"></h3>
-                            <span id="viewBirth"></span>
+                    <div class="modal-overlay" id="modalOverlay"></div>
+                    <div class="modal-box large" id="viewModal">
+                        <div class="profile-header">
+                            <img id="viewAvatar" class="profile-avatar">
+                            <div class="profile-main">
+                                <h3 id="viewFullname"></h3>
+                                <span id="viewBirth"></span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="profile-grid" id="viewContent">
-                        
-                    </div>
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                        <div class="profile-grid" id="viewContent"></div>
+                        <div class="modal-actions">
+                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                        </div>
                     </div>
                 </div>
-
-                <!-- EDIT USER MODAL -->
-                <div class="modal-box large" id="editModal" style="overflow: scroll;">
-                    <h3 class="modal-title">Modifica utente</h3>
-
-                    <div class="profile-header">
-                        <img id="viewAvatar-mod" class="profile-avatar">
-                        <div class="profile-main">
-                            <h3 id="viewFullname-mod"></h3>
-                            <span id="viewBirth-mod"></span>
-                        </div>
-                    </div>
-
-                    <div class="edit-grid" id="editContent">
-                        <!-- Riempito da JS -->
-                        <div class="edit-field">
-                            <label>Nome</label>
-                            <input type="text" id="editNome" placeholder="Nome">
-                        </div>
-                        <div class="edit-field">
-                            <label>Cognome</label>
-                            <input type="text" id="editCognome" placeholder="Cognome">
-                        </div>
-                        <div class="edit-field">
-                            <label>Data di nascita</label>
-                            <input type="date" id="editData">
-                        </div>
-                        <div class="edit-field">
-                            <label>Codice Fiscale</label>
-                            <input type="text" id="editCF" placeholder="Codice Fiscale">
-                        </div>
-                        <div class="edit-field">
-                            <label>Contatti</label>
-                            <input type="text" id="editContatti" placeholder="Contatti">
-                        </div>
-                        <div class="edit-field">
-                            <label>Disabilità</label>
-                            <input type="text" id="editDisabilita" placeholder="Disabilità">
-                        </div>
-                        <div class="edit-field">
-                            <label>Intolleranze</label>
-                            <input type="text" id="editIntolleranze" placeholder="Intolleranze">
-                        </div>
-                        <div class="edit-field">
-                            <label>Prezzo orario</label>
-                            <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
-                        </div>
-                        <div class="edit-field">
-                            <label>Note</label>
-                            <textarea id="editNote" placeholder="Note"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                        <button class="btn-primary" id="saveEdit">Salva</button>
-                    </div>
-                </div>
-
-                <!-- POPUP CONFERMA FIRMA -->
-                <div class="popup success-popup" id="successPopup">
-                    <div class="success-content">
-                        <div class="success-icon">
-                        <svg viewBox="-2 -2 56 56">
-                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
-                        </svg>
-                        </div>
-                        <p class="success-text">Utente modificato!!</p>
-                    </div>
-                </div>
-
-
-                <!-- DELETE USER -->
-                <div class="modal-box danger" id="deleteModal">
-                    <h3>Elimina utente</h3>
-                    <h3></h3>
-                    <p>Questa azione è definitiva. Vuoi continuare?</p>
-
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
-                        <button class="btn-danger">Elimina</button>
-                    </div>
-                </div>
-
-                <div class="popup success-popup" id="successPopupDelete">
-                    <div class="success-content">
-                        <div class="success-icon">
-                        <svg viewBox="-2 -2 56 56">
-                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
-                        </svg>
-                        </div>
-                        <p class="success-text">Utente eliminato!!</p>
-                    </div>
-                </div>
-
             </div>
+
+            <!-- TAB PRESENZE -->
+            <div class="page-tab" id="tab-presenze">
+                <div class="page-header">
+                    <h1>Presenze</h1>
+                    <p>Elenco presenze registrate</p>
+                </div>
+
+                <div class="presenze-controls">
+                    
+                </div>
+
+                <div class="users-table-box">
+                    <table class="users-table" id="presenzeTable">
+                        <thead>
+                            <tr>
+                                <th>Fotografia</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Ingresso</th>
+                                <th>Uscita</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if($resultPresenze && $resultPresenze->num_rows > 0){
+                            while($row = $resultPresenze->fetch_assoc()){
+                                echo '
+                                    <tr
+                                        data-id="'.htmlspecialchars($row['id']).'"
+                                        data-nome="'.htmlspecialchars($row['nome']).'"
+                                        data-cognome="'.htmlspecialchars($row['cognome']).'"
+                                        data-ingresso="'.htmlspecialchars($row['ingresso']).'"
+                                        data-uscita="'.htmlspecialchars($row['uscita']).'""
+                                    >
+                                        <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
+                                        <td>'.htmlspecialchars($row['nome']).'</td>
+                                        <td>'.htmlspecialchars($row['cognome']).'</td>
+                                        <td>'.htmlspecialchars($row['ingresso']).'</td>
+                                        <td>'.htmlspecialchars($row['uscita']).'</td>
+                                    </tr>
+                                ';
+                            }
+                        } else {
+                            echo '<tr><td colspan="6">Nessuna presenza registrata oggi.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB AGENDA -->
+            <div class="page-tab" id="tab-agenda">
+                <div class="page-header">
+                    <h1>Agenda</h1>
+                    <p>Prossimi appuntamenti</p>
+                </div>
+                <p>Contenuto agenda da implementare...</p>
+            </div>
+
         </main>
     </div>
 
@@ -354,20 +402,142 @@ $resultPresenze = $conn->query($sqlPresenze);
                 <p>Contenuto agenda da implementare...</p>
             </div>
 
+            <!-- POPUP CONFERMA FIRMA -->
+                <div class="popup success-popup" id="successPopup">
+                    <div class="success-content">
+                        <div class="success-icon">
+                        <svg viewBox="-2 -2 56 56">
+                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
+                        </svg>
+                        </div>
+                        <p class="success-text">Utente modificato!!</p>
+                    </div>
+                </div>
+
+                <!-- EDIT MODAL -->
+                <div class="modal-box large" id="editModal" style="overflow: scroll;">
+                        <h3 class="modal-title">Modifica utente</h3>
+
+                        <div class="profile-header">
+                            <img id="viewAvatar-mod" class="profile-avatar">
+                            <div class="profile-main">
+                                <h3 id="viewFullname-mod"></h3>
+                                <span id="viewBirth-mod"></span>
+                            </div>
+                        </div>
+
+                        <div class="edit-grid" id="editContent">
+                            <!-- Riempito da JS -->
+                            <div class="edit-field">
+                                <label>Nome</label>
+                                <input type="text" id="editNome" placeholder="Nome">
+                            </div>
+                            <div class="edit-field">
+                                <label>Cognome</label>
+                                <input type="text" id="editCognome" placeholder="Cognome">
+                            </div>
+                            <div class="edit-field">
+                                <label>Data di nascita</label>
+                                <input type="date" id="editData">
+                            </div>
+                            <div class="edit-field">
+                                <label>Codice Fiscale</label>
+                                <input type="text" id="editCF" placeholder="Codice Fiscale">
+                            </div>
+                            <div class="edit-field">
+                                <label>Contatti</label>
+                                <input type="text" id="editContatti" placeholder="Contatti">
+                            </div>
+                            <div class="edit-field">
+                                <label>Disabilità</label>
+                                <input type="text" id="editDisabilita" placeholder="Disabilità">
+                            </div>
+                            <div class="edit-field">
+                                <label>Intolleranze</label>
+                                <input type="text" id="editIntolleranze" placeholder="Intolleranze">
+                            </div>
+                            <div class="edit-field">
+                                <label>Prezzo orario</label>
+                                <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
+                            </div>
+                            <div class="edit-field">
+                                <label>Note</label>
+                                <textarea id="editNote" placeholder="Note"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="saveEdit">Salva</button>
+                        </div>
+                    
+                </div>
+
+
+                <!-- DELETE USER -->
+                <div class="modal-box danger" id="deleteModal">
+                    <h3>Elimina utente</h3>
+                    <h3></h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger">Elimina</button>
+                    </div>
+                </div>
+
+                <div class="popup success-popup" id="successPopupDelete">
+                    <div class="success-content">
+                        <div class="success-icon">
+                        <svg viewBox="-2 -2 56 56">
+                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
+                        </svg>
+                        </div>
+                        <p class="success-text">Utente eliminato!!</p>
+                    </div>
+                </div>
+
         </main>
     </div>
 
     <script>
-        // Cambia tab
-        document.querySelectorAll(".tab-link").forEach(link=>{
-            link.addEventListener("click", e=>{
-                document.querySelectorAll(".tab-link").forEach(l=>l.classList.remove("active"));
-                e.currentTarget.classList.add("active");
-                const target = e.currentTarget.dataset.tab;
-                document.querySelectorAll(".page-tab").forEach(tab=>tab.classList.remove("active"));
-                document.getElementById(target).classList.add("active");
-            });
+        // Cambia tab e salva stato
+    document.querySelectorAll(".tab-link").forEach(link => {
+        link.addEventListener("click", e => {
+            e.preventDefault();
+            const target = e.currentTarget.dataset.tab;
+
+            // Rimuovi 'active' da tutti i link e tab
+            document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+            document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
+
+            // Attiva link e tab cliccati
+            e.currentTarget.classList.add("active");
+            document.getElementById(target).classList.add("active");
+
+            // Salva il tab attivo in localStorage
+            localStorage.setItem("activeTab", target);
         });
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+        const savedTab = localStorage.getItem("activeTab");
+        if (savedTab) {
+            // Rimuovi 'active' da tutti
+            document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+            document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
+
+            // Attiva quello salvato
+            const link = document.querySelector(`.tab-link[data-tab="${savedTab}"]`);
+            const page = document.getElementById(savedTab);
+            if (link && page) {
+                link.classList.add("active");
+                page.classList.add("active");
+            }
+        }
+    });
 
 
             /* HAMBURGER */
@@ -377,15 +547,30 @@ $resultPresenze = $conn->query($sqlPresenze);
             ham.classList.toggle("active");
             drop.classList.toggle("show");
         };
-        drop.querySelectorAll("div").forEach(item => {
+        document.querySelectorAll(".menu-main").forEach(main => {
+        main.addEventListener("click", () => {
+
+            const targetId = main.dataset.target;
+            const targetMenu = document.getElementById(targetId);
+
+            // chiudi tutti gli altri submenu
+            document.querySelectorAll(".submenu").forEach(menu => {
+                if(menu !== targetMenu){
+                    menu.classList.remove("open");
+                    menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                }
+            });
+
+            // toggle quello cliccato
+            targetMenu.classList.toggle("open");
+            main.classList.toggle("open"); // per la freccetta
+        });
+
+    });
+
+    document.querySelectorAll(".menu-item").forEach(item => {
             item.onclick = () => {
                 window.location.href = item.dataset.link;
-            }
-        });
-        document.addEventListener("click", e => {
-            if(!ham.contains(e.target) && !drop.contains(e.target)){
-                ham.classList.remove("active");
-                drop.classList.remove("show");
             }
         });
 

@@ -20,6 +20,15 @@ if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);
 }
 
+// Prendi la classe dell'utente loggato
+$resultClasse = $conn->query("SELECT classe FROM Account WHERE nome_utente = '$username'");
+if($resultClasse && $resultClasse->num_rows > 0){
+    $rowClasse = $resultClasse->fetch_assoc();
+    $classe = $rowClasse['classe'];
+} else {
+    $classe = ""; // default se non trovato
+}
+
 // Preleva i profili dal DB
 $sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
         FROM iscritto ORDER BY cognome ASC";
@@ -47,14 +56,8 @@ $resultPresenze = $conn->query($sqlPresenze);
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-/* Piccoli aggiustamenti per tab e toggle */
-.page-tab { display: none; }
-.page-tab.active { display: block; }
-.presenze-controls { margin-bottom: 10px; }
-</style>
 </head>
-<body>
+<body onload="selezionata()">
     <!-- NAVBAR -->
     <header class="navbar">
         <div class="user-box" id="userBox">
@@ -96,32 +99,110 @@ $resultPresenze = $conn->query($sqlPresenze);
         </div>
 
         <div class="dropdown" id="dropdown">
-            <div data-link="centrodiurno.php" class="data-link-centro">
-                <img src="immagini/Logo-centrodiurno.png"> Centro Diurno
+
+        <div class="menu-group">
+
+            <div class="menu-main" data-target="centroMenu">
+                <img src="immagini/Logo-centrodiurno.png">
+                Centro Diurno
             </div>
-            <div data-link="#" class="data-link-ergo">
-                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"> Ergoterapeutica
+
+            <div class="submenu" id="centroMenu">
+                <div class="menu-item" data-link="fogliofirme-centro.php">
+                    <img src="immagini/foglio-over.png" alt="">
+                    Foglio firme
+                </div>
+                <?php
+                        if($classe === 'Educatore'){
+                            $gestionalePage = "gestionale_utenti.php";
+                        } elseif($classe === 'Contabile'){
+                            $gestionalePage = "gestionale_contabile.php";
+                        } else {
+                            $gestionalePage = "#"; // default se classe sconosciuta
+                        }
+                    ?>
+                <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
+                    <img src="immagini/gestionale-over.png" alt="">
+                    Gestionale
+                </div>
             </div>
+
         </div>
+
+
+        <div class="menu-group">
+
+            <div class="menu-main" data-target="ergoMenu">
+                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+                Ergoterapeutica
+            </div>
+
+            <div class="submenu" id="ergoMenu">
+                <div class="menu-item" data-link="riconoscimento.php">Riconoscimento facciale</div>
+                <div class="menu-item" data-link="gestionale_contabile.php">Gestionale</div>
+            </div>
+
+        </div>
+
+    </div>
     </header>
 
     <div class="app-layout">
         <!-- SIDEBAR -->
-        <aside class="side-nav">
-            <div class="brand">
-                <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" style="max-width:150px;">
-            </div>
-            <nav>
-                <a class="nav-item tab-link active" data-tab="tab-utenti">Utenti</a>
-                <a class="nav-item tab-link" data-tab="tab-presenze">Presenze</a>
-                <a class="nav-item tab-link" data-tab="tab-agenda">Agenda</a>
+        <aside class="vertical-sidebar">
+            <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
+            <nav class="sidebar-nav">
+                <header>
+                    <div class="sidebar__toggle-container">
+                        <label tabindex="0" for="checkbox-input" id="label-for-checkbox-input" class="nav__toggle">
+                            <span class="toggle--icons" aria-hidden="true">
+                                <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--open">
+                                    <path d="M3 5a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2zM2 12a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1M2 18a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1"></path>
+                                </svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--close">
+                                    <path d="M18.707 6.707a1 1 0 0 0-1.414-1.414L12 10.586 6.707 5.293a1 1 0 0 0-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 1 0 1.414 1.414L12 13.414l5.293 5.293a1 1 0 0 0 1.414-1.414L13.414 12z"></path>
+                                </svg>
+                            </span>
+                        </label>
+                    </div>
+                    <figure>
+                        <img class="sidebar-logo" src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Logo" />
+                    </figure>
+                </header>
+                <section class="sidebar__wrapper">
+                    <ul class="sidebar__list list--primary">
+                        <li class="sidebar__item item--heading">
+                            <h2 class="sidebar__item--heading">Pagine</h2>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-utenti" data-tooltip="Utenti">
+                                <span class="sidebar-icon"><img src="immagini/group.png" alt=""></span>
+                                <span class="text">Utenti</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-presenze" data-tooltip="Presenze">
+                                <span class="sidebar-icon"><img src="immagini/attendance.png" alt=""></span>
+                                <span class="text">Presenze</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-agenda" data-tooltip="Agenda">
+                                <span class="sidebar-icon"><img src="immagini/book.png" alt=""></span>
+                                <span class="text">Agenda</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </section>
             </nav>
         </aside>
+
 
         <!-- MAIN CONTENT -->
         <main class="main-content">
             <!-- TAB UTENTI -->
-            <div class="page-tab active" id="tab-utenti">
+            <div class="page-tab" id="tab-utenti">
                 <div class="page-header">
                     <h1>Utenti</h1>
                     <p>Elenco iscritti registrati</p>
@@ -253,16 +334,43 @@ $resultPresenze = $conn->query($sqlPresenze);
     </div>
 
 <script>
-// Cambia tab
-document.querySelectorAll(".tab-link").forEach(link=>{
-    link.addEventListener("click", e=>{
-        document.querySelectorAll(".tab-link").forEach(l=>l.classList.remove("active"));
-        e.currentTarget.classList.add("active");
-        const target = e.currentTarget.dataset.tab;
-        document.querySelectorAll(".page-tab").forEach(tab=>tab.classList.remove("active"));
-        document.getElementById(target).classList.add("active");
+    // Cambia tab
+    // Cambia tab e salva stato
+    document.querySelectorAll(".tab-link").forEach(link => {
+        link.addEventListener("click", e => {
+            e.preventDefault();
+            const target = e.currentTarget.dataset.tab;
+
+            document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+            document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
+
+            // Attiva link e tab cliccati
+            e.currentTarget.classList.add("active");
+            document.getElementById(target).classList.add("active");
+
+            // Salva il tab attivo in localStorage
+            localStorage.setItem("activeTab", target);
+        });
     });
-});
+
+    window.addEventListener("DOMContentLoaded", () => {
+        const savedTab = localStorage.getItem("activeTab");
+        if (savedTab) {
+            // Rimuovi 'active' da tutti
+            document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+            document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
+
+            // Attiva quello salvato
+            const link = document.querySelector(`.tab-link[data-tab="${savedTab}"]`);
+            const page = document.getElementById(savedTab);
+            if (link && page) {
+                link.classList.add("active");
+                page.classList.add("active");
+            }
+        }
+    });
+
+
 
 // HAMBURGER
 const ham = document.getElementById("hamburger");
@@ -286,15 +394,34 @@ document.addEventListener("click", e => {
 // USER DROPDOWN
 const userBox = document.getElementById("userBox");
 const userDropdown = document.getElementById("userDropdown");
-userBox.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    userDropdown.classList.toggle("show");
-});
-document.addEventListener("click",(e)=>{
-    if(!userBox.contains(e.target)){
-        userDropdown.classList.remove("show");
-    }
-});
+document.querySelectorAll(".menu-main").forEach(main => {
+        main.addEventListener("click", () => {
+
+            const targetId = main.dataset.target;
+            const targetMenu = document.getElementById(targetId);
+
+            // chiudi tutti gli altri submenu
+            document.querySelectorAll(".submenu").forEach(menu => {
+                if(menu !== targetMenu){
+                    menu.classList.remove("open");
+                    menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                }
+            });
+
+            // toggle quello cliccato
+            targetMenu.classList.toggle("open");
+            main.classList.toggle("open"); // per la freccetta
+        });
+
+    });
+
+    document.querySelectorAll(".menu-item").forEach(item => {
+            item.onclick = () => {
+                window.location.href = item.dataset.link;
+            }
+        });
+
+
 
 // LOGOUT
 const logoutBtn = document.getElementById("logoutBtn");
