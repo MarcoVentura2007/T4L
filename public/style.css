@@ -858,7 +858,7 @@ body{
     }
 
   /* Nascondi user-box desktop */
-  .user-box span{
+  #username-nav{
     display: none;
   }
 

@@ -118,7 +118,7 @@ form.addEventListener('submit', async (event) => {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest' // <-- questo serve per il blocco
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
     });

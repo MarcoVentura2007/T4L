@@ -1,7 +1,6 @@
 <?php
     header('Content-Type: application/json; charset=utf-8');
 
-    // --- BLOCCO ACCESSO DIRETTO ---
     if (
         $_SERVER['REQUEST_METHOD'] !== 'POST' ||
         empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
@@ -10,8 +9,7 @@
         echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
         exit;
     }
-    // --- FINE BLOCCO ---
-
+    
     // --- LETTURA DATI JSON ---
     $input = json_decode(file_get_contents("php://input"), true);
 

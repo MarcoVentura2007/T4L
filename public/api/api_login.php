@@ -4,7 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 require __DIR__ . '/../config.php';
 
 // --- BLOCCO ACCESSO DIRETTO ---
-// Permetti solo richieste POST AJAX
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || 
     empty($_SERVER['HTTP_X_REQUESTED_WITH']) || 
     $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
