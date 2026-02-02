@@ -40,7 +40,7 @@ if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]));
 }
 
-// Costruzione query nello stile che vuoi
+// Costruzione 
 $sql = "UPDATE iscritto SET 
         nome='$nome',
         cognome='$cognome',

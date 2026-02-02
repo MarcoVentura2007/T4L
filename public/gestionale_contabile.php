@@ -24,6 +24,16 @@ if ($conn->connect_error) {
 $sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
         FROM iscritto ORDER BY cognome ASC";
 $result = $conn->query($sql);
+
+// Presenze giornaliere di default
+$oggi = date('Y-m-d')."%";
+$sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.uscita 
+                FROM presenza p 
+                INNER JOIN iscritto i ON p.ID_Iscritto = i.id 
+                WHERE p.ingresso LIKE '$oggi'
+                
+                ORDER BY p.ingresso ASC";
+$resultPresenze = $conn->query($sqlPresenze);
 ?>
 
 <!DOCTYPE html>
@@ -94,17 +104,17 @@ $result = $conn->query($sql);
     </header>
 
     <div class="app-layout">
-
+ 
         <!-- SIDEBAR -->
         <aside class="side-nav">
             <div class="brand">
                 <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" style="max-width:150px;">
             </div>
             <nav>
-                <a class="nav-item active">Utenti</a>
-                <a class="nav-item">Presenze</a>
-                <a class="nav-item">Agenda</a>
-                <a class="nav-item">Contabilità</a>
+                <a class="nav-item tab-link active" data-tab="tab-utenti">Utenti</a>
+                <a class="nav-item tab-link" data-tab="tab-presenze">Presenze</a>
+                <a class="nav-item tab-link" data-tab="tab-agenda">Agenda</a>
+                <a class="nav-item tab-link" data-tab="tab-contabilita">Contabilità</a>
             </nav>
         </aside>
 
@@ -283,7 +293,82 @@ $result = $conn->query($sql);
         </main>
     </div>
 
+
+    <!-- TAB PRESENZE -->
+            <div class="page-tab" id="tab-presenze">
+                <div class="page-header">
+                    <h1>Presenze</h1>
+                    <p>Elenco presenze registrate</p>
+                </div>
+
+                <div class="presenze-controls">
+                    
+                </div>
+
+                <div class="users-table-box">
+                    <table class="users-table" id="presenzeTable">
+                        <thead>
+                            <tr>
+                                <th>Fotografia</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Ingresso</th>
+                                <th>Uscita</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if($resultPresenze && $resultPresenze->num_rows > 0){
+                            while($row = $resultPresenze->fetch_assoc()){
+                                echo '
+                                    <tr
+                                        data-id="'.htmlspecialchars($row['id']).'"
+                                        data-nome="'.htmlspecialchars($row['nome']).'"
+                                        data-cognome="'.htmlspecialchars($row['cognome']).'"
+                                        data-ingresso="'.htmlspecialchars($row['ingresso']).'"
+                                        data-uscita="'.htmlspecialchars($row['uscita']).'""
+                                    >
+                                        <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
+                                        <td>'.htmlspecialchars($row['nome']).'</td>
+                                        <td>'.htmlspecialchars($row['cognome']).'</td>
+                                        <td>'.htmlspecialchars($row['ingresso']).'</td>
+                                        <td>'.htmlspecialchars($row['uscita']).'</td>
+                                    </tr>
+                                ';
+                            }
+                        } else {
+                            echo '<tr><td colspan="6">Nessuna presenza registrata oggi.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB AGENDA -->
+            <div class="page-tab" id="tab-agenda">
+                <div class="page-header">
+                    <h1>Agenda</h1>
+                    <p>Prossimi appuntamenti</p>
+                </div>
+                <p>Contenuto agenda da implementare...</p>
+            </div>
+
+        </main>
+    </div>
+
     <script>
+        // Cambia tab
+        document.querySelectorAll(".tab-link").forEach(link=>{
+            link.addEventListener("click", e=>{
+                document.querySelectorAll(".tab-link").forEach(l=>l.classList.remove("active"));
+                e.currentTarget.classList.add("active");
+                const target = e.currentTarget.dataset.tab;
+                document.querySelectorAll(".page-tab").forEach(tab=>tab.classList.remove("active"));
+                document.getElementById(target).classList.add("active");
+            });
+        });
+
 
             /* HAMBURGER */
         const ham = document.getElementById("hamburger");

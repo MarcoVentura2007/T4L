@@ -146,7 +146,7 @@ $conn->close();
                         ';
                     }
                 } else {
-                    echo '<p>Nessun utente trovato.</p>';
+                    echo '<p>Tutti gli utenti hanno già effettuato la firma!!</p>';
                 }
                 ?>
             </div>

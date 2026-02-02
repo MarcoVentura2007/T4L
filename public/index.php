@@ -23,6 +23,15 @@ $username = $_SESSION['username'];
 <meta name="theme-color" content="#2B2B30">
 
 <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    @media (max-width: 768px) {
+        .logo-area img:nth-child(2) {
+            display: block;
+            max-width: 50px;
+        }
+    }
+</style>
 </head>
 
 <body style="overflow:hidden;">

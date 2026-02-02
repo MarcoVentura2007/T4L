@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Se l'utente non è loggato → redirect a login.php
+// Se l'utente non e' loggato viene redirect a login.php
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit;
@@ -26,12 +26,12 @@ $sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_o
 $result = $conn->query($sql);
 
 // Presenze giornaliere di default
-$oggi = date('Y-m-d');
-$sqlPresenze = "SELECT p.id, i.nome, i.cognome, par.data, p.ingresso, p.uscita 
+$oggi = date('Y-m-d')."%";
+$sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.uscita 
                 FROM presenza p 
                 INNER JOIN iscritto i ON p.ID_Iscritto = i.id 
-                INNER JOIN partecipa par ON p.id = par.id
-                WHERE par.data = '$oggi'
+                WHERE p.ingresso LIKE '$oggi'
+                
                 ORDER BY p.ingresso ASC";
 $resultPresenze = $conn->query($sqlPresenze);
 ?>
@@ -157,10 +157,10 @@ $resultPresenze = $conn->query($sqlPresenze);
                                         data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
                                     >
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
-                                        <td>'.$row['nome'].'</td>
-                                        <td>'.$row['cognome'].'</td>
-                                        <td>'.$row['data_nascita'].'</td>
-                                        <td>'.$row['note'].'</td>
+                                        <td>'.htmlspecialchars($row['nome']).'</td>
+                                        <td>'.htmlspecialchars($row['cognome']).'</td>
+                                        <td>'.htmlspecialchars($row['data_nascita']).'</td>
+                                        <td>'.htmlspecialchars($row['note']).'</td>
                                         <td>
                                             <button class="view-btn"><img src="immagini/open-eye.png"></button>
                                         </td>
@@ -197,21 +197,18 @@ $resultPresenze = $conn->query($sqlPresenze);
                 </div>
 
                 <div class="presenze-controls">
-                    <label>
-                        <input type="checkbox" id="toggleAllPresenze"> Visualizza tutte
-                    </label>
+                    
                 </div>
 
-                <div class="presenze-table-box">
+                <div class="users-table-box">
                     <table class="users-table" id="presenzeTable">
                         <thead>
                             <tr>
+                                <th>Fotografia</th>
                                 <th>Nome</th>
                                 <th>Cognome</th>
-                                <th>Data</th>
                                 <th>Ingresso</th>
                                 <th>Uscita</th>
-                                <th>Note</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -223,17 +220,14 @@ $resultPresenze = $conn->query($sqlPresenze);
                                         data-id="'.htmlspecialchars($row['id']).'"
                                         data-nome="'.htmlspecialchars($row['nome']).'"
                                         data-cognome="'.htmlspecialchars($row['cognome']).'"
-                                        data-data="'.htmlspecialchars($row['data_presenza']).'"
                                         data-ingresso="'.htmlspecialchars($row['ingresso']).'"
-                                        data-uscita="'.htmlspecialchars($row['uscita']).'"
-                                        data-note="'.htmlspecialchars($row['note']).'"
+                                        data-uscita="'.htmlspecialchars($row['uscita']).'""
                                     >
-                                        <td>'.$row['nome'].'</td>
-                                        <td>'.$row['cognome'].'</td>
-                                        <td>'.$row['data_presenza'].'</td>
-                                        <td>'.$row['ingresso'].'</td>
-                                        <td>'.$row['uscita'].'</td>
-                                        <td>'.$row['note'].'</td>
+                                        <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
+                                        <td>'.htmlspecialchars($row['nome']).'</td>
+                                        <td>'.htmlspecialchars($row['cognome']).'</td>
+                                        <td>'.htmlspecialchars($row['ingresso']).'</td>
+                                        <td>'.htmlspecialchars($row['uscita']).'</td>
                                     </tr>
                                 ';
                             }
@@ -372,14 +366,7 @@ document.querySelectorAll(".view-btn").forEach(btn=>{
 });
 overlay.onclick = closeModal;
 
-// PRESENZE: toggle tutte/giornaliere
-const toggleAll = document.getElementById("toggleAllPresenze");
-toggleAll.addEventListener("change", () => {
-    const tbody = document.querySelector("#presenzeTable tbody");
-    fetch("fetch_presenze.php?oggi=" + (toggleAll.checked ? 0 : 1))
-        .then(res => res.text())
-        .then(html => tbody.innerHTML = html);
-});
+
 </script>
 
 </body>
