@@ -349,12 +349,12 @@ $resultPresenze = $conn->query($sqlPresenze);
             document.getElementById(target).classList.add("active");
 
             // Salva il tab attivo in localStorage
-            localStorage.setItem("activeTab", target);
+            sessionStorage.setItem("activeTab", target);
         });
     });
 
     window.addEventListener("DOMContentLoaded", () => {
-        const savedTab = localStorage.getItem("activeTab");
+        const savedTab = sessionStorage.getItem("activeTab");
         if (savedTab) {
             // Rimuovi 'active' da tutti
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
@@ -372,29 +372,14 @@ $resultPresenze = $conn->query($sqlPresenze);
 
 
 
-// HAMBURGER
-const ham = document.getElementById("hamburger");
-const drop = document.getElementById("dropdown");
-ham.onclick = () => {
-    ham.classList.toggle("active");
-    drop.classList.toggle("show");
-};
-drop.querySelectorAll("div").forEach(item => {
-    item.onclick = () => {
-        window.location.href = item.dataset.link;
-    }
-});
-document.addEventListener("click", e => {
-    if(!ham.contains(e.target) && !drop.contains(e.target)){
-        ham.classList.remove("active");
-        drop.classList.remove("show");
-    }
-});
-
-// USER DROPDOWN
-const userBox = document.getElementById("userBox");
-const userDropdown = document.getElementById("userDropdown");
-document.querySelectorAll(".menu-main").forEach(main => {
+            /* HAMBURGER */
+        const ham = document.getElementById("hamburger");
+        const drop = document.getElementById("dropdown");
+        ham.onclick = () => {
+            ham.classList.toggle("active");
+            drop.classList.toggle("show");
+        };
+        document.querySelectorAll(".menu-main").forEach(main => {
         main.addEventListener("click", () => {
 
             const targetId = main.dataset.target;
@@ -421,6 +406,18 @@ document.querySelectorAll(".menu-main").forEach(main => {
             }
         });
 
+        /* USER DROPDOWN */
+        const userBox = document.getElementById("userBox");
+        const userDropdown = document.getElementById("userDropdown");
+        userBox.addEventListener("click", (e)=>{
+            e.stopPropagation();
+            userDropdown.classList.toggle("show");
+        });
+        document.addEventListener("click",(e)=>{
+            if(!userBox.contains(e.target)){
+                userDropdown.classList.remove("show");
+            }
+        });
 
 
 // LOGOUT

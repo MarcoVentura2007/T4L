@@ -112,7 +112,7 @@ if($resultClasse && $resultClasse->num_rows > 0){
                             $gestionalePage = "#"; // default se classe sconosciuta
                         }
                     ?>
-                <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
+                <div class="menu-item" data-link=<?php echo $gestionalePage; ?> >
                     <img src="immagini/gestionale-over.png" alt="">
                     Gestionale
                 </div>
@@ -164,10 +164,39 @@ if($resultClasse && $resultClasse->num_rows > 0){
         }
         ?>
 
-        <a href="<?php echo $gestionalePage; ?>" class="card">
+        <a href="#" class="card" id="card-gestionale">
             <img src="immagini/gestionale-over.png" style="height: 140px;">
             <h3>Gestionale</h3>
         </a>
+
+        <div class="popup-overlay" id="popupOverlay"></div>
+
+        <div id="code-popup" class="popup">
+                <div class="content">
+                    <p class="codice-text">Inserisci il codice di accesso</p>
+                   <input 
+                        type="password" 
+                        placeholder="Codice d'accesso" 
+                        id="password"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        requi
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    >
+
+                    <button class="learn-more" id="button-gestionale">
+                        <span class="circle" aria-hidden="true">
+                        <span class="icon arrow"></span>
+                        </span>
+                        <span class="button-text">Continua</span>
+                    </button>
+
+                    <div id="notify" class="notify hidden">
+                        <div class="icon" id="notify-icon"></div>
+                        <div class="text" id="notify-text"></div>
+                    </div>
+            </div>
+        </div>
 
     </section>
 
@@ -175,91 +204,223 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
 
 <script>
-
-    const ham = document.getElementById("hamburger");
-    const drop = document.getElementById("dropdown");
-
-    ham.onclick = () => {
-        ham.classList.toggle("active");
-        drop.classList.toggle("show");
-    };
-
-    document.querySelectorAll(".menu-main").forEach(main => {
-        main.addEventListener("click", () => {
-
-            const targetId = main.dataset.target;
-            const targetMenu = document.getElementById(targetId);
-
-            // chiudi tutti gli altri submenu
-            document.querySelectorAll(".submenu").forEach(menu => {
-                if(menu !== targetMenu){
-                    menu.classList.remove("open");
-                    menu.previousElementSibling.classList.remove("open"); // reset freccetta
-                }
-            });
-
-            // toggle quello cliccato
-            targetMenu.classList.toggle("open");
-            main.classList.toggle("open"); // per la freccetta
-        });
-
-    });
+    // ELEMENTI
+    const cardGestionale = document.getElementById("card-gestionale");
+    const overlay = document.getElementById("popupOverlay");
+    const codePopup = document.getElementById("code-popup");
+    const buttonGestionale = document.getElementById("button-gestionale");
+    const passwordField = document.getElementById("password");
+    const hamGestionale = document.getElementById("ham-gestionale");
 
 
 
-    document.querySelectorAll(".menu-item").forEach(item => {
-        item.onclick = () => {
-            window.location.href = item.dataset.link;
-        }
-    });
 
+// FUNZIONE NOTIFICATION
+function showNotification(success = true, message = "Messaggio") {
+    const notify = document.createElement('div');
+    notify.classList.add('notify');
+    notify.classList.add(success ? 'success' : 'error');
 
-    document.addEventListener("click", e => {
-        if(!ham.contains(e.target) && !drop.contains(e.target)){
-            ham.classList.remove("active");
-            drop.classList.remove("show");
-        }
-    });
-    
-    const userBox = document.getElementById("userBox");
-    const userDropdown = document.getElementById("userDropdown");
+    const iconWrapper = document.createElement('div');
+    iconWrapper.classList.add('icon-wrapper');
 
-    userBox.addEventListener("click", (e)=>{
-        e.stopPropagation();
-        userDropdown.classList.toggle("show");
-    });
+    const circle = document.createElement('div');
+    circle.classList.add('circle');
+    iconWrapper.appendChild(circle);
 
-    document.addEventListener("click",(e)=>{
-        if(!userBox.contains(e.target)){
-            userDropdown.classList.remove("show");
-        }
-    });
+    const icon = document.createElement('span');
+    icon.classList.add('icon');
+    icon.textContent = success ? "✔" : "✖";
+    iconWrapper.appendChild(icon);
 
-    const logoutBtn = document.getElementById("logoutBtn");
-    const logoutOverlay = document.getElementById("logoutOverlay");
-    const logoutModal = document.getElementById("logoutModal");
-    const cancelLogout = document.getElementById("cancelLogout");
-    const confirmLogout = document.getElementById("confirmLogout");
+    notify.appendChild(iconWrapper);
 
-    logoutBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        logoutOverlay.classList.add("show");
-        logoutModal.classList.add("show");
-    });
+    const text = document.createElement('span');
+    text.textContent = message;
+    notify.appendChild(text);
 
-    // Chiudi popup
-    cancelLogout.onclick = closeLogout;
-    logoutOverlay.onclick = closeLogout;
+    document.body.appendChild(notify);
 
-    function closeLogout(){
-        logoutOverlay.classList.remove("show");
-        logoutModal.classList.remove("show");
+    // Mostra con animazione
+    setTimeout(() => notify.classList.add('show'), 10);
+
+    // Nascondi dopo 3 secondi con animazione uscita
+    setTimeout(() => {
+        notify.classList.remove('show');
+        notify.classList.add('hide');
+        notify.addEventListener('animationend', () => notify.remove());
+    }, 2000);
+}
+
+cardGestionale.addEventListener("click", (e) => {
+    e.preventDefault();
+    overlay.classList.add("show");
+    codePopup.classList.add("show");
+    document.body.classList.add("popup-open");
+    passwordField.focus(); // focus automatico sull'input
+});
+
+// CHIUDI POPUP CLICCANDO FUORI
+overlay.addEventListener("click", () => {
+    overlay.classList.remove("show");
+    codePopup.classList.remove("show");
+    document.body.classList.remove("popup-open");
+});
+
+// FUNZIONE DI CONTROLLO CODICE
+async function verificaCodice() {
+    const codice = passwordField.value.trim();
+
+    if (!codice) {
+        showNotification(false, "Inserisci il codice");
+        return;
     }
 
-    // Conferma logout
-    confirmLogout.onclick = () => {
-        window.location.href = "logout.php";
-    };
+    try {
+        const response = await fetch("api/api_codice_gestionale.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `codice=${encodeURIComponent(codice)}`
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification(true, "Accesso consentito");
+
+            // Chiudi popup
+            overlay.classList.remove("show");
+            codePopup.classList.remove("show");
+            document.body.classList.remove("popup-open");
+
+            // Redirect alla pagina di gestionale
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 2000);
+        } else {
+            showNotification(false, result.message);
+            passwordField.value = ""; // pulisci input se sbagliato
+        }
+
+    } catch (err) {
+        showNotification(false, "Errore server");
+        console.error(err);
+    }
+}
+
+// BOTTONE CONTINUA
+buttonGestionale.addEventListener("click", verificaCodice);
+
+// INVIO DALL'INPUT
+passwordField.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault(); // evita submit involontario
+        verificaCodice();
+    }
+
+
+
+});
+
+
+
+
+
+        overlay.onclick = closePopups;
+
+        function closePopups(){
+            overlay.classList.remove("show");
+            codePopup.classList.remove("show");
+            document.body.classList.remove("popup-open");
+        }
+        
+
+        /* HAMBURGER */
+        const ham = document.getElementById("hamburger");
+        const drop = document.getElementById("dropdown");
+        ham.onclick = () => {
+            ham.classList.toggle("active");
+            drop.classList.toggle("show");
+        };
+
+        document.querySelectorAll(".menu-main").forEach(main => {
+            main.addEventListener("click", () => {
+
+                const targetId = main.dataset.target;
+                const targetMenu = document.getElementById(targetId);
+
+                // chiudi tutti gli altri submenu
+                document.querySelectorAll(".submenu").forEach(menu => {
+                    if(menu !== targetMenu){
+                        menu.classList.remove("open");
+                        menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                    }
+                });
+
+                // toggle quello cliccato
+                targetMenu.classList.toggle("open");
+                main.classList.toggle("open"); // per la freccetta
+            });
+
+        });
+
+
+        // Prendi tutti i link "menu-item" con data-link
+        document.querySelectorAll(".menu-item[data-link]").forEach(item => {
+            const link = item.dataset.link;
+            if(link.includes("gestionale")) { // intercetta solo link gestionale
+                item.addEventListener("click", (e) => {
+                    e.preventDefault(); // previeni redirect
+                    overlay.classList.add("show");
+                    codePopup.classList.add("show");
+                    document.body.classList.add("popup-open");
+                    passwordField.focus(); // focus input
+                });
+            } else {
+                // link normali
+                item.addEventListener("click", () => {
+                    window.location.href = link;
+                });
+            }
+        });
+
+
+        /* USER DROPDOWN */
+        const userBox = document.getElementById("userBox");
+        const userDropdown = document.getElementById("userDropdown");
+        userBox.addEventListener("click", (e)=>{
+            e.stopPropagation();
+            userDropdown.classList.toggle("show");
+        });
+        document.addEventListener("click",(e)=>{
+            if(!userBox.contains(e.target)){
+                userDropdown.classList.remove("show");
+            }
+        });
+
+        /* LOGOUT */
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutOverlay = document.getElementById("logoutOverlay");
+        const logoutModal = document.getElementById("logoutModal");
+        const cancelLogout = document.getElementById("cancelLogout");
+        const confirmLogout = document.getElementById("confirmLogout");
+
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            logoutOverlay.classList.add("show");
+            logoutModal.classList.add("show");
+        });
+
+        cancelLogout.onclick = closeLogout;
+        logoutOverlay.onclick = closeLogout;
+        function closeLogout(){
+            logoutOverlay.classList.remove("show");
+            logoutModal.classList.remove("show");
+        }
+
+        confirmLogout.onclick = () => {
+            window.location.href = "logout.php";
+        };
 
 </script>
 

@@ -21,10 +21,11 @@ if ($conn->connect_error) {
 }
 
 // Prendi la classe dell'utente loggato
-$resultClasse = $conn->query("SELECT classe FROM Account WHERE nome_utente = '$username'");
+$resultClasse = $conn->query("SELECT classe, codice_univoco FROM Account WHERE nome_utente = '$username'");
 if($resultClasse && $resultClasse->num_rows > 0){
     $rowClasse = $resultClasse->fetch_assoc();
     $classe = $rowClasse['classe'];
+    $codice = $rowClasse['codice_univoco'];
 } else {
     $classe = ""; // default se non trovato
 }
@@ -316,6 +317,8 @@ $conn->close();
                 1100: { slidesPerView: 3 }
             }
         });
+
+
 
 
 

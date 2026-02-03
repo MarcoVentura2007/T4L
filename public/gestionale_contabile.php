@@ -155,7 +155,6 @@ $resultPresenze = $conn->query($sqlPresenze);
     <div class="app-layout">
  
         <!-- SIDEBAR -->
-        <!-- SIDEBAR -->
         <aside class="vertical-sidebar">
             <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
             <nav class="sidebar-nav">
@@ -222,6 +221,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                                 <th>Nome</th>
                                 <th>Cognome</th>
                                 <th>Data di nascita</th>
+                                <th>Disabilità</th>
                                 <th>Note</th>
                                 <th>Azioni</th>
                             </tr>
@@ -247,6 +247,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                                         <td>'.htmlspecialchars($row['nome']).'</td>
                                         <td>'.htmlspecialchars($row['cognome']).'</td>
                                         <td>'.htmlspecialchars($row['data_nascita']).'</td>
+                                        <td>'.htmlspecialchars($row['disabilita']).'</td>
                                         <td>'.htmlspecialchars($row['note']).'</td>
                                         <td>
                                             <button class="view-btn"><img src="immagini/open-eye.png"></button>
@@ -518,12 +519,12 @@ $resultPresenze = $conn->query($sqlPresenze);
             document.getElementById(target).classList.add("active");
 
             // Salva il tab attivo in localStorage
-            localStorage.setItem("activeTab", target);
+            sessionStorage.setItem("activeTab", target);
         });
     });
 
     window.addEventListener("DOMContentLoaded", () => {
-        const savedTab = localStorage.getItem("activeTab");
+        const savedTab = sessionStorage.getItem("activeTab");
         if (savedTab) {
             // Rimuovi 'active' da tutti
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
@@ -574,7 +575,7 @@ $resultPresenze = $conn->query($sqlPresenze);
             }
         });
 
-
+    
 
 
         /* USER DROPDOWN */
