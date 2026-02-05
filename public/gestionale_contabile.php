@@ -182,7 +182,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                             <h2 class="sidebar__item--heading">Pagine</h2>
                         </li>
                         <li class="sidebar__item">
-                            <a class="sidebar__link tab-link" href="#" data-tab="tab-utenti" data-tooltip="Utenti">
+                            <a class="sidebar__link tab-link active" href="#" data-tab="tab-utenti" data-tooltip="Utenti">
                                 <span class="sidebar-icon"><img src="immagini/group.png" alt=""></span>
                                 <span class="text">Utenti</span>
                             </a>
@@ -207,7 +207,7 @@ $resultPresenze = $conn->query($sqlPresenze);
 
         <main class="main-content">
             <!-- TAB UTENTI -->
-            <div class="page-tab" id="tab-utenti">
+            <div class="page-tab active" id="tab-utenti">
                 <div class="page-header">
                     <h1>Utenti</h1>
                     <p>Elenco iscritti registrati</p>

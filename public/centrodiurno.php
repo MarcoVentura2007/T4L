@@ -109,7 +109,7 @@ if($resultClasse && $resultClasse->num_rows > 0){
                         } elseif($classe === 'Contabile'){
                             $gestionalePage = "gestionale_contabile.php";
                         } else {
-                            $gestionalePage = "#"; // default se classe sconosciuta
+                            $gestionalePage = "#"; 
                         }
                     ?>
                 <div class="menu-item" data-link=<?php echo $gestionalePage; ?> >
@@ -160,7 +160,7 @@ if($resultClasse && $resultClasse->num_rows > 0){
         } elseif($classe === 'Contabile'){
             $gestionalePage = "gestionale_contabile.php";
         } else {
-            $gestionalePage = "#"; // default se classe sconosciuta
+            $gestionalePage = "#"; 
         }
         ?>
 
