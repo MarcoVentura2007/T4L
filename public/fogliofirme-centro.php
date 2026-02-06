@@ -139,7 +139,7 @@ $conn->close();
                             $gestionalePage = "#"; // default se classe sconosciuta
                         }
                     ?>
-                <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
+                <div class="menu-item" id="cardGestionale" data-link=<?php echo $gestionalePage; ?> >
                     <img src="immagini/gestionale-over.png" alt="">
                     Gestionale
                 </div>
@@ -292,8 +292,151 @@ $conn->close();
 
 
     </main>
+    <!-- POPUP CODICE GESTIONALE -->
+        <div id="code-popup" class="popup">
+                <div class="content">
+                    <p class="codice-text">Inserisci il codice di accesso</p>
+                   <input 
+                        type="password" 
+                        placeholder="Codice d'accesso" 
+                        id="password"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        requi
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    >
+
+                    <button class="learn-more" id="button-gestionale">
+                        <span class="circle" aria-hidden="true">
+                        <span class="icon arrow"></span>
+                        </span>
+                        <span class="button-text">Continua</span>
+                    </button>
+
+                    <div id="notify" class="notify hidden">
+                        <div class="icon" id="notify-icon"></div>
+                        <div class="text" id="notify-text"></div>
+                    </div>
+            </div>
+        </div>
 
     <script>
+
+        // ELEMENTI
+    const cardGestionale = document.getElementById("cardGestionale");
+    const overlay = document.getElementById("popupOverlay");
+    const codePopup = document.getElementById("code-popup");
+    const buttonGestionale = document.getElementById("button-gestionale");
+    const passwordField = document.getElementById("password");
+    const hamGestionale = document.getElementById("ham-gestionale");
+
+
+
+
+// FUNZIONE NOTIFICATION
+function showNotification(success = true, message = "Messaggio") {
+    const notify = document.createElement('div');
+    notify.classList.add('notify');
+    notify.classList.add(success ? 'success' : 'error');
+
+    const iconWrapper = document.createElement('div');
+    iconWrapper.classList.add('icon-wrapper');
+
+    const circle = document.createElement('div');
+    circle.classList.add('circle');
+    iconWrapper.appendChild(circle);
+
+    const icon = document.createElement('span');
+    icon.classList.add('icon');
+    icon.textContent = success ? "✔" : "✖";
+    iconWrapper.appendChild(icon);
+
+    notify.appendChild(iconWrapper);
+
+    const text = document.createElement('span');
+    text.textContent = message;
+    notify.appendChild(text);
+
+    document.body.appendChild(notify);
+
+    // Mostra con animazione
+    setTimeout(() => notify.classList.add('show'), 10);
+
+    // Nascondi dopo 3 secondi con animazione uscita
+    setTimeout(() => {
+        notify.classList.remove('show');
+        notify.classList.add('hide');
+        notify.addEventListener('animationend', () => notify.remove());
+    }, 2000);
+}
+
+cardGestionale.addEventListener("click", (e) => {
+    e.preventDefault();
+    overlay.classList.add("show");
+    codePopup.classList.add("show");
+    document.body.classList.add("popup-open");
+    passwordField.focus();
+    return false;
+});
+
+// CHIUDI POPUP CLICCANDO FUORI
+overlay.addEventListener("click", () => {
+    overlay.classList.remove("show");
+    codePopup.classList.remove("show");
+    document.body.classList.remove("popup-open");
+});
+
+// FUNZIONE DI CONTROLLO CODICE
+async function verificaCodice() {
+    const codice = passwordField.value.trim();
+
+    if (!codice) {
+        showNotification(false, "Inserisci il codice");
+        return;
+    }
+
+    try {
+        const response = await fetch("api/api_codice_gestionale.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `codice=${encodeURIComponent(codice)}`
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification(true, "Accesso consentito");
+
+          
+            overlay.classList.remove("show");
+            codePopup.classList.remove("show");
+            document.body.classList.remove("popup-open");
+
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 2000);
+        } else {
+            showNotification(false, result.message);
+            passwordField.value = ""; 
+        }
+
+    } catch (err) {
+        showNotification(false, "Errore server");
+        console.error(err);
+    }
+}
+
+    // BOTTONE CONTINUA
+    buttonGestionale.addEventListener("click", verificaCodice);
+
+    // INVIO DALL'INPUT
+    passwordField.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            verificaCodice();
+        }
+    });
+
 
         
         /* SWIPER */
@@ -353,9 +496,22 @@ $conn->close();
         });
 
 
-        document.querySelectorAll(".menu-item").forEach(item => {
-            item.onclick = () => {
-                window.location.href = item.dataset.link;
+        // Prendi tutti i link "menu-item" con data-link
+        document.querySelectorAll(".menu-item[data-link]").forEach(item => {
+            const link = item.dataset.link;
+            if(link.includes("gestionale")) { // intercetta solo link gestionale
+                item.addEventListener("click", (e) => {
+                    e.preventDefault(); // previeni redirect
+                    overlay.classList.add("show");
+                    codePopup.classList.add("show");
+                    document.body.classList.add("popup-open");
+                    passwordField.focus(); // focus input
+                });
+            } else {
+                // link normali
+                item.addEventListener("click", () => {
+                    window.location.href = link;
+                });
             }
         });
 
@@ -408,7 +564,7 @@ $conn->close();
 
 
         /* POPUP PROFILI */
-        const overlay = document.getElementById("popupOverlay");
+        
         const timePopup = document.getElementById("timePopup");
         const signPopup = document.getElementById("signaturePopup");
         const img1 = document.getElementById("popupUserImg");
@@ -438,9 +594,21 @@ $conn->close();
         });
 
         document.getElementById("goSignature").onclick = () => {
+
+            const timeIn = document.getElementById("timeIn").value;
+            const timeOut = document.getElementById("timeOut").value;
+
+            // CONTROLLO PRIMA DI ANDARE ALLA FIRMA
+            if(timeIn === "" || timeOut === ""){
+                alert("Inserisci prima l'orario di ingresso e di uscita!");
+                return; // blocca il passaggio alla firma
+            }
+
+            // se ok → vai alla firma
             timePopup.classList.remove("show");
             signPopup.classList.add("show");
         };
+
 
 
 
@@ -544,10 +712,17 @@ $conn->close();
 
         /* POPUP SUCCESSO */
         document.querySelector(".btn-confirm").onclick = () => {
+
             const timeIn = document.getElementById("timeIn").value;
             const timeOut = document.getElementById("timeOut").value;
             const check_firma = 1;
             const idIscritto = selectedIdIscritto;
+
+            // CONTROLLO CAMPI VUOTI
+            if(timeIn === "" || timeOut === ""){
+                alert("Inserisci sia l'orario di ingresso che quello di uscita!");
+                return; // BLOCCA L'INVIO
+            }
 
             // INVIO DATI A api_firma.php
             fetch("api/api_firma.php", {
@@ -564,24 +739,27 @@ $conn->close();
                 })
             })
             .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
-                alert("Errore nel salvataggio firma");
-                return;
-            }
+            .then(data => {
 
-            signPopup.classList.remove("show");
-            successPopup.classList.add("show");
+                if (!data.success) {
+                    alert("Errore nel salvataggio firma");
+                    return;
+                }
 
-            setTimeout(()=>{
-                successPopup.classList.remove("show");
-                overlay.classList.remove("show");
-                document.body.classList.remove("popup-open");
-                location.reload();
-            },1800); 
-            
-        });
-    }
+                signPopup.classList.remove("show");
+                successPopup.classList.add("show");
+
+                setTimeout(()=>{
+                    successPopup.classList.remove("show");
+                    overlay.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+                    location.reload();
+                },1800);
+
+            });
+        }
+
+
 
     </script>
 

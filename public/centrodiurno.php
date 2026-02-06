@@ -317,15 +317,8 @@ passwordField.addEventListener("keydown", (e) => {
         e.preventDefault(); // evita submit involontario
         verificaCodice();
     }
-
-
-
 });
-
-
-
-
-
+        // CHIUDI POPUP CLICCANDO FUORI
         overlay.onclick = closePopups;
 
         function closePopups(){
