@@ -250,11 +250,11 @@ $resultPresenze = $conn->query($sqlPresenze);
                     <form id="formAggiungiUtente">
                         <div class="edit-field">
                             <label>Nome</label>
-                            <input type="text" id="utenteNome" placeholder="Nome" required>
+                            <input type="text" id="utenteNome" required>
                         </div>
                         <div class="edit-field">
                             <label>Cognome</label>
-                            <input type="text" id="utenteCognome" placeholder="Cognome" required>
+                            <input type="text" id="utenteCognome" required>
                         </div>
                         <div class="edit-field">
                             <label>Data di nascita</label>
@@ -262,7 +262,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                         </div>
                         <div class="edit-field">
                             <label>Codice Fiscale</label>
-                            <input type="text" id="utenteCF" placeholder="Codice Fiscale" required>
+                            <input type="text" id="utenteCF" required>
                         </div>
                         <div class="edit-field">
                             <label>Contatti</label>
@@ -301,7 +301,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                         </div>
                         <div class="edit-field">
                             <label>Prezzo orario (€)</label>
-                            <input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.01">
+                            <input type="number" id="utentePrezzo" step="0.01">
                         </div>
                         <div class="edit-field">
                             <label>Note</label>

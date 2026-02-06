@@ -2639,6 +2639,7 @@ td img:hover{
     display: block;
     margin-bottom: 5px;
     color: #374151;
+    margin-top: 10px;
 }
 
 .edit-field input,
