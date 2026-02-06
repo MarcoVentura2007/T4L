@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Feb 06, 2026 alle 19:36
+-- Creato il: Feb 07, 2026 alle 00:38
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -117,6 +117,8 @@ INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale
 CREATE TABLE `partecipa` (
   `id` int(11) NOT NULL,
   `Data` date NOT NULL,
+  `Ora_Inizio` time NOT NULL,
+  `Ora_Fine` time NOT NULL,
   `ID_Presenza` int(11) NOT NULL,
   `ID_Attivita` int(11) NOT NULL,
   `ID_Educatore` int(11) NOT NULL
