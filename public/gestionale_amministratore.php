@@ -1,0 +1,1341 @@
+ <?php
+session_start();
+
+// Se l'utente non è loggato → redirect a login.php
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$username = $_SESSION['username'];
+
+// Connessione al DB
+$host = "localhost";    
+$user = "root";         
+$pass = "";             
+$db   = "time4all"; 
+
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    die("Connessione fallita: " . $conn->connect_error);
+}
+
+// Prendi la classe dell'utente loggato
+$resultClasse = $conn->query("SELECT classe FROM Account WHERE nome_utente = '$username'");
+if($resultClasse && $resultClasse->num_rows > 0){
+    $rowClasse = $resultClasse->fetch_assoc();
+    $classe = $rowClasse['classe'];
+} else {
+    $classe = ""; // default se non trovato
+}
+
+// Preleva i profili dal DB
+$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
+        FROM iscritto ORDER BY cognome ASC";
+$result = $conn->query($sql);
+
+// Presenze giornaliere di default
+$oggi = date('Y-m-d')."%";
+$sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.uscita 
+                FROM presenza p 
+                INNER JOIN iscritto i ON p.ID_Iscritto = i.id 
+                WHERE p.ingresso LIKE '$oggi'
+                
+                ORDER BY p.ingresso ASC";
+$resultPresenze = $conn->query($sqlPresenze);
+?>
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T4L | Gestionale utenti</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="immagini/Icona.ico">
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+
+        <div class="user-box" id="userBox">
+            <img src="immagini/profile-picture.png" alt="Profile">
+            <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
+
+            <div class="user-dropdown" id="userDropdown">
+                <a href="impostazioni.php">
+                    <span class="icon">⚙</span>
+                    <span class="text">Impostazioni</span>
+                </a>
+                <a href="#" class="danger" id="logoutBtn">
+                    <span class="icon">⏻</span>
+                    <span class="text">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="logout-overlay" id="logoutOverlay"></div>
+
+        <div class="logout-modal" id="logoutModal">
+            <h3>Conferma logout</h3>
+            <p>Sei sicuro di voler uscire dal tuo account?</p>
+
+            <div class="logout-actions">
+                <button class="btn-cancel" id="cancelLogout">Annulla</button>
+                <button class="btn-logout" id="confirmLogout">Logout</button>
+            </div>
+        </div>
+
+        <div class="logo-area">
+            <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
+            <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
+            <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+        </div>
+
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div class="dropdown" id="dropdown">
+
+        <div class="menu-group">
+
+            <div class="menu-main" data-target="centroMenu">
+                <img src="immagini/Logo-centrodiurno.png">
+                Centro Diurno
+            </div>
+
+            <div class="submenu" id="centroMenu">
+                <div class="menu-item" data-link="fogliofirme-centro.php">
+                    <img src="immagini/foglio-over.png" alt="">
+                    Foglio firme
+                </div>
+                <?php
+                        if($classe === 'Educatore'){
+                            $gestionalePage = "gestionale_utenti.php";
+                        } elseif($classe === 'Contabile'){
+                            $gestionalePage = "gestionale_contabile.php";
+                        } elseif($classe === 'Amministratore') {
+                            $gestionalePage = "gestionale_amministratore.php";
+                        } else {
+                            $gestionalePage = "#"; // default se classe sconosciuta
+                        }
+                    ?>
+                <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
+                    <img src="immagini/gestionale-over.png" alt="">
+                    Gestionale
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="menu-group">
+
+            <div class="menu-main" data-target="ergoMenu">
+                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+                Ergoterapeutica
+            </div>
+
+            <div class="submenu" id="ergoMenu">
+                <div class="menu-item" data-link="riconoscimento.php">Riconoscimento facciale</div>
+                <div class="menu-item" data-link="gestionale_contabile.php">Gestionale</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    </div>
+    </header>
+
+    <div class="app-layout">
+ 
+        <!-- SIDEBAR -->
+        <aside class="vertical-sidebar">
+            <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
+            <nav class="sidebar-nav">
+                <header>
+                    <div class="sidebar__toggle-container">
+                        <label tabindex="0" for="checkbox-input" id="label-for-checkbox-input" class="nav__toggle">
+                            <span class="toggle--icons" aria-hidden="true">
+                                <!-- Icone di toggle, puoi lasciare SVG o cambiare con immagini se vuoi -->
+                                <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--open">
+                                    <path d="M3 5a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2zM2 12a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1M2 18a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1"></path>
+                                </svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--close">
+                                    <path d="M18.707 6.707a1 1 0 0 0-1.414-1.414L12 10.586 6.707 5.293a1 1 0 0 0-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 1 0 1.414 1.414L12 13.414l5.293 5.293a1 1 0 0 0 1.414-1.414L13.414 12z"></path>
+                                </svg>
+                            </span>
+                        </label>
+                    </div>
+                    <figure>
+                        <img class="sidebar-logo" src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Logo" />
+                    </figure>
+                </header>
+                <section class="sidebar__wrapper">
+                    <ul class="sidebar__list list--primary">
+                        <li class="sidebar__item item--heading">
+                            <h2 class="sidebar__item--heading">Pagine</h2>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link active" href="#" data-tab="tab-utenti" data-tooltip="Utenti">
+                                <span class="sidebar-icon"><img src="immagini/group.png" alt=""></span>
+                                <span class="text">Utenti</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-presenze" data-tooltip="Presenze">
+                                <span class="sidebar-icon"><img src="immagini/attendance.png" alt=""></span>
+                                <span class="text">Presenze</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-agenda" data-tooltip="Agenda">
+                                <span class="sidebar-icon"><img src="immagini/book.png" alt=""></span>
+                                <span class="text">Agenda</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr/>
+                        </li>
+                        <li class="sidebar__item item--heading">
+                            <h2 class="sidebar__item--heading">Gestione</h2>
+                        </li>
+                        
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-attivita" data-tooltip="Attivita">
+                                <span class="sidebar-icon"><img src="immagini/attivita.png" alt=""></span>
+                                <span class="text">Attività</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-resoconti" data-tooltip="Resoconti">
+                                <span class="sidebar-icon"><img src="immagini/resoconti.png" alt=""></span>
+                                <span class="text">Resoconti</span>
+                            </a>
+                        </li>
+
+
+                        <!-- Solo per amministratore -->
+                        <li>
+                            <hr/>
+                        </li>
+                        <li class="sidebar__item item--heading">
+                            <h2 class="sidebar__item--heading">AMMINISTRAZIONE</h2>
+                        </li>
+                        
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-educatori" data-tooltip="Educatori">
+                                <span class="sidebar-icon"><img src="immagini/educatore.png" alt=""></span>
+                                <span class="text">Educatori</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-account" data-tooltip="Account">
+                                <span class="sidebar-icon"><img src="immagini/account.png" alt=""></span>
+                                <span class="text">Account</span>
+                            </a>
+                        </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-logs" data-tooltip="Logs">
+                                <span class="sidebar-icon"><img src="immagini/logs.png" alt=""></span>
+                                <span class="text">Logs</span>
+                            </a>
+                        </li>
+
+
+                    </ul>
+
+                </section>
+            </nav>
+        </aside>
+
+        
+
+
+
+        <main class="main-content">
+            <!-- TAB UTENTI -->
+            <div class="page-tab active" id="tab-utenti">
+                <button class="animated-button" id="aggiungi-utente-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Aggiungi Utente</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <div class="logout-overlay" id="Overlay"></div>
+
+
+
+                <!-- Modal Aggiungi Utente -->
+                <div class="modal-box large" id="modalAggiungiUtente">
+                    <h3>Aggiungi nuovo utente</h3>
+                    <form id="formAggiungiUtente">
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="utenteNome" placeholder="Nome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Cognome</label>
+                            <input type="text" id="utenteCognome" placeholder="Cognome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Data di nascita</label>
+                            <input type="date" id="utenteData" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Fiscale</label>
+                            <input type="text" id="utenteCF" placeholder="Codice Fiscale" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Contatti</label>
+                            <input type="text" id="utenteContatti" placeholder="Email o telefono" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Fotografia</label>
+
+                            <div class="file-inline" id="fileContainer">
+
+                                <input type="file" id="utenteFoto" accept="image/*" hidden>
+
+                                <button type="button" class="file-btn-minimal"
+                                    onclick="document.getElementById('utenteFoto').click()">
+                                    Scegli file
+                                </button>
+
+                                <div class="file-preview-container">
+                                    <img id="previewFotoMini" class="preview-mini" style="display:none;">
+                                    <button type="button" id="clearFileBtn" class="clear-file-btn" title="Rimuovi file">&times;</button>
+                                </div>
+
+                                <span class="file-name" id="nomeFileFoto">Nessun file</span>
+
+                            </div>
+                        </div>
+
+
+                        <div class="edit-field">
+                            <label>Disabilità</label>
+                            <input type="text" id="utenteDisabilita">
+                        </div>
+                        <div class="edit-field">
+                            <label>Intolleranze / Allergie</label>
+                            <input type="text" id="utenteIntolleranze">
+                        </div>
+                        <div class="edit-field">
+                            <label>Prezzo orario (€)</label>
+                            <input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.01">
+                        </div>
+                        <div class="edit-field">
+                            <label>Note</label>
+                            <textarea id="utenteNote"></textarea>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="page-header">
+                    <h1>Utenti</h1>
+                    <p>Elenco iscritti registrati</p>
+                </div>
+
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Fotografia</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Data di nascita</th>
+                                <th>Disabilità</th>
+                                <th>Note</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if($result && $result->num_rows > 0){
+                            while($row = $result->fetch_assoc()){
+                                echo '
+                                    <tr
+                                        data-id="'.htmlspecialchars($row['id']).'"
+                                        data-nome="'.htmlspecialchars($row['nome']).'" 
+                                        data-cognome="'.htmlspecialchars($row['cognome']).'" 
+                                        data-nascita="'.htmlspecialchars($row['data_nascita']).'" 
+                                        data-note="'.htmlspecialchars($row['note']).'" 
+                                        data-cf="'.htmlspecialchars($row['codice_fiscale']).'" 
+                                        data-contatti="'.htmlspecialchars($row['contatti']).'" 
+                                        data-disabilita="'.htmlspecialchars($row['disabilita']).'" 
+                                        data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'" 
+                                        data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
+                                    >
+                                        <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
+                                        <td>'.htmlspecialchars($row['nome']).'</td>
+                                        <td>'.htmlspecialchars($row['cognome']).'</td>
+                                        <td>'.htmlspecialchars($row['data_nascita']).'</td>
+                                        <td>'.htmlspecialchars($row['disabilita']).'</td>
+                                        <td>'.htmlspecialchars($row['note']).'</td>
+                                        <td>
+                                            <button class="view-btn"><img src="immagini/open-eye.png"></button>
+                                            <button class="edit-btn"><img src="immagini/edit.png"></button>
+                                            <button class="delete-btn"><img src="immagini/delete.png"></button>
+                                        </td>
+                                    </tr>
+                                ';
+                            }
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+
+                    <div class="modal-overlay" id="modalOverlay"></div>
+                    <div class="modal-box large" id="viewModal">
+                        <div class="profile-header">
+                            <img id="viewAvatar" class="profile-avatar">
+                            <div class="profile-main">
+                                <h3 id="viewFullname"></h3>
+                                <span id="viewBirth"></span>
+                            </div>
+                        </div>
+                        <div class="profile-grid" id="viewContent"></div>
+                        <div class="modal-actions">
+                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                
+            </div>
+
+            <!-- TAB PRESENZE -->
+            <div class="page-tab" id="tab-presenze">
+                <div class="page-header">
+                    <h1>Presenze</h1>
+                    <p>Elenco presenze registrate</p>
+                </div>
+
+                <div class="presenze-controls">
+                    
+                </div>
+
+                <div class="users-table-box">
+                    <table class="users-table" id="presenzeTable">
+                        <thead>
+                            <tr>
+                                <th>Fotografia</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Ingresso</th>
+                                <th>Uscita</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if($resultPresenze && $resultPresenze->num_rows > 0){
+                            while($row = $resultPresenze->fetch_assoc()){
+                                echo '
+                                    <tr
+                                        data-id="'.htmlspecialchars($row['id']).'"
+                                        data-nome="'.htmlspecialchars($row['nome']).'"
+                                        data-cognome="'.htmlspecialchars($row['cognome']).'"
+                                        data-ingresso="'.htmlspecialchars($row['ingresso']).'"
+                                        data-uscita="'.htmlspecialchars($row['uscita']).'""
+                                    >
+                                        <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
+                                        <td>'.htmlspecialchars($row['nome']).'</td>
+                                        <td>'.htmlspecialchars($row['cognome']).'</td>
+                                        <td>'.htmlspecialchars($row['ingresso']).'</td>
+                                        <td>'.htmlspecialchars($row['uscita']).'</td>
+                                    </tr>
+                                ';
+                            }
+                        } else {
+                            echo '<tr><td colspan="6">Nessuna presenza registrata oggi.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+
+            <!-- TAB AGENDA -->
+            <div class="page-tab" id="tab-agenda">
+                <div class="page-header">
+                    <h1>Agenda</h1>
+                    <p>Prossimi appuntamenti</p>
+                </div>
+                <p>Contenuto agenda da implementare...</p>
+            </div>
+
+
+
+
+
+            <!-- TAB ATTIVITA -->
+            <div class="page-tab" id="tab-attivita">
+                <div class="page-header">
+                    <h1>Attività</h1>
+                    <p>Gestione delle attività</p>
+                </div>
+
+                <button class="animated-button" id="aggiungiAttivitaBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Aggiungi Attività</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <div class="users-table-box">
+                    <table class="users-table" id="attivitaTable">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrizione</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        $sqlAttivita = "SELECT id, Nome, Descrizione FROM attivita ORDER BY Nome ASC";
+                        $resultAttivita = $conn->query($sqlAttivita);
+                        if($resultAttivita && $resultAttivita->num_rows > 0){
+                            while($row = $resultAttivita->fetch_assoc()){
+                                echo '<tr data-id="'.htmlspecialchars($row['id']).'">
+                                        <td>'.htmlspecialchars($row['Nome']).'</td>
+                                        <td>'.htmlspecialchars($row['Descrizione']).'</td>
+                                        <td>
+                                            <button class="edit-attivita-btn"><img src="immagini/edit.png" alt="Modifica"></button>
+                                            <button class="delete-attivita-btn"><img src="immagini/delete.png" alt="Elimina"></button>
+                                        </td>
+                                    </tr>';
+                            }
+                        } else {
+                            echo '<tr><td colspan="3">Nessuna attività registrata.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="logout-overlay" id="attivitaOverlay"></div>
+
+                <!-- MODAL AGGIUNGI ATTIVITA -->
+                <div class="modal-box large" id="modalAggiungiAttivita">
+                    <h3 class="modal-title">Aggiungi nuova attività</h3>
+
+                    <form id="formAttivita">
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="attivitaNome" placeholder="Nome attività" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Descrizione</label>
+                            <textarea id="attivitaDescrizione" placeholder="Descrizione" required></textarea>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" id="closeAddAttivita" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaAttivita">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+
+
+
+
+                <!-- MODAL MODIFICA ATTIVITA -->
+                <div class="modal-box large" id="modalModificaAttivita">
+                    <h3 class="modal-title">Modifica attività</h3>
+
+                    <form id="formModificaAttivita">
+                        <input type="hidden" id="editAttivitaId">
+
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="editAttivitaNome" placeholder="Nome attività" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Descrizione</label>
+                            <textarea id="editAttivitaDescrizione" placeholder="Descrizione" required></textarea>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaModificaAttivita">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-box danger" id="modalDeleteAttivita">
+                    <h3>Elimina attività</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteAttivita">Elimina</button>
+                    </div>
+                </div>
+
+
+
+                
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+            <!-- TAB RESOCONTI -->
+            <div class="page-tab" id="tab-resoconti">
+                <div class="page-header">
+                    <h1>Resoconti</h1>
+                    <p>informazioni mensili</p>
+                </div>
+                <p>Contenuto resoconti da implementare...</p>
+            </div>
+
+
+
+
+            <!-- TAB EDUCATORI -->
+            <div class="page-tab" id="tab-educatori">
+                <div class="page-header">
+                    <h1>Educatori</h1>
+                    <p>Personale educativo</p>
+                </div>
+                <p>Contenuto educatori da implementare...</p>
+            </div>
+
+
+            <!-- TAB ACCOUNT -->
+            <div class="page-tab" id="tab-account">
+                <div class="page-header">
+                    <h1>Account</h1>
+                    <p>Gestione account Overlimits</p>
+                </div>
+                <p>Contenuto account da implementare...</p>
+            </div>
+
+
+
+            <!-- TAB LOGS -->
+            <div class="page-tab" id="tab-logs">
+                <div class="page-header">
+                    <h1>Logs</h1>
+                    <p>Attività recenti</p>
+                </div>
+                <p>Contenuto logs da implementare...</p>
+            </div>
+
+
+
+
+
+
+
+        </main>
+    </div>
+    
+            <!-- POPUP CONFERMA FIRMA -->
+                <div class="popup success-popup" id="successPopup">
+                    <div class="success-content">
+                        <div class="success-icon">
+                        <svg viewBox="-2 -2 56 56">
+                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
+                        </svg>
+                        </div>
+                        <p class="success-text" id="success-text">Utente modificato!!</p>
+                    </div>
+                </div>
+
+                <!-- EDIT MODAL -->
+                <div class="modal-box large" id="editModal" style="overflow: scroll;">
+                        <h3 class="modal-title">Modifica utente</h3>
+
+                        <div class="profile-header">
+                            <img id="viewAvatar-mod" class="profile-avatar">
+                            <div class="profile-main">
+                                <h3 id="viewFullname-mod"></h3>
+                                <span id="viewBirth-mod"></span>
+                            </div>
+                        </div>
+
+                        <div class="edit-grid" id="editContent">
+                            <!-- Riempito da JS -->
+                            <div class="edit-field">
+                                <label>Nome</label>
+                                <input type="text" id="editNome" placeholder="Nome">
+                            </div>
+                            <div class="edit-field">
+                                <label>Cognome</label>
+                                <input type="text" id="editCognome" placeholder="Cognome">
+                            </div>
+                            <div class="edit-field">
+                                <label>Data di nascita</label>
+                                <input type="date" id="editData">
+                            </div>
+                            <div class="edit-field">
+                                <label>Codice Fiscale</label>
+                                <input type="text" id="editCF" placeholder="Codice Fiscale">
+                            </div>
+                            <div class="edit-field">
+                                <label>Contatti</label>
+                                <input type="text" id="editContatti" placeholder="Contatti">
+                            </div>
+                            <div class="edit-field">
+                                <label>Disabilità</label>
+                                <input type="text" id="editDisabilita" placeholder="Disabilità">
+                            </div>
+                            <div class="edit-field">
+                                <label>Intolleranze</label>
+                                <input type="text" id="editIntolleranze" placeholder="Intolleranze">
+                            </div>
+                            <div class="edit-field">
+                                <label>Prezzo orario</label>
+                                <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
+                            </div>
+                            <div class="edit-field">
+                                <label>Note</label>
+                                <textarea id="editNote" placeholder="Note"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="saveEdit">Salva</button>
+                        </div>
+                    
+                </div>
+
+
+                <!-- DELETE USER -->
+                <div class="modal-box danger" id="deleteModal">
+                    <h3>Elimina utente</h3>
+                    <h3></h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger">Elimina</button>
+                    </div>
+                </div>
+
+            
+
+        </main>
+    </div>
+
+    <script>
+        // Cambia tab e salva stato
+    document.querySelectorAll(".tab-link").forEach(link => {
+        link.addEventListener("click", e => {
+            e.preventDefault();
+            const target = e.currentTarget.dataset.tab;
+
+            // Rimuovi 'active' da tutti i link e tab
+            document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+            document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
+
+            // Attiva link e tab cliccati
+            e.currentTarget.classList.add("active");
+            document.getElementById(target).classList.add("active");
+
+            // Salva il tab attivo in localStorage
+            sessionStorage.setItem("activeTab", target);
+        });
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+        const savedTab = sessionStorage.getItem("activeTab");
+        if (savedTab) {
+            // Rimuovi 'active' da tutti
+            document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+            document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
+
+            // Attiva quello salvato
+            const link = document.querySelector(`.tab-link[data-tab="${savedTab}"]`);
+            const page = document.getElementById(savedTab);
+            if (link && page) {
+                link.classList.add("active");
+                page.classList.add("active");
+            }
+        }
+    });
+
+
+            /* HAMBURGER */
+        const ham = document.getElementById("hamburger");
+        const drop = document.getElementById("dropdown");
+        ham.onclick = () => {
+            ham.classList.toggle("active");
+            drop.classList.toggle("show");
+        };
+        document.querySelectorAll(".menu-main").forEach(main => {
+        main.addEventListener("click", () => {
+
+            const targetId = main.dataset.target;
+            const targetMenu = document.getElementById(targetId);
+
+            // chiudi tutti gli altri submenu
+            document.querySelectorAll(".submenu").forEach(menu => {
+                if(menu !== targetMenu){
+                    menu.classList.remove("open");
+                    menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                }
+            });
+
+            // toggle quello cliccato
+            targetMenu.classList.toggle("open");
+            main.classList.toggle("open"); // per la freccetta
+        });
+
+    });
+
+    document.querySelectorAll(".menu-item").forEach(item => {
+            item.onclick = () => {
+                window.location.href = item.dataset.link;
+            }
+        });
+
+    
+
+
+        /* USER DROPDOWN */
+        const userBox = document.getElementById("userBox");
+        const userDropdown = document.getElementById("userDropdown");
+        userBox.addEventListener("click", (e)=>{
+            e.stopPropagation();
+            userDropdown.classList.toggle("show");
+        });
+        document.addEventListener("click",(e)=>{
+            if(!userBox.contains(e.target)){
+                userDropdown.classList.remove("show");
+            }
+        });
+
+
+
+
+        /* LOGOUT */
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutOverlay = document.getElementById("logoutOverlay");
+        const logoutModal = document.getElementById("logoutModal");
+        const cancelLogout = document.getElementById("cancelLogout");
+        const confirmLogout = document.getElementById("confirmLogout");
+
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            logoutOverlay.classList.add("show");
+            logoutModal.classList.add("show");
+        });
+
+        cancelLogout.onclick = closeLogout;
+        logoutOverlay.onclick = closeLogout;
+        function closeLogout(){
+            logoutOverlay.classList.remove("show");
+            logoutModal.classList.remove("show");
+        }
+
+        confirmLogout.onclick = () => {
+            window.location.href = "logout.php";
+        };
+
+    // Modal
+    const overlay = document.getElementById("modalOverlay");
+    const viewModal = document.getElementById("viewModal");
+    const editModal = document.getElementById("editModal");
+    const deleteModal = document.getElementById("deleteModal");
+    const modalAggiungiAttivita = document.getElementById("modalAggiungiAttivita");
+    const successText = document.getElementById("success-text");
+
+    function openModal(modal){
+        overlay.classList.add("show");
+        modal.classList.add("show");
+    }
+    function closeModal(){
+        overlay.classList.remove("show");
+        viewModal.classList.remove("show");
+        editModal.classList.remove("show");
+        deleteModal.classList.remove("show");
+        modalAggiungiAttivita.classList.remove("show");
+        attivitaOverlay.classList.remove("show");
+        modalModificaAttivita.classList.remove("show");
+        modalDeleteAttivita.classList.remove("show");
+        modalAggiungiUtente.classList.remove("show");
+    }
+
+
+    // Popup view
+    document.querySelectorAll(".view-btn").forEach(btn=>{
+        btn.onclick = e=>{
+            const row = e.target.closest("tr");
+
+            const avatar = row.querySelector("img").src;
+            const nome = row.dataset.nome;
+            const cognome = row.dataset.cognome;
+            const data = row.dataset.nascita;
+            const note = row.dataset.note;
+            const cf = row.dataset.cf;
+            const contatti = row.dataset.contatti;
+            const disabilita = row.dataset.disabilita;
+            const intolleranze = row.dataset.intolleranze;
+            const prezzo = row.dataset.prezzo;
+
+            document.getElementById("viewAvatar").src = avatar;
+            document.getElementById("viewFullname").innerText = nome + " " + cognome;
+            document.getElementById("viewBirth").innerText = "Nato il " + data;
+
+            document.getElementById("viewContent").innerHTML = `
+                <div class="profile-field"><label>Nome</label><span>${nome}</span></div>
+                <div class="profile-field"><label>Cognome</label><span>${cognome}</span></div>
+                <div class="profile-field"><label>Data di nascita</label><span>${data}</span></div>
+                <div class="profile-field"><label>Codice Fiscale</label><span>${cf || "—"}</span></div>
+                <div class="profile-field"><label>Contatti</label><span>${contatti || "—"}</span></div>
+                <div class="profile-field"><label>Disabilità</label><span>${disabilita || "—"}</span></div>
+                <div class="profile-field"><label style="font-weight: bold;">Intolleranze ⚠️</label><span style="font-weight: bold;">${intolleranze || "—"}</span></div>
+                <div class="profile-field"><label>Prezzo orario</label><span>${prezzo || "—"} €</span></div>
+                <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
+            `;
+
+            openModal(viewModal);
+        }
+    });
+    overlay.onclick = closeModal;
+
+        document.querySelectorAll(".edit-btn").forEach(btn=>{
+            btn.onclick = e=>{
+                const row = e.target.closest("tr");
+
+                const avatar = row.querySelector("img").src;
+                const nome = row.dataset.nome;
+                const cognome = row.dataset.cognome;
+                const data = row.dataset.nascita;
+                const idIscritto = row.dataset.id;
+
+                editModal.dataset.userId = idIscritto;
+
+
+                document.getElementById("viewAvatar-mod").src = avatar;
+                document.getElementById("viewFullname-mod").innerText = nome + " " + cognome;
+                document.getElementById("viewBirth-mod").innerText = "Nato il " + data;
+
+                document.getElementById("editNome").value = row.dataset.nome;
+                document.getElementById("editCognome").value = row.dataset.cognome;
+                document.getElementById("editData").value = row.dataset.nascita;
+                document.getElementById("editCF").value = row.dataset.cf;
+                document.getElementById("editContatti").value = row.dataset.contatti;
+                document.getElementById("editDisabilita").value = row.dataset.disabilita;
+                document.getElementById("editIntolleranze").value = row.dataset.intolleranze;
+                document.getElementById("editPrezzo").value = row.dataset.prezzo;
+                document.getElementById("editNote").value = row.dataset.note;
+
+                openModal(editModal);
+            }
+        });
+        succesPopupDelete = document.getElementById("successPopupDelete");
+
+        document.querySelectorAll(".delete-btn").forEach(btn=>{
+            btn.onclick = ()=>{
+                const row = btn.closest("tr");
+                const nomeCompleto = row.dataset.nome + " " + row.dataset.cognome;
+
+                document.getElementById("deleteModal").querySelector("h3").innerText = "Eliminazione " + btn.closest("tr").dataset.nome + " " + btn.closest("tr").dataset.cognome;
+                openModal(deleteModal);
+
+                // Imposta il listener sul bottone "Elimina" nella modale
+                const confirmDelete = deleteModal.querySelector(".btn-danger");
+                confirmDelete.onclick = () => {
+                    fetch("api/api_elimina_utente.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: JSON.stringify({ id_iscritto: row.dataset.id })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            deleteModal.classList.remove("show");
+                            successText.innerText = "Utente Eliminato!! ";
+                            successPopup.classList.add("show");
+
+                            setTimeout(()=>{
+                                closeModal();
+                                successPopup.classList.remove("show");
+                                row.remove();
+                                location.reload();
+                            },1800); 
+                        }
+
+                    
+                    });
+                };
+            }
+        });
+
+        
+        const modalBoxEdit = document.getElementById("editModal");
+        
+        document.getElementById("saveEdit").onclick = () => {
+            const id = editModal.dataset.userId; // <-- ID dell'iscritto
+
+            const payload = {
+                id: id,
+                nome: document.getElementById("editNome").value,
+                cognome: document.getElementById("editCognome").value,
+                data_nascita: document.getElementById("editData").value,
+                codice_fiscale: document.getElementById("editCF").value,
+                contatti: document.getElementById("editContatti").value,
+                disabilita: document.getElementById("editDisabilita").value,
+                intolleranze: document.getElementById("editIntolleranze").value,
+                prezzo_orario: document.getElementById("editPrezzo").value,
+                note: document.getElementById("editNote").value
+            };
+
+            fetch('api/api_aggiorna_utente.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    modalBoxEdit.classList.remove("show");
+                    successText.innerText = "Utente modificato!!";
+                    successPopup.classList.add("show");
+                    
+
+                    setTimeout(()=>{
+                        successPopup.classList.remove("show");
+                        location.reload();
+                    },1800); 
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+
+
+
+
+
+
+        // SEZIONE ATTIVITA !!!!!!!!!!!!!!!
+
+        // MODAL AGGIUNGI ATTIVITA
+        const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
+        const attivitaOverlay = document.getElementById("attivitaOverlay");
+
+        aggiungiAttivitaBtn.onclick = () => {
+            openModal(modalAggiungiAttivita);
+            attivitaOverlay.classList.add("show");
+        } 
+
+        attivitaOverlay.onclick = () => {
+            closeModal();
+        };
+
+        const salvaAttivitaBtn = document.getElementById("salvaAttivita");
+        const formAttivita = document.getElementById("formAttivita");
+        salvaAttivitaBtn.onclick = function(e){
+            e.preventDefault();
+            if(!formAttivita.reportValidity()) return;
+
+            const nome = document.getElementById("attivitaNome").value.trim();
+            const descrizione = document.getElementById("attivitaDescrizione").value.trim();
+
+            fetch("api/api_aggiungi_attivita.php", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ nome: nome, descrizione: descrizione })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalAggiungiAttivita.classList.remove("show");
+                    successText.innerText = "Attività Aggiunta!!";
+                    successPopup.classList.add("show");
+                    
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        attivitaOverlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+
+
+
+
+
+
+
+        // MODIFICA E ELIMINA ATTIVITA
+
+        const modalModificaAttivita = document.getElementById("modalModificaAttivita");
+        const deleteAttivitaModal = document.getElementById("modalDeleteAttivita");
+        const successPopupModificaAttivita = document.getElementById("successPopupModificaAttivita");
+
+        // MODIFICA
+        document.querySelectorAll(".edit-attivita-btn").forEach(btn => {
+            btn.onclick = e => {
+                const row = btn.closest("tr");
+                const id = row.dataset.id;
+                const nome = row.children[0].innerText;
+                const descr = row.children[1].innerText;
+
+                document.getElementById("editAttivitaId").value = id;
+                document.getElementById("editAttivitaNome").value = nome;
+                document.getElementById("editAttivitaDescrizione").value = descr;
+
+                openModal(modalModificaAttivita);
+                attivitaOverlay.classList.add("show");
+            }
+        });
+
+        // Salva modifica
+        document.getElementById("salvaModificaAttivita").onclick = e => {
+            e.preventDefault();
+            const id = document.getElementById("editAttivitaId").value;
+            const nome = document.getElementById("editAttivitaNome").value.trim();
+            const descr = document.getElementById("editAttivitaDescrizione").value.trim();
+
+            fetch("api/api_modifica_attivita.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({id, nome, descrizione: descr})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalModificaAttivita.classList.remove("show");
+                    successText.innerText = "Attività Modificata!!";
+                    successPopup.classList.add("show");
+                    
+
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        attivitaOverlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+        // ELIMINA
+        let rowToDelete = null;
+        document.querySelectorAll(".delete-attivita-btn").forEach(btn => {
+            btn.onclick = e => {
+                rowToDelete = btn.closest("tr");
+                openModal(deleteAttivitaModal);
+                attivitaOverlay.classList.add("show");
+            }
+        });
+
+        document.getElementById("confirmDeleteAttivita").onclick = () => {
+            if(!rowToDelete) return;
+            const id = rowToDelete.dataset.id;
+
+            fetch("api/api_elimina_attivita.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({id})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    deleteAttivitaModal.classList.remove("show");
+                    successText.innerText = "Attività Eliminata!!";
+                    successPopup.classList.add("show");
+                    
+
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        attivitaOverlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+
+
+
+
+
+
+        
+
+        const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
+        const formAggiungiUtente = document.getElementById("formAggiungiUtente");
+
+        // Apri modal
+        aggiungiUtenteBtn.onclick = () => {
+            modalAggiungiUtente.classList.add("show");
+            overlay.classList.add("show");
+        };
+
+
+        // Submit form
+        formAggiungiUtente.onsubmit = function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append("nome", document.getElementById("utenteNome").value.trim());
+            formData.append("cognome", document.getElementById("utenteCognome").value.trim());
+            formData.append("data_nascita", document.getElementById("utenteData").value);
+            formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
+            formData.append("contatti", document.getElementById("utenteContatti").value.trim());
+            formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
+            formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
+            formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value));
+            formData.append("note", document.getElementById("utenteNote").value.trim());
+
+            const fotoInput = document.getElementById("utenteFoto");
+            if(fotoInput.files.length > 0){
+                formData.append("foto", fotoInput.files[0]); // il file
+            }
+
+            fetch("api/api_aggiungi_utente.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalAggiungiUtente.classList.remove("show");
+                    successText.innerText = "Utente Aggiunto!!";
+                    successPopup.classList.add("show");
+                    
+
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Errore nel caricamento!");
+            });
+        };
+
+
+        const utenteFoto = document.getElementById("utenteFoto");
+        const preview = document.getElementById("previewFotoMini");
+        const fileNameSpan = document.getElementById("nomeFileFoto");
+        const clearBtn = document.getElementById("clearFileBtn");
+
+        utenteFoto.addEventListener("change", function(){
+
+            if(!this.files.length){
+                preview.style.display = "none";
+                fileNameSpan.innerText = "Nessun file";
+                clearBtn.style.display = "none"; // nasconde la X
+                return;
+            }
+
+            const file = this.files[0];
+
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = "block";
+
+            fileNameSpan.innerText = file.name;
+
+            clearBtn.style.display = "block"; // mostra la X
+        });
+
+        // rimuove file selezionato
+        clearBtn.addEventListener("click", function(){
+            utenteFoto.value = ""; // reset input
+            preview.style.display = "none";
+            fileNameSpan.innerText = "Nessun file";
+            clearBtn.style.display = "none"; // nasconde la X
+        });
+
+
+
+
+
+
+    </script>
+
+</body>
+</html>
+
