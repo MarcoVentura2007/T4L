@@ -219,6 +219,7 @@ $conn->close();
                     <img id="popupUserImg">
                     <h3 id="popupUserName"></h3>
                 </div>
+                
 
                 <div class="popup-right">
                     <h2 class="popup-title">Inserisci orari</h2>

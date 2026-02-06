@@ -106,8 +106,10 @@ if($resultClasse && $resultClasse->num_rows > 0){
                 <?php
                         if($classe === 'Educatore'){
                             $gestionalePage = "gestionale_utenti.php";
-                        } elseif($classe === 'Contabile'){
+                        } else if($classe === 'Contabile'){
                             $gestionalePage = "gestionale_contabile.php";
+                        } else if($classe === 'Amministratore') {
+                            $gestionalePage = "gestionale_amministratore.php"; 
                         } else {
                             $gestionalePage = "#"; 
                         }

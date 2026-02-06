@@ -120,8 +120,10 @@ $resultPresenze = $conn->query($sqlPresenze);
                             $gestionalePage = "gestionale_utenti.php";
                         } elseif($classe === 'Contabile'){
                             $gestionalePage = "gestionale_contabile.php";
+                        } elseif($classe === 'Amministratore') {
+                            $gestionalePage = "gestionale_amministratore.php";
                         } else {
-                            $gestionalePage = "#"; // default se classe sconosciuta
+                            $gestionalePage = "#"; 
                         }
                     ?>
                 <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
@@ -212,6 +214,14 @@ $resultPresenze = $conn->query($sqlPresenze);
                                 <span class="text">Attività</span>
                             </a>
                         </li>
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-resoconti" data-tooltip="Resoconti">
+                                <span class="sidebar-icon"><img src="immagini/resoconti.png" alt=""></span>
+                                <span class="text">Resoconti</span>
+                            </a>
+                        </li>
+
+
                     </ul>
 
                 </section>
@@ -578,64 +588,21 @@ $resultPresenze = $conn->query($sqlPresenze);
                 
             </div>
 
-            
+            <!-- TAB RESOCONTI -->
+            <div class="page-tab" id="tab-resoconti">
+                <div class="page-header">
+                    <h1>Resoconti</h1>
+                    <p>informazioni mensili</p>
+                </div>
+                <p>Contenuto resoconti da implementare...</p>
+            </div>
+
+
 
 
         </main>
     </div>
-
-
-    <!-- TAB PRESENZE -->
-            <div class="page-tab" id="tab-presenze">
-                <div class="page-header">
-                    <h1>Presenze</h1>
-                    <p>Elenco presenze registrate</p>
-                </div>
-
-                <div class="presenze-controls">
-                    
-                </div>
-
-                <div class="users-table-box">
-                    <table class="users-table" id="presenzeTable">
-                        <thead>
-                            <tr>
-                                <th>Fotografia</th>
-                                <th>Nome</th>
-                                <th>Cognome</th>
-                                <th>Ingresso</th>
-                                <th>Uscita</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        if($resultPresenze && $resultPresenze->num_rows > 0){
-                            while($row = $resultPresenze->fetch_assoc()){
-                                echo '
-                                    <tr
-                                        data-id="'.htmlspecialchars($row['id']).'"
-                                        data-nome="'.htmlspecialchars($row['nome']).'"
-                                        data-cognome="'.htmlspecialchars($row['cognome']).'"
-                                        data-ingresso="'.htmlspecialchars($row['ingresso']).'"
-                                        data-uscita="'.htmlspecialchars($row['uscita']).'""
-                                    >
-                                        <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
-                                        <td>'.htmlspecialchars($row['nome']).'</td>
-                                        <td>'.htmlspecialchars($row['cognome']).'</td>
-                                        <td>'.htmlspecialchars($row['ingresso']).'</td>
-                                        <td>'.htmlspecialchars($row['uscita']).'</td>
-                                    </tr>
-                                ';
-                            }
-                        } else {
-                            echo '<tr><td colspan="6">Nessuna presenza registrata oggi.</td></tr>';
-                        }
-                        ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
+    
             <!-- POPUP CONFERMA FIRMA -->
                 <div class="popup success-popup" id="successPopup">
                     <div class="success-content">

@@ -96,6 +96,8 @@ if($userClasse === "Educatore"){
 }
 elseif($userClasse === "Contabile"){
     $redirect = "gestionale_contabile.php";
+} elseif($userClasse === "Amministratore") {
+    $redirect = "gestionale_amministratore.php";
 }
 
 echo json_encode([
