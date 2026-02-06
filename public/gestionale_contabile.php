@@ -199,15 +199,121 @@ $resultPresenze = $conn->query($sqlPresenze);
                                 <span class="text">Agenda</span>
                             </a>
                         </li>
+                        <li>
+                            <hr/>
+                        </li>
+                        <li class="sidebar__item item--heading">
+                            <h2 class="sidebar__item--heading">Gestione</h2>
+                        </li>
+                        
+                        <li class="sidebar__item">
+                            <a class="sidebar__link tab-link" href="#" data-tab="tab-attivita" data-tooltip="Attivita">
+                                <span class="sidebar-icon"><img src="immagini/attivita.png" alt=""></span>
+                                <span class="text">Attività</span>
+                            </a>
+                        </li>
                     </ul>
 
                 </section>
             </nav>
         </aside>
 
+        
+
+
+
         <main class="main-content">
             <!-- TAB UTENTI -->
             <div class="page-tab active" id="tab-utenti">
+                <button class="animated-button" id="aggiungi-utente-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Aggiungi Utente</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <div class="logout-overlay" id="Overlay"></div>
+
+
+
+                <!-- Modal Aggiungi Utente -->
+                <div class="modal-box large" id="modalAggiungiUtente">
+                    <h3>Aggiungi nuovo utente</h3>
+                    <form id="formAggiungiUtente">
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="utenteNome" placeholder="Nome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Cognome</label>
+                            <input type="text" id="utenteCognome" placeholder="Cognome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Data di nascita</label>
+                            <input type="date" id="utenteData" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Fiscale</label>
+                            <input type="text" id="utenteCF" placeholder="Codice Fiscale" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Contatti</label>
+                            <input type="text" id="utenteContatti" placeholder="Email o telefono" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Fotografia</label>
+
+                            <div class="file-inline" id="fileContainer">
+
+                                <input type="file" id="utenteFoto" accept="image/*" hidden>
+
+                                <button type="button" class="file-btn-minimal"
+                                    onclick="document.getElementById('utenteFoto').click()">
+                                    Scegli file
+                                </button>
+
+                                <div class="file-preview-container">
+                                    <img id="previewFotoMini" class="preview-mini" style="display:none;">
+                                    <button type="button" id="clearFileBtn" class="clear-file-btn" title="Rimuovi file">&times;</button>
+                                </div>
+
+                                <span class="file-name" id="nomeFileFoto">Nessun file</span>
+
+                            </div>
+                        </div>
+
+
+                        <div class="edit-field">
+                            <label>Disabilità</label>
+                            <input type="text" id="utenteDisabilita">
+                        </div>
+                        <div class="edit-field">
+                            <label>Intolleranze / Allergie</label>
+                            <input type="text" id="utenteIntolleranze">
+                        </div>
+                        <div class="edit-field">
+                            <label>Prezzo orario (€)</label>
+                            <input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.01">
+                        </div>
+                        <div class="edit-field">
+                            <label>Note</label>
+                            <textarea id="utenteNote"></textarea>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
                 <div class="page-header">
                     <h1>Utenti</h1>
                     <p>Elenco iscritti registrati</p>
@@ -277,6 +383,12 @@ $resultPresenze = $conn->query($sqlPresenze);
                         </div>
                     </div>
                 </div>
+
+
+
+
+
+                
             </div>
 
             <!-- TAB PRESENZE -->
@@ -330,6 +442,10 @@ $resultPresenze = $conn->query($sqlPresenze);
                 </div>
             </div>
 
+
+
+
+
             <!-- TAB AGENDA -->
             <div class="page-tab" id="tab-agenda">
                 <div class="page-header">
@@ -338,6 +454,132 @@ $resultPresenze = $conn->query($sqlPresenze);
                 </div>
                 <p>Contenuto agenda da implementare...</p>
             </div>
+
+
+
+
+
+            <!-- TAB ATTIVITA -->
+            <div class="page-tab" id="tab-attivita">
+                <div class="page-header">
+                    <h1>Attività</h1>
+                    <p>Gestione delle attività</p>
+                </div>
+
+                <button class="animated-button" id="aggiungiAttivitaBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Aggiungi Attività</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <div class="users-table-box">
+                    <table class="users-table" id="attivitaTable">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrizione</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        $sqlAttivita = "SELECT id, Nome, Descrizione FROM attivita ORDER BY Nome ASC";
+                        $resultAttivita = $conn->query($sqlAttivita);
+                        if($resultAttivita && $resultAttivita->num_rows > 0){
+                            while($row = $resultAttivita->fetch_assoc()){
+                                echo '<tr data-id="'.htmlspecialchars($row['id']).'">
+                                        <td>'.htmlspecialchars($row['Nome']).'</td>
+                                        <td>'.htmlspecialchars($row['Descrizione']).'</td>
+                                        <td>
+                                            <button class="edit-attivita-btn"><img src="immagini/edit.png" alt="Modifica"></button>
+                                            <button class="delete-attivita-btn"><img src="immagini/delete.png" alt="Elimina"></button>
+                                        </td>
+                                    </tr>';
+                            }
+                        } else {
+                            echo '<tr><td colspan="3">Nessuna attività registrata.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="logout-overlay" id="attivitaOverlay"></div>
+
+                <!-- MODAL AGGIUNGI ATTIVITA -->
+                <div class="modal-box large" id="modalAggiungiAttivita">
+                    <h3 class="modal-title">Aggiungi nuova attività</h3>
+
+                    <form id="formAttivita">
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="attivitaNome" placeholder="Nome attività" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Descrizione</label>
+                            <textarea id="attivitaDescrizione" placeholder="Descrizione" required></textarea>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" id="closeAddAttivita" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaAttivita">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+
+
+
+
+                <!-- MODAL MODIFICA ATTIVITA -->
+                <div class="modal-box large" id="modalModificaAttivita">
+                    <h3 class="modal-title">Modifica attività</h3>
+
+                    <form id="formModificaAttivita">
+                        <input type="hidden" id="editAttivitaId">
+
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="editAttivitaNome" placeholder="Nome attività" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Descrizione</label>
+                            <textarea id="editAttivitaDescrizione" placeholder="Descrizione" required></textarea>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaModificaAttivita">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-box danger" id="modalDeleteAttivita">
+                    <h3>Elimina attività</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteAttivita">Elimina</button>
+                    </div>
+                </div>
+
+
+
+                
+            </div>
+
+            
+
 
         </main>
     </div>
@@ -394,15 +636,6 @@ $resultPresenze = $conn->query($sqlPresenze);
                 </div>
             </div>
 
-            <!-- TAB AGENDA -->
-            <div class="page-tab" id="tab-agenda">
-                <div class="page-header">
-                    <h1>Agenda</h1>
-                    <p>Prossimi appuntamenti</p>
-                </div>
-                <p>Contenuto agenda da implementare...</p>
-            </div>
-
             <!-- POPUP CONFERMA FIRMA -->
                 <div class="popup success-popup" id="successPopup">
                     <div class="success-content">
@@ -412,7 +645,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                             <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
                         </svg>
                         </div>
-                        <p class="success-text">Utente modificato!!</p>
+                        <p class="success-text" id="success-text">Utente modificato!!</p>
                     </div>
                 </div>
 
@@ -488,17 +721,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                     </div>
                 </div>
 
-                <div class="popup success-popup" id="successPopupDelete">
-                    <div class="success-content">
-                        <div class="success-icon">
-                        <svg viewBox="-2 -2 56 56">
-                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
-                        </svg>
-                        </div>
-                        <p class="success-text">Utente eliminato!!</p>
-                    </div>
-                </div>
+            
 
         </main>
     </div>
@@ -623,6 +846,8 @@ $resultPresenze = $conn->query($sqlPresenze);
     const viewModal = document.getElementById("viewModal");
     const editModal = document.getElementById("editModal");
     const deleteModal = document.getElementById("deleteModal");
+    const modalAggiungiAttivita = document.getElementById("modalAggiungiAttivita");
+    const successText = document.getElementById("success-text");
 
     function openModal(modal){
         overlay.classList.add("show");
@@ -633,6 +858,11 @@ $resultPresenze = $conn->query($sqlPresenze);
         viewModal.classList.remove("show");
         editModal.classList.remove("show");
         deleteModal.classList.remove("show");
+        modalAggiungiAttivita.classList.remove("show");
+        attivitaOverlay.classList.remove("show");
+        modalModificaAttivita.classList.remove("show");
+        modalDeleteAttivita.classList.remove("show");
+        modalAggiungiUtente.classList.remove("show");
     }
 
 
@@ -728,11 +958,12 @@ $resultPresenze = $conn->query($sqlPresenze);
                     .then(data => {
                         if (data.success) {
                             deleteModal.classList.remove("show");
-                            successPopupDelete.classList.add("show");
+                            successText.innerText = "Utente Eliminato!! ";
+                            successPopup.classList.add("show");
 
                             setTimeout(()=>{
                                 closeModal();
-                                successPopupDelete.classList.remove("show");
+                                successPopup.classList.remove("show");
                                 row.remove();
                                 location.reload();
                             },1800); 
@@ -744,6 +975,7 @@ $resultPresenze = $conn->query($sqlPresenze);
             }
         });
 
+        
         const modalBoxEdit = document.getElementById("editModal");
         
         document.getElementById("saveEdit").onclick = () => {
@@ -774,7 +1006,9 @@ $resultPresenze = $conn->query($sqlPresenze);
             .then(data => {
                 if(data.success){
                     modalBoxEdit.classList.remove("show");
+                    successText.innerText = "Utente modificato!!";
                     successPopup.classList.add("show");
+                    
 
                     setTimeout(()=>{
                         successPopup.classList.remove("show");
@@ -786,7 +1020,281 @@ $resultPresenze = $conn->query($sqlPresenze);
             });
         };
 
+
+
+
+
+
+
+        // SEZIONE ATTIVITA !!!!!!!!!!!!!!!
+
+        // MODAL AGGIUNGI ATTIVITA
+        const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
+        const attivitaOverlay = document.getElementById("attivitaOverlay");
+
+        aggiungiAttivitaBtn.onclick = () => {
+            openModal(modalAggiungiAttivita);
+            attivitaOverlay.classList.add("show");
+        } 
+
+        attivitaOverlay.onclick = () => {
+            closeModal();
+        };
+
+        const salvaAttivitaBtn = document.getElementById("salvaAttivita");
+        const formAttivita = document.getElementById("formAttivita");
+        salvaAttivitaBtn.onclick = function(e){
+            e.preventDefault();
+            if(!formAttivita.reportValidity()) return;
+
+            const nome = document.getElementById("attivitaNome").value.trim();
+            const descrizione = document.getElementById("attivitaDescrizione").value.trim();
+
+            fetch("api/api_aggiungi_attivita.php", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ nome: nome, descrizione: descrizione })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalAggiungiAttivita.classList.remove("show");
+                    successText.innerText = "Attività Aggiunta!!";
+                    successPopup.classList.add("show");
+                    
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        attivitaOverlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+
+
+
+
+
+
+
+        // MODIFICA E ELIMINA ATTIVITA
+
+        const modalModificaAttivita = document.getElementById("modalModificaAttivita");
+        const deleteAttivitaModal = document.getElementById("modalDeleteAttivita");
+        const successPopupModificaAttivita = document.getElementById("successPopupModificaAttivita");
+
+        // MODIFICA
+        document.querySelectorAll(".edit-attivita-btn").forEach(btn => {
+            btn.onclick = e => {
+                const row = btn.closest("tr");
+                const id = row.dataset.id;
+                const nome = row.children[0].innerText;
+                const descr = row.children[1].innerText;
+
+                document.getElementById("editAttivitaId").value = id;
+                document.getElementById("editAttivitaNome").value = nome;
+                document.getElementById("editAttivitaDescrizione").value = descr;
+
+                openModal(modalModificaAttivita);
+                attivitaOverlay.classList.add("show");
+            }
+        });
+
+        // Salva modifica
+        document.getElementById("salvaModificaAttivita").onclick = e => {
+            e.preventDefault();
+            const id = document.getElementById("editAttivitaId").value;
+            const nome = document.getElementById("editAttivitaNome").value.trim();
+            const descr = document.getElementById("editAttivitaDescrizione").value.trim();
+
+            fetch("api/api_modifica_attivita.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({id, nome, descrizione: descr})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalModificaAttivita.classList.remove("show");
+                    successText.innerText = "Attività Modificata!!";
+                    successPopup.classList.add("show");
+                    
+
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        attivitaOverlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+        // ELIMINA
+        let rowToDelete = null;
+        document.querySelectorAll(".delete-attivita-btn").forEach(btn => {
+            btn.onclick = e => {
+                rowToDelete = btn.closest("tr");
+                openModal(deleteAttivitaModal);
+                attivitaOverlay.classList.add("show");
+            }
+        });
+
+        document.getElementById("confirmDeleteAttivita").onclick = () => {
+            if(!rowToDelete) return;
+            const id = rowToDelete.dataset.id;
+
+            fetch("api/api_elimina_attivita.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({id})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    deleteAttivitaModal.classList.remove("show");
+                    successText.innerText = "Attività Eliminata!!";
+                    successPopup.classList.add("show");
+                    
+
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        attivitaOverlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+
+
+
+
+
+
+        
+
+        const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
+        const formAggiungiUtente = document.getElementById("formAggiungiUtente");
+
+        // Apri modal
+        aggiungiUtenteBtn.onclick = () => {
+            modalAggiungiUtente.classList.add("show");
+            overlay.classList.add("show");
+        };
+
+
+        // Submit form
+        formAggiungiUtente.onsubmit = function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append("nome", document.getElementById("utenteNome").value.trim());
+            formData.append("cognome", document.getElementById("utenteCognome").value.trim());
+            formData.append("data_nascita", document.getElementById("utenteData").value);
+            formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
+            formData.append("contatti", document.getElementById("utenteContatti").value.trim());
+            formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
+            formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
+            formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value));
+            formData.append("note", document.getElementById("utenteNote").value.trim());
+
+            const fotoInput = document.getElementById("utenteFoto");
+            if(fotoInput.files.length > 0){
+                formData.append("foto", fotoInput.files[0]); // il file
+            }
+
+            fetch("api/api_aggiungi_utente.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalAggiungiUtente.classList.remove("show");
+                    successText.innerText = "Utente Aggiunto!!";
+                    successPopup.classList.add("show");
+                    
+
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Errore nel caricamento!");
+            });
+        };
+
+
+        const utenteFoto = document.getElementById("utenteFoto");
+        const preview = document.getElementById("previewFotoMini");
+        const fileNameSpan = document.getElementById("nomeFileFoto");
+        const clearBtn = document.getElementById("clearFileBtn");
+
+        utenteFoto.addEventListener("change", function(){
+
+            if(!this.files.length){
+                preview.style.display = "none";
+                fileNameSpan.innerText = "Nessun file";
+                clearBtn.style.display = "none"; // nasconde la X
+                return;
+            }
+
+            const file = this.files[0];
+
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = "block";
+
+            fileNameSpan.innerText = file.name;
+
+            clearBtn.style.display = "block"; // mostra la X
+        });
+
+        // rimuove file selezionato
+        clearBtn.addEventListener("click", function(){
+            utenteFoto.value = ""; // reset input
+            preview.style.display = "none";
+            fileNameSpan.innerText = "Nessun file";
+            clearBtn.style.display = "none"; // nasconde la X
+        });
+
+
+
+
+
+
     </script>
 
 </body>
 </html>
+

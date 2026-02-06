@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 
 
 
+
 if(!isset($_SESSION['username'])){
     echo json_encode([
         "success"=>false,
@@ -12,6 +13,7 @@ if(!isset($_SESSION['username'])){
     ]);
     exit;
 }
+
 
 $host="localhost";
 $user="root";
