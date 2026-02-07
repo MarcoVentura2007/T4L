@@ -863,8 +863,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                 </div>
 
                 <div class="resoconti-mese-label">
-                    <label>Mese:</label>
-                    <span id="resocontiMeseLabel"><?= date("F Y") ?></span>
+                    <label>Seleziona mese: </label>
+                    <input type="month" id="resocontiMeseFiltro" value="<?= date('Y-m') ?>">
                 </div>
 
                 <div class="users-table-box">
@@ -879,43 +879,11 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <th>Azioni</th>
                             </tr>
                         </thead>
-                        <tbody>
-
-                        <?php
-                        if($resultResoconti && $resultResoconti->num_rows > 0){
-                            while($row = $resultResoconti->fetch_assoc()){
-
-                                $ore = round($row['ore_totali'] ?? 0, 2);
-                                $costo = round($ore * $row['Prezzo_Orario'], 2);
-
-                                echo '<tr>';
-                                    echo '<td>
-                                            <img src="'.htmlspecialchars($row['Fotografia']).'" 
-                                                class="user-avatar" 
-                                                alt="Foto">
-                                        </td>';
-                                    echo '<td>'.htmlspecialchars($row['Nome']).'</td>';
-                                    echo '<td>'.htmlspecialchars($row['Cognome']).'</td>';
-                                    echo '<td>'.$ore.'</td>';
-                                    echo '<td>'.$costo.' €</td>';
-                                    echo '<td>
-                                            <button class="btn-icon calendario-btn" data-id="'.$row['id'].'" data-nome="'.$row['Nome'].' '.$row['Cognome'].'">
-                                                <img src="immagini/calendario.png" alt="Calendario">
-                                            </button>
-                                        </td>';
-                                echo '</tr>';
-                            }
-                        } else {
-                            echo '<tr><td colspan="5">Nessun dato disponibile.</td></tr>';
-                        }
-                        ?>
-
+                        <tbody id="resocontiMensiliBody">
+                            <tr><td colspan="6">Caricamento...</td></tr>
                         </tbody>
                     </table>
                 </div>
-
-
-
 
                 <!-- MODAL RESOCONTO GIORNALIERO -->
                 <div class="modal-box large" id="modalResocontoGiorni">
@@ -931,12 +899,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <thead>
                                 <tr>
                                     <th>Data</th>
+                                    <th>Attività</th>
                                     <th>Ore</th>
                                     <th>Costo giornaliero (€)</th>
                                 </tr>
                             </thead>
                             <tbody id="resocontoGiorniBody">
-                                <tr><td colspan="3">Seleziona un mese</td></tr>
+                                <tr><td colspan="4">Seleziona un mese</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -945,10 +914,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
                     </div>
                 </div>
-
-
-
-
 
             </div>
 
@@ -2721,6 +2686,9 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
+        const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
+        const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
+
         const modalResoconto = document.getElementById("modalResocontoGiorni");
         const bodyResoconto = document.getElementById("resocontoGiorniBody");
         const meseInput = document.getElementById("resocontoMese");
@@ -2728,7 +2696,15 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         let currentIscritto = null;
 
-        // click bottone calendario
+        // CARICAMENTO INIZIALE MENSILE
+        caricaResocontiMensili(resocontiMeseFiltro.value);
+
+        // CAMBIO MESE GLOBALE
+        resocontiMeseFiltro.addEventListener("change", () => {
+            caricaResocontiMensili(resocontiMeseFiltro.value);
+        });
+
+        // CLICK PULSANTE DETTAGLI GIORNALIERI
         document.addEventListener("click", e => {
             const btn = e.target.closest(".calendario-btn");
             if(!btn) return;
@@ -2736,23 +2712,61 @@ $resultResoconti = $conn->query($sqlResoconti);
             currentIscritto = btn.dataset.id;
             titoloResoconto.textContent = "Resoconto - " + btn.dataset.nome;
 
-            meseInput.value = new Date().toISOString().slice(0,7);
-            bodyResoconto.innerHTML = `<tr><td colspan="3">Caricamento...</td></tr>`;
+            meseInput.value = resocontiMeseFiltro.value;
+            bodyResoconto.innerHTML = `<tr><td colspan="4">Caricamento...</td></tr>`;
 
             openModal(modalResoconto);
             caricaResocontoGiorni();
         });
 
-        // cambio mese
+        // CAMBIO MESE NEL MODAL
         meseInput.addEventListener("change", caricaResocontoGiorni);
 
+        // FUNZIONE CARICA RESOCONTI MENSILI
+        function caricaResocontiMensili(mese){
+            resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
+
+            fetch("api/api_resoconto_mensile.php", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({mese})
+            })
+            .then(r => r.json())
+            .then(json => {
+                resocontiMensiliBody.innerHTML = "";
+
+                if(!json.success || json.data.length === 0){
+                    resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Nessun dato disponibile</td></tr>`;
+                    return;
+                }
+
+                json.data.forEach(r => {
+                    const ore = parseFloat(r.ore_totali).toFixed(2);
+                    const costo = parseFloat(r.ore_totali * r.Prezzo_Orario).toFixed(2);
+
+                    resocontiMensiliBody.innerHTML += `
+                        <tr>
+                            <td><img src="${r.Fotografia}" class="user-avatar"></td>
+                            <td>${r.Nome}</td>
+                            <td>${r.Cognome}</td>
+                            <td>${ore}</td>
+                            <td>${costo} €</td>
+                            <td>
+                                <button class="btn-icon calendario-btn" data-id="${r.id}" data-nome="${r.Nome} ${r.Cognome}">
+                                    <img src="immagini/calendario.png" alt="Calendario">
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ
         function caricaResocontoGiorni(){
             fetch("api/api_resoconto_giornaliero.php", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
+                headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     id: currentIscritto,
                     mese: meseInput.value
@@ -2763,16 +2777,23 @@ $resultResoconti = $conn->query($sqlResoconti);
                 bodyResoconto.innerHTML = "";
 
                 if(!json.success || json.data.length === 0){
-                    bodyResoconto.innerHTML = `<tr><td colspan="3">Nessun dato</td></tr>`;
+                    bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
                     return;
                 }
 
                 json.data.forEach(r => {
+                    // Attività multiple separate da <br>
+                    let attivitaHTML = '';
+                    r.attivita.forEach(a => {
+                        attivitaHTML += `${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)} €)<br>`;
+                    });
+
                     bodyResoconto.innerHTML += `
                         <tr>
                             <td>${r.giorno}</td>
-                            <td>${r.ore}</td>
-                            <td>${r.costo} €</td>
+                            <td>${attivitaHTML}</td>
+                            <td>${r.ore.toFixed(2)}</td>
+                            <td>${r.costo.toFixed(2)} €</td>
                         </tr>
                     `;
                 });
