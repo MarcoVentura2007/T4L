@@ -1015,6 +1015,15 @@ if($classe !== 'Contabile'){
         document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
     }
 
+    function showSuccess(popup, overlay = modalOverlay) {
+        if (popup) popup.classList.add("show");
+        if (overlay) overlay.classList.add("show");
+    }
+    function hideSuccess(popup, overlay = modalOverlay) {
+        if (popup) popup.classList.remove("show");
+        if (overlay) overlay.classList.remove("show");
+    }
+
     // Popup view
     document.querySelectorAll(".view-btn").forEach(btn=>{
         btn.onclick = e=>{
@@ -1108,11 +1117,11 @@ if($classe !== 'Contabile'){
                         if (data.success) {
                             deleteModal.classList.remove("show");
                             successText.innerText = "Utente Eliminato!! ";
-                            successPopup.classList.add("show");
+                            showSuccess(successPopup);
 
                             setTimeout(()=>{
                                 closeModal();
-                                successPopup.classList.remove("show");
+                                hideSuccess(successPopup);
                                 row.remove();
                                 location.reload();
                             },1800); 
@@ -1156,11 +1165,11 @@ if($classe !== 'Contabile'){
                 if(data.success){
                     modalBoxEdit.classList.remove("show");
                     successText.innerText = "Utente modificato!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup);
                     
 
                     setTimeout(()=>{
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup);
                         location.reload();
                     },1800); 
                 } else {
@@ -1204,11 +1213,11 @@ if($classe !== 'Contabile'){
                 if(data.success){       
                     closeModal();
                     successText.innerText = "Attività Aggiunta!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup);
                     
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup);
                         location.reload();
                     }, 1800);
 
@@ -1262,11 +1271,11 @@ if($classe !== 'Contabile'){
                 if(data.success){       
                     closeModal();
                     successText.innerText = "Attività Modificata!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup);
                     
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup);
                         location.reload();
                     }, 1800);
 
@@ -1302,11 +1311,11 @@ if($classe !== 'Contabile'){
                 if(data.success){       
                     closeModal();
                     successText.innerText = "Attività Eliminata!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup);
                     
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup);
                         location.reload();
                     }, 1800);
 
@@ -1363,11 +1372,11 @@ if($classe !== 'Contabile'){
                 if(data.success){       
                     closeModal();
                     successText.innerText = "Utente Aggiunto!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup);
                     
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup);
                         location.reload();
                     }, 1800);
 
@@ -1454,9 +1463,9 @@ if($classe !== 'Contabile'){
                 if(data.success){
                     closeModal();
                     document.getElementById("success-text").innerText = "Presenza modificata!";
-                    document.getElementById("successPopup").classList.add("show");
+                    showSuccess(document.getElementById("successPopup"));
                     setTimeout(()=>{
-                        document.getElementById("successPopup").classList.remove("show");
+                        hideSuccess(document.getElementById("successPopup"));
                         location.reload();
                     }, 1800);
                 } else {
@@ -1474,9 +1483,9 @@ if($classe !== 'Contabile'){
                 if(data.success){
                     closeModal();
                     document.getElementById("success-text").innerText = "Presenza eliminata!";
-                    document.getElementById("successPopup").classList.add("show");
+                    showSuccess(document.getElementById("successPopup"));
                     setTimeout(()=>{
-                        document.getElementById("successPopup").classList.remove("show");
+                        hideSuccess(document.getElementById("successPopup"));
                         location.reload();
                     }, 1800);
                 } else {
@@ -1694,10 +1703,10 @@ if($classe !== 'Contabile'){
                 if(data.success) {
                     closeModal();
                     successText.innerText = "Agenda creata!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup);
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup);
                         location.reload();
                     }, 1800);
                 } else {
@@ -1719,5 +1728,6 @@ if($classe !== 'Contabile'){
 
 </body>
 </html>
+
 
 

@@ -1396,6 +1396,15 @@ $resultRagazzi = $conn->query($sqlRagazzi);
         if(agendaOverlay) agendaOverlay.classList.remove("show");
     }
 
+    function showSuccess(popup, overlay) {
+        if (popup) popup.classList.add("show");
+        if (overlay) overlay.classList.add("show");
+    }
+    function hideSuccess(popup, overlay) {
+        if (popup) popup.classList.remove("show");
+        if (overlay) overlay.classList.remove("show");
+    }
+
 
     // Popup view
     document.querySelectorAll(".view-btn").forEach(btn=>{
@@ -1504,10 +1513,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                     if(data.success){
                         deleteModal.classList.remove('show');
                         successText.innerText = 'Presenza Eliminata!!';
-                        successPopup.classList.add('show');
+                        showSuccess(successPopup, Overlay);
                         setTimeout(()=>{
                             closeModal();
-                            successPopup.classList.remove('show');
+                            hideSuccess(successPopup, Overlay);
                             location.reload();
                         }, 1800);
                     } else {
@@ -1593,11 +1602,11 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                         if (data.success) {
                             deleteModal.classList.remove("show");
                             successText.innerText = "Utente Eliminato!! ";
-                            successPopup.classList.add("show");
+                            showSuccess(successPopup, Overlay);
 
                             setTimeout(()=>{
                                 closeModal();
-                                successPopup.classList.remove("show");
+                                hideSuccess(successPopup, Overlay);
                                 row.remove();
                                 location.reload();
                             },1800); 
@@ -1641,10 +1650,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                         editModal.classList.remove("show");
                         if(Overlay) Overlay.classList.remove("show");
                         successText.innerText = "Presenza modificata!!";
-                        successPopup.classList.add("show");
+                        showSuccess(successPopup, Overlay);
 
                         setTimeout(()=>{
-                            successPopup.classList.remove("show");
+                            hideSuccess(successPopup, Overlay);
                             location.reload();
                         }, 1800);
                     } else {
@@ -1682,10 +1691,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                         editModal.classList.remove("show");
                         if(Overlay) Overlay.classList.remove("show");
                         successText.innerText = "Utente modificato!!";
-                        successPopup.classList.add("show");
+                        showSuccess(successPopup, Overlay);
 
                         setTimeout(()=>{
-                            successPopup.classList.remove("show");
+                            hideSuccess(successPopup, Overlay);
                             location.reload();
                         }, 1800);
                     } else {
@@ -1738,11 +1747,11 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 if(data.success){       
                     modalAggiungiAttivita.classList.remove("show");
                     successText.innerText = "Attività Aggiunta!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup, Overlay);
                     
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup, Overlay);
                         attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
@@ -1803,12 +1812,12 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 if(data.success){       
                     modalModificaAttivita.classList.remove("show");
                     successText.innerText = "Attività Modificata!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup, Overlay);
                     
 
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup, Overlay);
                         attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
@@ -1846,12 +1855,12 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 if(data.success){       
                     deleteAttivitaModal.classList.remove("show");
                     successText.innerText = "Attività Eliminata!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup, Overlay);
                     
 
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup, Overlay);
                         attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
@@ -1909,12 +1918,12 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 if(data.success){       
                     modalAggiungiUtente.classList.remove("show");
                     successText.innerText = "Utente Aggiunto!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup, Overlay);
                     
 
 
                         setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup, Overlay);
                         if(Overlay) Overlay.classList.remove("show");
                         location.reload();
                     },1800); 
@@ -2010,10 +2019,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 if(data.success){       
                     modalAggiungiAccount.classList.remove("show");
                     successText.innerText = "Account Aggiunto!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup, Overlay);
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup, Overlay);
                         if(Overlay) Overlay.classList.remove("show");
                         location.reload();
                     }, 1800);
@@ -2078,10 +2087,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 if(data.success){       
                     modalModificaAccount.classList.remove("show");
                     successText.innerText = "Account Modificato!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup, Overlay);
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup, Overlay);
                         closeModal();
                         location.reload();
                     }, 1800);
@@ -2123,10 +2132,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 if(data.success){       
                     modalDeleteAccount.classList.remove("show");
                     successText.innerText = "Account Eliminato!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup, Overlay);
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup, Overlay);
                         if(Overlay) Overlay.classList.remove("show");
                         location.reload();
                     }, 1800);
@@ -2180,10 +2189,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                     if(data.success){
                         modalAggiungiEducatore.classList.remove("show");
                         successText.innerText = "Educatore Aggiunto!!";
-                        successPopup.classList.add("show");
+                        showSuccess(successPopup, Overlay);
 
                         setTimeout(() => {
-                            successPopup.classList.remove("show");
+                            hideSuccess(successPopup, Overlay);
                             if(Overlay) Overlay.classList.remove("show");
                             location.reload();
                         }, 1400);
@@ -2253,10 +2262,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                     if(data.success){
                         modalModificaEducatore.classList.remove("show");
                         successText.innerText = "Educatore Modificato!!";
-                        successPopup.classList.add("show");
+                        showSuccess(successPopup, Overlay);
 
                         setTimeout(() => {
-                            successPopup.classList.remove("show");
+                            hideSuccess(successPopup, Overlay);
                             if(Overlay) Overlay.classList.remove("show");
                             location.reload();
                         }, 1400);
@@ -2300,10 +2309,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 if(data.success){
                     modalDeleteEducatore.classList.remove("show");
                     successText.innerText = "Educatore Eliminato!!";
-                    successPopup.classList.add("show");
+                    showSuccess(successPopup, Overlay);
 
                     setTimeout(() => {
-                        successPopup.classList.remove("show");
+                        hideSuccess(successPopup, Overlay);
                         if(Overlay) Overlay.classList.remove("show");
                         location.reload();
                     }, 1800);
@@ -2551,9 +2560,9 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                         if (modalCreaAgenda) modalCreaAgenda.classList.remove("show");
                         if (agendaOverlay) agendaOverlay.classList.remove("show");
                         if (successPopupAgenda) {
-                            successPopupAgenda.classList.add("show");
+                            showSuccess(successPopupAgenda, agendaOverlay);
                             setTimeout(() => {
-                                if (successPopupAgenda) successPopupAgenda.classList.remove("show");
+                                if (successPopupAgenda) hideSuccess(successPopupAgenda, agendaOverlay);
                                 location.reload();
                             }, 2500);
                         } else {
@@ -2578,6 +2587,8 @@ $resultRagazzi = $conn->query($sqlRagazzi);
 
 </body>
 </html>
+
+
 
 
 
