@@ -278,7 +278,6 @@ if($classe !== 'Educatore'){
                         </tbody>
                     </table>
 
-                    <div class="modal-overlay" id="modalOverlay"></div>
                     <div class="modal-box large" id="viewModal">
                         <div class="profile-header">
                             <img id="viewAvatar" class="profile-avatar">
@@ -349,8 +348,6 @@ if($classe !== 'Educatore'){
                         </tbody>
                     </table>
 
-                    <div class="modal-overlay" id="modalOverlay"></div>
-                    
                     <!-- POPUP SUCCESSO -->
                     <div class="popup success-popup" id="successPopup">
                         <div class="success-content">
@@ -445,7 +442,9 @@ if($classe !== 'Educatore'){
     </div>
 
 
- <footer class="footer-bar" style="bottom: auto;">
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <footer class="footer-bar" style="bottom: auto;">
         <div class="footer-left">© Time4All • 2026</div>
          <div class="footer-top">
             <a href="#top" class="footer-image"></a>
@@ -541,44 +540,42 @@ if($classe !== 'Educatore'){
         });
 
 
+// MODALI E OVERLAY
+const modalOverlay = document.getElementById("modalOverlay");
+const viewModal = document.getElementById("viewModal");
+
+function openModal(modal){
+    if(modal) modal.classList.add("show");
+    if(modalOverlay) modalOverlay.classList.add("show");
+}
+
+function closeModal(){
+    if(modalOverlay) modalOverlay.classList.remove("show");
+    document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
+    const logoutModal = document.getElementById("logoutModal");
+    if(logoutModal) logoutModal.classList.remove("show");
+}
+
+if(modalOverlay) modalOverlay.onclick = closeModal;
+
 // LOGOUT
 const logoutBtn = document.getElementById("logoutBtn");
-// try to reuse a single overlay element (order: global Overlay, modalOverlay, logoutOverlay)
-const logoutOverlay = document.getElementById("logoutOverlay") || document.getElementById("Overlay") || document.getElementById("modalOverlay");
+const logoutOverlay = document.getElementById("logoutOverlay");
 const logoutModal = document.getElementById("logoutModal");
 const cancelLogout = document.getElementById("cancelLogout");
 const confirmLogout = document.getElementById("confirmLogout");
 logoutBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    // use centralized helper
     openModal(logoutModal);
 });
 cancelLogout.onclick = closeLogout;
 if(logoutOverlay) logoutOverlay.onclick = closeLogout;
 function closeLogout(){
-    // delegate to global closeModal which will hide the overlay and known modals
     closeModal();
-    if(logoutModal) logoutModal.classList.remove("show");
 }
 confirmLogout.onclick = () => {
     window.location.href = "logout.php";
 };
-
-// MODAL UTENTI
-const Overlay = document.getElementById("Overlay");
-const viewModal = document.getElementById("viewModal");
-function openModal(modal){
-    modal.classList.add("show");
-    if(Overlay) Overlay.classList.add("show");
-}
-function closeModal(){
-    if(Overlay) Overlay.classList.remove("show");
-    viewModal.classList.remove("show");
-    const modalPresenze = document.getElementById("modalPresenze");
-    if(modalPresenze) modalPresenze.classList.remove("show");
-    // also ensure logout modal is closed if present
-    const lm = document.getElementById("logoutModal"); if(lm) lm.classList.remove("show");
-}
 
 // VIEW BTN UTENTI
 document.querySelectorAll(".view-btn").forEach(btn=>{
@@ -615,7 +612,7 @@ document.querySelectorAll(".view-btn").forEach(btn=>{
         openModal(viewModal);
     }
 });
-if(Overlay) Overlay.onclick = closeModal;
+// overlay click already handled above
 
 // ========== MODAL PRESENZE ==========
 const modalPresenze = document.getElementById("modalPresenze");
@@ -635,8 +632,7 @@ function openPresenzeModal(isDelete = false){
         deletePresenzaBox.style.display = "none";
         document.getElementById("presenzeModalTitle").innerText = "Modifica presenza";
     }
-    overlay.classList.add("show");
-    modalPresenze.classList.add("show");
+    openModal(modalPresenze);
 }
 
 formPresenze.addEventListener("submit", (e) => {

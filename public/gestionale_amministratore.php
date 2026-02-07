@@ -2587,16 +2587,3 @@ $resultRagazzi = $conn->query($sqlRagazzi);
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-

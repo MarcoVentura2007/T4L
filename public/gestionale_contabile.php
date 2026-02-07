@@ -55,20 +55,31 @@ $sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.usci
                 ORDER BY p.ingresso ASC";
 $resultPresenze = $conn->query($sqlPresenze);
 
+//se la classe non è Amministratore, redirect a index.php
+if($classe !== 'Contabile'){
+    header("Location: index.php");
+    exit;
+}
+
+// Preleva gli account dal DB
+$sqlAccount = "SELECT nome_utente, codice_univoco, classe FROM Account ORDER BY nome_utente ASC";
+$resultAccount = $conn->query($sqlAccount);
+
+// Preleva gli educatori dal DB
+$sqlEducatori = "SELECT id, nome, cognome, codice_fiscale, data_nascita, telefono, mail FROM educatore ORDER BY cognome ASC";
+$resultEducatori = $conn->query($sqlEducatori);
 
 // Query per attività (per combobox nella modal agenda)
 $sqlAttivitaCombo = "SELECT id, Nome FROM attivita ORDER BY Nome ASC";
 $resultAttivitaCombo = $conn->query($sqlAttivitaCombo);
 
 // Query per educatori (per combobox nella modal agenda)
-$sqlEducatoriCombo = "SELECT id, nome, cognome FROM educatore ORDER BY cognome ASC, nome ASC";
-$resultEducatoriCombo = $conn->query($sqlEducatoriCombo);
+$sqlEducatoriAgenda = "SELECT id, nome, cognome FROM educatore ORDER BY cognome ASC, nome ASC";
+$resultEducatoriAgenda = $conn->query($sqlEducatoriAgenda);
 
-//se la classe non è Contabile, redirect a index.php
-if($classe !== 'Contabile'){
-    header("Location: index.php");
-    exit;
-}
+// Query per ragazzi (per checkbox nella modal agenda)
+$sqlRagazzi = "SELECT id, nome, cognome FROM iscritto ORDER BY cognome ASC, nome ASC";
+$resultRagazzi = $conn->query($sqlRagazzi);
 
 ?>
 
@@ -478,19 +489,6 @@ if($classe !== 'Contabile'){
                         ?>
                         </tbody>
                     </table>
-<!-- POPUP SUCCESSO -->
-                    <div class="popup success-popup" id="successPopup">
-                        <div class="success-content">
-                            <div class="success-icon">
-                            <svg viewBox="-2 -2 56 56">
-                                <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-                                <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
-                            </svg>
-                            </div>
-                            <p class="success-text" id="success-text">Operazione completata!!</p>
-                        </div>
-                    </div>
-                    
                     <div class="modal-box large" id="modalPresenze">
                         <h3 id="presenzeModalTitle">Presenze</h3>
                         <form id="formModificaPresenza">
@@ -573,8 +571,7 @@ if($classe !== 'Contabile'){
                         <div class="loading">Caricamento attività...</div>
                     </div>
                 </div>
-
-                <!-- MODAL CREA AGENDA -->
+<!-- MODAL CREA AGENDA -->
                 <div class="modal-box large" id="modalCreaAgenda">
                     <h3 class="modal-title">Crea nuova Agenda</h3>
 
@@ -616,17 +613,35 @@ if($classe !== 'Contabile'){
                         </div>
 
                         <div class="edit-field">
-                            <label>Educatore</label>
-                            <select id="agendaEducatore" required>
-                                <option value="">-- Seleziona educatore --</option>
+                            <label>Educatori</label>
+                            <div class="checkbox-group" id="educatoriCheckboxes">
                                 <?php
-                                if($resultEducatoriCombo && $resultEducatoriCombo->num_rows > 0){
-                                    while($row = $resultEducatoriCombo->fetch_assoc()){
-                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</option>';
+                                if($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0){
+                                    while($row = $resultEducatoriAgenda->fetch_assoc()){
+                                        echo '<label class="checkbox-item">';
+                                        echo '<input type="checkbox" class="educatore-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
+                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '</label>';
                                     }
                                 }
                                 ?>
-                            </select>
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ragazzi partecipanti</label>
+                            <div class="checkbox-group" id="ragazziCheckboxes">
+                                <?php
+                                if($resultRagazzi && $resultRagazzi->num_rows > 0){
+                                    while($row = $resultRagazzi->fetch_assoc()){
+                                        echo '<label class="checkbox-item">';
+                                        echo '<input type="checkbox" class="ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
+                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '</label>';
+                                    }
+                                }
+                                ?>
+                            </div>
                         </div>
 
                         <div class="modal-actions">
@@ -635,7 +650,22 @@ if($classe !== 'Contabile'){
                         </div>
                     </form>
                 </div>
+
+                <!-- POPUP AGENDA CREATA -->
+                <div class="popup success-popup" id="successPopupAgenda">
+                    <div class="success-content">
+                        <div class="success-icon">
+                        <svg viewBox="-2 -2 56 56">
+                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
+                        </svg>
+                        </div>
+                        <p class="success-text" id="success-text-agenda">Agenda creata!</p>
+                    </div>
+                </div>
             </div>
+
+
 
 
 
@@ -774,6 +804,8 @@ if($classe !== 'Contabile'){
 
         </main>
     </div>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
     
             <!-- POPUP CONFERMA FIRMA -->
                 <div class="popup success-popup" id="successPopup">
@@ -1003,6 +1035,7 @@ if($classe !== 'Contabile'){
     const modalModificaAttivita = document.getElementById("modalModificaAttivita");
     const modalDeleteAttivita = document.getElementById("modalDeleteAttivita");
     const modalCreaAgenda = document.getElementById("modalCreaAgenda");
+    const successPopup = document.getElementById("successPopup");
     const successText = document.getElementById("success-text");
 
     function openModal(modal, overlay = modalOverlay) {
@@ -1059,7 +1092,9 @@ if($classe !== 'Contabile'){
             openModal(viewModal);
         }
     });
-    modalOverlay.onclick = closeModal;
+    if (modalOverlay) {
+        modalOverlay.onclick = closeModal;
+    }
 
         document.querySelectorAll(".edit-btn").forEach(btn=>{
             btn.onclick = e=>{
@@ -1521,7 +1556,7 @@ if($classe !== 'Contabile'){
             }
         });
 
-        // ========== AGENDA ==========
+       // ========== AGENDA ==========
         let agendaData = [];
         let selectedDayIndex = 0;
 
@@ -1568,7 +1603,9 @@ if($classe !== 'Contabile'){
                 });
         }
 
-        // Mostra le attività per il giorno selezionato
+
+        
+             // Mostra le attività per il giorno selezionato
         function displayAgenda(dayIndex) {
             selectedDayIndex = dayIndex;
             const contentDiv = document.getElementById('agendaContent');
@@ -1636,89 +1673,143 @@ if($classe !== 'Contabile'){
             });
         });
 
-        // ========== MODAL CREA AGENDA ==========
+         // ========== MODAL CREA AGENDA ==========
         const creaAgendaBtn = document.getElementById("creaAgendaBtn");
         const formCreaAgenda = document.getElementById("formCreaAgenda");
+        const agendaOverlay = document.getElementById("agendaOverlay") || modalOverlay;
+        const successPopupAgenda = document.getElementById("successPopupAgenda");
 
-        creaAgendaBtn.onclick = () => {
-            // Popola la select con le date della settimana
-            const today = new Date();
-            const monday = new Date(today);
-            monday.setDate(today.getDate() - today.getDay() + 1);
+        if(creaAgendaBtn) {
+            creaAgendaBtn.onclick = () => {
+                // Popola la select con le date della settimana
+                const today = new Date();
+                const monday = new Date(today);
+                monday.setDate(today.getDate() - today.getDay() + 1);
 
-            const dataSelect = document.getElementById("agendaData");
-            const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
-            
-            // Pulisci le opzioni mantendo la prima (placeholder)
-            while (dataSelect.options.length > 1) {
-                dataSelect.remove(1);
-            }
+                const dataSelect = document.getElementById("agendaData");
+                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+                
+                // Pulisci le opzioni mantendo la prima (placeholder)
+                while (dataSelect.options.length > 1) {
+                    dataSelect.remove(1);
+                }
 
-            for (let i = 0; i < 5; i++) {
-                const date = new Date(monday);
-                date.setDate(monday.getDate() + i);
-                const dateStr = date.toISOString().split('T')[0];
-                const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                for (let i = 0; i < 5; i++) {
+                    const date = new Date(monday);
+                    date.setDate(monday.getDate() + i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-                const option = document.createElement("option");
-                option.value = dateStr;
-                option.text = `${giorni[i]} ${dateFormatted}`;
-                dataSelect.appendChild(option);
-            }
+                    const option = document.createElement("option");
+                    option.value = dateStr;
+                    option.text = `${giorni[i]} ${dateFormatted}`;
+                    dataSelect.appendChild(option);
+                }
 
-            openModal(modalCreaAgenda);
-        };
+                openModal(modalCreaAgenda);
+            };
+        }
 
-        // Submit form
-        formCreaAgenda.onsubmit = function(e) {
-            e.preventDefault();
+        if(agendaOverlay) {
+            agendaOverlay.onclick = () => {
+                closeModal();
+            };
+        }
 
-            const data = document.getElementById("agendaData").value;
-            const ora_inizio = document.getElementById("agendaOraInizio").value;
-            const ora_fine = document.getElementById("agendaOraFine").value;
-            const id_attivita = document.getElementById("agendaAttivita").value;
-            const id_educatore = document.getElementById("agendaEducatore").value;
+        if(formCreaAgenda) {
+            formCreaAgenda.onsubmit = function(e) {
+                e.preventDefault();
+                console.log("Form submit triggered");
 
-            if (!data || !ora_inizio || !ora_fine || !id_attivita || !id_educatore) {
-                alert("Completa tutti i campi!");
-                return;
-            }
+                const data = document.getElementById("agendaData").value;
+                const ora_inizio = document.getElementById("agendaOraInizio").value;
+                const ora_fine = document.getElementById("agendaOraFine").value;
+                const id_attivita = document.getElementById("agendaAttivita").value;
+                
+                console.log("Data:", data, "Ora inizio:", ora_inizio, "Ora fine:", ora_fine, "Attività:", id_attivita);
 
-            fetch("api/api_aggiungi_agenda.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({
+                // Ottenere gli ID dai checkbox selezionati e filtrare i valori non validi
+                const educatoriCheckboxes = document.querySelectorAll(".educatore-checkbox:checked");
+                const ragazziCheckboxes = document.querySelectorAll(".ragazzo-checkbox:checked");
+                
+                const educatori = Array.from(educatoriCheckboxes)
+                    .map(cb => {
+                        const val = parseInt(cb.value, 10);
+                        console.log("Educatore checkbox value:", cb.value, "parsed:", val);
+                        return val;
+                    })
+                    .filter(id => !isNaN(id) && id > 0);
+                    
+                const ragazzi = Array.from(ragazziCheckboxes)
+                    .map(cb => {
+                        const val = parseInt(cb.value, 10);
+                        console.log("Ragazzo checkbox value:", cb.value, "parsed:", val);
+                        return val;
+                    })
+                    .filter(id => !isNaN(id) && id > 0);
+
+                console.log("Educatori selezionati:", educatori);
+                console.log("Ragazzi selezionati:", ragazzi);
+
+                if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
+                    alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
+                    return;
+                }
+
+                if (ragazzi.length === 0) {
+                    alert("Seleziona almeno un ragazzo!");
+                    return;
+                }
+
+                console.log("Invio fetch all'API");
+                const payload = {
                     data: data,
                     ora_inizio: ora_inizio,
                     ora_fine: ora_fine,
-                    id_attivita: id_attivita,
-                    id_educatore: id_educatore
+                    id_attivita: parseInt(id_attivita),
+                    educatori: educatori,
+                    ragazzi: ragazzi
+                };
+                console.log("Payload:", payload);
+
+                fetch("api/api_aggiungi_agenda.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify(payload)
                 })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    closeModal();
-                    successText.innerText = "Agenda creata!";
-                    showSuccess(successPopup);
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup);
-                        location.reload();
-                    }, 1800);
-                } else {
-                    alert("Errore: " + (data.error || data.message));
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Errore nel salvataggio!");
-            });
-        };
-
+                .then(res => {
+                    console.log("Response status:", res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log("Risposta API:", data);
+                    if(data.success) {
+                        console.log("Successo! Chiudo modal e reload");
+                        if (modalCreaAgenda) modalCreaAgenda.classList.remove("show");
+                        if (agendaOverlay) agendaOverlay.classList.remove("show");
+                        if (successPopupAgenda) {
+                            showSuccess(successPopupAgenda, agendaOverlay);
+                            setTimeout(() => {
+                                if (successPopupAgenda) hideSuccess(successPopupAgenda, agendaOverlay);
+                                location.reload();
+                            }, 2500);
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        alert("Errore API: " + (data.error || data.message));
+                    }
+                })
+                .catch(err => {
+                    console.error("Fetch error completo:", err);
+                    console.error("Stack:", err.stack);
+                    alert("Errore di comunicazione con il server: " + err.message);
+                });
+            };
+        }
         // Carica l'agenda al caricamento della pagina
         window.addEventListener('DOMContentLoaded', () => {
             loadAgenda();

@@ -409,26 +409,28 @@ passwordField.addEventListener("keydown", (e) => {
 
         /* LOGOUT */
         const logoutBtn = document.getElementById("logoutBtn");
-        const logoutOverlay = document.getElementById("logoutOverlay") || document.getElementById("Overlay") || document.getElementById("modalOverlay");
+        const logoutOverlay = document.getElementById("logoutOverlay");
         const logoutModal = document.getElementById("logoutModal");
         const cancelLogout = document.getElementById("cancelLogout");
         const confirmLogout = document.getElementById("confirmLogout");
 
         logoutBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            openModal(logoutModal);
+            logoutOverlay.classList.add("show");
+            logoutModal.classList.add("show");
         });
 
         cancelLogout.onclick = closeLogout;
-        if(logoutOverlay) logoutOverlay.onclick = closeLogout;
+        logoutOverlay.onclick = closeLogout;
         function closeLogout(){
-            closeModal();
-            if(logoutModal) logoutModal.classList.remove("show");
+            logoutOverlay.classList.remove("show");
+            logoutModal.classList.remove("show");
         }
 
         confirmLogout.onclick = () => {
             window.location.href = "logout.php";
         };
+
 
 </script>
 
