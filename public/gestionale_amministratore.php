@@ -81,6 +81,34 @@ $resultEducatoriAgenda = $conn->query($sqlEducatoriAgenda);
 $sqlRagazzi = "SELECT id, nome, cognome FROM iscritto ORDER BY cognome ASC, nome ASC";
 $resultRagazzi = $conn->query($sqlRagazzi);
 
+
+
+
+$mese = date('m'); // mese corrente
+$anno = date('Y');
+
+$sqlResoconti = "
+SELECT 
+    i.id,
+    i.Nome,
+    i.Cognome,
+    i.Fotografia,
+    i.Prezzo_Orario,
+    SUM(TIMESTAMPDIFF(MINUTE, p.Ingresso, p.Uscita)) / 60 AS ore_totali
+FROM iscritto i
+LEFT JOIN presenza p 
+    ON p.ID_Iscritto = i.id
+    AND MONTH(p.Ingresso) = $mese
+    AND YEAR(p.Ingresso) = $anno
+GROUP BY i.id
+ORDER BY i.Cognome
+";
+
+$resultResoconti = $conn->query($sqlResoconti);
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -820,18 +848,84 @@ $resultRagazzi = $conn->query($sqlRagazzi);
 
 
 
+            
+
 
 
 
 
             <!-- TAB RESOCONTI -->
             <div class="page-tab" id="tab-resoconti">
+
                 <div class="page-header">
                     <h1>Resoconti</h1>
-                    <p>Informazioni mensili</p>
+                    <p>Riepilogo mensile iscritti</p>
                 </div>
-                <p>Contenuto resoconti da implementare...</p>
+
+                <div class="resoconti-mese-label">
+                    <label>Seleziona mese: </label>
+                    <input type="month" id="resocontiMeseFiltro" value="<?= date('Y-m') ?>">
+                </div>
+
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Ore totali</th>
+                                <th>Costo totale (€)</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resocontiMensiliBody">
+                            <tr><td colspan="6">Caricamento...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- MODAL RESOCONTO GIORNALIERO -->
+                <div class="modal-box large" id="modalResocontoGiorni">
+                    <h3 class="modal-title" id="resocontoNome"></h3>
+
+                    <div class="edit-field">
+                        <label>Mese</label>
+                        <input type="month" id="resocontoMese">
+                    </div>
+
+                    <div class="users-table-box">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Attività</th>
+                                    <th>Ore</th>
+                                    <th>Costo giornaliero (€)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resocontoGiorniBody">
+                                <tr><td colspan="4">Seleziona un mese</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                    </div>
+                </div>
+
             </div>
+
+
+
+
+
+
+
+
+
+
             <!-- TAB EDUCATORI -->
             <div class="page-tab" id="tab-educatori">
                 <button class="animated-button" id="aggiungi-educatore-btn">
@@ -2583,6 +2677,137 @@ $resultRagazzi = $conn->query($sqlRagazzi);
         window.addEventListener('DOMContentLoaded', () => {
             loadAgenda();
         });
+
+
+
+
+
+
+
+
+
+        const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
+        const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
+
+        const modalResoconto = document.getElementById("modalResocontoGiorni");
+        const bodyResoconto = document.getElementById("resocontoGiorniBody");
+        const meseInput = document.getElementById("resocontoMese");
+        const titoloResoconto = document.getElementById("resocontoNome");
+
+        let currentIscritto = null;
+
+        // CARICAMENTO INIZIALE MENSILE
+        caricaResocontiMensili(resocontiMeseFiltro.value);
+
+        // CAMBIO MESE GLOBALE
+        resocontiMeseFiltro.addEventListener("change", () => {
+            caricaResocontiMensili(resocontiMeseFiltro.value);
+        });
+
+        // CLICK PULSANTE DETTAGLI GIORNALIERI
+        document.addEventListener("click", e => {
+            const btn = e.target.closest(".calendario-btn");
+            if(!btn) return;
+
+            currentIscritto = btn.dataset.id;
+            titoloResoconto.textContent = "Resoconto - " + btn.dataset.nome;
+
+            meseInput.value = resocontiMeseFiltro.value;
+            bodyResoconto.innerHTML = `<tr><td colspan="4">Caricamento...</td></tr>`;
+
+            openModal(modalResoconto);
+            caricaResocontoGiorni();
+        });
+
+        // CAMBIO MESE NEL MODAL
+        meseInput.addEventListener("change", caricaResocontoGiorni);
+
+        // FUNZIONE CARICA RESOCONTI MENSILI
+        function caricaResocontiMensili(mese){
+            resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
+
+            fetch("api/api_resoconto_mensile.php", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({mese})
+            })
+            .then(r => r.json())
+            .then(json => {
+                resocontiMensiliBody.innerHTML = "";
+
+                if(!json.success || json.data.length === 0){
+                    resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Nessun dato disponibile</td></tr>`;
+                    return;
+                }
+
+                json.data.forEach(r => {
+                    const ore = parseFloat(r.ore_totali).toFixed(2);
+                    const costo = parseFloat(r.ore_totali * r.Prezzo_Orario).toFixed(2);
+
+                    resocontiMensiliBody.innerHTML += `
+                        <tr>
+                            <td><img src="${r.Fotografia}" class="user-avatar"></td>
+                            <td>${r.Nome}</td>
+                            <td>${r.Cognome}</td>
+                            <td>${ore}</td>
+                            <td>${costo} €</td>
+                            <td>
+                                <button class="btn-icon calendario-btn" data-id="${r.id}" data-nome="${r.Nome} ${r.Cognome}">
+                                    <img src="immagini/calendario.png" alt="Calendario">
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ
+        function caricaResocontoGiorni(){
+            fetch("api/api_resoconto_giornaliero.php", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    id: currentIscritto,
+                    mese: meseInput.value
+                })
+            })
+            .then(r => r.json())
+            .then(json => {
+                bodyResoconto.innerHTML = "";
+
+                if(!json.success || json.data.length === 0){
+                    bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
+                    return;
+                }
+
+                json.data.forEach(r => {
+                    // Attività multiple separate da <br>
+                    let attivitaHTML = '';
+                    r.attivita.forEach(a => {
+                        attivitaHTML += `${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)} €)<br>`;
+                    });
+
+                    bodyResoconto.innerHTML += `
+                        <tr>
+                            <td>${r.giorno}</td>
+                            <td>${attivitaHTML}</td>
+                            <td>${r.ore.toFixed(2)}</td>
+                            <td>${r.costo.toFixed(2)} €</td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+
+
+
+
+
+
+
+
     </script>
 
 </body>

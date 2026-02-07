@@ -83,6 +83,12 @@
 .activity-header{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .activity-header h3{font-size:1rem;margin:0;color:var(--agenda-accent);font-family: 'cinzel', serif}
 .activity-time{font-size:0.9rem;color:var(--agenda-muted);padding:4px 8px;border-radius:8px}
+.activity-header-actions{display:flex;align-items:center;gap:10px}
+.activity-actions{display:flex;align-items:center;gap:6px}
+.agenda-action-btn{background:#fff;border:1px solid rgba(0,0,0,0.08);width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease}
+.agenda-action-btn img{width:14px;height:14px}
+.agenda-action-btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(16,24,32,0.08)}
+.agenda-action-btn.delete-agenda-btn{border-color:rgba(176,0,0,0.22)}
 
 .activity-description{color:#444;font-size:0.92rem;line-height:1.4;max-height:76px;overflow:hidden}
 
@@ -97,3 +103,4 @@
 
 @media (max-width:900px){.activities-list{grid-template-columns:1fr}.agenda-container{padding:18px;margin:28px}}
 @media (max-width:520px){.days-tabs{overflow:auto;gap:8px}.day-tab{min-width:88px;padding:8px}.agenda-container{padding:12px;margin:18px}}
+

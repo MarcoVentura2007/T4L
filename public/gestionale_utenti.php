@@ -77,7 +77,6 @@ if($classe !== 'Educatore'){
 <title>T4L | Gestionale utenti</title>
 
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="agenda-enhancements.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -398,7 +397,7 @@ if($classe !== 'Educatore'){
             <div class="page-tab" id="tab-agenda">
                 <div class="page-header">
                     <h1>Agenda</h1>
-                    <p>Attività della settimana (Lunedì - Venerdì)</p>
+                    <p>Attività programmate della settimana</p>
                 </div>
 
                 <div class="agenda-container">
@@ -429,14 +428,6 @@ if($classe !== 'Educatore'){
                         <div class="loading">Caricamento attività...</div>
                     </div>
                 </div>
-            </div>
-
-
-
-
-
-
-            
 
         </main>
     </div>
@@ -558,25 +549,29 @@ function closeModal(){
 
 if(modalOverlay) modalOverlay.onclick = closeModal;
 
-// LOGOUT
-const logoutBtn = document.getElementById("logoutBtn");
-const logoutOverlay = document.getElementById("logoutOverlay");
-const logoutModal = document.getElementById("logoutModal");
-const cancelLogout = document.getElementById("cancelLogout");
-const confirmLogout = document.getElementById("confirmLogout");
-logoutBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    openModal(logoutModal);
-});
-cancelLogout.onclick = closeLogout;
-if(logoutOverlay) logoutOverlay.onclick = closeLogout;
-function closeLogout(){
-    closeModal();
-}
-confirmLogout.onclick = () => {
-    window.location.href = "logout.php";
-};
+/* LOGOUT */
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutOverlay = document.getElementById("logoutOverlay");
+        const logoutModal = document.getElementById("logoutModal");
+        const cancelLogout = document.getElementById("cancelLogout");
+        const confirmLogout = document.getElementById("confirmLogout");
 
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            logoutOverlay.classList.add("show");
+            logoutModal.classList.add("show");
+        });
+
+        cancelLogout.onclick = closeLogout;
+        logoutOverlay.onclick = closeLogout;
+        function closeLogout(){
+            logoutOverlay.classList.remove("show");
+            logoutModal.classList.remove("show");
+        }
+
+        confirmLogout.onclick = () => {
+            window.location.href = "logout.php";
+        };
 // VIEW BTN UTENTI
 document.querySelectorAll(".view-btn").forEach(btn=>{
     btn.onclick = e=>{

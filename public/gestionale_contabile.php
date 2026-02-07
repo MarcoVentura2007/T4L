@@ -77,13 +77,19 @@ $resultAttivitaCombo = $conn->query($sqlAttivitaCombo);
 $sqlEducatoriAgenda = "SELECT id, nome, cognome FROM educatore ORDER BY cognome ASC, nome ASC";
 $resultEducatoriAgenda = $conn->query($sqlEducatoriAgenda);
 
+// Query per attivita (per combobox nella modal modifica agenda)
+$resultAttivitaComboEdit = $conn->query($sqlAttivitaCombo);
+
+// Query per educatori (per combobox nella modal modifica agenda)
+$resultEducatoriAgendaSelect = $conn->query($sqlEducatoriAgenda);
+
 // Query per ragazzi (per checkbox nella modal agenda)
 $sqlRagazzi = "SELECT id, nome, cognome FROM iscritto ORDER BY cognome ASC, nome ASC";
 $resultRagazzi = $conn->query($sqlRagazzi);
 
 ?>
 
-<!DOCTYPE html>
+<!DOCTYPE h
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -651,7 +657,74 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                     </form>
                 </div>
 
-                <!-- POPUP AGENDA CREATA -->
+                                <!-- MODAL MODIFICA AGENDA -->
+                <div class="modal-box large" id="modalModificaAgenda">
+                    <h3 class="modal-title">Modifica agenda</h3>
+
+                    <form id="formModificaAgenda">
+                        <input type="hidden" id="editAgendaId">
+
+                        <div class="edit-field">
+                            <label>Data</label>
+                            <input type="date" id="editAgendaData" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ora inizio</label>
+                            <input type="time" id="editAgendaOraInizio" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ora fine</label>
+                            <input type="time" id="editAgendaOraFine" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Attività</label>
+                            <select id="editAgendaAttivita" required>
+                                <option value="">-- Seleziona attività --</option>
+                                <?php
+                                if($resultAttivitaComboEdit && $resultAttivitaComboEdit->num_rows > 0){
+                                    while($row = $resultAttivitaComboEdit->fetch_assoc()){
+                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['Nome']).'</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Educatore</label>
+                            <select id="editAgendaEducatore" required>
+                                <option value="">-- Seleziona educatore --</option>
+                                <?php
+                                if($resultEducatoriAgendaSelect && $resultEducatoriAgendaSelect->num_rows > 0){
+                                    while($row = $resultEducatoriAgendaSelect->fetch_assoc()){
+                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- MODAL ELIMINA AGENDA -->
+                <div class="modal-box danger" id="modalDeleteAgenda">
+                    <h3>Elimina evento agenda</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteAgenda">Elimina</button>
+                    </div>
+                </div>
+<!-- POPUP AGENDA CREATA -->
                 <div class="popup success-popup" id="successPopupAgenda">
                     <div class="success-content">
                         <div class="success-icon">
@@ -1034,7 +1107,8 @@ $resultRagazzi = $conn->query($sqlRagazzi);
     const modalAggiungiAttivita = document.getElementById("modalAggiungiAttivita");
     const modalModificaAttivita = document.getElementById("modalModificaAttivita");
     const modalDeleteAttivita = document.getElementById("modalDeleteAttivita");
-    const modalCreaAgenda = document.getElementById("modalCreaAgenda");
+    const modalCreaAgenda = document.getElementById("modalCreaAgenda");    const modalModificaAgenda = document.getElementById("modalModificaAgenda");
+    const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
     const successPopup = document.getElementById("successPopup");
     const successText = document.getElementById("success-text");
 
@@ -1634,14 +1708,25 @@ $resultRagazzi = $conn->query($sqlRagazzi);
             dayActivities.forEach(att => {
                 const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
                 const iscritterText = att.iscritti.map(i => `${i.Nome} ${i.Cognome}`).join(', ') || '—';
+                const primaryEducatoreId = (att.educatori && att.educatori.length > 0) ? att.educatori[0].id : '';
                 
                 html += `
                     <div class="activity-card">
                         <div class="activity-header">
                             <h3>${att.attivita_nome}</h3>
-                            <span class="activity-time">
-                                🕐 ${att.ora_inizio} - ${att.ora_fine}
-                            </span>
+                            <div class="activity-header-actions">
+                                <span class="activity-time">
+                                    🕐 ${att.ora_inizio} - ${att.ora_fine}
+                                </span>
+                                <div class="activity-actions">
+                                    <button class="agenda-action-btn edit-agenda-btn" data-id="${att.partecipa_id}" data-data="${att.data}" data-ora_inizio="${att.ora_inizio}" data-ora_fine="${att.ora_fine}" data-id_attivita="${att.attivita_id}" data-id_educatore="${primaryEducatoreId}">
+                                        <img src="immagini/edit.png" alt="Modifica">
+                                    </button>
+                                    <button class="agenda-action-btn delete-agenda-btn" data-id="${att.partecipa_id}">
+                                        <img src="immagini/delete.png" alt="Elimina">
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="activity-description">
                             ${att.descrizione}
@@ -1678,6 +1763,111 @@ $resultRagazzi = $conn->query($sqlRagazzi);
         const formCreaAgenda = document.getElementById("formCreaAgenda");
         const agendaOverlay = document.getElementById("agendaOverlay") || modalOverlay;
         const successPopupAgenda = document.getElementById("successPopupAgenda");
+        const successTextAgenda = document.getElementById("success-text-agenda");
+        const formModificaAgenda = document.getElementById("formModificaAgenda");
+        const confirmDeleteAgenda = document.getElementById("confirmDeleteAgenda");
+
+        const agendaContent = document.getElementById("agendaContent");
+        if (agendaContent) {
+            agendaContent.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-agenda-btn');
+                if (editBtn) {
+                    document.getElementById("editAgendaId").value = editBtn.dataset.id || '';
+                    document.getElementById("editAgendaData").value = editBtn.dataset.data || '';
+                    document.getElementById("editAgendaOraInizio").value = (editBtn.dataset.ora_inizio || '').slice(0,5);
+                    document.getElementById("editAgendaOraFine").value = (editBtn.dataset.ora_fine || '').slice(0,5);
+                    document.getElementById("editAgendaAttivita").value = editBtn.dataset.id_attivita || '';
+                    document.getElementById("editAgendaEducatore").value = editBtn.dataset.id_educatore || '';
+                    openModal(modalModificaAgenda);
+                    return;
+                }
+
+                const delBtn = e.target.closest('.delete-agenda-btn');
+                if (delBtn) {
+                    if (modalDeleteAgenda) {
+                        modalDeleteAgenda.dataset.agendaId = delBtn.dataset.id || '';
+                    }
+                    openModal(modalDeleteAgenda);
+                }
+            });
+        }
+
+        if (formModificaAgenda) {
+            formModificaAgenda.onsubmit = (e) => {
+                e.preventDefault();
+                if (!formModificaAgenda.reportValidity()) return;
+
+                const payload = {
+                    id: document.getElementById("editAgendaId").value,
+                    data: document.getElementById("editAgendaData").value,
+                    ora_inizio: document.getElementById("editAgendaOraInizio").value,
+                    ora_fine: document.getElementById("editAgendaOraFine").value,
+                    id_attivita: parseInt(document.getElementById("editAgendaAttivita").value, 10),
+                    id_educatore: parseInt(document.getElementById("editAgendaEducatore").value, 10)
+                };
+
+                fetch("api/api_modifica_agenda.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeModal();
+                        if (successTextAgenda) successTextAgenda.innerText = "Agenda modificata!";
+                        showSuccess(successPopupAgenda, agendaOverlay);
+                        setTimeout(() => {
+                            hideSuccess(successPopupAgenda, agendaOverlay);
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        alert("Errore: " + (data.message || data.error || 'Sconosciuto'));
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Errore di comunicazione con il server");
+                });
+            };
+        }
+
+        if (confirmDeleteAgenda) {
+            confirmDeleteAgenda.onclick = () => {
+                const id = modalDeleteAgenda ? modalDeleteAgenda.dataset.agendaId : '';
+                if (!id) return;
+
+                fetch("api/api_elimina_agenda.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ id })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeModal();
+                        if (successTextAgenda) successTextAgenda.innerText = "Agenda eliminata!";
+                        showSuccess(successPopupAgenda, agendaOverlay);
+                        setTimeout(() => {
+                            hideSuccess(successPopupAgenda, agendaOverlay);
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        alert("Errore: " + (data.message || data.error || 'Sconosciuto'));
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Errore di comunicazione con il server");
+                });
+            };
+        }
 
         if(creaAgendaBtn) {
             creaAgendaBtn.onclick = () => {
@@ -1819,6 +2009,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
 
 </body>
 </html>
+
+
+
+
 
 
 
