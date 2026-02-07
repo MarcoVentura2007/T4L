@@ -3200,3 +3200,114 @@ select option:checked {
     font-weight: 600 !important;
     box-shadow: 0 0 8px rgba(67, 3, 48, 0.3) !important;
 }
+
+/* Resoconto calendario */
+.resoconto-calendar{
+    margin-top: 12px;
+}
+
+.calendar-weekdays{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    font-weight: 700;
+    color:#2f2f2f;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.calendar-weekdays span{
+    text-align:center;
+    padding: 6px 0;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.calendar-grid{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.calendar-cell{
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+    padding: 8px;
+    min-height: 98px;
+    display:flex;
+    flex-direction:column;
+    gap: 6px;
+}
+
+.calendar-cell.has-data{
+    box-shadow: 0 10px 20px rgba(16,24,32,0.06);
+    border-color: rgba(0,0,0,0.14);
+}
+
+.calendar-cell.is-empty{
+    background: transparent;
+    border: 1px dashed rgba(0,0,0,0.12);
+}
+
+.cal-day{
+    font-weight: 800;
+    font-size: 0.95rem;
+    color:#1f2933;
+}
+
+.cal-hours{
+    font-size: 0.78rem;
+    color:#111827;
+    background: #f2f3f5;
+    padding: 2px 6px;
+    border-radius: 999px;
+    width: fit-content;
+}
+
+.cal-hours.is-empty{
+    color:#9aa0a6;
+    background: #f7f7f7;
+}
+
+.cal-activities{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 4px;
+}
+
+.cal-activities span{
+    font-size: 0.72rem;
+    color:#3f3f3f;
+    background:#eef0f2;
+    border-radius: 999px;
+    padding: 2px 6px;
+}
+
+.calendar-empty{
+    grid-column: 1 / -1;
+    text-align:center;
+    padding: 16px;
+    color:#6b7280;
+}
+
+@media (max-width: 900px){
+    .calendar-weekdays,
+    .calendar-grid{
+        gap: 6px;
+    }
+    .calendar-cell{
+        min-height: 86px;
+        padding: 6px;
+    }
+}
+
+@media (max-width: 520px){
+    .calendar-weekdays span{
+        font-size: 0.72rem;
+    }
+    .cal-activities span{
+        font-size: 0.66rem;
+    }
+}

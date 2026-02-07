@@ -81,6 +81,34 @@ $resultEducatoriAgenda = $conn->query($sqlEducatoriAgenda);
 $sqlRagazzi = "SELECT id, nome, cognome FROM iscritto ORDER BY cognome ASC, nome ASC";
 $resultRagazzi = $conn->query($sqlRagazzi);
 
+
+
+
+$mese = date('m'); // mese corrente
+$anno = date('Y');
+
+$sqlResoconti = "
+SELECT 
+    i.id,
+    i.Nome,
+    i.Cognome,
+    i.Fotografia,
+    i.Prezzo_Orario,
+    SUM(TIMESTAMPDIFF(MINUTE, p.Ingresso, p.Uscita)) / 60 AS ore_totali
+FROM iscritto i
+LEFT JOIN presenza p 
+    ON p.ID_Iscritto = i.id
+    AND MONTH(p.Ingresso) = $mese
+    AND YEAR(p.Ingresso) = $anno
+GROUP BY i.id
+ORDER BY i.Cognome
+";
+
+$resultResoconti = $conn->query($sqlResoconti);
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -820,23 +848,119 @@ $resultRagazzi = $conn->query($sqlRagazzi);
 
 
 
+            
+
 
 
 
 
             <!-- TAB RESOCONTI -->
             <div class="page-tab" id="tab-resoconti">
+
                 <div class="page-header">
                     <h1>Resoconti</h1>
-                    <p>Informazioni mensili</p>
+                    <p>Riepilogo mensile iscritti</p>
                 </div>
-                <p>Contenuto resoconti da implementare...</p>
+
+                <div class="resoconti-mese-label">
+                    <label>Mese:</label>
+                    <span id="resocontiMeseLabel"><?= date("F Y") ?></span>
+                </div>
+
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Ore totali</th>
+                                <th>Costo totale (€)</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        <?php
+                        if($resultResoconti && $resultResoconti->num_rows > 0){
+                            while($row = $resultResoconti->fetch_assoc()){
+
+                                $ore = round($row['ore_totali'] ?? 0, 2);
+                                $costo = round($ore * $row['Prezzo_Orario'], 2);
+
+                                echo '<tr>';
+                                    echo '<td>
+                                            <img src="'.htmlspecialchars($row['Fotografia']).'" 
+                                                class="user-avatar" 
+                                                alt="Foto">
+                                        </td>';
+                                    echo '<td>'.htmlspecialchars($row['Nome']).'</td>';
+                                    echo '<td>'.htmlspecialchars($row['Cognome']).'</td>';
+                                    echo '<td>'.$ore.'</td>';
+                                    echo '<td>'.$costo.' €</td>';
+                                    echo '<td>
+                                            <button class="btn-icon calendario-btn" data-id="'.$row['id'].'" data-nome="'.$row['Nome'].' '.$row['Cognome'].'">
+                                                <img src="immagini/calendario.png" alt="Calendario">
+                                            </button>
+                                        </td>';
+                                echo '</tr>';
+                            }
+                        } else {
+                            echo '<tr><td colspan="5">Nessun dato disponibile.</td></tr>';
+                        }
+                        ?>
+
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+
+                <!-- MODAL RESOCONTO GIORNALIERO -->
+                <div class="modal-box large" id="modalResocontoGiorni">
+                    <h3 class="modal-title" id="resocontoNome"></h3>
+
+                    <div class="edit-field">
+                        <label>Mese</label>
+                        <input type="month" id="resocontoMese">
+                    </div>
+
+                    <div class="users-table-box">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Ore</th>
+                                    <th>Costo giornaliero (€)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resocontoGiorniBody">
+                                <tr><td colspan="3">Seleziona un mese</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                    </div>
+                </div>
+
+
+
+
+
             </div>
 
 
 
 
-            
+
+
+
+
+
+
             <!-- TAB EDUCATORI -->
             <div class="page-tab" id="tab-educatori">
                 <button class="animated-button" id="aggiungi-educatore-btn">
@@ -2588,6 +2712,81 @@ $resultRagazzi = $conn->query($sqlRagazzi);
         window.addEventListener('DOMContentLoaded', () => {
             loadAgenda();
         });
+
+
+
+
+
+
+
+
+
+        const modalResoconto = document.getElementById("modalResocontoGiorni");
+        const bodyResoconto = document.getElementById("resocontoGiorniBody");
+        const meseInput = document.getElementById("resocontoMese");
+        const titoloResoconto = document.getElementById("resocontoNome");
+
+        let currentIscritto = null;
+
+        // click bottone calendario
+        document.addEventListener("click", e => {
+            const btn = e.target.closest(".calendario-btn");
+            if(!btn) return;
+
+            currentIscritto = btn.dataset.id;
+            titoloResoconto.textContent = "Resoconto - " + btn.dataset.nome;
+
+            meseInput.value = new Date().toISOString().slice(0,7);
+            bodyResoconto.innerHTML = `<tr><td colspan="3">Caricamento...</td></tr>`;
+
+            openModal(modalResoconto);
+            caricaResocontoGiorni();
+        });
+
+        // cambio mese
+        meseInput.addEventListener("change", caricaResocontoGiorni);
+
+        function caricaResocontoGiorni(){
+            fetch("api/api_resoconto_giornaliero.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    id: currentIscritto,
+                    mese: meseInput.value
+                })
+            })
+            .then(r => r.json())
+            .then(json => {
+                bodyResoconto.innerHTML = "";
+
+                if(!json.success || json.data.length === 0){
+                    bodyResoconto.innerHTML = `<tr><td colspan="3">Nessun dato</td></tr>`;
+                    return;
+                }
+
+                json.data.forEach(r => {
+                    bodyResoconto.innerHTML += `
+                        <tr>
+                            <td>${r.giorno}</td>
+                            <td>${r.ore}</td>
+                            <td>${r.costo} €</td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+
+
+
+
+
+
+
+
     </script>
 
 </body>
