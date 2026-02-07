@@ -32,7 +32,7 @@ cd /percorso/del/progetto
 ### **1.3 Crea l’ambiente virtuale**
 
 ```c
-python3 -b venv venv
+python3 -m venv venv
 ```
 
 ### **1.4 Attiva l’ambiente virtuale**
