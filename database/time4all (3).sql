@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Feb 07, 2026 alle 00:38
+-- Creato il: Feb 07, 2026 alle 08:45
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -111,6 +111,18 @@ INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale
 -- --------------------------------------------------------
 
 --
+-- Struttura della tabella `logs`
+--
+
+CREATE TABLE `logs` (
+  `id` int(11) NOT NULL,
+  `Data` datetime NOT NULL,
+  `Descrizione` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struttura della tabella `partecipa`
 --
 
@@ -143,7 +155,8 @@ CREATE TABLE `presenza` (
 --
 
 INSERT INTO `presenza` (`id`, `Ingresso`, `Uscita`, `Check_firma`, `ID_Iscritto`) VALUES
-(1, '2026-02-06 07:00:00', '2026-02-06 17:00:00', 1, 3);
+(1, '2026-02-06 07:00:00', '2026-02-06 17:00:00', 1, 3),
+(3, '2026-02-07 09:00:00', '2026-02-07 16:00:00', 1, 2);
 
 --
 -- Indici per le tabelle scaricate
@@ -175,6 +188,12 @@ ALTER TABLE `iscritto`
   ADD UNIQUE KEY `Codice_fiscale` (`Codice_fiscale`);
 
 --
+-- Indici per le tabelle `logs`
+--
+ALTER TABLE `logs`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indici per le tabelle `partecipa`
 --
 ALTER TABLE `partecipa`
@@ -204,7 +223,7 @@ ALTER TABLE `account`
 -- AUTO_INCREMENT per la tabella `attivita`
 --
 ALTER TABLE `attivita`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT per la tabella `educatore`
@@ -216,7 +235,13 @@ ALTER TABLE `educatore`
 -- AUTO_INCREMENT per la tabella `iscritto`
 --
 ALTER TABLE `iscritto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT per la tabella `logs`
+--
+ALTER TABLE `logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `partecipa`
@@ -228,7 +253,7 @@ ALTER TABLE `partecipa`
 -- AUTO_INCREMENT per la tabella `presenza`
 --
 ALTER TABLE `presenza`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Limiti per le tabelle scaricate

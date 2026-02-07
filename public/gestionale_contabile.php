@@ -29,6 +29,17 @@ if($resultClasse && $resultClasse->num_rows > 0){
     $classe = ""; // default se non trovato
 }
 
+// Controlla se il codice è stato verificato (timeout 30 minuti)
+if(
+    !isset($_SESSION['codice_verificato']) || 
+    $_SESSION['codice_verificato'] !== true ||
+    !isset($_SESSION['codice_verificato_time']) ||
+    (time() - $_SESSION['codice_verificato_time']) > 1800
+){
+    header("Location: index.php");
+    exit;
+}
+
 // Preleva i profili dal DB
 $sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
         FROM iscritto ORDER BY cognome ASC";
@@ -43,6 +54,22 @@ $sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.usci
                 
                 ORDER BY p.ingresso ASC";
 $resultPresenze = $conn->query($sqlPresenze);
+
+
+// Query per attività (per combobox nella modal agenda)
+$sqlAttivitaCombo = "SELECT id, Nome FROM attivita ORDER BY Nome ASC";
+$resultAttivitaCombo = $conn->query($sqlAttivitaCombo);
+
+// Query per educatori (per combobox nella modal agenda)
+$sqlEducatoriCombo = "SELECT id, nome, cognome FROM educatore ORDER BY cognome ASC, nome ASC";
+$resultEducatoriCombo = $conn->query($sqlEducatoriCombo);
+
+//se la classe non è Contabile, redirect a index.php
+if($classe !== 'Contabile'){
+    header("Location: index.php");
+    exit;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -250,8 +277,6 @@ $resultPresenze = $conn->query($sqlPresenze);
                     </svg>
                 </button>
 
-                <div class="logout-overlay" id="Overlay"></div>
-
 
 
                 <!-- Modal Aggiungi Utente -->
@@ -260,11 +285,11 @@ $resultPresenze = $conn->query($sqlPresenze);
                     <form id="formAggiungiUtente">
                         <div class="edit-field">
                             <label>Nome</label>
-                            <input type="text" id="utenteNome" placeholder="Nome" required>
+                            <input type="text" id="utenteNome" required>
                         </div>
                         <div class="edit-field">
                             <label>Cognome</label>
-                            <input type="text" id="utenteCognome" placeholder="Cognome" required>
+                            <input type="text" id="utenteCognome" required>
                         </div>
                         <div class="edit-field">
                             <label>Data di nascita</label>
@@ -272,7 +297,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                         </div>
                         <div class="edit-field">
                             <label>Codice Fiscale</label>
-                            <input type="text" id="utenteCF" placeholder="Codice Fiscale" required>
+                            <input type="text" id="utenteCF" required>
                         </div>
                         <div class="edit-field">
                             <label>Contatti</label>
@@ -311,7 +336,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                         </div>
                         <div class="edit-field">
                             <label>Prezzo orario (€)</label>
-                            <input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.01">
+                            <input type="number" id="utentePrezzo" step="0.01">
                         </div>
                         <div class="edit-field">
                             <label>Note</label>
@@ -378,7 +403,6 @@ $resultPresenze = $conn->query($sqlPresenze);
                         </tbody>
                     </table>
 
-                    <div class="modal-overlay" id="modalOverlay"></div>
                     <div class="modal-box large" id="viewModal">
                         <div class="profile-header">
                             <img id="viewAvatar" class="profile-avatar">
@@ -421,6 +445,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                                 <th>Cognome</th>
                                 <th>Ingresso</th>
                                 <th>Uscita</th>
+                                <th>Azioni</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -433,13 +458,17 @@ $resultPresenze = $conn->query($sqlPresenze);
                                         data-nome="'.htmlspecialchars($row['nome']).'"
                                         data-cognome="'.htmlspecialchars($row['cognome']).'"
                                         data-ingresso="'.htmlspecialchars($row['ingresso']).'"
-                                        data-uscita="'.htmlspecialchars($row['uscita']).'""
+                                        data-uscita="'.htmlspecialchars($row['uscita']).'"
                                     >
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
                                         <td>'.htmlspecialchars($row['nome']).'</td>
                                         <td>'.htmlspecialchars($row['cognome']).'</td>
                                         <td>'.htmlspecialchars($row['ingresso']).'</td>
                                         <td>'.htmlspecialchars($row['uscita']).'</td>
+                                        <td>
+                                            <button class="edit-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/edit.png" alt="Modifica"></button>
+                                            <button class="delete-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/delete.png" alt="Elimina"></button>
+                                        </td>
                                     </tr>
                                 ';
                             }
@@ -449,6 +478,44 @@ $resultPresenze = $conn->query($sqlPresenze);
                         ?>
                         </tbody>
                     </table>
+<!-- POPUP SUCCESSO -->
+                    <div class="popup success-popup" id="successPopup">
+                        <div class="success-content">
+                            <div class="success-icon">
+                            <svg viewBox="-2 -2 56 56">
+                                <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
+                                <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
+                            </svg>
+                            </div>
+                            <p class="success-text" id="success-text">Operazione completata!!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-box large" id="modalPresenze">
+                        <h3 id="presenzeModalTitle">Presenze</h3>
+                        <form id="formModificaPresenza">
+                            <div class="edit-field">
+                                <label>Ingresso (ora)</label>
+                                <input type="time" id="presenzeIngresso" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Uscita (ora)</label>
+                                <input type="time" id="presenzeUscita" required>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                                <button type="submit" class="btn-primary">Salva</button>
+                            </div>
+                        </form>
+
+                        <div id="deletePresenzaBox" style="display:none;">
+                            <p>Questa azione è definitiva. Vuoi continuare?</p>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
+                                <button class="btn-danger" id="confirmDeletePresenza">Elimina</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -460,9 +527,114 @@ $resultPresenze = $conn->query($sqlPresenze);
             <div class="page-tab" id="tab-agenda">
                 <div class="page-header">
                     <h1>Agenda</h1>
-                    <p>Prossimi appuntamenti</p>
+                    <p>Attività della settimana (Lunedì - Venerdì)</p>
                 </div>
-                <p>Contenuto agenda da implementare...</p>
+
+                <button class="animated-button" id="creaAgendaBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Crea nuova Agenda</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <div class="agenda-container">
+                    <div class="days-tabs">
+                        <button class="day-tab active" data-day="0">
+                            <span class="day-name">Lunedì</span>
+                            <span class="day-date" id="date-monday"></span>
+                        </button>
+                        <button class="day-tab" data-day="1">
+                            <span class="day-name">Martedì</span>
+                            <span class="day-date" id="date-tuesday"></span>
+                        </button>
+                        <button class="day-tab" data-day="2">
+                            <span class="day-name">Mercoledì</span>
+                            <span class="day-date" id="date-wednesday"></span>
+                        </button>
+                        <button class="day-tab" data-day="3">
+                            <span class="day-name">Giovedì</span>
+                            <span class="day-date" id="date-thursday"></span>
+                        </button>
+                        <button class="day-tab" data-day="4">
+                            <span class="day-name">Venerdì</span>
+                            <span class="day-date" id="date-friday"></span>
+                        </button>
+                    </div>
+
+                    <div class="agenda-content" id="agendaContent">
+                        <div class="loading">Caricamento attività...</div>
+                    </div>
+                </div>
+
+                <!-- MODAL CREA AGENDA -->
+                <div class="modal-box large" id="modalCreaAgenda">
+                    <h3 class="modal-title">Crea nuova Agenda</h3>
+
+                    <form id="formCreaAgenda">
+                        <div class="edit-field">
+                            <label>Data</label>
+                            <select id="agendaData" required>
+                                <option value="">-- Seleziona data --</option>
+                                <option value="">Lunedì</option>
+                                <option value="">Martedì</option>
+                                <option value="">Mercoledì</option>
+                                <option value="">Giovedì</option>
+                                <option value="">Venerdì</option>
+                            </select>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ora inizio</label>
+                            <input type="time" id="agendaOraInizio" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ora fine</label>
+                            <input type="time" id="agendaOraFine" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Attività</label>
+                            <select id="agendaAttivita" required>
+                                <option value="">-- Seleziona attività --</option>
+                                <?php
+                                if($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0){
+                                    while($row = $resultAttivitaCombo->fetch_assoc()){
+                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['Nome']).'</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Educatore</label>
+                            <select id="agendaEducatore" required>
+                                <option value="">-- Seleziona educatore --</option>
+                                <?php
+                                if($resultEducatoriCombo && $resultEducatoriCombo->num_rows > 0){
+                                    while($row = $resultEducatoriCombo->fetch_assoc()){
+                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
 
@@ -592,7 +764,7 @@ $resultPresenze = $conn->query($sqlPresenze);
             <div class="page-tab" id="tab-resoconti">
                 <div class="page-header">
                     <h1>Resoconti</h1>
-                    <p>informazioni mensili</p>
+                    <p>Informazioni mensili</p>
                 </div>
                 <p>Contenuto resoconti da implementare...</p>
             </div>
@@ -693,7 +865,18 @@ $resultPresenze = $conn->query($sqlPresenze);
         </main>
     </div>
 
-    <script>
+    <footer class="footer-bar" style="bottom: auto;">
+        <div class="footer-left">© Time4All • 2026</div>
+         <div class="footer-top">
+            <a href                                                                                             \="#top" class="footer-image"></a>
+        </div>
+        <div class="footer-right">
+            <a href="index.html" class="hover-underline-animation">PRIVACY POLICY</a>
+        </div>
+    </footer>
+
+    <!-- OVERLAY PRINCIPALE PER MODALI -->
+<script>
         // Cambia tab e salva stato
     document.querySelectorAll(".tab-link").forEach(link => {
         link.addEventListener("click", e => {
@@ -809,29 +992,28 @@ $resultPresenze = $conn->query($sqlPresenze);
         };
 
     // Modal
-    const overlay = document.getElementById("modalOverlay");
+    // ========== SISTEMA MODALI E OVERLAY ==========
+    const modalOverlay = document.getElementById("modalOverlay");
     const viewModal = document.getElementById("viewModal");
     const editModal = document.getElementById("editModal");
     const deleteModal = document.getElementById("deleteModal");
+    const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
+    const modalPresenze = document.getElementById("modalPresenze");
     const modalAggiungiAttivita = document.getElementById("modalAggiungiAttivita");
+    const modalModificaAttivita = document.getElementById("modalModificaAttivita");
+    const modalDeleteAttivita = document.getElementById("modalDeleteAttivita");
+    const modalCreaAgenda = document.getElementById("modalCreaAgenda");
     const successText = document.getElementById("success-text");
 
-    function openModal(modal){
-        overlay.classList.add("show");
-        modal.classList.add("show");
-    }
-    function closeModal(){
-        overlay.classList.remove("show");
-        viewModal.classList.remove("show");
-        editModal.classList.remove("show");
-        deleteModal.classList.remove("show");
-        modalAggiungiAttivita.classList.remove("show");
-        attivitaOverlay.classList.remove("show");
-        modalModificaAttivita.classList.remove("show");
-        modalDeleteAttivita.classList.remove("show");
-        modalAggiungiUtente.classList.remove("show");
+    function openModal(modal, overlay = modalOverlay) {
+        if (modal) modal.classList.add("show");
+        if (overlay) overlay.classList.add("show");
     }
 
+    function closeModal() {
+        if (modalOverlay) modalOverlay.classList.remove("show");
+        document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
+    }
 
     // Popup view
     document.querySelectorAll(".view-btn").forEach(btn=>{
@@ -868,7 +1050,7 @@ $resultPresenze = $conn->query($sqlPresenze);
             openModal(viewModal);
         }
     });
-    overlay.onclick = closeModal;
+    modalOverlay.onclick = closeModal;
 
         document.querySelectorAll(".edit-btn").forEach(btn=>{
             btn.onclick = e=>{
@@ -993,19 +1175,11 @@ $resultPresenze = $conn->query($sqlPresenze);
 
 
 
-        // SEZIONE ATTIVITA !!!!!!!!!!!!!!!
-
-        // MODAL AGGIUNGI ATTIVITA
+        // ========== SEZIONE ATTIVITA ==========
         const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
-        const attivitaOverlay = document.getElementById("attivitaOverlay");
 
         aggiungiAttivitaBtn.onclick = () => {
             openModal(modalAggiungiAttivita);
-            attivitaOverlay.classList.add("show");
-        } 
-
-        attivitaOverlay.onclick = () => {
-            closeModal();
         };
 
         const salvaAttivitaBtn = document.getElementById("salvaAttivita");
@@ -1028,14 +1202,13 @@ $resultPresenze = $conn->query($sqlPresenze);
             .then(res => res.json())
             .then(data => {
                 if(data.success){       
-                    modalAggiungiAttivita.classList.remove("show");
+                    closeModal();
                     successText.innerText = "Attività Aggiunta!!";
                     successPopup.classList.add("show");
                     
 
                     setTimeout(() => {
                         successPopup.classList.remove("show");
-                        attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
 
@@ -1053,11 +1226,6 @@ $resultPresenze = $conn->query($sqlPresenze);
 
 
         // MODIFICA E ELIMINA ATTIVITA
-
-        const modalModificaAttivita = document.getElementById("modalModificaAttivita");
-        const deleteAttivitaModal = document.getElementById("modalDeleteAttivita");
-        const successPopupModificaAttivita = document.getElementById("successPopupModificaAttivita");
-
         // MODIFICA
         document.querySelectorAll(".edit-attivita-btn").forEach(btn => {
             btn.onclick = e => {
@@ -1071,7 +1239,6 @@ $resultPresenze = $conn->query($sqlPresenze);
                 document.getElementById("editAttivitaDescrizione").value = descr;
 
                 openModal(modalModificaAttivita);
-                attivitaOverlay.classList.add("show");
             }
         });
 
@@ -1093,15 +1260,13 @@ $resultPresenze = $conn->query($sqlPresenze);
             .then(res => res.json())
             .then(data => {
                 if(data.success){       
-                    modalModificaAttivita.classList.remove("show");
+                    closeModal();
                     successText.innerText = "Attività Modificata!!";
                     successPopup.classList.add("show");
                     
 
-
                     setTimeout(() => {
                         successPopup.classList.remove("show");
-                        attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
 
@@ -1116,8 +1281,7 @@ $resultPresenze = $conn->query($sqlPresenze);
         document.querySelectorAll(".delete-attivita-btn").forEach(btn => {
             btn.onclick = e => {
                 rowToDelete = btn.closest("tr");
-                openModal(deleteAttivitaModal);
-                attivitaOverlay.classList.add("show");
+                openModal(modalDeleteAttivita);
             }
         });
 
@@ -1136,15 +1300,13 @@ $resultPresenze = $conn->query($sqlPresenze);
             .then(res => res.json())
             .then(data => {
                 if(data.success){       
-                    deleteAttivitaModal.classList.remove("show");
+                    closeModal();
                     successText.innerText = "Attività Eliminata!!";
                     successPopup.classList.add("show");
                     
 
-
                     setTimeout(() => {
                         successPopup.classList.remove("show");
-                        attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
 
@@ -1162,14 +1324,13 @@ $resultPresenze = $conn->query($sqlPresenze);
 
         
 
+        // ========== SEZIONE UTENTI ==========
         const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
-        const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
 
         // Apri modal
         aggiungiUtenteBtn.onclick = () => {
-            modalAggiungiUtente.classList.add("show");
-            overlay.classList.add("show");
+            openModal(modalAggiungiUtente);
         };
 
 
@@ -1200,15 +1361,13 @@ $resultPresenze = $conn->query($sqlPresenze);
             .then(res => res.json())
             .then(data => {
                 if(data.success){       
-                    modalAggiungiUtente.classList.remove("show");
+                    closeModal();
                     successText.innerText = "Utente Aggiunto!!";
                     successPopup.classList.add("show");
                     
 
-
                     setTimeout(() => {
                         successPopup.classList.remove("show");
-                        overlay.classList.remove("show");
                         location.reload();
                     }, 1800);
 
@@ -1255,13 +1414,310 @@ $resultPresenze = $conn->query($sqlPresenze);
             clearBtn.style.display = "none"; // nasconde la X
         });
 
+        // ========== MODAL PRESENZE ==========
+        const deletePresenzaBox = document.getElementById("deletePresenzaBox");
+        const formPresenze = document.getElementById("formModificaPresenza");
+        let currentPresenzeId = null;
+        let isDeleteMode = false;
 
+        function openPresenzeModal(isDelete = false){
+            isDeleteMode = isDelete;
+            if(isDelete){
+                formPresenze.style.display = "none";
+                deletePresenzaBox.style.display = "block";
+                document.getElementById("presenzeModalTitle").innerText = "Elimina presenza";
+            } else {
+                formPresenze.style.display = "block";
+                deletePresenzaBox.style.display = "none";
+                document.getElementById("presenzeModalTitle").innerText = "Modifica presenza";
+            }
+            openModal(modalPresenze);
+        }
 
+        formPresenze.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const newIngresso = document.getElementById("presenzeIngresso").value;  // es: "14:30"
+            const newUscita = document.getElementById("presenzeUscita").value;      // es: "15:45"
+            
+            // Ottenere la data di oggi in formato YYYY-MM-DD
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Combinare data e ora nel formato DB (YYYY-MM-DD HH:MM:SS)
+            const ingressoDb = today + ' ' + newIngresso + ':00';
+            const uscitaDb = today + ' ' + newUscita + ':00';
+            
+            fetch('api/api_modifica_presenza.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest'},
+                body: JSON.stringify({id: currentPresenzeId, ingresso: ingressoDb, uscita: uscitaDb})
+            }).then(r => r.json()).then(data => {
+                if(data.success){
+                    closeModal();
+                    document.getElementById("success-text").innerText = "Presenza modificata!";
+                    document.getElementById("successPopup").classList.add("show");
+                    setTimeout(()=>{
+                        document.getElementById("successPopup").classList.remove("show");
+                        location.reload();
+                    }, 1800);
+                } else {
+                    alert("Errore: " + (data.error || 'Noto'));
+                }
+            });
+        });
 
+        document.getElementById("confirmDeletePresenza").addEventListener("click", () => {
+            fetch('api/api_elimina_presenza.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest'},
+                body: JSON.stringify({id: currentPresenzeId})
+            }).then(r => r.json()).then(data => {
+                if(data.success){
+                    closeModal();
+                    document.getElementById("success-text").innerText = "Presenza eliminata!";
+                    document.getElementById("successPopup").classList.add("show");
+                    setTimeout(()=>{
+                        document.getElementById("successPopup").classList.remove("show");
+                        location.reload();
+                    }, 1800);
+                } else {
+                    alert("Errore: " + (data.error || 'Noto'));
+                }
+            });
+        });
 
+        // Presenze: click handler (delegation)
+        document.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-presenza-btn');
+            if(editBtn){
+                const tr = editBtn.closest('tr');
+                currentPresenzeId = editBtn.dataset.id;
+                const ingresso = tr.dataset.ingresso || '';  // es: "2026-02-07 14:30:00"
+                const uscita = tr.dataset.uscita || '';      // es: "2026-02-07 15:45:00"
+                
+                // Estrarre solo l'ora (HH:MM)
+                const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
+                const uscitaTime = uscita.split(' ')[1]?.slice(0, 5) || '';
+                
+                document.getElementById("presenzeIngresso").value = ingressoTime;
+                document.getElementById("presenzeUscita").value = uscitaTime;
+                openPresenzeModal(false);
+                return;
+            }
+
+            const delBtn = e.target.closest('.delete-presenza-btn');
+            if(delBtn){
+                currentPresenzeId = delBtn.dataset.id;
+                openPresenzeModal(true);
+                return;
+            }
+        });
+
+        // ========== AGENDA ==========
+        let agendaData = [];
+        let selectedDayIndex = 0;
+
+        // Calcola le date della settimana
+        function calculateWeekDates() {
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            
+            const dates = [];
+            const dateLabels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
+            
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                dates.push(date.toISOString().split('T')[0]);
+                
+                const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+                document.getElementById(dateLabels[i]).innerText = dateStr;
+            }
+            
+            return dates;
+        }
+
+        // Carica l'agenda dal server
+        function loadAgenda() {
+            const contentDiv = document.getElementById('agendaContent');
+            contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
+            
+            fetch('api/api_get_agenda.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        agendaData = data.data;
+                        calculateWeekDates();
+                        displayAgenda(0);
+                    } else {
+                        contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
+                });
+        }
+
+        // Mostra le attività per il giorno selezionato
+        function displayAgenda(dayIndex) {
+            selectedDayIndex = dayIndex;
+            const contentDiv = document.getElementById('agendaContent');
+            
+            // Calcola la data del giorno selezionato
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            const selectedDate = new Date(monday);
+            selectedDate.setDate(monday.getDate() + dayIndex);
+            const selectedDateStr = selectedDate.toISOString().split('T')[0];
+            
+            // Filtra le attività per il giorno selezionato
+            const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
+            
+            if (dayActivities.length === 0) {
+                contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
+                return;
+            }
+            
+            // Ordina le attività per ora di inizio
+            dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
+            
+            let html = '<div class="activities-list">';
+            
+            dayActivities.forEach(att => {
+                const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
+                const iscritterText = att.iscritti.map(i => `${i.Nome} ${i.Cognome}`).join(', ') || '—';
+                
+                html += `
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <h3>${att.attivita_nome}</h3>
+                            <span class="activity-time">
+                                🕐 ${att.ora_inizio} - ${att.ora_fine}
+                            </span>
+                        </div>
+                        <div class="activity-description">
+                            ${att.descrizione}
+                        </div>
+                        <div class="activity-participants">
+                            <div class="participant-group">
+                                <label>Educatori:</label>
+                                <span>${educatoriText}</span>
+                            </div>
+                            <div class="participant-group">
+                                <label>Iscritti:</label>
+                                <span>${iscritterText}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            contentDiv.innerHTML = html;
+        }
+
+        // Event listeners per i tab dei giorni
+        document.querySelectorAll('.day-tab').forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                displayAgenda(index);
+            });
+        });
+
+        // ========== MODAL CREA AGENDA ==========
+        const creaAgendaBtn = document.getElementById("creaAgendaBtn");
+        const formCreaAgenda = document.getElementById("formCreaAgenda");
+
+        creaAgendaBtn.onclick = () => {
+            // Popola la select con le date della settimana
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+
+            const dataSelect = document.getElementById("agendaData");
+            const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+            
+            // Pulisci le opzioni mantendo la prima (placeholder)
+            while (dataSelect.options.length > 1) {
+                dataSelect.remove(1);
+            }
+
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                const option = document.createElement("option");
+                option.value = dateStr;
+                option.text = `${giorni[i]} ${dateFormatted}`;
+                dataSelect.appendChild(option);
+            }
+
+            openModal(modalCreaAgenda);
+        };
+
+        // Submit form
+        formCreaAgenda.onsubmit = function(e) {
+            e.preventDefault();
+
+            const data = document.getElementById("agendaData").value;
+            const ora_inizio = document.getElementById("agendaOraInizio").value;
+            const ora_fine = document.getElementById("agendaOraFine").value;
+            const id_attivita = document.getElementById("agendaAttivita").value;
+            const id_educatore = document.getElementById("agendaEducatore").value;
+
+            if (!data || !ora_inizio || !ora_fine || !id_attivita || !id_educatore) {
+                alert("Completa tutti i campi!");
+                return;
+            }
+
+            fetch("api/api_aggiungi_agenda.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    data: data,
+                    ora_inizio: ora_inizio,
+                    ora_fine: ora_fine,
+                    id_attivita: id_attivita,
+                    id_educatore: id_educatore
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    closeModal();
+                    successText.innerText = "Agenda creata!";
+                    successPopup.classList.add("show");
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+                } else {
+                    alert("Errore: " + (data.error || data.message));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Errore nel salvataggio!");
+            });
+        };
+
+        // Carica l'agenda al caricamento della pagina
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAgenda();
+        });
 
     </script>
 
 </body>
 </html>
+
 

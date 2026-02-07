@@ -34,7 +34,7 @@ $username = $_SESSION['username'];
 </style>
 </head>
 
-<body style="overflow:hidden;">
+<body >
 
 <!-- NAVBAR -->
     <header class="navbar">
@@ -104,6 +104,15 @@ $username = $_SESSION['username'];
 
 </main>
 
+    <footer class="footer-bar">
+        <div class="footer-left">© Time4All • 2026</div>
+         <div class="footer-top">
+            <a href="#top" class="footer-image"></a>
+        </div>
+        <div class="footer-right">
+            <a href="index.html" class="hover-underline-animation">PRIVACY POLICY</a>
+        </div>
+    </footer>
 
 <script>
 

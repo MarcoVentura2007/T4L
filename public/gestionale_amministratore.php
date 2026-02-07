@@ -29,6 +29,17 @@ if($resultClasse && $resultClasse->num_rows > 0){
     $classe = ""; // default se non trovato
 }
 
+// Controlla se il codice è stato verificato (timeout 30 minuti)
+if(
+    !isset($_SESSION['codice_verificato']) || 
+    $_SESSION['codice_verificato'] !== true ||
+    !isset($_SESSION['codice_verificato_time']) ||
+    (time() - $_SESSION['codice_verificato_time']) > 1800
+){
+    header("Location: index.php");
+    exit;
+}
+
 // Preleva i profili dal DB
 $sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
         FROM iscritto ORDER BY cognome ASC";
@@ -43,6 +54,33 @@ $sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.usci
                 
                 ORDER BY p.ingresso ASC";
 $resultPresenze = $conn->query($sqlPresenze);
+
+//se la classe non è Amministratore, redirect a index.php
+if($classe !== 'Amministratore'){
+    header("Location: index.php");
+    exit;
+}
+
+// Preleva gli account dal DB
+$sqlAccount = "SELECT nome_utente, codice_univoco, classe FROM Account ORDER BY nome_utente ASC";
+$resultAccount = $conn->query($sqlAccount);
+
+// Preleva gli educatori dal DB
+$sqlEducatori = "SELECT id, nome, cognome, codice_fiscale, data_nascita, telefono, mail FROM educatore ORDER BY cognome ASC";
+$resultEducatori = $conn->query($sqlEducatori);
+
+// Query per attività (per combobox nella modal agenda)
+$sqlAttivitaCombo = "SELECT id, Nome FROM attivita ORDER BY Nome ASC";
+$resultAttivitaCombo = $conn->query($sqlAttivitaCombo);
+
+// Query per educatori (per combobox nella modal agenda)
+$sqlEducatoriAgenda = "SELECT id, nome, cognome FROM educatore ORDER BY cognome ASC, nome ASC";
+$resultEducatoriAgenda = $conn->query($sqlEducatoriAgenda);
+
+// Query per ragazzi (per checkbox nella modal agenda)
+$sqlRagazzi = "SELECT id, nome, cognome FROM iscritto ORDER BY cognome ASC, nome ASC";
+$resultRagazzi = $conn->query($sqlRagazzi);
+
 ?>
 
 <!DOCTYPE html>
@@ -78,6 +116,8 @@ $resultPresenze = $conn->query($sqlPresenze);
         </div>
 
         <div class="logout-overlay" id="logoutOverlay"></div>
+
+        
 
         <div class="logout-modal" id="logoutModal">
             <h3>Conferma logout</h3>
@@ -249,7 +289,6 @@ $resultPresenze = $conn->query($sqlPresenze);
                             </a>
                         </li>
 
-
                     </ul>
 
                 </section>
@@ -277,12 +316,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                             stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
                     </svg>
                 </button>
-
-                <div class="logout-overlay" id="Overlay"></div>
-
-
-
-                <!-- Modal Aggiungi Utente -->
+<!-- Modal Aggiungi Utente -->
                 <div class="modal-box large" id="modalAggiungiUtente">
                     <h3>Aggiungi nuovo utente</h3>
                     <form id="formAggiungiUtente">
@@ -406,7 +440,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                         </tbody>
                     </table>
 
-                    <div class="modal-overlay" id="modalOverlay"></div>
+                
                     <div class="modal-box large" id="viewModal">
                         <div class="profile-header">
                             <img id="viewAvatar" class="profile-avatar">
@@ -418,6 +452,33 @@ $resultPresenze = $conn->query($sqlPresenze);
                         <div class="profile-grid" id="viewContent"></div>
                         <div class="modal-actions">
                             <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                        </div>
+
+                        <!-- Presenze form (hidden by default) -->
+                        <div id="presenzeFormBox" style="display:none;">
+                            <form id="formModificaPresenza">
+                                <div class="edit-field">
+                                    <label>Ingresso (YYYY-MM-DD HH:MM:SS)</label>
+                                    <input type="text" id="presenzeIngresso" required>
+                                </div>
+                                <div class="edit-field">
+                                    <label>Uscita (YYYY-MM-DD HH:MM:SS)</label>
+                                    <input type="text" id="presenzeUscita" required>
+                                </div>
+                                <div class="modal-actions">
+                                    <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                                    <button type="submit" class="btn-primary">Salva</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Presenze delete box (hidden by default) -->
+                        <div id="deletePresenzaBox" style="display:none;">
+                            <p>Questa azione è definitiva. Vuoi continuare?</p>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
+                                <button class="btn-danger" id="confirmDeletePresenza">Elimina</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -449,6 +510,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                                 <th>Cognome</th>
                                 <th>Ingresso</th>
                                 <th>Uscita</th>
+                                <th>Azioni</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -461,13 +523,17 @@ $resultPresenze = $conn->query($sqlPresenze);
                                         data-nome="'.htmlspecialchars($row['nome']).'"
                                         data-cognome="'.htmlspecialchars($row['cognome']).'"
                                         data-ingresso="'.htmlspecialchars($row['ingresso']).'"
-                                        data-uscita="'.htmlspecialchars($row['uscita']).'""
+                                        data-uscita="'.htmlspecialchars($row['uscita']).'"
                                     >
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
                                         <td>'.htmlspecialchars($row['nome']).'</td>
                                         <td>'.htmlspecialchars($row['cognome']).'</td>
                                         <td>'.htmlspecialchars($row['ingresso']).'</td>
                                         <td>'.htmlspecialchars($row['uscita']).'</td>
+                                        <td>
+                                            <button class="edit-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/edit.png" alt="Modifica"></button>
+                                            <button class="delete-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/delete.png" alt="Elimina"></button>
+                                        </td>
                                     </tr>
                                 ';
                             }
@@ -488,9 +554,144 @@ $resultPresenze = $conn->query($sqlPresenze);
             <div class="page-tab" id="tab-agenda">
                 <div class="page-header">
                     <h1>Agenda</h1>
-                    <p>Prossimi appuntamenti</p>
+                    <p>Attività della settimana (Lunedì - Venerdì)</p>
                 </div>
-                <p>Contenuto agenda da implementare...</p>
+
+                <button class="animated-button" id="creaAgendaBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Crea nuova Agenda</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <div class="agenda-container">
+                    <div class="days-tabs">
+                        <button class="day-tab active" data-day="0">
+                            <span class="day-name">Lunedì</span>
+                            <span class="day-date" id="date-monday"></span>
+                        </button>
+                        <button class="day-tab" data-day="1">
+                            <span class="day-name">Martedì</span>
+                            <span class="day-date" id="date-tuesday"></span>
+                        </button>
+                        <button class="day-tab" data-day="2">
+                            <span class="day-name">Mercoledì</span>
+                            <span class="day-date" id="date-wednesday"></span>
+                        </button>
+                        <button class="day-tab" data-day="3">
+                            <span class="day-name">Giovedì</span>
+                            <span class="day-date" id="date-thursday"></span>
+                        </button>
+                        <button class="day-tab" data-day="4">
+                            <span class="day-name">Venerdì</span>
+                            <span class="day-date" id="date-friday"></span>
+                        </button>
+                    </div>
+
+                    <div class="agenda-content" id="agendaContent">
+                        <div class="loading">Caricamento attività...</div>
+                    </div>
+                </div>
+<!-- MODAL CREA AGENDA -->
+                <div class="modal-box large" id="modalCreaAgenda">
+                    <h3 class="modal-title">Crea nuova Agenda</h3>
+
+                    <form id="formCreaAgenda">
+                        <div class="edit-field">
+                            <label>Data</label>
+                            <select id="agendaData" required>
+                                <option value="">-- Seleziona data --</option>
+                                <option value="">Lunedì</option>
+                                <option value="">Martedì</option>
+                                <option value="">Mercoledì</option>
+                                <option value="">Giovedì</option>
+                                <option value="">Venerdì</option>
+                            </select>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ora inizio</label>
+                            <input type="time" id="agendaOraInizio" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ora fine</label>
+                            <input type="time" id="agendaOraFine" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Attività</label>
+                            <select id="agendaAttivita" required>
+                                <option value="">-- Seleziona attività --</option>
+                                <?php
+                                if($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0){
+                                    while($row = $resultAttivitaCombo->fetch_assoc()){
+                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['Nome']).'</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Educatori</label>
+                            <div class="checkbox-group" id="educatoriCheckboxes">
+                                <?php
+                                if($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0){
+                                    while($row = $resultEducatoriAgenda->fetch_assoc()){
+                                        echo '<label class="checkbox-item">';
+                                        echo '<input type="checkbox" class="educatore-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
+                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '</label>';
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ragazzi partecipanti</label>
+                            <div class="checkbox-group" id="ragazziCheckboxes">
+                                <?php
+                                if($resultRagazzi && $resultRagazzi->num_rows > 0){
+                                    while($row = $resultRagazzi->fetch_assoc()){
+                                        echo '<label class="checkbox-item">';
+                                        echo '<input type="checkbox" class="ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
+                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '</label>';
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- POPUP AGENDA CREATA -->
+                <div class="popup success-popup" id="successPopupAgenda">
+                    <div class="success-content">
+                        <div class="success-icon">
+                        <svg viewBox="-2 -2 56 56">
+                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
+                        </svg>
+                        </div>
+                        <p class="success-text" id="success-text-agenda">Agenda creata!</p>
+                    </div>
+                </div>
             </div>
 
 
@@ -550,10 +751,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                         </tbody>
                     </table>
                 </div>
-
-                <div class="logout-overlay" id="attivitaOverlay"></div>
-
-                <!-- MODAL AGGIUNGI ATTIVITA -->
+<!-- MODAL AGGIUNGI ATTIVITA -->
                 <div class="modal-box large" id="modalAggiungiAttivita">
                     <h3 class="modal-title">Aggiungi nuova attività</h3>
 
@@ -630,31 +828,304 @@ $resultPresenze = $conn->query($sqlPresenze);
             <div class="page-tab" id="tab-resoconti">
                 <div class="page-header">
                     <h1>Resoconti</h1>
-                    <p>informazioni mensili</p>
+                    <p>Informazioni mensili</p>
                 </div>
                 <p>Contenuto resoconti da implementare...</p>
             </div>
-
-
-
-
             <!-- TAB EDUCATORI -->
             <div class="page-tab" id="tab-educatori">
+                <button class="animated-button" id="aggiungi-educatore-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Aggiungi Educatore</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <!-- Modal Aggiungi Educatore -->
+                <div class="modal-box large" id="modalAggiungiEducatore">
+                    <h3>Aggiungi nuovo educatore</h3>
+                    <form id="formAggiungiEducatore">
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="educatoreNome" placeholder="Nome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Cognome</label>
+                            <input type="text" id="educatoreCognome" placeholder="Cognome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Data di nascita</label>
+                            <input type="date" id="educatoreData" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Fiscale</label>
+                            <input type="text" id="educatoreCF" placeholder="Codice Fiscale" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="text" id="educatoreTelefono" placeholder="Telefono">
+                        </div>
+                        <div class="edit-field">
+                            <label>Email</label>
+                            <input type="email" id="educatoreMail" placeholder="Email">
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="page-header">
                     <h1>Educatori</h1>
                     <p>Personale educativo</p>
                 </div>
-                <p>Contenuto educatori da implementare...</p>
+
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Data di nascita</th>
+                                <th>Codice Fiscale</th>
+                                <th>Telefono</th>
+                                <th>Email</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if($resultEducatori && $resultEducatori->num_rows > 0){
+                            while($row = $resultEducatori->fetch_assoc()){
+                                echo '<tr '
+                                    . 'data-id="'.htmlspecialchars($row['id']).'" '
+                                    . 'data-nome="'.htmlspecialchars($row['nome']).'" '
+                                    . 'data-cognome="'.htmlspecialchars($row['cognome']).'" '
+                                    . 'data-nascita="'.htmlspecialchars($row['data_nascita']).'" '
+                                    . 'data-cf="'.htmlspecialchars($row['codice_fiscale']).'" '
+                                    . 'data-telefono="'.htmlspecialchars($row['telefono']).'" '
+                                    . 'data-mail="'.htmlspecialchars($row['mail']).'">'
+                                    . '<td>'.htmlspecialchars($row['nome']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['cognome']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['data_nascita']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['codice_fiscale']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['telefono']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['mail']).'</td>'
+                                    . '<td>'
+                                        . '<button class="edit-educatore-btn"><img src="immagini/edit.png" alt="Modifica"></button>'
+                                        . '<button class="delete-educatore-btn"><img src="immagini/delete.png" alt="Elimina"></button>'
+                                    . '</td>'
+                                . '</tr>';
+                            }
+                        } else {
+                            echo '<tr><td colspan="7">Nessun educatore registrato.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- MODAL MODIFICA EDUCATORI -->
+                <div class="modal-box large" id="modalModificaEducatore">
+                    <h3 class="modal-title">Modifica educatore</h3>
+
+                    <form id="formModificaEducatore">
+                        <input type="hidden" id="editEducatoreId">
+
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="editEducatoreNome" placeholder="Nome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Cognome</label>
+                            <input type="text" id="editEducatoreCognome" placeholder="Cognome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Data di nascita</label>
+                            <input type="date" id="editEducatoreData" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Fiscale</label>
+                            <input type="text" id="editEducatoreCF" placeholder="Codice Fiscale" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="text" id="editEducatoreTelefono" placeholder="Telefono">
+                        </div>
+                        <div class="edit-field">
+                            <label>Email</label>
+                            <input type="email" id="editEducatoreMail" placeholder="Email">
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaModificaEducatore">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-box danger" id="modalDeleteEducatore">
+                    <h3>Elimina educatore</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteEducatore">Elimina</button>
+                    </div>
+                </div>
             </div>
 
 
             <!-- TAB ACCOUNT -->
             <div class="page-tab" id="tab-account">
+                <button class="animated-button" id="aggiungi-account-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Aggiungi Account</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <!-- Modal Aggiungi Account -->
+                <div class="modal-box large" id="modalAggiungiAccount">
+                    <h3>Aggiungi nuovo account</h3>
+                    <form id="formAggiungiAccount">
+                        <div class="edit-field">
+                            <label>Nome Utente</label>
+                            <input type="text" id="accountNomeUtente" placeholder="Nome utente" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Password</label>
+                            <input type="password" id="accountPassword" placeholder="Password" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Classe</label>
+                            <select id="accountClasse" required>
+                                <option value="">Seleziona una classe</option>
+                                <option value="Educatore">Educatore</option>
+                                <option value="Contabile">Contabile</option>
+                                <option value="Amministratore">Amministratore</option>
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Univoco</label>
+                            <input type="text" id="accountCodice" placeholder="Codice univoco" required>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="page-header">
                     <h1>Account</h1>
                     <p>Gestione account Overlimits</p>
                 </div>
-                <p>Contenuto account da implementare...</p>
+
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Nome Utente</th>
+                                <th>Password</th>
+                                <th>Codice Univoco</th>
+                                <th>Classe</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if($resultAccount && $resultAccount->num_rows > 0){
+                            while($row = $resultAccount->fetch_assoc()){
+                                echo '
+                                    <tr
+                                        data-nome_utente="'.htmlspecialchars($row['nome_utente']).'" 
+                                        data-codice="'.htmlspecialchars($row['codice_univoco']).'" 
+                                        data-classe="'.htmlspecialchars($row['classe']).'"
+                                    >
+                                        <td>'.htmlspecialchars($row['nome_utente']).'</td>
+                                        <td>••••••••</td>
+                                        <td>'.htmlspecialchars($row['codice_univoco']).'</td>
+                                        <td>'.htmlspecialchars($row['classe']).'</td>
+                                        <td>
+                                            <button class="edit-account-btn"><img src="immagini/edit.png" alt="Modifica"></button>
+                                            <button class="delete-account-btn"><img src="immagini/delete.png" alt="Elimina"></button>
+                                        </td>
+                                    </tr>
+                                ';
+                            }
+                        } else {
+                            echo '<tr><td colspan="5">Nessun account registrato.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- MODAL MODIFICA ACCOUNT -->
+                <div class="modal-box large" id="modalModificaAccount">
+                    <h3 class="modal-title">Modifica account</h3>
+
+                    <form id="formModificaAccount">
+                        <input type="hidden" id="editAccountNomeUtente">
+
+                        <div class="edit-field">
+                            <label>Nome Utente</label>
+                            <input type="text" id="editAccountNomeUtenteDisplay" placeholder="Nome utente" disabled>
+                        </div>
+                        <div class="edit-field">
+                            <label>Password (lascia vuoto per non modificare)</label>
+                            <input type="password" id="editAccountPassword" placeholder="Password">
+                        </div>
+                        <div class="edit-field">
+                            <label>Classe</label>
+                            <select id="editAccountClasse" required>
+                                <option value="">Seleziona una classe</option>
+                                <option value="Educatore">Educatore</option>
+                                <option value="Contabile">Contabile</option>
+                                <option value="Amministratore">Amministratore</option>
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Univoco</label>
+                            <input type="text" id="editAccountCodice" placeholder="Codice univoco" required>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaModificaAccount">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-box danger" id="modalDeleteAccount">
+                    <h3>Elimina account</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteAccount">Elimina</button>
+                    </div>
+                </div>
             </div>
 
 
@@ -691,10 +1162,10 @@ $resultPresenze = $conn->query($sqlPresenze);
                 </div>
 
                 <!-- EDIT MODAL -->
-                <div class="modal-box large" id="editModal" style="overflow: scroll;">
-                        <h3 class="modal-title">Modifica utente</h3>
+                <div class="modal-box large" id="editModal">
+                        <h3 class="modal-title" id="modalEditTitle">Modifica utente</h3>
 
-                        <div class="profile-header">
+                        <div class="profile-header" id="profileHeader" style="display: none;">
                             <img id="viewAvatar-mod" class="profile-avatar">
                             <div class="profile-main">
                                 <h3 id="viewFullname-mod"></h3>
@@ -704,41 +1175,49 @@ $resultPresenze = $conn->query($sqlPresenze);
 
                         <div class="edit-grid" id="editContent">
                             <!-- Riempito da JS -->
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldNome">
                                 <label>Nome</label>
                                 <input type="text" id="editNome" placeholder="Nome">
                             </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldCognome">
                                 <label>Cognome</label>
                                 <input type="text" id="editCognome" placeholder="Cognome">
                             </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldData">
                                 <label>Data di nascita</label>
                                 <input type="date" id="editData">
                             </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldCF">
                                 <label>Codice Fiscale</label>
                                 <input type="text" id="editCF" placeholder="Codice Fiscale">
                             </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldContatti">
                                 <label>Contatti</label>
                                 <input type="text" id="editContatti" placeholder="Contatti">
                             </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldDisabilita">
                                 <label>Disabilità</label>
                                 <input type="text" id="editDisabilita" placeholder="Disabilità">
                             </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldIntolleranze">
                                 <label>Intolleranze</label>
                                 <input type="text" id="editIntolleranze" placeholder="Intolleranze">
                             </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldPrezzo">
                                 <label>Prezzo orario</label>
                                 <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
                             </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldNote">
                                 <label>Note</label>
                                 <textarea id="editNote" placeholder="Note"></textarea>
+                            </div>
+                            <div class="edit-field" id="fieldIngresso" style="display: none;">
+                                <label>Ingresso (ora)</label>
+                                <input type="time" id="editIngresso" placeholder="Ingresso">
+                            </div>
+                            <div class="edit-field" id="fieldUscita" style="display: none;">
+                                <label>Uscita (ora)</label>
+                                <input type="time" id="editUscita" placeholder="Uscita">
                             </div>
                         </div>
 
@@ -762,10 +1241,24 @@ $resultPresenze = $conn->query($sqlPresenze);
                     </div>
                 </div>
 
-            
+           
+            </div>
 
         </main>
-    </div>
+        
+ <footer class="footer-bar" style="bottom: auto;">
+                <div class="footer-left" >© Time4All • 2026</div>
+                <div class="footer-top">
+                    <a href="#top" class="footer-image"></a>
+                </div>
+                <div class="footer-right">
+                    <a href="index.html" class="hover-underline-animation">PRIVACY POLICY</a>
+                </div>
+            </footer>
+
+    <!-- OVERLAY PRINCIPALE PER MODALI -->
+    <div class="modal-overlay" id="Overlay"></div>
+    
 
     <script>
         // Cambia tab e salva stato
@@ -882,8 +1375,8 @@ $resultPresenze = $conn->query($sqlPresenze);
             window.location.href = "logout.php";
         };
 
-    // Modal
-    const overlay = document.getElementById("modalOverlay");
+    // Modal (use the global `Overlay` element for modal backdrop)
+    const Overlay = document.getElementById("Overlay") || document.getElementById("modalOverlay");
     const viewModal = document.getElementById("viewModal");
     const editModal = document.getElementById("editModal");
     const deleteModal = document.getElementById("deleteModal");
@@ -891,19 +1384,16 @@ $resultPresenze = $conn->query($sqlPresenze);
     const successText = document.getElementById("success-text");
 
     function openModal(modal){
-        overlay.classList.add("show");
         modal.classList.add("show");
+        if(Overlay) Overlay.classList.add("show");
     }
     function closeModal(){
-        overlay.classList.remove("show");
-        viewModal.classList.remove("show");
-        editModal.classList.remove("show");
-        deleteModal.classList.remove("show");
-        modalAggiungiAttivita.classList.remove("show");
-        attivitaOverlay.classList.remove("show");
-        modalModificaAttivita.classList.remove("show");
-        modalDeleteAttivita.classList.remove("show");
-        modalAggiungiUtente.classList.remove("show");
+        if(Overlay) Overlay.classList.remove("show");
+        document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
+        const attivitaOverlay = document.getElementById("attivitaOverlay");
+        if(attivitaOverlay) attivitaOverlay.classList.remove("show");
+        const agendaOverlay = document.getElementById("agendaOverlay");
+        if(agendaOverlay) agendaOverlay.classList.remove("show");
     }
 
 
@@ -942,7 +1432,91 @@ $resultPresenze = $conn->query($sqlPresenze);
             openModal(viewModal);
         }
     });
-    overlay.onclick = closeModal;
+    if(Overlay) Overlay.onclick = closeModal;
+
+    // Presenze: edit/delete handlers
+    document.addEventListener('click', function(e){
+        // Edit presenza
+        if(e.target.closest && e.target.closest('.edit-presenza-btn')){
+            const btn = e.target.closest('.edit-presenza-btn');
+            const row = btn.closest('tr');
+            const id = row.dataset.id;
+            const nome = row.dataset.nome;
+            const cognome = row.dataset.cognome;
+            const ingresso = row.dataset.ingresso || '';
+            const uscita = row.dataset.uscita || '';
+            const avatar = row.querySelector('img').src;
+
+            // Nascondi i campi utente e mostra quelli presenza
+            document.getElementById('profileHeader').style.display = 'none';
+            document.getElementById('fieldNome').style.display = 'none';
+            document.getElementById('fieldCognome').style.display = 'none';
+            document.getElementById('fieldData').style.display = 'none';
+            document.getElementById('fieldCF').style.display = 'none';
+            document.getElementById('fieldContatti').style.display = 'none';
+            document.getElementById('fieldDisabilita').style.display = 'none';
+            document.getElementById('fieldIntolleranze').style.display = 'none';
+            document.getElementById('fieldPrezzo').style.display = 'none';
+            document.getElementById('fieldNote').style.display = 'none';
+            document.getElementById('fieldIngresso').style.display = 'block';
+            document.getElementById('fieldUscita').style.display = 'block';
+
+            // Set modal title
+            document.getElementById('modalEditTitle').innerText = 'Modifica Presenza - ' + nome + ' ' + cognome;
+
+            // Set modal data
+            editModal.dataset.editType = 'presenza';
+            editModal.dataset.presenzeId = id;
+
+            // Estrai solo l'ora dal formato DB (YYYY-MM-DD HH:MM:SS)
+            const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
+            const uscitaTime = uscita.split(' ')[1]?.slice(0, 5) || '';
+
+            document.getElementById('editIngresso').value = ingressoTime;
+            document.getElementById('editUscita').value = uscitaTime;
+
+            
+
+            openModal(editModal);
+        }
+
+        // Delete presenza
+        if(e.target.closest && e.target.closest('.delete-presenza-btn')){
+            const btn = e.target.closest('.delete-presenza-btn');
+            const row = btn.closest('tr');
+            const id = row.dataset.id;
+            const nome = row.dataset.nome;
+            const cognome = row.dataset.cognome;
+
+            document.getElementById('deleteModal').querySelector('h3').innerText = 'Eliminazione Presenza - ' + nome + ' ' + cognome;
+            deleteModal.dataset.deleteType = 'presenza';
+            deleteModal.dataset.presenzeId = id;
+            openModal(deleteModal);
+
+            // Imposta il listener sul bottone "Elimina" nella modale
+            const confirmDelete = deleteModal.querySelector('.btn-danger');
+            confirmDelete.onclick = () => {
+                fetch('api/api_elimina_presenza.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify({ id: id })
+                }).then(r => r.json()).then(data => {
+                    if(data.success){
+                        deleteModal.classList.remove('show');
+                        successText.innerText = 'Presenza Eliminata!!';
+                        successPopup.classList.add('show');
+                        setTimeout(()=>{
+                            closeModal();
+                            successPopup.classList.remove('show');
+                            location.reload();
+                        }, 1800);
+                    } else {
+                        alert('Errore: ' + data.message);
+                    }
+                }).catch(err => { console.error(err); alert('Errore richiesta'); });
+            };
+        }
+    });
 
         document.querySelectorAll(".edit-btn").forEach(btn=>{
             btn.onclick = e=>{
@@ -955,7 +1529,24 @@ $resultPresenze = $conn->query($sqlPresenze);
                 const idIscritto = row.dataset.id;
 
                 editModal.dataset.userId = idIscritto;
+                editModal.dataset.editType = 'utente';
 
+                // Mostra i campi utente e nascondi quelli presenza
+                document.getElementById('profileHeader').style.display = 'block';
+                document.getElementById('fieldNome').style.display = 'block';
+                document.getElementById('fieldCognome').style.display = 'block';
+                document.getElementById('fieldData').style.display = 'block';
+                document.getElementById('fieldCF').style.display = 'block';
+                document.getElementById('fieldContatti').style.display = 'block';
+                document.getElementById('fieldDisabilita').style.display = 'block';
+                document.getElementById('fieldIntolleranze').style.display = 'block';
+                document.getElementById('fieldPrezzo').style.display = 'block';
+                document.getElementById('fieldNote').style.display = 'block';
+                document.getElementById('fieldIngresso').style.display = 'none';
+                document.getElementById('fieldUscita').style.display = 'none';
+
+                // Set modal title
+                document.getElementById('modalEditTitle').innerText = 'Modifica utente';
 
                 document.getElementById("viewAvatar-mod").src = avatar;
                 document.getElementById("viewFullname-mod").innerText = nome + " " + cognome;
@@ -982,6 +1573,8 @@ $resultPresenze = $conn->query($sqlPresenze);
                 const nomeCompleto = row.dataset.nome + " " + row.dataset.cognome;
 
                 document.getElementById("deleteModal").querySelector("h3").innerText = "Eliminazione " + btn.closest("tr").dataset.nome + " " + btn.closest("tr").dataset.cognome;
+                deleteModal.dataset.deleteType = 'utente';
+                deleteModal.dataset.userId = row.dataset.id;
                 openModal(deleteModal);
 
                 // Imposta il listener sul bottone "Elimina" nella modale
@@ -1020,45 +1613,86 @@ $resultPresenze = $conn->query($sqlPresenze);
         const modalBoxEdit = document.getElementById("editModal");
         
         document.getElementById("saveEdit").onclick = () => {
-            const id = editModal.dataset.userId; // <-- ID dell'iscritto
+            const editType = editModal.dataset.editType || 'utente';
 
-            const payload = {
-                id: id,
-                nome: document.getElementById("editNome").value,
-                cognome: document.getElementById("editCognome").value,
-                data_nascita: document.getElementById("editData").value,
-                codice_fiscale: document.getElementById("editCF").value,
-                contatti: document.getElementById("editContatti").value,
-                disabilita: document.getElementById("editDisabilita").value,
-                intolleranze: document.getElementById("editIntolleranze").value,
-                prezzo_orario: document.getElementById("editPrezzo").value,
-                note: document.getElementById("editNote").value
-            };
+            if(editType === 'presenza'){
+                const id = editModal.dataset.presenzeId;
+                const ingresso = document.getElementById("editIngresso").value;  // es: "14:30"
+                const uscita = document.getElementById("editUscita").value;      // es: "15:45"
 
-            fetch('api/api_aggiorna_utente.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){
-                    modalBoxEdit.classList.remove("show");
-                    successText.innerText = "Utente modificato!!";
-                    successPopup.classList.add("show");
-                    
+                // Ottenere la data di oggi in formato YYYY-MM-DD
+                const today = new Date().toISOString().split('T')[0];
 
-                    setTimeout(()=>{
-                        successPopup.classList.remove("show");
-                        location.reload();
-                    },1800); 
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            });
+                // Combinare data e ora nel formato DB (YYYY-MM-DD HH:MM:SS)
+                const ingressoDb = today + ' ' + ingresso + ':00';
+                const uscitaDb = today + ' ' + uscita + ':00';
+
+                fetch('api/api_modifica_presenza.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ id: id, ingresso: ingressoDb, uscita: uscitaDb })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        editModal.classList.remove("show");
+                        if(Overlay) Overlay.classList.remove("show");
+                        successText.innerText = "Presenza modificata!!";
+                        successPopup.classList.add("show");
+
+                        setTimeout(()=>{
+                            successPopup.classList.remove("show");
+                            location.reload();
+                        }, 1800);
+                    } else {
+                        alert("Errore: " + data.message);
+                    }
+                });
+            } else {
+                // Salva un utente
+                const id = editModal.dataset.userId;
+
+                const payload = {
+                    id: id,
+                    nome: document.getElementById("editNome").value,
+                    cognome: document.getElementById("editCognome").value,
+                    data_nascita: document.getElementById("editData").value,
+                    codice_fiscale: document.getElementById("editCF").value,
+                    contatti: document.getElementById("editContatti").value,
+                    disabilita: document.getElementById("editDisabilita").value,
+                    intolleranze: document.getElementById("editIntolleranze").value,
+                    prezzo_orario: document.getElementById("editPrezzo").value,
+                    note: document.getElementById("editNote").value
+                };
+
+                fetch('api/api_aggiorna_utente.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        editModal.classList.remove("show");
+                        if(Overlay) Overlay.classList.remove("show");
+                        successText.innerText = "Utente modificato!!";
+                        successPopup.classList.add("show");
+
+                        setTimeout(()=>{
+                            successPopup.classList.remove("show");
+                            location.reload();
+                        }, 1800);
+                    } else {
+                        alert("Errore: " + data.message);
+                    }
+                });
+            }
         };
 
 
@@ -1071,11 +1705,11 @@ $resultPresenze = $conn->query($sqlPresenze);
 
         // MODAL AGGIUNGI ATTIVITA
         const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
-        const attivitaOverlay = document.getElementById("attivitaOverlay");
+        // point attivita overlay to the single global overlay if present
+        const attivitaOverlay = document.getElementById("attivitaOverlay") || Overlay;
 
         aggiungiAttivitaBtn.onclick = () => {
             openModal(modalAggiungiAttivita);
-            attivitaOverlay.classList.add("show");
         } 
 
         attivitaOverlay.onclick = () => {
@@ -1242,8 +1876,7 @@ $resultPresenze = $conn->query($sqlPresenze);
 
         // Apri modal
         aggiungiUtenteBtn.onclick = () => {
-            modalAggiungiUtente.classList.add("show");
-            overlay.classList.add("show");
+            openModal(modalAggiungiUtente);
         };
 
 
@@ -1280,11 +1913,11 @@ $resultPresenze = $conn->query($sqlPresenze);
                     
 
 
-                    setTimeout(() => {
+                        setTimeout(() => {
                         successPopup.classList.remove("show");
-                        overlay.classList.remove("show");
+                        if(Overlay) Overlay.classList.remove("show");
                         location.reload();
-                    }, 1800);
+                    },1800); 
 
                 } else {
                     alert("Errore: " + data.message);
@@ -1332,10 +1965,627 @@ $resultPresenze = $conn->query($sqlPresenze);
 
 
 
+        // SEZIONE ACCOUNT !!!!!!!!!!!!!!!
+
+        const aggiungiAccountBtn = document.getElementById("aggiungi-account-btn");
+        const modalAggiungiAccount = document.getElementById("modalAggiungiAccount");
+        const formAggiungiAccount = document.getElementById("formAggiungiAccount");
+        const modalModificaAccount = document.getElementById("modalModificaAccount");
+        const modalDeleteAccount = document.getElementById("modalDeleteAccount");
+
+        // Apri modal
+        aggiungiAccountBtn.onclick = () => {
+            openModal(modalAggiungiAccount);
+        };
+
+        // Submit form
+        formAggiungiAccount.onsubmit = function(e) {
+            e.preventDefault();
+
+            const nomeUtente = document.getElementById("accountNomeUtente").value.trim();
+            const password = document.getElementById("accountPassword").value.trim();
+            const classe = document.getElementById("accountClasse").value;
+            const codice = document.getElementById("accountCodice").value.trim();
+
+            if(!nomeUtente || !password || !classe || !codice){
+                alert("Compila tutti i campi!");
+                return;
+            }
+
+            fetch("api/api_aggiungi_account.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ 
+                    nome_utente: nomeUtente, 
+                    password: password,
+                    classe: classe,
+                    codice_univoco: codice
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalAggiungiAccount.classList.remove("show");
+                    successText.innerText = "Account Aggiunto!!";
+                    successPopup.classList.add("show");
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        if(Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Errore nel caricamento!");
+            });
+        };
 
 
+        // MODIFICA ACCOUNT
+        document.querySelectorAll(".edit-account-btn").forEach(btn => {
+            btn.onclick = e => {
+                const row = btn.closest("tr");
+                const nomeUtente = row.dataset.nome_utente;
+                const classe = row.dataset.classe;
+                const codice = row.dataset.codice;
+
+                document.getElementById("editAccountNomeUtente").value = nomeUtente;
+                document.getElementById("editAccountNomeUtenteDisplay").value = nomeUtente;
+                document.getElementById("editAccountClasse").value = classe;
+                document.getElementById("editAccountCodice").value = codice;
+                document.getElementById("editAccountPassword").value = "";
+
+                openModal(modalModificaAccount);
+            }
+        });
+
+        // Salva modifica account
+        document.getElementById("salvaModificaAccount").onclick = e => {
+            e.preventDefault();
+            const nomeUtente = document.getElementById("editAccountNomeUtente").value;
+            const password = document.getElementById("editAccountPassword").value.trim();
+            const classe = document.getElementById("editAccountClasse").value;
+            const codice = document.getElementById("editAccountCodice").value.trim();
+
+            if(!classe || !codice){
+                alert("Compila tutti i campi obbligatori!");
+                return;
+            }
+
+            fetch("api/api_modifica_account.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    nome_utente: nomeUtente,
+                    password: password,
+                    classe: classe,
+                    codice_univoco: codice
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalModificaAccount.classList.remove("show");
+                    successText.innerText = "Account Modificato!!";
+                    successPopup.classList.add("show");
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        closeModal();
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+        // ELIMINA ACCOUNT
+        let rowToDeleteAccount = null;
+        document.querySelectorAll(".delete-account-btn").forEach(btn => {
+            btn.onclick = e => {
+                rowToDeleteAccount = btn.closest("tr");
+                const nomeUtente = rowToDeleteAccount.dataset.nome_utente;
+                
+                openModal(modalDeleteAccount);
+                
+                // Aggiorna il titolo del modal
+                document.querySelector("#modalDeleteAccount h3").innerText = "Elimina account: " + nomeUtente;
+            }
+        });
+
+        document.getElementById("confirmDeleteAccount").onclick = () => {
+            if(!rowToDeleteAccount) return;
+            const nomeUtente = rowToDeleteAccount.dataset.nome_utente;
+
+            fetch("api/api_elimina_account.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({nome_utente: nomeUtente})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalDeleteAccount.classList.remove("show");
+                    successText.innerText = "Account Eliminato!!";
+                    successPopup.classList.add("show");
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        if(Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+
+        // ---------- SEZIONE EDUCATORI (JS handlers) ----------
+        const aggiungiEducatoreBtn = document.getElementById("aggiungi-educatore-btn");
+        const modalAggiungiEducatore = document.getElementById("modalAggiungiEducatore");
+        const formAggiungiEducatore = document.getElementById("formAggiungiEducatore");
+        const modalModificaEducatore = document.getElementById("modalModificaEducatore");
+        const modalDeleteEducatore = document.getElementById("modalDeleteEducatore");
+
+        if(aggiungiEducatoreBtn){
+            aggiungiEducatoreBtn.onclick = () => {
+                openModal(modalAggiungiEducatore);
+            };
+        }
+
+        if(formAggiungiEducatore){
+            formAggiungiEducatore.onsubmit = function(e){
+                e.preventDefault();
+
+                const nome = document.getElementById("educatoreNome").value.trim();
+                const cognome = document.getElementById("educatoreCognome").value.trim();
+                const data_nascita = document.getElementById("educatoreData").value;
+                const codice_fiscale = document.getElementById("educatoreCF").value.trim();
+                const telefono = document.getElementById("educatoreTelefono").value.trim();
+                const mail = document.getElementById("educatoreMail").value.trim();
+
+                if(!nome || !cognome){
+                    alert("Compila tutti i campi obbligatori!");
+                    return;
+                }
+
+                fetch("api/api_aggiungi_educatore.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ nome, cognome, data_nascita, codice_fiscale, telefono, mail })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        modalAggiungiEducatore.classList.remove("show");
+                        successText.innerText = "Educatore Aggiunto!!";
+                        successPopup.classList.add("show");
+
+                        setTimeout(() => {
+                            successPopup.classList.remove("show");
+                            if(Overlay) Overlay.classList.remove("show");
+                            location.reload();
+                        }, 1400);
+                    } else {
+                        alert("Errore: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Errore nel caricamento!");
+                });
+            };
+        }
+
+        // Edit Educatore
+        document.querySelectorAll(".edit-educatore-btn").forEach(btn => {
+            btn.onclick = e => {
+                const row = btn.closest("tr");
+                const id = row.dataset.id;
+                const nome = row.children[0].innerText;
+                const cognome = row.children[1].innerText;
+                const data_nascita = row.children[2] ? row.children[2].innerText : "";
+                const codice_fiscale = row.children[3] ? row.children[3].innerText : "";
+                const telefono = row.children[4] ? row.children[4].innerText : "";
+                const mail = row.children[5] ? row.children[5].innerText : "";
+
+                document.getElementById("editEducatoreId").value = id;
+                document.getElementById("editEducatoreNome").value = nome;
+                document.getElementById("editEducatoreCognome").value = cognome;
+                document.getElementById("editEducatoreData").value = data_nascita;
+                document.getElementById("editEducatoreCF").value = codice_fiscale;
+                document.getElementById("editEducatoreTelefono").value = telefono;
+                document.getElementById("editEducatoreMail").value = mail;
+
+                openModal(modalModificaEducatore);
+            };
+        });
+
+        // Save edit educatore
+        const salvaModificaEducatoreBtn = document.getElementById("salvaModificaEducatore");
+        if(salvaModificaEducatoreBtn){
+            salvaModificaEducatoreBtn.onclick = e => {
+                e.preventDefault();
+                const id = document.getElementById("editEducatoreId").value;
+                const nome = document.getElementById("editEducatoreNome").value.trim();
+                const cognome = document.getElementById("editEducatoreCognome").value.trim();
+                const data_nascita = document.getElementById("editEducatoreData").value;
+                const codice_fiscale = document.getElementById("editEducatoreCF").value.trim();
+                const telefono = document.getElementById("editEducatoreTelefono").value.trim();
+                const mail = document.getElementById("editEducatoreMail").value.trim();
+
+                if(!nome || !cognome){
+                    alert("Compila tutti i campi obbligatori!");
+                    return;
+                }
+
+                fetch("api/api_modifica_educatore.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ id, nome, cognome, data_nascita, codice_fiscale, telefono, mail })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        modalModificaEducatore.classList.remove("show");
+                        successText.innerText = "Educatore Modificato!!";
+                        successPopup.classList.add("show");
+
+                        setTimeout(() => {
+                            successPopup.classList.remove("show");
+                            if(Overlay) Overlay.classList.remove("show");
+                            location.reload();
+                        }, 1400);
+                    } else {
+                        alert("Errore: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Errore nella modifica!");
+                });
+            };
+        }
+
+        // Delete Educatore
+        let rowToDeleteEducatore = null;
+        document.querySelectorAll(".delete-educatore-btn").forEach(btn => {
+            btn.onclick = e => {
+                rowToDeleteEducatore = btn.closest("tr");
+                const nome = rowToDeleteEducatore.children[0].innerText;
+                document.querySelector("#modalDeleteEducatore h3").innerText = "Elimina educatore: " + nome;
+                modalDeleteEducatore.classList.add("show");
+                if(Overlay) Overlay.classList.add("show");
+            };
+        });
+
+        document.getElementById("confirmDeleteEducatore")?.addEventListener("click", () => {
+            if(!rowToDeleteEducatore) return;
+            const id = rowToDeleteEducatore.dataset.id;
+
+            fetch("api/api_elimina_educatore.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    modalDeleteEducatore.classList.remove("show");
+                    successText.innerText = "Educatore Eliminato!!";
+                    successPopup.classList.add("show");
+
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        if(Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        });
+
+    
+        
+        // ========== AGENDA ==========
+        let agendaData = [];
+        let selectedDayIndex = 0;
+
+        // Calcola le date della settimana
+        function calculateWeekDates() {
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            
+            const dates = [];
+            const dateLabels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
+            
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                dates.push(date.toISOString().split('T')[0]);
+                
+                const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+                document.getElementById(dateLabels[i]).innerText = dateStr;
+            }
+            
+            return dates;
+        }
+
+        // Carica l'agenda dal server
+        function loadAgenda() {
+            const contentDiv = document.getElementById('agendaContent');
+            contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
+            
+            fetch('api/api_get_agenda.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        agendaData = data.data;
+                        calculateWeekDates();
+                        displayAgenda(0);
+                    } else {
+                        contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
+                });
+        }
+
+        // Mostra le attività per il giorno selezionato
+        function displayAgenda(dayIndex) {
+            selectedDayIndex = dayIndex;
+            const contentDiv = document.getElementById('agendaContent');
+            
+            // Calcola la data del giorno selezionato
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            const selectedDate = new Date(monday);
+            selectedDate.setDate(monday.getDate() + dayIndex);
+            const selectedDateStr = selectedDate.toISOString().split('T')[0];
+            
+            // Filtra le attività per il giorno selezionato
+            const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
+            
+            if (dayActivities.length === 0) {
+                contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
+                return;
+            }
+            
+            // Ordina le attività per ora di inizio
+            dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
+            
+            let html = '<div class="activities-list">';
+            
+            dayActivities.forEach(att => {
+                const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
+                const iscritterText = att.iscritti.map(i => `${i.Nome} ${i.Cognome}`).join(', ') || '—';
+                
+                html += `
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <h3>${att.attivita_nome}</h3>
+                            <span class="activity-time">
+                                🕐 ${att.ora_inizio} - ${att.ora_fine}
+                            </span>
+                        </div>
+                        <div class="activity-description">
+                            ${att.descrizione}
+                        </div>
+                        <div class="activity-participants">
+                            <div class="participant-group">
+                                <label>Educatori:</label>
+                                <span>${educatoriText}</span>
+                            </div>
+                            <div class="participant-group">
+                                <label>Iscritti:</label>
+                                <span>${iscritterText}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            contentDiv.innerHTML = html;
+        }
+
+        // Event listeners per i tab dei giorni
+        document.querySelectorAll('.day-tab').forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                displayAgenda(index);
+            });
+        });
+
+        // ========== MODAL CREA AGENDA ==========
+        const creaAgendaBtn = document.getElementById("creaAgendaBtn");
+        const formCreaAgenda = document.getElementById("formCreaAgenda");
+        const modalCreaAgenda = document.getElementById("modalCreaAgenda");
+        // agendaOverlay should reuse single global overlay when available
+        const agendaOverlay = document.getElementById("agendaOverlay") || Overlay;
+        const successPopupAgenda = document.getElementById("successPopupAgenda");
+
+        if(creaAgendaBtn) {
+            creaAgendaBtn.onclick = () => {
+                // Popola la select con le date della settimana
+                const today = new Date();
+                const monday = new Date(today);
+                monday.setDate(today.getDate() - today.getDay() + 1);
+
+                const dataSelect = document.getElementById("agendaData");
+                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+                
+                // Pulisci le opzioni mantendo la prima (placeholder)
+                while (dataSelect.options.length > 1) {
+                    dataSelect.remove(1);
+                }
+
+                for (let i = 0; i < 5; i++) {
+                    const date = new Date(monday);
+                    date.setDate(monday.getDate() + i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                    const option = document.createElement("option");
+                    option.value = dateStr;
+                    option.text = `${giorni[i]} ${dateFormatted}`;
+                    dataSelect.appendChild(option);
+                }
+
+                openModal(modalCreaAgenda);
+            };
+        }
+
+        if(agendaOverlay) {
+            agendaOverlay.onclick = () => {
+                closeModal();
+            };
+        }
+
+        // Submit form
+        if(formCreaAgenda) {
+            formCreaAgenda.onsubmit = function(e) {
+                e.preventDefault();
+                console.log("Form submit triggered");
+
+                const data = document.getElementById("agendaData").value;
+                const ora_inizio = document.getElementById("agendaOraInizio").value;
+                const ora_fine = document.getElementById("agendaOraFine").value;
+                const id_attivita = document.getElementById("agendaAttivita").value;
+                
+                console.log("Data:", data, "Ora inizio:", ora_inizio, "Ora fine:", ora_fine, "Attività:", id_attivita);
+
+                // Ottenere gli ID dai checkbox selezionati e filtrare i valori non validi
+                const educatoriCheckboxes = document.querySelectorAll(".educatore-checkbox:checked");
+                const ragazziCheckboxes = document.querySelectorAll(".ragazzo-checkbox:checked");
+                
+                const educatori = Array.from(educatoriCheckboxes)
+                    .map(cb => {
+                        const val = parseInt(cb.value, 10);
+                        console.log("Educatore checkbox value:", cb.value, "parsed:", val);
+                        return val;
+                    })
+                    .filter(id => !isNaN(id) && id > 0);
+                    
+                const ragazzi = Array.from(ragazziCheckboxes)
+                    .map(cb => {
+                        const val = parseInt(cb.value, 10);
+                        console.log("Ragazzo checkbox value:", cb.value, "parsed:", val);
+                        return val;
+                    })
+                    .filter(id => !isNaN(id) && id > 0);
+
+                console.log("Educatori selezionati:", educatori);
+                console.log("Ragazzi selezionati:", ragazzi);
+
+                if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
+                    alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
+                    return;
+                }
+
+                if (ragazzi.length === 0) {
+                    alert("Seleziona almeno un ragazzo!");
+                    return;
+                }
+
+                console.log("Invio fetch all'API");
+                const payload = {
+                    data: data,
+                    ora_inizio: ora_inizio,
+                    ora_fine: ora_fine,
+                    id_attivita: parseInt(id_attivita),
+                    educatori: educatori,
+                    ragazzi: ragazzi
+                };
+                console.log("Payload:", payload);
+
+                fetch("api/api_aggiungi_agenda.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => {
+                    console.log("Response status:", res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log("Risposta API:", data);
+                    if(data.success) {
+                        console.log("Successo! Chiudo modal e reload");
+                        if (modalCreaAgenda) modalCreaAgenda.classList.remove("show");
+                        if (agendaOverlay) agendaOverlay.classList.remove("show");
+                        if (successPopupAgenda) {
+                            successPopupAgenda.classList.add("show");
+                            setTimeout(() => {
+                                if (successPopupAgenda) successPopupAgenda.classList.remove("show");
+                                location.reload();
+                            }, 2500);
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        alert("Errore API: " + (data.error || data.message));
+                    }
+                })
+                .catch(err => {
+                    console.error("Fetch error completo:", err);
+                    console.error("Stack:", err.stack);
+                    alert("Errore di comunicazione con il server: " + err.message);
+                });
+            };
+        }
+        // Carica l'agenda al caricamento della pagina
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAgenda();
+        });
     </script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
 

@@ -29,6 +29,17 @@ if($resultClasse && $resultClasse->num_rows > 0){
     $classe = ""; // default se non trovato
 }
 
+// Controlla se il codice è stato verificato (timeout 30 minuti)
+if(
+    !isset($_SESSION['codice_verificato']) || 
+    $_SESSION['codice_verificato'] !== true ||
+    !isset($_SESSION['codice_verificato_time']) ||
+    (time() - $_SESSION['codice_verificato_time']) > 1800
+){
+    header("Location: index.php");
+    exit;
+}
+
 // Preleva i profili dal DB
 $sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
         FROM iscritto ORDER BY cognome ASC";
@@ -43,6 +54,19 @@ $sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.usci
                 
                 ORDER BY p.ingresso ASC";
 $resultPresenze = $conn->query($sqlPresenze);
+
+
+//impedisci di entrare alla pagina tramite url se non si è Educatore
+if($classe !== 'Educatore'){
+    header("Location: index.php");
+    exit;
+}
+
+
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -53,6 +77,7 @@ $resultPresenze = $conn->query($sqlPresenze);
 <title>T4L | Gestionale utenti</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="agenda-enhancements.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -290,6 +315,7 @@ $resultPresenze = $conn->query($sqlPresenze);
                                 <th>Cognome</th>
                                 <th>Ingresso</th>
                                 <th>Uscita</th>
+                                <th>Azioni</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -302,13 +328,17 @@ $resultPresenze = $conn->query($sqlPresenze);
                                         data-nome="'.htmlspecialchars($row['nome']).'"
                                         data-cognome="'.htmlspecialchars($row['cognome']).'"
                                         data-ingresso="'.htmlspecialchars($row['ingresso']).'"
-                                        data-uscita="'.htmlspecialchars($row['uscita']).'""
+                                        data-uscita="'.htmlspecialchars($row['uscita']).'"
                                     >
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
                                         <td>'.htmlspecialchars($row['nome']).'</td>
                                         <td>'.htmlspecialchars($row['cognome']).'</td>
                                         <td>'.htmlspecialchars($row['ingresso']).'</td>
                                         <td>'.htmlspecialchars($row['uscita']).'</td>
+                                        <td>
+                                            <button class="edit-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/edit.png" alt="Modifica"></button>
+                                            <button class="delete-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/delete.png" alt="Elimina"></button>
+                                        </td>
                                     </tr>
                                 ';
                             }
@@ -318,6 +348,47 @@ $resultPresenze = $conn->query($sqlPresenze);
                         ?>
                         </tbody>
                     </table>
+
+                    <div class="modal-overlay" id="modalOverlay"></div>
+                    
+                    <!-- POPUP SUCCESSO -->
+                    <div class="popup success-popup" id="successPopup">
+                        <div class="success-content">
+                            <div class="success-icon">
+                            <svg viewBox="-2 -2 56 56">
+                                <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
+                                <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
+                            </svg>
+                            </div>
+                            <p class="success-text" id="success-text">Operazione completata!!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-box large" id="modalPresenze">
+                        <h3 id="presenzeModalTitle">Presenze</h3>
+                        <form id="formModificaPresenza">
+                            <div class="edit-field">
+                                <label>Ingresso (ora)</label>
+                                <input type="time" id="presenzeIngresso" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Uscita (ora)</label>
+                                <input type="time" id="presenzeUscita" required>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                                <button type="submit" class="btn-primary">Salva</button>
+                            </div>
+                        </form>
+
+                        <div id="deletePresenzaBox" style="display:none;">
+                            <p>Questa azione è definitiva. Vuoi continuare?</p>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
+                                <button class="btn-danger" id="confirmDeletePresenza">Elimina</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -330,9 +401,37 @@ $resultPresenze = $conn->query($sqlPresenze);
             <div class="page-tab" id="tab-agenda">
                 <div class="page-header">
                     <h1>Agenda</h1>
-                    <p>Prossimi appuntamenti</p>
+                    <p>Attività della settimana (Lunedì - Venerdì)</p>
                 </div>
-                <p>Contenuto agenda da implementare...</p>
+
+                <div class="agenda-container">
+                    <div class="days-tabs">
+                        <button class="day-tab active" data-day="0">
+                            <span class="day-name">Lunedì</span>
+                            <span class="day-date" id="date-monday"></span>
+                        </button>
+                        <button class="day-tab" data-day="1">
+                            <span class="day-name">Martedì</span>
+                            <span class="day-date" id="date-tuesday"></span>
+                        </button>
+                        <button class="day-tab" data-day="2">
+                            <span class="day-name">Mercoledì</span>
+                            <span class="day-date" id="date-wednesday"></span>
+                        </button>
+                        <button class="day-tab" data-day="3">
+                            <span class="day-name">Giovedì</span>
+                            <span class="day-date" id="date-thursday"></span>
+                        </button>
+                        <button class="day-tab" data-day="4">
+                            <span class="day-name">Venerdì</span>
+                            <span class="day-date" id="date-friday"></span>
+                        </button>
+                    </div>
+
+                    <div class="agenda-content" id="agendaContent">
+                        <div class="loading">Caricamento attività...</div>
+                    </div>
+                </div>
             </div>
 
 
@@ -345,6 +444,16 @@ $resultPresenze = $conn->query($sqlPresenze);
         </main>
     </div>
 
+
+ <footer class="footer-bar" style="bottom: auto;">
+        <div class="footer-left">© Time4All • 2026</div>
+         <div class="footer-top">
+            <a href="#top" class="footer-image"></a>
+        </div>
+        <div class="footer-right">
+            <a href="index.html" class="hover-underline-animation">PRIVACY POLICY</a>
+        </div>
+    </footer>
 <script>
     // Cambia tab
     // Cambia tab e salva stato
@@ -434,35 +543,41 @@ $resultPresenze = $conn->query($sqlPresenze);
 
 // LOGOUT
 const logoutBtn = document.getElementById("logoutBtn");
-const logoutOverlay = document.getElementById("logoutOverlay");
+// try to reuse a single overlay element (order: global Overlay, modalOverlay, logoutOverlay)
+const logoutOverlay = document.getElementById("logoutOverlay") || document.getElementById("Overlay") || document.getElementById("modalOverlay");
 const logoutModal = document.getElementById("logoutModal");
 const cancelLogout = document.getElementById("cancelLogout");
 const confirmLogout = document.getElementById("confirmLogout");
 logoutBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    logoutOverlay.classList.add("show");
-    logoutModal.classList.add("show");
+    // use centralized helper
+    openModal(logoutModal);
 });
 cancelLogout.onclick = closeLogout;
-logoutOverlay.onclick = closeLogout;
+if(logoutOverlay) logoutOverlay.onclick = closeLogout;
 function closeLogout(){
-    logoutOverlay.classList.remove("show");
-    logoutModal.classList.remove("show");
+    // delegate to global closeModal which will hide the overlay and known modals
+    closeModal();
+    if(logoutModal) logoutModal.classList.remove("show");
 }
 confirmLogout.onclick = () => {
     window.location.href = "logout.php";
 };
 
 // MODAL UTENTI
-const overlay = document.getElementById("modalOverlay");
+const Overlay = document.getElementById("Overlay");
 const viewModal = document.getElementById("viewModal");
 function openModal(modal){
-    overlay.classList.add("show");
     modal.classList.add("show");
+    if(Overlay) Overlay.classList.add("show");
 }
 function closeModal(){
-    overlay.classList.remove("show");
+    if(Overlay) Overlay.classList.remove("show");
     viewModal.classList.remove("show");
+    const modalPresenze = document.getElementById("modalPresenze");
+    if(modalPresenze) modalPresenze.classList.remove("show");
+    // also ensure logout modal is closed if present
+    const lm = document.getElementById("logoutModal"); if(lm) lm.classList.remove("show");
 }
 
 // VIEW BTN UTENTI
@@ -500,9 +615,227 @@ document.querySelectorAll(".view-btn").forEach(btn=>{
         openModal(viewModal);
     }
 });
-overlay.onclick = closeModal;
+if(Overlay) Overlay.onclick = closeModal;
 
+// ========== MODAL PRESENZE ==========
+const modalPresenze = document.getElementById("modalPresenze");
+const deletePresenzaBox = document.getElementById("deletePresenzaBox");
+const formPresenze = document.getElementById("formModificaPresenza");
+let currentPresenzeId = null;
+let isDeleteMode = false;
 
+function openPresenzeModal(isDelete = false){
+    isDeleteMode = isDelete;
+    if(isDelete){
+        formPresenze.style.display = "none";
+        deletePresenzaBox.style.display = "block";
+        document.getElementById("presenzeModalTitle").innerText = "Elimina presenza";
+    } else {
+        formPresenze.style.display = "block";
+        deletePresenzaBox.style.display = "none";
+        document.getElementById("presenzeModalTitle").innerText = "Modifica presenza";
+    }
+    overlay.classList.add("show");
+    modalPresenze.classList.add("show");
+}
+
+formPresenze.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const newIngresso = document.getElementById("presenzeIngresso").value;  // es: "14:30"
+    const newUscita = document.getElementById("presenzeUscita").value;      // es: "15:45"
+    
+    // Ottenere la data di oggi in formato YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Combinare data e ora nel formato DB (YYYY-MM-DD HH:MM:SS)
+    const ingressoDb = today + ' ' + newIngresso + ':00';
+    const uscitaDb = today + ' ' + newUscita + ':00';
+    
+    fetch('api/api_modifica_presenza.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest'},
+        body: JSON.stringify({id: currentPresenzeId, ingresso: ingressoDb, uscita: uscitaDb})
+    }).then(r => r.json()).then(data => {
+        if(data.success){
+            closeModal();
+            document.getElementById("success-text").innerText = "Presenza modificata!";
+            document.getElementById("successPopup").classList.add("show");
+            setTimeout(()=>{
+                document.getElementById("successPopup").classList.remove("show");
+                location.reload();
+            }, 1800);
+        } else {
+            alert("Errore: " + (data.error || 'Noto'));
+        }
+    });
+});
+
+document.getElementById("confirmDeletePresenza").addEventListener("click", () => {
+    fetch('api/api_elimina_presenza.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest'},
+        body: JSON.stringify({id: currentPresenzeId})
+    }).then(r => r.json()).then(data => {
+        if(data.success){
+            closeModal();
+            document.getElementById("success-text").innerText = "Presenza eliminata!";
+            document.getElementById("successPopup").classList.add("show");
+            setTimeout(()=>{
+                document.getElementById("successPopup").classList.remove("show");
+                location.reload();
+            }, 1800);
+        } else {
+            alert("Errore: " + (data.error || 'Noto'));
+        }
+    });
+});
+
+// Presenze: click handler (delegation)
+document.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('.edit-presenza-btn');
+    if(editBtn){
+        const tr = editBtn.closest('tr');
+        currentPresenzeId = editBtn.dataset.id;
+        const ingresso = tr.dataset.ingresso || '';  // es: "2026-02-07 14:30:00"
+        const uscita = tr.dataset.uscita || '';      // es: "2026-02-07 15:45:00"
+        
+        // Estrarre solo l'ora (HH:MM)
+        const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
+        const uscitaTime = uscita.split(' ')[1]?.slice(0, 5) || '';
+        
+        document.getElementById("presenzeIngresso").value = ingressoTime;
+        document.getElementById("presenzeUscita").value = uscitaTime;
+        openPresenzeModal(false);
+        return;
+    }
+
+    const delBtn = e.target.closest('.delete-presenza-btn');
+    if(delBtn){
+        currentPresenzeId = delBtn.dataset.id;
+        openPresenzeModal(true);
+        return;
+    }
+});
+
+// ========== AGENDA ==========
+let agendaData = [];
+let selectedDayIndex = 0;
+
+// Calcola le date della settimana
+function calculateWeekDates() {
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - today.getDay() + 1);
+    
+    const dates = [];
+    const dateLabels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
+    
+    for (let i = 0; i < 5; i++) {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
+        dates.push(date.toISOString().split('T')[0]);
+        
+        const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+        document.getElementById(dateLabels[i]).innerText = dateStr;
+    }
+    
+    return dates;
+}
+
+// Carica l'agenda dal server
+function loadAgenda() {
+    const contentDiv = document.getElementById('agendaContent');
+    contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
+    
+    fetch('api/api_get_agenda.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                agendaData = data.data;
+                calculateWeekDates();
+                displayAgenda(0);
+            } else {
+                contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Errore:', error);
+            contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
+        });
+}
+
+// Mostra le attività per il giorno selezionato
+function displayAgenda(dayIndex) {
+    selectedDayIndex = dayIndex;
+    const contentDiv = document.getElementById('agendaContent');
+    
+    // Calcola la data del giorno selezionato
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - today.getDay() + 1);
+    const selectedDate = new Date(monday);
+    selectedDate.setDate(monday.getDate() + dayIndex);
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
+    
+    // Filtra le attività per il giorno selezionato
+    const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
+    
+    if (dayActivities.length === 0) {
+        contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
+        return;
+    }
+    
+    // Ordina le attività per ora di inizio
+    dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
+    
+    let html = '<div class="activities-list">';
+    
+    dayActivities.forEach(att => {
+        const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
+        const iscritterText = att.iscritti.map(i => `${i.Nome} ${i.Cognome}`).join(', ') || '—';
+        
+        html += `
+            <div class="activity-card">
+                <div class="activity-header">
+                    <h3>${att.attivita_nome}</h3>
+                    <span class="activity-time">
+                        🕐 ${att.ora_inizio} - ${att.ora_fine}
+                    </span>
+                </div>
+                <div class="activity-description">
+                    ${att.descrizione}
+                </div>
+                <div class="activity-participants">
+                    <div class="participant-group">
+                        <label>Educatori:</label>
+                        <span>${educatoriText}</span>
+                    </div>
+                    <div class="participant-group">
+                        <label>Iscritti:</label>
+                        <span>${iscritterText}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    contentDiv.innerHTML = html;
+}
+
+// Event listeners per i tab dei giorni
+document.querySelectorAll('.day-tab').forEach((tab, index) => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        displayAgenda(index);
+    });
+});
+
+// Carica l'agenda al caricamento della pagina
+window.addEventListener('DOMContentLoaded', () => {
+    loadAgenda();
+});
 </script>
 
 </body>

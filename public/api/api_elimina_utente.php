@@ -29,7 +29,24 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Query per eliminare l'utente
+// Prima recupera il nome della fotografia
+$sqlSelect = "SELECT fotografia FROM iscritto WHERE id = $id_iscritto";
+$resultSelect = $conn->query($sqlSelect);
+
+if ($resultSelect && $resultSelect->num_rows > 0) {
+    $row = $resultSelect->fetch_assoc();
+    $fotografia = $row['fotografia'];
+    
+    // Se esiste una fotografia, eliminala dal filesystem
+    if ($fotografia && !empty($fotografia)) {
+        $filePath = __DIR__ . '/../immagini/' . $fotografia;
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+    }
+}
+
+// Ora elimina il record dal database
 $sql = "DELETE FROM iscritto WHERE id = $id_iscritto";
 
 if ($conn->query($sql) === TRUE) {
@@ -39,3 +56,4 @@ if ($conn->query($sql) === TRUE) {
 }
 
 $conn->close();
+?>

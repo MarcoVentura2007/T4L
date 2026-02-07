@@ -9,6 +9,10 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
+// Reset flag codice per sicurezza
+unset($_SESSION['codice_verificato']);
+unset($_SESSION['codice_verificato_time']);
+
 // Connessione al DB
 $host = "localhost";    
 $user = "root";         
@@ -161,8 +165,8 @@ if($resultClasse && $resultClasse->num_rows > 0){
             $gestionalePage = "gestionale_utenti.php";
         } elseif($classe === 'Contabile'){
             $gestionalePage = "gestionale_contabile.php";
-        } else {
-            $gestionalePage = "#"; 
+        } elseif($classe === 'Amministratore') {
+            $gestionalePage = "gestionale_amministratore.php"; 
         }
         ?>
 
@@ -203,6 +207,16 @@ if($resultClasse && $resultClasse->num_rows > 0){
     </section>
 
 </main>
+
+<footer class="footer-bar">
+        <div class="footer-left">© Time4All • 2026</div>
+         <div class="footer-top">
+            <a href="#top" class="footer-image"></a>
+        </div>
+        <div class="footer-right">
+            <a href="index.html" class="hover-underline-animation">PRIVACY POLICY</a>
+        </div>
+    </footer>
 
 
 <script>
@@ -395,22 +409,21 @@ passwordField.addEventListener("keydown", (e) => {
 
         /* LOGOUT */
         const logoutBtn = document.getElementById("logoutBtn");
-        const logoutOverlay = document.getElementById("logoutOverlay");
+        const logoutOverlay = document.getElementById("logoutOverlay") || document.getElementById("Overlay") || document.getElementById("modalOverlay");
         const logoutModal = document.getElementById("logoutModal");
         const cancelLogout = document.getElementById("cancelLogout");
         const confirmLogout = document.getElementById("confirmLogout");
 
         logoutBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            logoutOverlay.classList.add("show");
-            logoutModal.classList.add("show");
+            openModal(logoutModal);
         });
 
         cancelLogout.onclick = closeLogout;
-        logoutOverlay.onclick = closeLogout;
+        if(logoutOverlay) logoutOverlay.onclick = closeLogout;
         function closeLogout(){
-            logoutOverlay.classList.remove("show");
-            logoutModal.classList.remove("show");
+            closeModal();
+            if(logoutModal) logoutModal.classList.remove("show");
         }
 
         confirmLogout.onclick = () => {

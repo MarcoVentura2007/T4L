@@ -88,6 +88,10 @@ if($classeCodice !== $userClasse){
     exit;
 }
 
+/* SALVA FLAG DI CODICE VERIFICATO IN SESSIONE */
+$_SESSION['codice_verificato'] = true;
+$_SESSION['codice_verificato_time'] = time();
+
 /* REDIRECT */
 $redirect = "#";
 

@@ -1,0 +1,54 @@
+<?php
+session_start();
+header('Content-Type: application/json; charset=utf-8');
+require __DIR__ . '/../config.php';
+
+if(!isset($_SESSION['username'])){
+    echo json_encode(["success" => false, "message" => "Sessione non valida"]);
+    exit;
+}
+
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "time4all";
+
+$conn = new mysqli($host, $user, $pass, $db);
+if($conn->connect_error){
+    echo json_encode(["success" => false, "message" => "Errore connessione database"]);
+    exit;
+}
+
+ $data = json_decode(file_get_contents("php://input"), true);
+
+ $nome = isset($data['nome']) ? trim($data['nome']) : '';
+ $cognome = isset($data['cognome']) ? trim($data['cognome']) : '';
+ $data_nascita = isset($data['data_nascita']) ? trim($data['data_nascita']) : '';
+ $codice_fiscale = isset($data['codice_fiscale']) ? trim($data['codice_fiscale']) : '';
+ $telefono = isset($data['telefono']) ? trim($data['telefono']) : '';
+ $mail = isset($data['mail']) ? trim($data['mail']) : '';
+
+ if($nome === '' || $cognome === ''){
+     echo json_encode(["success" => false, "message" => "Compila tutti i campi"]);
+     exit;
+ }
+
+ // Inserisci nella tabella `educatore` (campi: nome, cognome, codice_fiscale, data_nascita, telefono, mail)
+ $stmt = $conn->prepare("INSERT INTO educatore (nome, cognome, codice_fiscale, data_nascita, telefono, mail) VALUES (?, ?, ?, ?, ?, ?)");
+ if(!$stmt){
+     echo json_encode(["success" => false, "message" => "Errore prepare: " . $conn->error]);
+     $conn->close();
+     exit;
+ }
+ $stmt->bind_param("ssssss", $nome, $cognome, $codice_fiscale, $data_nascita, $telefono, $mail);
+
+ if($stmt->execute()){
+     echo json_encode(["success" => true, "message" => "Educatore aggiunto", "id" => $stmt->insert_id]);
+ } else {
+     echo json_encode(["success" => false, "message" => "Errore: " . $stmt->error]);
+ }
+
+ $stmt->close();
+ $conn->close();
+
+?>
