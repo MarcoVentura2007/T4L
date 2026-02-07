@@ -546,8 +546,7 @@ async function verificaCodice() {
 
 
 
-
-        /* LOGOUT */
+/* LOGOUT */
         const logoutBtn = document.getElementById("logoutBtn");
         const logoutOverlay = document.getElementById("logoutOverlay");
         const logoutModal = document.getElementById("logoutModal");
@@ -570,7 +569,6 @@ async function verificaCodice() {
         confirmLogout.onclick = () => {
             window.location.href = "logout.php";
         };
-
 
 
 

@@ -832,6 +832,11 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 </div>
                 <p>Contenuto resoconti da implementare...</p>
             </div>
+
+
+
+
+            
             <!-- TAB EDUCATORI -->
             <div class="page-tab" id="tab-educatori">
                 <button class="animated-button" id="aggiungi-educatore-btn">

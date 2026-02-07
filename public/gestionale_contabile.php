@@ -83,7 +83,7 @@ $resultRagazzi = $conn->query($sqlRagazzi);
 
 ?>
 
-<!DOCTYPE html>
+<!DOCTYPE h
 <html lang="it">
 <head>
 <meta charset="UTF-8">
