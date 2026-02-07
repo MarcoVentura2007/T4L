@@ -3201,113 +3201,259 @@ select option:checked {
     box-shadow: 0 0 8px rgba(67, 3, 48, 0.3) !important;
 }
 
-/* Resoconto calendario */
-.resoconto-calendar{
-    margin-top: 12px;
+/* =========================================================
+   RESOCONTO CALENDAR – Clean / Professional UI
+========================================================= */
+
+:root {
+    --bg-soft: #f4f6f9;
+    --bg-card: #ffffff;
+    --bg-accent: #e9edf3;
+
+    --text-main: #111827;
+    --text-muted: #4b5563;
+    --text-light: #6b7280;
+
+    --border-soft: rgba(0, 0, 0, 0.1);
+    --border-strong: rgba(0, 0, 0, 0.18);
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+
+    --shadow-soft: 0 4px 10px rgba(16, 24, 32, 0.06);
+    --shadow-hover: 0 6px 14px rgba(16, 24, 32, 0.1);
 }
 
-.calendar-weekdays{
-    display:grid;
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.resoconto-calendar {
+    margin-top: 18px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* =========================================================
+   HEADER GIORNI
+========================================================= */
+
+.calendar-weekdays {
+    display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 8px;
-    font-weight: 700;
-    color:#2f2f2f;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-}
 
-.calendar-weekdays span{
-    text-align:center;
-    padding: 6px 0;
-    background: #f5f5f5;
-    border-radius: 8px;
-}
-
-.calendar-grid{
-    display:grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.calendar-cell{
-    background: #ffffff;
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 12px;
-    padding: 8px;
-    min-height: 98px;
-    display:flex;
-    flex-direction:column;
-    gap: 6px;
-}
-
-.calendar-cell.has-data{
-    box-shadow: 0 10px 20px rgba(16,24,32,0.06);
-    border-color: rgba(0,0,0,0.14);
-}
-
-.calendar-cell.is-empty{
-    background: transparent;
-    border: 1px dashed rgba(0,0,0,0.12);
-}
-
-.cal-day{
-    font-weight: 800;
-    font-size: 0.95rem;
-    color:#1f2933;
-}
-
-.cal-hours{
-    font-size: 0.78rem;
-    color:#111827;
-    background: #f2f3f5;
-    padding: 2px 6px;
-    border-radius: 999px;
-    width: fit-content;
-}
-
-.cal-hours.is-empty{
-    color:#9aa0a6;
-    background: #f7f7f7;
-}
-
-.cal-activities{
-    display:flex;
-    flex-wrap:wrap;
-    gap: 4px;
-}
-
-.cal-activities span{
     font-size: 0.72rem;
-    color:#3f3f3f;
-    background:#eef0f2;
-    border-radius: 999px;
-    padding: 2px 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
 }
 
-.calendar-empty{
-    grid-column: 1 / -1;
-    text-align:center;
-    padding: 16px;
-    color:#6b7280;
+.calendar-weekdays span {
+    padding: 8px 0;
+    text-align: center;
+    background: var(--bg-soft);
+    border-radius: var(--radius-sm);
 }
 
-@media (max-width: 900px){
-    .calendar-weekdays,
-    .calendar-grid{
-        gap: 6px;
+/* =========================================================
+   GRIGLIA CALENDARIO
+========================================================= */
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr; /* 🔒 tutte le celle stessa altezza */
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+/* =========================================================
+   CELLA GIORNO
+========================================================= */
+
+.calendar-cell {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+
+    padding: 10px;
+    min-height: 120px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.calendar-cell.has-activity {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-soft);
+    background-color: var(--bg-accent); ;
+}
+
+.calendar-cell.has-activity:hover {
+    box-shadow: var(--shadow-hover);
+    
+}
+
+.calendar-cell.empty {
+    background: transparent;
+    border: 1px dashed var(--border-soft);
+}
+
+/* =========================================================
+   NUMERO GIORNO
+========================================================= */
+
+.day-number {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* =========================================================
+   ATTIVITÀ
+========================================================= */
+
+.day-activities {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.activity-item {
+    background: var(--bg-accent);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+
+    font-size: 0.72rem;
+    display: flex;
+    flex-direction: column; /* 🔒 titolo sopra, ore sotto */
+    gap: 2px;
+}
+
+.activity-name {
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.activity-meta {
+    font-size: 0.68rem;
+    color: var(--text-light);
+}
+
+/* =========================================================
+   TOTALI
+========================================================= */
+
+.resoconto-totals {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.total-card {
+    background: var(--bg-soft);
+    border-radius: var(--radius-sm);
+
+    padding: 8px 14px;
+    min-width: 110px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.total-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.total-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* =========================================================
+   MODAL (SOLO RESOCONTO)
+========================================================= */
+
+#modalResocontoGiorni{
+    width: 1000px;
+}
+
+input#resocontoMese{
+    margin-top: 6px;
+    margin-bottom: 30px;
+}
+
+.modal-resoconto .resoconto-calendar {
+    margin-top: 22px;
+}
+.month-picker {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #111827;
+}
+
+.month-picker button {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.month-picker button:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.month-picker span {
+    min-width: 120px;
+    text-align: center;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+    .calendar-grid {
+        gap: 8px;
     }
-    .calendar-cell{
-        min-height: 86px;
-        padding: 6px;
+
+    .calendar-cell {
+        min-height: 95px;
+        padding: 8px;
     }
 }
 
-@media (max-width: 520px){
-    .calendar-weekdays span{
-        font-size: 0.72rem;
-    }
-    .cal-activities span{
+@media (max-width: 520px) {
+    .calendar-weekdays span {
         font-size: 0.66rem;
+    }
+
+    .activity-item {
+        font-size: 0.64rem;
     }
 }
