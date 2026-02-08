@@ -431,6 +431,28 @@ passwordField.addEventListener("keydown", (e) => {
             window.location.href = "logout.php";
         };
 
+        // Blocca scroll del body quando un popup è aperto
+        const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
+        const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
+
+        function syncBodyScrollLock() {
+            const anyOpen = document.querySelector(popupShowSelector);
+            document.body.classList.toggle("popup-open", Boolean(anyOpen));
+        }
+
+        const popupObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                const target = mutation.target;
+                if (target === document.body || (target instanceof Element && target.matches(popupTargetsSelector))) {
+                    syncBodyScrollLock();
+                    break;
+                }
+            }
+        });
+
+        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        syncBodyScrollLock();
+
 
 </script>
 

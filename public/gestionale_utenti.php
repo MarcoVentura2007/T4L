@@ -397,7 +397,7 @@ if($classe !== 'Educatore'){
             <div class="page-tab" id="tab-agenda">
                 <div class="page-header">
                     <h1>Agenda</h1>
-                    <p>Attività programmate della settimana</p>
+                    <p>Attività della settimana (Lunedì - Venerdì)</p>
                 </div>
 
                 <div class="agenda-container">
@@ -710,13 +710,21 @@ document.addEventListener('click', (e) => {
 
 // ========== AGENDA ==========
 let agendaData = [];
+let agendaWeekStart = null;
 let selectedDayIndex = 0;
 
-// Calcola le date della settimana
-function calculateWeekDates() {
+// Calcola le date della settimana (preferisce la data del server)
+function calculateWeekDates(weekStartStr) {
     const today = new Date();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - today.getDay() + 1);
+    let monday;
+
+    if (weekStartStr) {
+        const parsed = new Date(weekStartStr + "T00:00:00");
+        monday = isNaN(parsed.getTime()) ? new Date(today) : parsed;
+    } else {
+        monday = new Date(today);
+        monday.setDate(today.getDate() - today.getDay() + 1);
+    }
     
     const dates = [];
     const dateLabels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
@@ -726,8 +734,11 @@ function calculateWeekDates() {
         date.setDate(monday.getDate() + i);
         dates.push(date.toISOString().split('T')[0]);
         
-        const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
-        document.getElementById(dateLabels[i]).innerText = dateStr;
+        const label = document.getElementById(dateLabels[i]);
+        if (label) {
+            const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+            label.innerText = dateStr;
+        }
     }
     
     return dates;
@@ -743,7 +754,8 @@ function loadAgenda() {
         .then(data => {
             if (data.success) {
                 agendaData = data.data;
-                calculateWeekDates();
+                agendaWeekStart = data.monday || null;
+                calculateWeekDates(agendaWeekStart);
                 displayAgenda(0);
             } else {
                 contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
@@ -783,7 +795,7 @@ function displayAgenda(dayIndex) {
     
     dayActivities.forEach(att => {
         const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
-        const iscritterText = att.iscritti.map(i => `${i.Nome} ${i.Cognome}`).join(', ') || '—';
+        const ragazziText = att.ragazzi.map(r => `${r.nome} ${r.cognome}`).join(', ') || '—';
         
         html += `
             <div class="activity-card">
@@ -802,8 +814,8 @@ function displayAgenda(dayIndex) {
                         <span>${educatoriText}</span>
                     </div>
                     <div class="participant-group">
-                        <label>Iscritti:</label>
-                        <span>${iscritterText}</span>
+                        <label>Ragazzi:</label>
+                        <span>${ragazziText}</span>
                     </div>
                 </div>
             </div>
@@ -811,7 +823,7 @@ function displayAgenda(dayIndex) {
     });
     
     html += '</div>';
-    contentDiv.innerHTML = html;
+    contentDiv.innerHTML = html; // <-- Questa riga mancava!
 }
 
 // Event listeners per i tab dei giorni
@@ -827,6 +839,28 @@ document.querySelectorAll('.day-tab').forEach((tab, index) => {
 window.addEventListener('DOMContentLoaded', () => {
     loadAgenda();
 });
+
+// Blocca scroll del body quando un popup è aperto
+const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
+const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
+
+function syncBodyScrollLock() {
+    const anyOpen = document.querySelector(popupShowSelector);
+    document.body.classList.toggle("popup-open", Boolean(anyOpen));
+}
+
+const popupObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+        const target = mutation.target;
+        if (target === document.body || (target instanceof Element && target.matches(popupTargetsSelector))) {
+            syncBodyScrollLock();
+            break;
+        }
+    }
+});
+
+popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+syncBodyScrollLock();
 </script>
 
 </body>
