@@ -2890,6 +2890,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     altFormat: "F Y"   
                 })
             ],
+            defaultDate: new Date(),
             altInput: true
         });
 
@@ -2901,6 +2902,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     altFormat: "F Y"
                 })
             ],
+            defaultDate: new Date(),
             altInput: true
         });
 

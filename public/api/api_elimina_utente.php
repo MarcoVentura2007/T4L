@@ -39,9 +39,17 @@ if ($resultSelect && $resultSelect->num_rows > 0) {
     
     // Se esiste una fotografia, eliminala dal filesystem
     if ($fotografia && !empty($fotografia)) {
-        $filePath = __DIR__ . '/../immagini/' . $fotografia;
-        if (file_exists($filePath)) {
-            unlink($filePath);
+        $fotografia = str_replace("\\", "/", $fotografia);
+        // Non eliminare l'immagine di default
+        if ($fotografia !== "immagini/default-user.png" && $fotografia !== "default-user.png") {
+            if (strpos($fotografia, "immagini/") === 0) {
+                $filePath = __DIR__ . '/../' . $fotografia;
+            } else {
+                $filePath = __DIR__ . '/../immagini/' . $fotografia;
+            }
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
         }
     }
 }

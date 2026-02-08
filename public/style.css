@@ -3470,6 +3470,7 @@ input#resocontoMese{
     transition: all 0.2s ease;
     appearance: none; 
     margin-bottom: 20px;
+    cursor: pointer;
 }
 #resocontoMese {
     padding: 6px 12px;
@@ -3481,6 +3482,7 @@ input#resocontoMese{
     font-weight: 500;
     transition: all 0.2s ease;
     appearance: none; 
+    cursor: pointer;
 }
 
 /* Hover / focus */
