@@ -790,6 +790,8 @@ function displayAgenda(dayIndex) {
     
     // Ordina le attività per ora di inizio
     dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
+    const inizio_no_seconds = dayActivities.map(att => att.ora_inizio.substring(0,5));
+    const fine_no_seconds = dayActivities.map(att => att.ora_fine.substring(0,5));
     
     let html = '<div class="activities-list">';
     
@@ -802,7 +804,7 @@ function displayAgenda(dayIndex) {
                 <div class="activity-header">
                     <h3>${att.attivita_nome}</h3>
                     <span class="activity-time">
-                        🕐 ${att.ora_inizio} - ${att.ora_fine}
+                        🕐 ${inizio_no_seconds} - ${fine_no_seconds}
                     </span>
                 </div>
                 <div class="activity-description">

@@ -1727,6 +1727,8 @@ $resultResoconti = $conn->query($sqlResoconti);
     
     // Ordina le attività per ora di inizio
     dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
+    const inizio_no_seconds = dayActivities.map(att => att.ora_inizio.substring(0,5));
+    const fine_no_seconds = dayActivities.map(att => att.ora_fine.substring(0,5));
     
     let html = '<div class="activities-list">';
     
@@ -1739,7 +1741,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="activity-header">
                     <h3>${att.attivita_nome}</h3>
                     <span class="activity-time">
-                        🕐 ${att.ora_inizio} - ${att.ora_fine}
+                        🕐 ${inizio_no_seconds} - ${fine_no_seconds}
                     </span>
                 </div>
                 <div class="activity-description">
@@ -2077,19 +2079,33 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             for(let i=0;i<startPadding;i++) calendarHTML += `<div class="calendar-cell empty"></div>`;
 
-            for(let d=1; d<=lastDay.getDate(); d++){
+           for (let d = 1; d <= lastDay.getDate(); d++) {
                 const day = daysMap.get(d);
-                const hasActivity = day && day.ore > 0; // <-- prima guardavamo solo attivita
-                calendarHTML += `<div class="calendar-cell ${hasActivity ? 'has-activity' : ''}">
-                    <div class="day-number">${d}</div>`;
-                
-                if(day && day.attivita.length > 0){
+                const presente = day && day.ore > 0;
+
+                calendarHTML += `<div class="calendar-cell ${presente ? 'has-activity' : ''}">`;
+
+                if (day) {
+                        console.log("Giorno", d, "ore:", day.ore);
+                    }
+
+
+                if (presente) {
+                    calendarHTML += `<img class="presente-icon" src="immagini/presente.png" alt="Presente">`;
+                }
+
+                calendarHTML += `<div class="day-number">${d}</div>`;
+
+                if (day && day.attivita.length > 0) {
                     calendarHTML += `<div class="day-activities">`;
                     day.attivita.forEach(a => {
-                        calendarHTML += `<div class="activity-item">
-                            <span class="activity-name">${a.Nome}</span>
-                            <span class="activity-meta">${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€</span>
-                        </div>`;
+                        calendarHTML += `
+                            <div class="activity-item">
+                                <span class="activity-name">${a.Nome}</span>
+                                <span class="activity-meta">
+                                    ${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€
+                                </span>
+                            </div>`;
                     });
                     calendarHTML += `</div>`;
                 }
@@ -2101,9 +2117,9 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             // Totali
             calendarHTML += `<div class="resoconto-totals">
-                <div class="total-card"><div class="total-label">📊 Ore Totali</div><div class="total-value hours">${totalOre.toFixed(2)}</div></div>
-                <div class="total-card"><div class="total-label">💰 Costo Totale</div><div class="total-value currency">${totalCosto.toFixed(2)}</div></div>
-                <div class="total-card"><div class="total-label">📅 Giorni Attivi</div><div class="total-value">${daysMap.size}</div></div>
+                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(2)}</div></div>
+                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Costo Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
+                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${daysMap.size}</div></div>
             </div>`;
 
             resocontoContent.innerHTML = calendarHTML;
