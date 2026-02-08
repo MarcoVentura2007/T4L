@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Feb 07, 2026 alle 08:45
+-- Creato il: Feb 08, 2026 alle 03:04
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -111,18 +111,6 @@ INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `logs`
---
-
-CREATE TABLE `logs` (
-  `id` int(11) NOT NULL,
-  `Data` datetime NOT NULL,
-  `Descrizione` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Struttura della tabella `partecipa`
 --
 
@@ -188,12 +176,6 @@ ALTER TABLE `iscritto`
   ADD UNIQUE KEY `Codice_fiscale` (`Codice_fiscale`);
 
 --
--- Indici per le tabelle `logs`
---
-ALTER TABLE `logs`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indici per le tabelle `partecipa`
 --
 ALTER TABLE `partecipa`
@@ -236,12 +218,6 @@ ALTER TABLE `educatore`
 --
 ALTER TABLE `iscritto`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
-
---
--- AUTO_INCREMENT per la tabella `logs`
---
-ALTER TABLE `logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `partecipa`
