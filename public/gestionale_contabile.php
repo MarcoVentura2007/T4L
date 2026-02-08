@@ -863,13 +863,72 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 
             </div>
 
+
+
+
+
+
+
             <!-- TAB RESOCONTI -->
             <div class="page-tab" id="tab-resoconti">
+
                 <div class="page-header">
                     <h1>Resoconti</h1>
-                    <p>Informazioni mensili</p>
+                    <p>Riepilogo mensile iscritti</p>
                 </div>
-                <p>Contenuto resoconti da implementare...</p>
+
+                <div class="resoconti-mese-label">
+                    <label>Seleziona mese: </label>
+                    <input type="month" id="resocontiMeseFiltro" value="<?= date('Y-m') ?>">
+                </div>
+
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Ore totali</th>
+                                <th>Costo totale (€)</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resocontiMensiliBody">
+                            <tr><td colspan="6">Caricamento...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+
+                <div class="modal-box large modal-resoconto" id="modalResocontoGiorni">
+
+                    <h3 class="modal-title" id="resocontoNome"></h3>
+
+                    <div class="edit-field">
+                        <label>Mese</label>
+                        <input type="month" id="resocontoMese">
+                    </div>
+
+                    <!-- QUI VIENE COSTRUITO IL CALENDARIO -->
+                    <div id="resocontoContent" class="resoconto-calendar"></div>
+
+                    <!-- (opzionale) tabella vecchia se vuoi tenerla -->
+                    <div class="users-table-box" style="display:none">
+                        <table class="users-table">
+                            <tbody id="resocontoGiorniBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                    </div>
+                </div>
+
+
+
+
+
             </div>
 
 
@@ -2004,6 +2063,214 @@ $resultRagazzi = $conn->query($sqlRagazzi);
         window.addEventListener('DOMContentLoaded', () => {
             loadAgenda();
         });
+
+
+
+
+
+
+
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+    const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
+    const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
+    const modalResoconto = document.getElementById("modalResocontoGiorni");
+    const bodyResoconto = document.getElementById("resocontoGiorniBody");
+    const meseInput = document.getElementById("resocontoMese");
+    const titoloResoconto = document.getElementById("resocontoNome");
+
+    let currentIscritto = null;
+
+    // CARICAMENTO INIZIALE MENSILE
+    if(resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
+
+    // CAMBIO MESE GLOBALE
+    if(resocontiMeseFiltro) {
+        resocontiMeseFiltro.addEventListener("change", () => {
+            caricaResocontiMensili(resocontiMeseFiltro.value);
+        });
+    }
+
+    // CLICK PULSANTE DETTAGLI GIORNALIERI
+    document.addEventListener("click", e => {
+        const btn = e.target.closest(".resoconto-btn, .calendario-btn");
+        if(!btn) return;
+
+        currentIscritto = btn.dataset.id;
+        const nome = btn.dataset.nome || "";
+        const cognome = btn.dataset.cognome || "";
+
+        if(!titoloResoconto) return;
+        titoloResoconto.textContent = "Resoconto - " + (cognome + " " + nome).trim();
+
+        if(!meseInput) return;
+        meseInput.value = resocontiMeseFiltro.value;
+
+        if(bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Caricamento...</td></tr>`;
+
+        if(modalResoconto && typeof openModal === "function") openModal(modalResoconto);
+
+        caricaResocontoGiorni();
+    });
+
+    // CAMBIO MESE NEL MODAL
+    if(meseInput) meseInput.addEventListener("change", caricaResocontoGiorni);
+
+    // FUNZIONE CARICA RESOCONTI MENSILI
+    function caricaResocontiMensili(mese){
+        if(!resocontiMensiliBody) return;
+        resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
+
+        fetch("api/api_resoconto_mensile.php", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({mese})
+        })
+        .then(r => r.json())
+        .then(json => {
+            resocontiMensiliBody.innerHTML = "";
+
+            if(!json.success || json.data.length === 0){
+                resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Nessun dato disponibile</td></tr>`;
+                return;
+            }
+
+            json.data.forEach(r => {
+                const ore = parseFloat(r.ore_totali).toFixed(2);
+                const costo = parseFloat(r.ore_totali * r.Prezzo_Orario).toFixed(2);
+
+                resocontiMensiliBody.innerHTML += `
+                    <tr>
+                        <td><img src="${r.Fotografia}" class="user-avatar"></td>
+                        <td>${r.Nome}</td>
+                        <td>${r.Cognome}</td>
+                        <td>${ore}</td>
+                        <td>${costo} €</td>
+                        <td>
+                            <button class="btn-icon calendario-btn" data-id="${r.id}" data-nome="${r.Nome}" data-cognome="${r.Cognome}">
+                                <img src="immagini/calendario.png" alt="Calendario">
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Errore nel caricamento</td></tr>`;
+        });
+    }
+
+    // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ E CALENDARIO
+    function caricaResocontoGiorni(){
+        if(!currentIscritto || !meseInput) return;
+
+        fetch("api/api_resoconto_giornaliero.php", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                id: currentIscritto,
+                mese: meseInput.value
+            })
+        })
+        .then(r => r.json())
+        .then(json => {
+            if(!bodyResoconto || !document.getElementById("resocontoContent")) return;
+            bodyResoconto.innerHTML = "";
+            const resocontoContent = document.getElementById("resocontoContent");
+            resocontoContent.innerHTML = "";
+
+            if(!json.success || json.data.length === 0){
+                bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
+                resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">📅 Nessun dato disponibile per questo mese</p>`;
+                return;
+            }
+
+            // Mappa giorni -> attività
+            const daysMap = new Map();
+            let totalOre = 0;
+            let totalCosto = 0;
+
+            json.data.forEach(r => {
+                const giorno = new Date(r.giorno).getDate();
+                if(!daysMap.has(giorno)) daysMap.set(giorno, {attivita: [], ore:0, costo:0});
+                const day = daysMap.get(giorno);
+
+                r.attivita.forEach(a => day.attivita.push(a));
+                day.ore += r.ore;
+                day.costo += r.costo;
+
+                totalOre += r.ore;
+                totalCosto += r.costo;
+
+                // Tabella giornaliera
+                let attHTML = r.attivita.map(a => `${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€)`).join('<br>');
+                bodyResoconto.innerHTML += `
+                    <tr>
+                        <td>${giorno}</td>
+                        <td>${attHTML}</td>
+                        <td>${r.ore.toFixed(2)}</td>
+                        <td>${r.costo.toFixed(2)} €</td>
+                    </tr>
+                `;
+            });
+
+            // Calendario elegante
+            const [anno, mese] = meseInput.value.split('-');
+            const firstDay = new Date(anno, mese-1, 1);
+            const lastDay = new Date(anno, mese, 0);
+            const startPadding = firstDay.getDay() === 0 ? 6 : firstDay.getDay()-1;
+
+            let calendarHTML = `<div class="calendar-weekdays">
+                <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
+            </div><div class="calendar-grid">`;
+
+            for(let i=0;i<startPadding;i++) calendarHTML += `<div class="calendar-cell empty"></div>`;
+
+            for(let d=1; d<=lastDay.getDate(); d++){
+                const day = daysMap.get(d);
+                const hasActivity = day && day.attivita.length>0;
+                calendarHTML += `<div class="calendar-cell ${hasActivity ? 'has-activity' : ''}">
+                    <div class="day-number">${d}</div>`;
+                if(hasActivity){
+                    calendarHTML += `<div class="day-activities">`;
+                    day.attivita.forEach(a => {
+                        calendarHTML += `<div class="activity-item">
+                            <span class="activity-name">${a.Nome}</span>
+                            <span class="activity-meta">${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€</span>
+                        </div>`;
+                    });
+                    calendarHTML += `</div>`;
+                }
+                calendarHTML += `</div>`;
+            }
+            calendarHTML += `</div>`;
+
+            // Totali
+            calendarHTML += `<div class="resoconto-totals">
+                <div class="total-card"><div class="total-label">📊 Ore Totali</div><div class="total-value hours">${totalOre.toFixed(2)}</div></div>
+                <div class="total-card"><div class="total-label">💰 Costo Totale</div><div class="total-value currency">${totalCosto.toFixed(2)}</div></div>
+                <div class="total-card"><div class="total-label">📅 Giorni Attivi</div><div class="total-value">${daysMap.size}</div></div>
+            </div>`;
+
+            resocontoContent.innerHTML = calendarHTML;
+        })
+        .catch(err => {
+            console.error(err);
+            if(bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Errore nel caricamento</td></tr>`;
+            const resocontoContent = document.getElementById("resocontoContent");
+            if(resocontoContent) resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">❌ Errore nel caricamento</p>`;
+        });
+    }
+});
+
+
+
+
+
+
+
 
     </script>
 

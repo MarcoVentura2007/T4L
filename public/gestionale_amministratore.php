@@ -310,12 +310,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <span class="text">Account</span>
                             </a>
                         </li>
-                        <li class="sidebar__item">
-                            <a class="sidebar__link tab-link" href="#" data-tab="tab-logs" data-tooltip="Logs">
-                                <span class="sidebar-icon"><img src="immagini/logs.png" alt=""></span>
-                                <span class="text">Logs</span>
-                            </a>
-                        </li>
 
                     </ul>
 
@@ -1223,14 +1217,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
-            <!-- TAB LOGS -->
-            <div class="page-tab" id="tab-logs">
-                <div class="page-header">
-                    <h1>Logs</h1>
-                    <p>Attività recenti</p>
-                </div>
-                <p>Contenuto logs da implementare...</p>
-            </div>
+            
 
 
 
