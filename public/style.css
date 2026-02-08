@@ -3457,3 +3457,49 @@ input#resocontoMese{
         font-size: 0.64rem;
     }
 }
+
+/* Stile input month generale */
+.form-control {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #420000;
+    background-color: #f9f9f9;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    appearance: none; 
+    margin-bottom: 20px;
+}
+#resocontoMese {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    appearance: none; 
+}
+
+/* Hover / focus */
+#resocontiMeseFiltro:hover, #resocontoMese:hover {
+    border-color: #999;
+    background-color: #fff;
+}
+
+#resocontiMeseFiltro:focus, #resocontoMese:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0,123,255,0.3);
+    outline: none;
+}
+
+/* Icona “freccia” stile moderno */
+#resocontiMeseFiltro::-webkit-calendar-picker-indicator,
+#resocontoMese::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+}
+
+

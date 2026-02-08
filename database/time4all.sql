@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Feb 08, 2026 alle 03:04
+-- Creato il: Feb 08, 2026 alle 19:56
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -79,6 +79,14 @@ CREATE TABLE `educatore` (
   `mail` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dump dei dati per la tabella `educatore`
+--
+
+INSERT INTO `educatore` (`id`, `nome`, `cognome`, `codice_fiscale`, `data_nascita`, `telefono`, `mail`) VALUES
+(1, 'Andrea', 'Rossi', 'NDRRSS89E04L400R', '1889-04-20', '1112223334', 'andrea.rossi@underlimits.com'),
+(2, 'Marco', 'Ventura', 'NDRRSS89SFEW', '2007-01-09', '3292618521', 'marco.ventura@galileo.galileicrema.it');
+
 -- --------------------------------------------------------
 
 --
@@ -106,7 +114,21 @@ CREATE TABLE `iscritto` (
 INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale`, `Contatti`, `Disabilita`, `Allergie_Intolleranze`, `Note`, `Prezzo_Orario`, `Fotografia`) VALUES
 (1, 'Cristian', 'Moretti', '2001-01-01', 'CRTMRT00E04L400T', '-', '-', '-', '-', 0.00, 'immagini/Cristian_Moretti.png'),
 (2, 'Gabriele', 'Corona', '2002-01-01', 'GBRCRN01E04L600T', '-', '-', '-', '-', 0.00, 'immagini/Gabriele_Corona.png'),
-(3, 'Jacopo', 'Bertolasi', '2003-01-01', 'JCPBRT03E04L400Y', '-', '-', 'la', '-', 0.00, 'immagini/Jacopo_Bertolasi.png');
+(3, 'Jacopo', 'Bertolasi', '2003-01-01', 'JCPBRT03E04L400Y', '-', '-', 'la', '-', 0.00, 'immagini/Jacopo_Bertolasi.png'),
+(21, 'Cristiano', 'Ronaldo', '1985-02-05', 'fbfruiq', '8vuyvyv', 'iybg', 'hu9hu9h', 'SIUUUUUU', 3467452.00, 'immagini/1770493648_WhatsApp Image 2026-01-15 at 13.42.12.jpeg'),
+(22, 'Adolf', 'Candeloro', '2000-03-22', 'odvhvfddf', 'h', 'Mega down', 'cdoncojcn', 'couscuj', 10.00, 'immagini/1770493684_WhatsApp Image 2026-01-24 at 11.10.36.jpeg');
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `logs`
+--
+
+CREATE TABLE `logs` (
+  `id` int(11) NOT NULL,
+  `Data` datetime NOT NULL,
+  `Descrizione` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -119,9 +141,11 @@ CREATE TABLE `partecipa` (
   `Data` date NOT NULL,
   `Ora_Inizio` time NOT NULL,
   `Ora_Fine` time NOT NULL,
-  `ID_Presenza` int(11) NOT NULL,
+  `ID_Presenza` int(11) DEFAULT NULL,
   `ID_Attivita` int(11) NOT NULL,
-  `ID_Educatore` int(11) NOT NULL
+  `ID_Educatore` int(11) NOT NULL,
+  `presenza_effettiva` tinyint(1) NOT NULL,
+  `ID_Ragazzo` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -143,8 +167,7 @@ CREATE TABLE `presenza` (
 --
 
 INSERT INTO `presenza` (`id`, `Ingresso`, `Uscita`, `Check_firma`, `ID_Iscritto`) VALUES
-(1, '2026-02-06 07:00:00', '2026-02-06 17:00:00', 1, 3),
-(3, '2026-02-07 09:00:00', '2026-02-07 16:00:00', 1, 2);
+(37, '2026-02-08 10:00:00', '2026-02-08 17:00:00', 1, 22);
 
 --
 -- Indici per le tabelle scaricate
@@ -176,13 +199,20 @@ ALTER TABLE `iscritto`
   ADD UNIQUE KEY `Codice_fiscale` (`Codice_fiscale`);
 
 --
+-- Indici per le tabelle `logs`
+--
+ALTER TABLE `logs`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indici per le tabelle `partecipa`
 --
 ALTER TABLE `partecipa`
   ADD PRIMARY KEY (`id`),
   ADD KEY `ID_Presenza` (`ID_Presenza`),
   ADD KEY `ID_Attivita` (`ID_Attivita`),
-  ADD KEY `partecipa_ibfk_3` (`ID_Educatore`);
+  ADD KEY `partecipa_ibfk_3` (`ID_Educatore`),
+  ADD KEY `partecipa_ibfk_4` (`ID_Ragazzo`);
 
 --
 -- Indici per le tabelle `presenza`
@@ -199,7 +229,7 @@ ALTER TABLE `presenza`
 -- AUTO_INCREMENT per la tabella `account`
 --
 ALTER TABLE `account`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT per la tabella `attivita`
@@ -211,25 +241,31 @@ ALTER TABLE `attivita`
 -- AUTO_INCREMENT per la tabella `educatore`
 --
 ALTER TABLE `educatore`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT per la tabella `iscritto`
 --
 ALTER TABLE `iscritto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT per la tabella `logs`
+--
+ALTER TABLE `logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `partecipa`
 --
 ALTER TABLE `partecipa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 
 --
 -- AUTO_INCREMENT per la tabella `presenza`
 --
 ALTER TABLE `presenza`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- Limiti per le tabelle scaricate
@@ -241,7 +277,8 @@ ALTER TABLE `presenza`
 ALTER TABLE `partecipa`
   ADD CONSTRAINT `partecipa_ibfk_1` FOREIGN KEY (`ID_Presenza`) REFERENCES `presenza` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `partecipa_ibfk_2` FOREIGN KEY (`ID_Attivita`) REFERENCES `attivita` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `partecipa_ibfk_3` FOREIGN KEY (`ID_Educatore`) REFERENCES `educatore` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `partecipa_ibfk_3` FOREIGN KEY (`ID_Educatore`) REFERENCES `educatore` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `partecipa_ibfk_4` FOREIGN KEY (`ID_Ragazzo`) REFERENCES `iscritto` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `presenza`

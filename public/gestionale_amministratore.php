@@ -112,6 +112,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 ?>
 
 <!DOCTYPE html>
+
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -121,6 +122,13 @@ $resultResoconti = $conn->query($sqlResoconti);
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+
+
 
 </head>
 <body>
@@ -845,13 +853,13 @@ $resultResoconti = $conn->query($sqlResoconti);
             
 
 
-
+            
 
 
             <!-- TAB RESOCONTI -->
             <div class="page-tab" id="tab-resoconti">
 
-                <div class="page-header">
+                <div class="page-header" style="margin-bottom: 20px;">
                     <h1>Resoconti</h1>
                     <p>Riepilogo mensile iscritti</p>
                 </div>
@@ -860,6 +868,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <label>Seleziona mese: </label>
                     <input type="month" id="resocontiMeseFiltro" value="<?= date('Y-m') ?>">
                 </div>
+
+                
 
                 <div class="users-table-box">
                     <table class="users-table">
@@ -886,28 +896,24 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                     <div class="edit-field">
                         <label>Mese</label>
-                        <input type="month" id="resocontoMese">
+                        <input type="text" id="resocontoMese">
+
                     </div>
 
                     <!-- QUI VIENE COSTRUITO IL CALENDARIO -->
                     <div id="resocontoContent" class="resoconto-calendar"></div>
 
-                    <!-- (opzionale) tabella vecchia se vuoi tenerla -->
                     <div class="users-table-box" style="display:none">
                         <table class="users-table">
                             <tbody id="resocontoGiorniBody"></tbody>
                         </table>
                     </div>
 
+
                     <div class="modal-actions">
                         <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
                     </div>
                 </div>
-
-
-
-
-
             </div>
 
 
@@ -2875,6 +2881,28 @@ $resultResoconti = $conn->query($sqlResoconti);
     }
 });
 
+
+        flatpickr("#resocontiMeseFiltro", {
+            plugins: [
+                new monthSelectPlugin({ 
+                    shorthand: false, 
+                    dateFormat: "Y-m", 
+                    altFormat: "F Y"   
+                })
+            ],
+            altInput: true
+        });
+
+        flatpickr("#resocontoMese", {
+            plugins: [
+                new monthSelectPlugin({ 
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y"
+                })
+            ],
+            altInput: true
+        });
 
 
 
