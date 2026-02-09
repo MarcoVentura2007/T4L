@@ -1647,277 +1647,161 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
         });
 
-        // ========== AGENDA ==========
-        let agendaData = [];
-        let agendaWeekStart = null;
-        let selectedDayIndex = 0;
+               // ================= AGENDA =================
+let agendaData = [];
+let agendaWeekStart = null;
+let selectedDayIndex = 0;
 
-        // Calcola le date della settimana (preferisce la data del server)
-        function calculateWeekDates(weekStartStr) {
-            const today = new Date();
-            let monday;
+// utilità: YYYY-MM-DD locale
+function getLocalDateString(date) {
+    const y = date.getFullYear();
+    const m = (date.getMonth() + 1).toString().padStart(2,'0');
+    const d = date.getDate().toString().padStart(2,'0');
+    return `${y}-${m}-${d}`;
+}
 
-            if (weekStartStr) {
-                const parsed = new Date(weekStartStr + "T00:00:00");
-                monday = isNaN(parsed.getTime()) ? new Date(today) : parsed;
-            } else {
-                monday = new Date(today);
-                monday.setDate(today.getDate() - today.getDay() + 1);
-            }
-            
-            const dates = [];
-            const dateLabels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
-            
-            for (let i = 0; i < 5; i++) {
-                const date = new Date(monday);
-                date.setDate(monday.getDate() + i);
-                dates.push(date.toISOString().split('T')[0]);
-                
-                const label = document.getElementById(dateLabels[i]);
-                if (label) {
-                    const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
-                    label.innerText = dateStr;
-                }
-            }
-            
-            return dates;
-        }// Carica l'agenda dal server
-        function loadAgenda() {
-            const contentDiv = document.getElementById('agendaContent');
-            contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
-            
-            fetch('api/api_get_agenda.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        agendaData = data.data;
-                        agendaWeekStart = data.monday || null;
-                        calculateWeekDates(agendaWeekStart);
-                        displayAgenda(0);
-                    } else {
-                        contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore:', error);
-                    contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
-                });
+// calcola le date della settimana e aggiorna le label
+function calculateWeekDates(weekStartStr) {
+    const today = new Date();
+    let monday;
+
+    if (weekStartStr) {
+        const parts = weekStartStr.split('-'); // "YYYY-MM-DD"
+        monday = new Date(parts[0], parts[1]-1, parts[2]);
+    } else {
+        monday = new Date(today);
+        monday.setDate(today.getDate() - today.getDay() + 1); // lunedì
+    }
+
+    const dates = [];
+    const dateLabels = ['date-monday','date-tuesday','date-wednesday','date-thursday','date-friday'];
+
+    for (let i=0; i<5; i++) {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
+        dates.push(getLocalDateString(date));
+
+        const label = document.getElementById(dateLabels[i]);
+        if (label) {
+            const dateStr = date.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});
+            label.innerText = dateStr;
         }
+    }
 
-        // Mostra le attività per il giorno selezionato
-        function displayAgenda(dayIndex) {
+    return dates;
+}
+
+// carica agenda dal server
+function loadAgenda() {
+    const contentDiv = document.getElementById('agendaContent');
+    contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
+
+    fetch('api/api_get_agenda.php')
+        .then(res => res.json())
+        .then(data => {
+            if(data.success){
+                agendaData = data.data || [];
+                agendaWeekStart = data.monday || null;
+                calculateWeekDates(agendaWeekStart);
+                displayAgenda(0);
+            } else {
+                contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
+        });
+}
+
+// mostra attività per il giorno selezionato
+function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
     const contentDiv = document.getElementById('agendaContent');
-    
-    // Calcola la data del giorno selezionato
-    const today = new Date();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - today.getDay() + 1);
+
+    if(!agendaData || agendaData.length === 0){
+        contentDiv.innerHTML = '<div class="no-activities">Nessuna attività disponibile</div>';
+        return;
+    }
+
+    // calcola lunedì della settimana
+    let monday;
+    if(agendaWeekStart){
+        const parts = agendaWeekStart.split('-');
+        monday = new Date(parts[0], parts[1]-1, parts[2]);
+    } else {
+        monday = new Date();
+        monday.setDate(monday.getDate() - monday.getDay() + 1);
+    }
+
     const selectedDate = new Date(monday);
     selectedDate.setDate(monday.getDate() + dayIndex);
-    const selectedDateStr = selectedDate.toISOString().split('T')[0];
-    
-    // Filtra le attività per il giorno selezionato
+    const selectedDateStr = getLocalDateString(selectedDate);
+
+    // filtra attività per giorno
     const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
-    
-    if (dayActivities.length === 0) {
+
+    if(dayActivities.length === 0){
         contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
         return;
     }
-    
-    // Ordina le attività per ora di inizio
-    dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
-    const inizio_no_seconds = dayActivities.map(att => att.ora_inizio.substring(0,5));
-    const fine_no_seconds = dayActivities.map(att => att.ora_fine.substring(0,5));
-    
+
+    // ordina per ora_inizio
+    dayActivities.sort((a,b)=> a.ora_inizio.localeCompare(b.ora_inizio));
+
     let html = '<div class="activities-list">';
-    
+
     dayActivities.forEach(att => {
-        const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
-        const ragazziText = att.ragazzi.map(r => `${r.nome} ${r.cognome}`).join(', ') || '—';
-        
+        // orari
+        const inizio_no_seconds = att.ora_inizio.substring(0,5);
+        const fine_no_seconds   = att.ora_fine.substring(0,5);
+
+        // educatori unici
+        const educatoriText = Array.from(
+            new Map(att.educatori.map(e=>[e.id,e])).values()
+        ).map(e=>`${e.nome} ${e.cognome}`).join(', ');
+
+        // ragazzi unici
+        const ragazziText = Array.from(
+            new Map(att.ragazzi.map(r=>[r.id,r])).values()
+        ).map(r=>`${r.nome} ${r.cognome}`).join(', ') || '—';
+
         html += `
-            <div class="activity-card">
-                <div class="activity-header">
-                    <h3>${att.attivita_nome}</h3>
-                    <span class="activity-time">
-                        🕐 ${inizio_no_seconds} - ${fine_no_seconds}
-                    </span>
+        <div class="activity-card">
+            <div class="activity-header">
+                <h3>${att.attivita_nome}</h3>
+                <span class="activity-time">🕐 ${inizio_no_seconds} - ${fine_no_seconds}</span>
+            </div>
+            <div class="activity-description">${att.descrizione}</div>
+            <div class="activity-participants">
+                <div class="participant-group">
+                    <label>Educatori:</label>
+                    <span>${educatoriText}</span>
                 </div>
-                <div class="activity-description">
-                    ${att.descrizione}
-                </div>
-                <div class="activity-participants">
-                    <div class="participant-group">
-                        <label>Educatori:</label>
-                        <span>${educatoriText}</span>
-                    </div>
-                    <div class="participant-group">
-                        <label>Ragazzi:</label>
-                        <span>${ragazziText}</span>
-                    </div>
+                <div class="participant-group">
+                    <label>Ragazzi:</label>
+                    <span>${ragazziText}</span>
                 </div>
             </div>
+        </div>
         `;
     });
-    
+
     html += '</div>';
-    contentDiv.innerHTML = html; // <-- Questa riga mancava!
+    contentDiv.innerHTML = html;
 }
 
+// event listeners per i tab dei giorni
+document.querySelectorAll('.day-tab').forEach((tab,index)=>{
+    tab.addEventListener('click',()=>{
+        document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        displayAgenda(index);
+    });
+});
 
-
-        // Event listeners per i tab dei giorni
-        document.querySelectorAll('.day-tab').forEach((tab, index) => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                displayAgenda(index);
-            });
-        });
-
-        // ========== MODAL CREA AGENDA ==========
-        const creaAgendaBtn = document.getElementById("creaAgendaBtn");
-        const formCreaAgenda = document.getElementById("formCreaAgenda");
-                // agendaOverlay should reuse single global overlay when available
-        const agendaOverlay = document.getElementById("agendaOverlay") || Overlay;
-        const successPopupAgenda = document.getElementById("successPopupAgenda");
-
-        if(creaAgendaBtn) {
-            creaAgendaBtn.onclick = () => {
-                // Popola la select con le date della settimana
-                const today = new Date();
-                const monday = new Date(today);
-                monday.setDate(today.getDate() - today.getDay() + 1);
-
-                const dataSelect = document.getElementById("agendaData");
-                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
-                
-                // Pulisci le opzioni mantendo la prima (placeholder)
-                while (dataSelect.options.length > 1) {
-                    dataSelect.remove(1);
-                }
-
-                for (let i = 0; i < 5; i++) {
-                    const date = new Date(monday);
-                    date.setDate(monday.getDate() + i);
-                    const dateStr = date.toISOString().split('T')[0];
-                    const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-                    const option = document.createElement("option");
-                    option.value = dateStr;
-                    option.text = `${giorni[i]} ${dateFormatted}`;
-                    dataSelect.appendChild(option);
-                }
-
-                openModal(modalCreaAgenda);
-            };
-        }
-
-        if(agendaOverlay) {
-            agendaOverlay.onclick = () => {
-                closeModal();
-            };
-        }
-
-        // Submit form
-        if(formCreaAgenda) {
-            formCreaAgenda.onsubmit = function(e) {
-                e.preventDefault();
-                console.log("Form submit triggered");
-
-                const data = document.getElementById("agendaData").value;
-                const ora_inizio = document.getElementById("agendaOraInizio").value;
-                const ora_fine = document.getElementById("agendaOraFine").value;
-                const id_attivita = document.getElementById("agendaAttivita").value;
-                
-                console.log("Data:", data, "Ora inizio:", ora_inizio, "Ora fine:", ora_fine, "Attività:", id_attivita);
-
-                const educatoriCheckboxes = document.querySelectorAll(".educatore-checkbox:checked");
-                const ragazziCheckboxes = document.querySelectorAll(".ragazzo-checkbox:checked");
-                
-                const educatori = Array.from(educatoriCheckboxes)
-                    .map(cb => {
-                        const val = parseInt(cb.value, 10);
-                        console.log("Educatore checkbox value:", cb.value, "parsed:", val);
-                        return val;
-                    })
-                    .filter(id => !isNaN(id) && id > 0);
-                    
-                const ragazzi = Array.from(ragazziCheckboxes)
-                    .map(cb => {
-                        const val = parseInt(cb.value, 10);
-                        console.log("Ragazzo checkbox value:", cb.value, "parsed:", val);
-                        return val;
-                    })
-                    .filter(id => !isNaN(id) && id > 0);
-
-                console.log("Educatori selezionati:", educatori);
-                console.log("Ragazzi selezionati:", ragazzi);
-
-                if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
-                    alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
-                    return;
-                }
-
-                if (ragazzi.length === 0) {
-                    alert("Seleziona almeno un ragazzo!");
-                    return;
-                }
-
-                console.log("Invio fetch all'API");
-                const payload = {
-                    data: data,
-                    ora_inizio: ora_inizio,
-                    ora_fine: ora_fine,
-                    id_attivita: parseInt(id_attivita),
-                    educatori: educatori,
-                    ragazzi: ragazzi
-                };
-                console.log("Payload:", payload);
-
-                fetch("api/api_aggiungi_agenda.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(res => {
-                    console.log("Response status:", res.status);
-                    return res.json();
-                })
-                .then(data => {
-                    console.log("Risposta API:", data);
-                    if(data.success) {
-                        console.log("Successo! Chiudo modal e reload");
-                        if (modalCreaAgenda) modalCreaAgenda.classList.remove("show");
-                        if (agendaOverlay) agendaOverlay.classList.remove("show");
-                        if (successPopupAgenda) {
-                            showSuccess(successPopupAgenda, agendaOverlay);
-                            setTimeout(() => {
-                                if (successPopupAgenda) hideSuccess(successPopupAgenda, agendaOverlay);
-                                location.reload();
-                            }, 2500);
-                        } else {
-                            location.reload();
-                        }
-                    } else {
-                        alert("Errore API: " + (data.error || data.message));
-                    }
-                })
-                .catch(err => {
-                    console.error("Fetch error completo:", err);
-                    console.error("Stack:", err.stack);
-                    alert("Errore di comunicazione con il server: " + err.message);
-                });
-            };
-        }
-        // Carica l'agenda al caricamento della pagina
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAgenda();
-        });
+// carica agenda al load
+window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
 
 
 
