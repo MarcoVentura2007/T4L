@@ -1,6 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json; charset=utf-8');
+header("Cache-Control: no chache");
 require __DIR__ . '/../config.php';
 
 // --- BLOCCO ACCESSO DIRETTO ---

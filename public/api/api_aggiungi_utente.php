@@ -1,7 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-
+header("Cache-Control: no chache");
 // Verifica se l'utente è loggato
 if (!isset($_SESSION['username'])) {
     echo json_encode(['success' => false, 'message' => 'Non autorizzato']);

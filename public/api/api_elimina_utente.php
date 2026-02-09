@@ -1,4 +1,7 @@
 <?php
+session_start();
+header('Content-Type: application/json; charset=utf-8');
+header("Cache-Control: no chache");
 // --- BLOCCO ACCESSO DIRETTO ---
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
     empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
