@@ -1,4 +1,4 @@
-enda <?php
+ <?php
 session_start();
 
 // Se l'utente non è loggato → redirect a login.php
@@ -695,6 +695,92 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <p class="success-text" id="success-text-agenda">Agenda creata!</p>
                     </div>
                 </div>
+
+                <!-- MODAL MODIFICA AGENDA -->
+                <div class="modal-box large" id="modalModificaAgenda">
+                    <h3 class="modal-title">Modifica Agenda</h3>
+
+                    <form id="formModificaAgenda">
+                        <input type="hidden" id="modificaAgendaId">
+                        <div class="edit-field">
+                            <label>Data</label>
+                            <select id="modificaAgendaData" required>
+                                <option value="">-- Seleziona data --</option>
+                            </select>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ora inizio</label>
+                            <input type="time" id="modificaAgendaOraInizio" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ora fine</label>
+                            <input type="time" id="modificaAgendaOraFine" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Attività</label>
+                            <select id="modificaAgendaAttivita" required>
+                                <option value="">-- Seleziona attività --</option>
+                                <?php
+                                if($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0){
+                                    while($row = $resultAttivitaCombo->fetch_assoc()){
+                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['Nome']).'</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Educatori</label>
+                            <div class="checkbox-group" id="modificaEducatoriCheckboxes">
+                                <?php
+                                if($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0){
+                                    while($row = $resultEducatoriAgenda->fetch_assoc()){
+                                        echo '<label class="checkbox-item">';
+                                        echo '<input type="checkbox" class="modifica-educatore-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
+                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '</label>';
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Ragazzi partecipanti</label>
+                            <div class="checkbox-group" id="modificaRagazziCheckboxes">
+                                <?php
+                                if($resultRagazzi && $resultRagazzi->num_rows > 0){
+                                    while($row = $resultRagazzi->fetch_assoc()){
+                                        echo '<label class="checkbox-item">';
+                                        echo '<input type="checkbox" class="modifica-ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
+                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '</label>';
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-box danger" id="modalDeleteAgenda">
+                    <h3>Elimina Agenda</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteAgenda">Elimina</button>
+                    </div>
+                </div>
             </div>
 
 
@@ -1124,7 +1210,8 @@ $resultResoconti = $conn->query($sqlResoconti);
     const modalAggiungiAttivita = document.getElementById("modalAggiungiAttivita");
     const modalModificaAttivita = document.getElementById("modalModificaAttivita");
     const modalDeleteAttivita = document.getElementById("modalDeleteAttivita");
-    const modalCreaAgenda = document.getElementById("modalCreaAgenda");    const modalModificaAgenda = document.getElementById("modalModificaAgenda");
+    const modalCreaAgenda = document.getElementById("modalCreaAgenda");
+    const modalModificaAgenda = document.getElementById("modalModificaAgenda");
     const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
     const successPopup = document.getElementById("successPopup");
     const successText = document.getElementById("success-text");
@@ -1808,6 +1895,187 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
 // carica agenda al load
 window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
 
+// ========== MODAL CREA AGENDA ==========
+const creaAgendaBtn = document.getElementById("creaAgendaBtn");
+const formCreaAgenda = document.getElementById("formCreaAgenda");
+// agendaOverlay should reuse single global overlay when available
+const agendaOverlay = document.getElementById("agendaOverlay") || modalOverlay;
+const successPopupAgenda = document.getElementById("successPopupAgenda");
+
+if(creaAgendaBtn) {
+    creaAgendaBtn.onclick = () => {
+        // Popola la select con le date della settimana
+        const today = new Date();
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - today.getDay() + 1);
+
+        const dataSelect = document.getElementById("agendaData");
+        const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+        
+        // Pulisci le opzioni mantendo la prima (placeholder)
+        while (dataSelect.options.length > 1) {
+            dataSelect.remove(1);
+        }
+
+        for (let i = 0; i < 5; i++) {
+            const date = new Date(monday);
+            date.setDate(monday.getDate() + i);
+            const dateStr = date.toISOString().split('T')[0];
+            const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            const option = document.createElement("option");
+            option.value = dateStr;
+            option.text = `${giorni[i]} ${dateFormatted}`;
+            dataSelect.appendChild(option);
+        }
+
+        openModal(modalCreaAgenda);
+    };
+}
+
+if(agendaOverlay) {
+    agendaOverlay.onclick = () => {
+        closeModal();
+    };
+}
+
+// Submit form
+if(formCreaAgenda) {
+    formCreaAgenda.onsubmit = function(e) {
+        e.preventDefault();
+        console.log("Form submit triggered");
+
+        const data = document.getElementById("agendaData").value;
+        const ora_inizio = document.getElementById("agendaOraInizio").value;
+        const ora_fine = document.getElementById("agendaOraFine").value;
+        const id_attivita = document.getElementById("agendaAttivita").value;
+        
+        console.log("Data:", data, "Ora inizio:", ora_inizio, "Ora fine:", ora_fine, "Attività:", id_attivita);
+
+        const educatoriCheckboxes = document.querySelectorAll(".educatore-checkbox:checked");
+        const ragazziCheckboxes = document.querySelectorAll(".ragazzo-checkbox:checked");
+        
+        const educatori = Array.from(educatoriCheckboxes)
+            .map(cb => {
+                const val = parseInt(cb.value, 10);
+                console.log("Educatore checkbox value:", cb.value, "parsed:", val);
+                return val;
+            })
+            .filter(id => !isNaN(id) && id > 0);
+            
+        const ragazzi = Array.from(ragazziCheckboxes)
+            .map(cb => {
+                const val = parseInt(cb.value, 10);
+                console.log("Ragazzo checkbox value:", cb.value, "parsed:", val);
+                return val;
+            })
+            .filter(id => !isNaN(id) && id > 0);
+
+        console.log("Educatori selezionati:", educatori);
+        console.log("Ragazzi selezionati:", ragazzi);
+
+        if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
+            alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
+            return;
+        }
+
+        if (ragazzi.length === 0) {
+            alert("Seleziona almeno un ragazzo!");
+            return;
+        }
+
+        console.log("Invio fetch all'API");
+        const payload = {
+            data: data,
+            ora_inizio: ora_inizio,
+            ora_fine: ora_fine,
+            id_attivita: parseInt(id_attivita),
+            educatori: educatori,
+            ragazzi: ragazzi
+        };
+        console.log("Payload:", payload);
+
+        fetch("api/api_aggiungi_agenda.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            console.log("Response status:", res.status);
+            return res.json();
+        })
+        .then(data => {
+            console.log("Risposta API:", data);
+            if(data.success) {
+                console.log("Successo! Chiudo modal e reload");
+                if (modalCreaAgenda) modalCreaAgenda.classList.remove("show");
+                if (agendaOverlay) agendaOverlay.classList.remove("show");
+                if (successPopupAgenda) {
+                    showSuccess(successPopupAgenda, agendaOverlay);
+                    setTimeout(() => {
+                        if (successPopupAgenda) hideSuccess(successPopupAgenda, agendaOverlay);
+                        location.reload();
+                    }, 2500);
+                } else {
+                    location.reload();
+                }
+            } else {
+                alert("Errore API: " + (data.error || data.message));
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error completo:", err);
+            console.error("Stack:", err.stack);
+            alert("Errore di comunicazione con il server: " + err.message);
+        });
+    };
+}
+
+// Delete Agenda
+let agendaToDelete = null;
+document.addEventListener('click', function(e){
+    if(e.target.closest('.delete-agenda-btn')){
+        const btn = e.target.closest('.delete-agenda-btn');
+        agendaToDelete = btn.dataset.id;
+        openModal(modalDeleteAgenda);
+    }
+});
+
+document.getElementById("confirmDeleteAgenda").onclick = () => {
+    if(!agendaToDelete) return;
+
+    fetch("api/api_elimina_agenda.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ id: agendaToDelete })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            modalDeleteAgenda.classList.remove("show");
+            if(modalOverlay) modalOverlay.classList.remove("show");
+            successText.innerText = "Agenda Eliminata!!";
+            showSuccess(successPopup, modalOverlay);
+            setTimeout(() => {
+                hideSuccess(successPopup, modalOverlay);
+                location.reload();
+            }, 1800);
+        } else {
+            alert("Errore: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Errore di comunicazione con il server");
+    });
+};
+
 
 
 
@@ -1884,8 +2152,7 @@ window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
                 const ore = parseFloat(r.ore_totali).toFixed(2);
                 const costo = parseFloat(r.ore_totali * r.Prezzo_Orario).toFixed(2);
 
-                resocontiMensiliBody.innerHTML += `
-                    <tr>
+                resocontiMensiliBody.innerHTML += `                    <tr>
                         <td><img src="${r.Fotografia}" class="user-avatar"></td>
                         <td>${r.Nome}</td>
                         <td>${r.Cognome}</td>
