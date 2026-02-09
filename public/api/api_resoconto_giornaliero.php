@@ -13,54 +13,56 @@ list($anno, $mese) = explode('-', $data['mese']);
 
 $conn = new mysqli("localhost","root","","time4all");
 
-// Query principale: ore totali per giorno
+// 1️⃣ prendo tutte le presenze già avvenute
 $sql = "
-SELECT 
-    DATE(p.Ingresso) AS giorno,
-    SUM(TIMESTAMPDIFF(MINUTE, p.Ingresso, p.Uscita))/60 AS ore,
-    i.Prezzo_Orario,
-    p.id AS presenza_id
-FROM presenza p
-JOIN iscritto i ON i.id = p.ID_Iscritto
-WHERE p.ID_Iscritto = $idIscritto
-AND MONTH(p.Ingresso) = $mese
-AND YEAR(p.Ingresso) = $anno
-GROUP BY DATE(p.Ingresso)
-ORDER BY giorno
+SELECT * 
+FROM presenza 
+WHERE ID_Iscritto = $idIscritto
+AND MONTH(Ingresso) = $mese
+AND YEAR(Ingresso) = $anno
+AND Ingresso <= NOW()
+ORDER BY Ingresso
 ";
-
 $res = $conn->query($sql);
 $rows = [];
 
-while($r = $res->fetch_assoc()){
-    $giorno = $r['giorno'];
-    $ore = round($r['ore'], 2);
-    $costo = round($ore * $r['Prezzo_Orario'], 2);
+while($p = $res->fetch_assoc()){
+    $giorno = date('Y-m-d', strtotime($p['Ingresso']));
+    $ore_presenza = round((strtotime($p['Uscita']) - strtotime($p['Ingresso']))/3600,2);
+    
+    // costo giornata dalla presenza
+    $sqlPrezzo = "SELECT Prezzo_Orario FROM iscritto WHERE id = $idIscritto";
+    $resPrezzo = $conn->query($sqlPrezzo);
+    $prezzo = $resPrezzo->fetch_assoc()['Prezzo_Orario'];
+    $costo_presenza = round($ore_presenza * $prezzo,2);
 
-    // ATTIVITÀ DEL GIORNO
+    // 2️⃣ prendo le attività collegate a questa presenza
     $sqlAtt = "
-    SELECT a.Nome, SUM(TIMESTAMPDIFF(MINUTE, p.Ora_Inizio, p.Ora_Fine))/60 AS ore
+    SELECT a.Nome, 
+           ROUND(TIMESTAMPDIFF(MINUTE, p.Ora_Inizio, p.Ora_Fine)/60,2) AS ore_att,
+           ROUND(TIMESTAMPDIFF(MINUTE, p.Ora_Inizio, p.Ora_Fine)/60 * $prezzo,2) AS costo_att
     FROM partecipa p
     JOIN attivita a ON a.id = p.ID_Attivita
-    WHERE p.ID_Presenza = ".$r['presenza_id']."
-    GROUP BY a.id
+    WHERE p.ID_Presenza = ".$p['id']."
     ";
     $resAtt = $conn->query($sqlAtt);
     $attivita = [];
     while($a = $resAtt->fetch_assoc()){
         $attivita[] = [
             'Nome' => $a['Nome'],
-            'ore' => round($a['ore'], 2),
-            'costo' => round($a['ore'] * $r['Prezzo_Orario'], 2)
+            'ore' => floatval($a['ore_att']),
+            'costo' => floatval($a['costo_att'])
         ];
     }
 
     $rows[] = [
         'giorno' => $giorno,
-        'ore' => $ore,
-        'costo' => $costo,
-        'attivita' => $attivita
+        'ore' => $ore_presenza,        // totale dalla presenza
+        'costo' => $costo_presenza,    // totale dalla presenza
+        'attivita' => $attivita        // dettagli delle attività
     ];
 }
 
 echo json_encode(['success'=>true,'data'=>$rows]);
+$conn->close();
+?>

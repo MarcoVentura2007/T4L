@@ -641,7 +641,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                         <div class="edit-field">
                             <label>Ora inizio</label>
-                            <input type="time" id="agendaOraInizio" required>
+                            <input type="time"  id="agendaOraInizio" required>
                         </div>
 
                         <div class="edit-field">
@@ -773,7 +773,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </tbody>
                     </table>
                 </div>
-<!-- MODAL AGGIUNGI ATTIVITA -->
+                <!-- MODAL AGGIUNGI ATTIVITA -->
                 <div class="modal-box large" id="modalAggiungiAttivita">
                     <h3 class="modal-title">Aggiungi nuova attività</h3>
 
@@ -2406,13 +2406,21 @@ $resultResoconti = $conn->query($sqlResoconti);
         
         // ========== AGENDA ==========
         let agendaData = [];
+        let agendaWeekStart = null;
         let selectedDayIndex = 0;
 
-        // Calcola le date della settimana
-        function calculateWeekDates() {
+        // Calcola le date della settimana (preferisce la data del server)
+        function calculateWeekDates(weekStartStr) {
             const today = new Date();
-            const monday = new Date(today);
-            monday.setDate(today.getDate() - today.getDay() + 1);
+            let monday;
+
+            if (weekStartStr) {
+                const parsed = new Date(weekStartStr + "T00:00:00");
+                monday = isNaN(parsed.getTime()) ? new Date(today) : parsed;
+            } else {
+                monday = new Date(today);
+                monday.setDate(today.getDate() - today.getDay() + 1);
+            }
             
             const dates = [];
             const dateLabels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
@@ -2422,14 +2430,15 @@ $resultResoconti = $conn->query($sqlResoconti);
                 date.setDate(monday.getDate() + i);
                 dates.push(date.toISOString().split('T')[0]);
                 
-                const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
-                document.getElementById(dateLabels[i]).innerText = dateStr;
+                const label = document.getElementById(dateLabels[i]);
+                if (label) {
+                    const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+                    label.innerText = dateStr;
+                }
             }
             
             return dates;
-        }
-
-        // Carica l'agenda dal server
+        }// Carica l'agenda dal server
         function loadAgenda() {
             const contentDiv = document.getElementById('agendaContent');
             contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
@@ -2439,7 +2448,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                 .then(data => {
                     if (data.success) {
                         agendaData = data.data;
-                        calculateWeekDates();
+                        agendaWeekStart = data.monday || null;
+                        calculateWeekDates(agendaWeekStart);
                         displayAgenda(0);
                     } else {
                         contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
@@ -2453,62 +2463,64 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         // Mostra le attività per il giorno selezionato
         function displayAgenda(dayIndex) {
-            selectedDayIndex = dayIndex;
-            const contentDiv = document.getElementById('agendaContent');
-            
-            // Calcola la data del giorno selezionato
-            const today = new Date();
-            const monday = new Date(today);
-            monday.setDate(today.getDate() - today.getDay() + 1);
-            const selectedDate = new Date(monday);
-            selectedDate.setDate(monday.getDate() + dayIndex);
-            const selectedDateStr = selectedDate.toISOString().split('T')[0];
-            
-            // Filtra le attività per il giorno selezionato
-            const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
-            
-            if (dayActivities.length === 0) {
-                contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
-                return;
-            }
-            
-            // Ordina le attività per ora di inizio
-            dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
-            
-            let html = '<div class="activities-list">';
-            
-            dayActivities.forEach(att => {
-                const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
-                const iscritterText = att.iscritti.map(i => `${i.Nome} ${i.Cognome}`).join(', ') || '—';
-                
-                html += `
-                    <div class="activity-card">
-                        <div class="activity-header">
-                            <h3>${att.attivita_nome}</h3>
-                            <span class="activity-time">
-                                🕐 ${att.ora_inizio} - ${att.ora_fine}
-                            </span>
-                        </div>
-                        <div class="activity-description">
-                            ${att.descrizione}
-                        </div>
-                        <div class="activity-participants">
-                            <div class="participant-group">
-                                <label>Educatori:</label>
-                                <span>${educatoriText}</span>
-                            </div>
-                            <div class="participant-group">
-                                <label>Iscritti:</label>
-                                <span>${iscritterText}</span>
-                            </div>
-                        </div>
+    selectedDayIndex = dayIndex;
+    const contentDiv = document.getElementById('agendaContent');
+    
+    // Calcola la data del giorno selezionato
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - today.getDay() + 1);
+    const selectedDate = new Date(monday);
+    selectedDate.setDate(monday.getDate() + dayIndex);
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
+    
+    // Filtra le attività per il giorno selezionato
+    const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
+    
+    if (dayActivities.length === 0) {
+        contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
+        return;
+    }
+    
+    // Ordina le attività per ora di inizio
+    dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
+    
+    let html = '<div class="activities-list">';
+    
+    dayActivities.forEach(att => {
+        const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
+        const ragazziText = att.ragazzi.map(r => `${r.nome} ${r.cognome}`).join(', ') || '—';
+        
+        html += `
+            <div class="activity-card">
+                <div class="activity-header">
+                    <h3>${att.attivita_nome}</h3>
+                    <span class="activity-time">
+                        🕐 ${att.ora_inizio} - ${att.ora_fine}
+                    </span>
+                </div>
+                <div class="activity-description">
+                    ${att.descrizione}
+                </div>
+                <div class="activity-participants">
+                    <div class="participant-group">
+                        <label>Educatori:</label>
+                        <span>${educatoriText}</span>
                     </div>
-                `;
-            });
-            
-            html += '</div>';
-            contentDiv.innerHTML = html;
-        }
+                    <div class="participant-group">
+                        <label>Ragazzi:</label>
+                        <span>${ragazziText}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    contentDiv.innerHTML = html; // <-- Questa riga mancava!
+}
+
+
 
         // Event listeners per i tab dei giorni
         document.querySelectorAll('.day-tab').forEach((tab, index) => {
@@ -2577,7 +2589,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 
                 console.log("Data:", data, "Ora inizio:", ora_inizio, "Ora fine:", ora_fine, "Attività:", id_attivita);
 
-                // Ottenere gli ID dai checkbox selezionati e filtrare i valori non validi
                 const educatoriCheckboxes = document.querySelectorAll(".educatore-checkbox:checked");
                 const ragazziCheckboxes = document.querySelectorAll(".ragazzo-checkbox:checked");
                 
@@ -2787,7 +2798,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 return;
             }
 
-            // Mappa giorni -> attività
             const daysMap = new Map();
             let totalOre = 0;
             let totalCosto = 0;
@@ -2804,7 +2814,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 totalOre += r.ore;
                 totalCosto += r.costo;
 
-                // Tabella giornaliera
                 let attHTML = r.attivita.map(a => `${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€)`).join('<br>');
                 bodyResoconto.innerHTML += `
                     <tr>
@@ -2815,8 +2824,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </tr>
                 `;
             });
-
-            // Calendario elegante
             const [anno, mese] = meseInput.value.split('-');
             const firstDay = new Date(anno, mese-1, 1);
             const lastDay = new Date(anno, mese, 0);
@@ -2830,10 +2837,11 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             for(let d=1; d<=lastDay.getDate(); d++){
                 const day = daysMap.get(d);
-                const hasActivity = day && day.attivita.length>0;
+                const hasActivity = day && day.ore > 0; // <-- prima guardavamo solo attivita
                 calendarHTML += `<div class="calendar-cell ${hasActivity ? 'has-activity' : ''}">
                     <div class="day-number">${d}</div>`;
-                if(hasActivity){
+                
+                if(day && day.attivita.length > 0){
                     calendarHTML += `<div class="day-activities">`;
                     day.attivita.forEach(a => {
                         calendarHTML += `<div class="activity-item">
@@ -2843,8 +2851,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                     });
                     calendarHTML += `</div>`;
                 }
+
                 calendarHTML += `</div>`;
             }
+
             calendarHTML += `</div>`;
 
             // Totali
