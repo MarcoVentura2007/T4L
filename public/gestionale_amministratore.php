@@ -732,9 +732,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                         <div class="edit-field">
                             <label>Data</label>
-                            <select id="editAgendaData" required>
-                                <option value="">-- Seleziona data --</option>
-                            </select>
+                            <input type="date" id="editAgendaData" required>
                         </div>
 
                         <div class="edit-field">
@@ -2634,6 +2632,9 @@ function displayAgenda(dayIndex){
                 </div>
             </div>
             <div class="activity-actions">
+                <button class="edit-agenda-btn" data-id="${att.id}" title="Modifica">
+                    <img src="immagini/edit.png" alt="Modifica">
+                </button>
                 <button class="delete-agenda-btn" data-id="${att.id}" title="Elimina">
                     <img src="immagini/delete.png" alt="Elimina">
                 </button>
@@ -2661,6 +2662,7 @@ window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
 // ========== MODAL MODIFICA AGENDA ==========
 
 const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
+const modalModificaAgenda = document.getElementById("modalModificaAgenda");
 
 
 
@@ -2705,6 +2707,95 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         alert("Errore di comunicazione con il server");
     });
 };
+
+// Edit Agenda
+let agendaToEdit = null;
+document.addEventListener('click', function(e){
+    if(e.target.closest('.edit-agenda-btn')){
+        const btn = e.target.closest('.edit-agenda-btn');
+        agendaToEdit = btn.dataset.id;
+
+        // Find the agenda item
+        const item = agendaData.find(att => att.id === agendaToEdit);
+        if(!item) return;
+
+        // Populate modal
+        document.getElementById("editAgendaId").value = item.id;
+        document.getElementById("editAgendaData").value = item.data;
+        document.getElementById("editAgendaOraInizio").value = item.ora_inizio.substring(0,5);
+        document.getElementById("editAgendaOraFine").value = item.ora_fine.substring(0,5);
+        document.getElementById("editAgendaAttivita").value = item.attivita_id;
+
+        // Educatori checkboxes
+        document.querySelectorAll('.edit-educatore-checkbox').forEach(cb => {
+            cb.checked = item.educatori.some(e => e.id == cb.value);
+        });
+
+        // Ragazzi checkboxes
+        document.querySelectorAll('.edit-ragazzo-checkbox').forEach(cb => {
+            cb.checked = item.ragazzi.some(r => r.id == cb.value);
+        });
+
+        openModal(modalModificaAgenda);
+    }
+});
+
+// Submit edit form
+document.getElementById("formModificaAgenda").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const id = document.getElementById("editAgendaId").value;
+    const data = document.getElementById("editAgendaData").value;
+    const ora_inizio = document.getElementById("editAgendaOraInizio").value;
+    const ora_fine = document.getElementById("editAgendaOraFine").value;
+    const id_attivita = document.getElementById("editAgendaAttivita").value;
+
+    const educatori = Array.from(document.querySelectorAll('.edit-educatore-checkbox:checked')).map(cb => parseInt(cb.value));
+    const ragazzi = Array.from(document.querySelectorAll('.edit-ragazzo-checkbox:checked')).map(cb => parseInt(cb.value));
+
+    if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0 || ragazzi.length === 0) {
+        alert("Completa tutti i campi obbligatori");
+        return;
+    }
+
+    const payload = {
+        id: id,
+        data: data,
+        ora_inizio: ora_inizio,
+        ora_fine: ora_fine,
+        id_attivita: parseInt(id_attivita),
+        educatori: educatori,
+        ragazzi: ragazzi
+    };
+
+    fetch("api/api_modifica_agenda.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            modalModificaAgenda.classList.remove("show");
+            if(Overlay) Overlay.classList.remove("show");
+            successText.innerText = "Agenda Modificata!!";
+            showSuccess(successPopup, Overlay);
+            setTimeout(() => {
+                hideSuccess(successPopup, Overlay);
+                location.reload();
+            }, 1800);
+        } else {
+            alert("Errore: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Errore di comunicazione con il server");
+    });
+});
 
 
 
