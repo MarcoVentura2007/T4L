@@ -441,7 +441,7 @@ if($classe !== 'Educatore'){
             <a href="#top" class="footer-image"></a>
         </div>
         <div class="footer-right">
-            <a href="index.html" class="hover-underline-animation">PRIVACY POLICY</a>
+            <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
         </div>
     </footer>
 <script>
