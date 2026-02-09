@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Feb 08, 2026 alle 19:56
+-- Creato il: Feb 09, 2026 alle 22:59
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -61,7 +61,7 @@ CREATE TABLE `attivita` (
 --
 
 INSERT INTO `attivita` (`id`, `Nome`, `Descrizione`) VALUES
-(24, 'Maia e Tas', 'Apparecchiare la tavola e aiuto in cucina');
+(29, 'Maia & Tas', 'Apparecchiare e pulire');
 
 -- --------------------------------------------------------
 
@@ -112,11 +112,12 @@ CREATE TABLE `iscritto` (
 --
 
 INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale`, `Contatti`, `Disabilita`, `Allergie_Intolleranze`, `Note`, `Prezzo_Orario`, `Fotografia`) VALUES
-(1, 'Cristian', 'Moretti', '2001-01-01', 'CRTMRT00E04L400T', '-', '-', '-', '-', 0.00, 'immagini/Cristian_Moretti.png'),
-(2, 'Gabriele', 'Corona', '2002-01-01', 'GBRCRN01E04L600T', '-', '-', '-', '-', 0.00, 'immagini/Gabriele_Corona.png'),
-(3, 'Jacopo', 'Bertolasi', '2003-01-01', 'JCPBRT03E04L400Y', '-', '-', 'la', '-', 0.00, 'immagini/Jacopo_Bertolasi.png'),
-(21, 'Cristiano', 'Ronaldo', '1985-02-05', 'fbfruiq', '8vuyvyv', 'iybg', 'hu9hu9h', 'SIUUUUUU', 3467452.00, 'immagini/1770493648_WhatsApp Image 2026-01-15 at 13.42.12.jpeg'),
-(22, 'Adolf', 'Candeloro', '2000-03-22', 'odvhvfddf', 'h', 'Mega down', 'cdoncojcn', 'couscuj', 10.00, 'immagini/1770493684_WhatsApp Image 2026-01-24 at 11.10.36.jpeg');
+(28, 'Jacopo', 'Bertolasi', '2000-01-01', '-', '-', '-', '-', '-', 7.00, 'immagini/1.jpeg'),
+(35, 'Gabriele', 'Corona', '2000-01-01', '--', '-', '-', '-', '-', 10.00, 'immagini/1770635708_6.jpeg'),
+(36, 'Cristian', 'Moretti', '2000-01-01', '---', '---', '-', '-', '-', 10.00, 'immagini/5.jpeg'),
+(38, 'Luca', 'Verzeri', '2000-02-01', '-----', '-----', '-', '-', '-', 15.00, 'immagini/4.jpeg'),
+(45, 'Giorgia', 'Guerini Rocco', '2000-01-01', '------', '-------', '------', '------', '-', 12.00, 'immagini/3.jpeg'),
+(47, 'Davide', 'Nicu', '2000-01-01', '--------', '------', '------', '------', '-------', 11.00, 'immagini/1770635940_2.jpeg');
 
 -- --------------------------------------------------------
 
@@ -148,6 +149,15 @@ CREATE TABLE `partecipa` (
   `ID_Ragazzo` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dump dei dati per la tabella `partecipa`
+--
+
+INSERT INTO `partecipa` (`id`, `Data`, `Ora_Inizio`, `Ora_Fine`, `ID_Presenza`, `ID_Attivita`, `ID_Educatore`, `presenza_effettiva`, `ID_Ragazzo`) VALUES
+(142, '2026-02-09', '12:00:00', '14:00:00', 48, 29, 2, 0, 35),
+(143, '2026-02-09', '12:00:00', '14:00:00', NULL, 29, 2, 0, 45),
+(144, '2026-02-09', '12:00:00', '14:00:00', 49, 29, 2, 0, 36);
+
 -- --------------------------------------------------------
 
 --
@@ -167,7 +177,8 @@ CREATE TABLE `presenza` (
 --
 
 INSERT INTO `presenza` (`id`, `Ingresso`, `Uscita`, `Check_firma`, `ID_Iscritto`) VALUES
-(37, '2026-02-08 10:00:00', '2026-02-08 17:00:00', 1, 22);
+(48, '2026-02-09 08:00:00', '2026-02-09 17:00:00', 1, 35),
+(49, '2026-02-09 09:00:00', '2026-02-09 16:00:00', 1, 36);
 
 --
 -- Indici per le tabelle scaricate
@@ -235,7 +246,7 @@ ALTER TABLE `account`
 -- AUTO_INCREMENT per la tabella `attivita`
 --
 ALTER TABLE `attivita`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT per la tabella `educatore`
@@ -247,7 +258,7 @@ ALTER TABLE `educatore`
 -- AUTO_INCREMENT per la tabella `iscritto`
 --
 ALTER TABLE `iscritto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT per la tabella `logs`
@@ -259,13 +270,13 @@ ALTER TABLE `logs`
 -- AUTO_INCREMENT per la tabella `partecipa`
 --
 ALTER TABLE `partecipa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
 
 --
 -- AUTO_INCREMENT per la tabella `presenza`
 --
 ALTER TABLE `presenza`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- Limiti per le tabelle scaricate
