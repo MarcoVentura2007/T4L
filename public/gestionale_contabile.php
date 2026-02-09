@@ -1,4 +1,4 @@
- <?php
+enda <?php
 session_start();
 
 // Se l'utente non è loggato → redirect a login.php
@@ -1782,6 +1782,11 @@ function displayAgenda(dayIndex){
                     <label>Ragazzi:</label>
                     <span>${ragazziText}</span>
                 </div>
+            </div>
+            <div class="activity-actions">
+                <button class="delete-agenda-btn" data-id="${att.id}" title="Elimina">
+                    <img src="immagini/delete.png" alt="Elimina">
+                </button>
             </div>
         </div>
         `;
