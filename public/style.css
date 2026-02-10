@@ -3633,3 +3633,17 @@ body {
     opacity: 1;
     transform: translateY(0);
 }
+
+.sotto-sezione{
+    margin-top: 32px;
+    padding-left: 18px;
+    border-left: 3px solid rgb(213, 245, 254);
+}
+
+section h3 {
+    font-size: 1.1rem;
+    margin-top: 18px;
+    margin-bottom: 12px;
+    color: rgb(68, 67, 67);
+    font-weight: 600;
+}

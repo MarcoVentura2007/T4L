@@ -242,143 +242,153 @@ $username = $_SESSION['username'];
 
 
     <div class="privacy-container">
-    <header class="privacy-hero">
+
+    <header class="privacy-header">
         <h1>Privacy Policy</h1>
         <p>
-            Questa informativa sulla privacy descrive come raccogliamo, utilizziamo e proteggiamo le tue informazioni personali quando utilizzi i nostri servizi. Ci impegniamo a rispettare la tua privacy e a trattare i tuoi dati con la massima cura e responsabilità.
+            La presente informativa descrive come Time4All e ASD Overlimits
+            trattano i dati personali degli utenti nel rispetto della normativa vigente,
+            inclusa la normativa europea GDPR.
         </p>
     </header>
 
     <nav class="toc">
         <h2>Indice</h2>
         <ul>
-            <li><a href="#introduzione">Introduzione</a></li>
-            <li><a href="#dati-raccolti">Dati Personali Raccolti</a></li>
-            <li><a href="#finalita">Finalità del Trattamento</a></li>
-            <li><a href="#condivisione">Condivisione dei Dati</a></li>
-            <li><a href="#sicurezza">Sicurezza dei Dati</a></li>
-            <li><a href="#conservazione">Conservazione dei Dati</a></li>
-            <li><a href="#diritti">I Tuoi Diritti</a></li>
-            <li><a href="#contatti">Contatti</a></li>
+            <li><a href="#quadro-giuridico">Quadro giuridico</a></li>
+            <li><a href="#dati-raccolti">Dati raccolti e utilizzo</a></li>
+            <li><a href="#responsabili">Responsabili del trattamento</a></li>
+            <li><a href="#comunicazione">Comunicazione dei dati</a></li>
+            <li><a href="#diritti">Diritti dell’utente</a></li>
+            <li><a href="#modifiche">Modifiche all’informativa</a></li>
         </ul>
     </nav>
 
-    <section id="introduzione" class="privacy-section">
-        <h2>Introduzione</h2>
+    <section id="quadro-giuridico" class="privacy-section">
+        <h2>1. Quadro giuridico</h2>
         <p>
-            Benvenuto nella nostra Privacy Policy. Questa informativa spiega come la nostra organizzazione, Time4All, raccoglie, utilizza, divulga e protegge le informazioni personali che ci fornisci quando utilizzi i nostri servizi online e offline.
+            I Servizi sono gestiti da <strong>ASD Overlimits</strong> (la “Società”, “Noi”),
+            con sede in <strong>Via Silvio Pellico 2, 26013, Crema (Italia)</strong>.
         </p>
         <p>
-            Ci impegniamo a proteggere la tua privacy e a garantire che le tue informazioni personali siano gestite in conformità con le leggi applicabili sulla protezione dei dati, inclusa la normativa europea GDPR.
+            I servizi sono disciplinati dalle leggi e dai regolamenti italiani.
+            La Società opera inoltre in conformità al <strong>Regolamento UE 2016/679 (GDPR)</strong>.
         </p>
     </section>
 
     <section id="dati-raccolti" class="privacy-section">
-        <h2>Dati Personali Raccolti</h2>
+        <h2>2. Dati che Time4All raccoglie e come li utilizziamo</h2>
+
         <p>
-            Raccogliamo diversi tipi di informazioni personali per fornire e migliorare i nostri servizi:
+            La nostra politica è raccogliere esclusivamente i dati necessari a garantire
+            la migliore esperienza possibile a utenti ed educatori, nel pieno rispetto
+            della privacy e della sicurezza.
         </p>
-        <ul>
-            <li><strong>Informazioni di identificazione:</strong> nome, cognome, indirizzo email, numero di telefono</li>
-            <li><strong>Dati sanitari:</strong> informazioni mediche necessarie per i servizi di assistenza</li>
-            <li><strong>Dati di utilizzo:</strong> informazioni su come utilizzi i nostri servizi online</li>
-            <li><strong>Dati tecnici:</strong> indirizzo IP, tipo di browser, sistema operativo</li>
-        </ul>
+        <section class="sotto-sezione">
+            <h3>2.1 Creazione di un nuovo account utente</h3>
+            <p>
+                Ogni utente iscritto alla società ASD Overlimits ha diritto a possedere
+                un account personale.
+            </p>
+            <p>
+                La creazione dell’account consente l’accesso ai servizi messi a disposizione
+                dalla piattaforma, come ad esempio l’agenda.
+            </p>
+            <p>
+                I dati raccolti vengono utilizzati per associare la persona al profilo,
+                catalogare le attività tra utenti ed educatori e, in alcuni casi,
+                per finalità di retribuzione.
+            </p>
+            <p>
+                Le informazioni sono archiviate su infrastrutture Cloud fornite da
+                <strong>Amazon Web Services (AWS)</strong>, garantendo elevati standard
+                di sicurezza.
+            </p>
+
+            <h3>2.2 Attività degli account</h3>
+            <p>
+                Le attività effettuate dagli account (User, Admin e Manager)
+                vengono monitorate tramite log di sistema.
+            </p>
+            <p>
+                I log sono accessibili esclusivamente a soggetti autorizzati
+                con accesso ai servizi di Amazon Web Services.
+            </p>
+
+            <h3>2.3 Localizzazione</h3>
+            <p>
+                Time4All non accede, non utilizza e non traccia informazioni
+                basate sulla posizione del dispositivo dell’utente.
+            </p>
+
+            <h3>2.4 Collegamenti ad altri siti web</h3>
+            <p>
+                La Web-App Time4All non contiene collegamenti a siti web esterni
+                al servizio.
+            </p>
+        </section>
+    </section>
+
+
+    <section id="responsabili" class="privacy-section">
+        <h2>3. Responsabili del trattamento dei dati</h2>
+        <p>
+            I responsabili del trattamento operano esclusivamente per lo scopo
+            specifico per cui sono incaricati e non memorizzano dati relativi
+            all’uso quotidiano generale degli account.
+        </p>
+
         <div class="highlight">
-            <p><strong>Nota importante:</strong> Tutti i dati sanitari sono trattati con la massima riservatezza e utilizzati esclusivamente per fornire cure appropriate e personalizzate.</p>
+            <p><strong>Responsabile interno:</strong></p>
+            <p>
+                <strong>Nicola Bettinelli</strong><br>
+                Finalità: Trattamento dei dati degli utenti registrati presso ASD Overlimits<br>
+                Luogo di trattamento: Via Matilde di Canossa 15/a – Crema
+            </p>
         </div>
     </section>
 
-    <section id="finalita" class="privacy-section">
-        <h2>Finalità del Trattamento</h2>
+    <section id="comunicazione" class="privacy-section">
+        <h2>4. Comunicazione dei dati</h2>
         <p>
-            Utilizziamo le tue informazioni personali per le seguenti finalità:
+            I dati personali degli utenti non vengono divulgati a terzi,
+            salvo nei casi in cui ciò sia imposto da obblighi di legge
+            o da richieste vincolanti delle competenti autorità italiane.
         </p>
-        <ul>
-            <li>Fornire servizi di assistenza e supporto personalizzati</li>
-            <li>Gestire le prenotazioni e gli appuntamenti</li>
-            <li>Comunicare aggiornamenti importanti sui servizi</li>
-            <li>Migliorare la qualità dei nostri servizi attraverso analisi statistiche</li>
-            <li>Adempiere agli obblighi legali e normativi</li>
-        </ul>
-        <p>
-            Il trattamento dei dati avviene sempre nel rispetto dei principi di liceità, correttezza e trasparenza stabiliti dalla normativa vigente.
-        </p>
-    </section>
-
-    <section id="condivisione" class="privacy-section">
-        <h2>Condivisione dei Dati</h2>
-        <p>
-            Non vendiamo, affittiamo o condividiamo le tue informazioni personali con terze parti per scopi commerciali. Le tue informazioni possono essere condivise solo nelle seguenti circostanze:
-        </p>
-        <ul>
-            <li>Con il tuo consenso esplicito</li>
-            <li>Con fornitori di servizi che ci aiutano a operare (sempre con garanzie di protezione)</li>
-            <li>Quando richiesto dalla legge o per proteggere i diritti legali</li>
-            <li>In caso di fusione o acquisizione aziendale</li>
-        </ul>
-    </section>
-
-    <section id="sicurezza" class="privacy-section">
-        <h2>Sicurezza dei Dati</h2>
-        <p>
-            Implementiamo misure di sicurezza tecniche e organizzative appropriate per proteggere le tue informazioni personali contro accessi non autorizzati, alterazioni, divulgazioni o distruzioni.
-        </p>
-        <p>
-            Utilizziamo crittografia per la trasmissione di dati sensibili, controlli di accesso rigorosi e monitoraggio continuo dei nostri sistemi.
-        </p>
-    </section>
-
-    <section id="conservazione" class="privacy-section">
-        <h2>Conservazione dei Dati</h2>
-        <p>
-            Conserviamo le tue informazioni personali solo per il tempo necessario a raggiungere le finalità per cui sono state raccolte, o come richiesto dalla legge.
-        </p>
-        <ul>
-            <li>Dati sanitari: conservati per 10 anni dopo la fine del rapporto</li>
-            <li>Dati di contatto: conservati fino alla revoca del consenso</li>
-            <li>Dati tecnici: conservati per massimo 2 anni</li>
-        </ul>
     </section>
 
     <section id="diritti" class="privacy-section">
-        <h2>I Tuoi Diritti</h2>
+        <h2>5. I tuoi diritti alla privacy</h2>
         <p>
-            Hai il diritto di:
+            Tramite le funzionalità dedicate, gli utenti con ruolo di
+            Admin e Manager possono accedere ai dati personali trattati,
+            modificarli o eliminarli.
         </p>
-        <ul>
-            <li><strong>Accedere</strong> alle tue informazioni personali</li>
-            <li><strong>Rettificare</strong> dati inesatti o incompleti</li>
-            <li><strong>Cancellare</strong> i tuoi dati personali</li>
-            <li><strong>Limitare</strong> il trattamento in determinate circostanze</li>
-            <li><strong>Opporsi</strong> al trattamento per motivi legittimi</li>
-            <li><strong>Portabilità</strong> dei dati in formato strutturato</li>
-        </ul>
         <p>
-            Per esercitare questi diritti, contattaci utilizzando le informazioni fornite di seguito.
+            In caso di violazione dei propri diritti, l’utente ha diritto
+            di presentare reclamo all’autorità di controllo competente.
         </p>
     </section>
 
-    <section id="contatti" class="privacy-section">
-        <h2>Contatti</h2>
+    <section id="modifiche" class="privacy-section">
+        <h2>6. Modifiche all’informativa sulla privacy</h2>
         <p>
-            Se hai domande sulla nostra Privacy Policy o desideri esercitare i tuoi diritti, puoi contattarci:
+            Nei limiti consentiti dalla normativa applicabile,
+            la Società si riserva il diritto di modificare la presente
+            informativa in qualsiasi momento.
         </p>
-        <div class="contact-info">
-            <p><strong>Time4All Cooperativa Sociale</strong></p>
-            <p>Email: privacy@time4all.it</p>
-            <p>Telefono: +39 0123 456789</p>
-            <p>Indirizzo: Via Esempio 123, 00100 Roma, Italia</p>
-        </div>
         <p>
-            Risponderemo alle tue richieste entro 30 giorni dalla ricezione.
+            L’utilizzo continuato dei Servizi successivamente alle modifiche
+            costituisce accettazione delle stesse.
         </p>
     </section>
 
-    <footer style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #f0f0f0; color: #666;">
-        <p>Ultimo aggiornamento: Dicembre 2024</p>
+    <footer style="text-align:center; margin-top:3rem; color:#666;">
+        <p>Ultimo aggiornamento: Febbraio 2026</p>
     </footer>
-    </div>
+
+</div>
+
 
 </main>
 
