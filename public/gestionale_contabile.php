@@ -474,7 +474,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             <div class="page-tab" id="tab-presenze">
                 <div class="page-header">
                     <h1>Presenze</h1>
-                    <p>Elenco presenze registrate</p>
+                    <p>Elenco presenze giornaliere</p>
                 </div>
 
                 <div class="presenze-controls">
