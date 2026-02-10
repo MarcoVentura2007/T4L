@@ -454,3 +454,168 @@ async function verificaCodice() {
 
         
         /* SWIPER */
+        const swiper = new Swiper(".mySwiper", {
+            slidesPerView: 3,
+            spaceBetween: 80,
+            centeredSlides: true,
+            grabCursor: true,
+            loop: false,
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+            breakpoints: {
+                0: { slidesPerView: 1.2 },
+                700: { slidesPerView: 2 },
+                1100: { slidesPerView: 3 }
+            }
+        });
+
+
+
+
+
+
+
+        /* HAMBURGER */
+        const ham = document.getElementById("hamburger");
+        const drop = document.getElementById("dropdown");
+        ham.onclick = () => {
+            ham.classList.toggle("active");
+            drop.classList.toggle("show");
+        };
+
+        document.querySelectorAll(".menu-main").forEach(main => {
+            main.addEventListener("click", () => {
+
+                const targetId = main.dataset.target;
+                const targetMenu = document.getElementById(targetId);
+
+                // chiudi tutti gli altri submenu
+                document.querySelectorAll(".submenu").forEach(menu => {
+                    if(menu !== targetMenu){
+                        menu.classList.remove("open");
+                        menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                    }
+                });
+
+                // toggle quello cliccato
+                targetMenu.classList.toggle("open");
+                main.classList.toggle("open"); // per la freccetta
+            });
+
+        });
+
+
+        // Prendi tutti i link "menu-item" con data-link
+        document.querySelectorAll(".menu-item[data-link]").forEach(item => {
+            const link = item.dataset.link;
+            if(link.includes("gestionale")) { // intercetta solo link gestionale
+                item.addEventListener("click", (e) => {
+                    e.preventDefault(); // previeni redirect
+                    overlay.classList.add("show");
+                    codePopup.classList.add("show");
+                    document.body.classList.add("popup-open");
+                    passwordField.focus(); // focus input
+                });
+            } else {
+                // link normali
+                item.addEventListener("click", () => {
+                    window.location.href = link;
+                });
+            }
+        });
+
+
+
+
+
+
+
+        /* USER DROPDOWN */
+        const userBox = document.getElementById("userBox");
+        const userDropdown = document.getElementById("userDropdown");
+        userBox.addEventListener("click", (e)=>{
+            e.stopPropagation();
+            userDropdown.classList.toggle("show");
+        });
+        document.addEventListener("click",(e)=>{
+            if(!userBox.contains(e.target)){
+                userDropdown.classList.remove("show");
+            }
+        });
+
+
+
+/* LOGOUT */
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutOverlay = document.getElementById("logoutOverlay");
+        const logoutModal = document.getElementById("logoutModal");
+        const cancelLogout = document.getElementById("cancelLogout");
+        const confirmLogout = document.getElementById("confirmLogout");
+
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            logoutOverlay.classList.add("show");
+            logoutModal.classList.add("show");
+        });
+
+        cancelLogout.onclick = closeLogout;
+        logoutOverlay.onclick = closeLogout;
+        function closeLogout(){
+            logoutOverlay.classList.remove("show");
+            logoutModal.classList.remove("show");
+        }
+
+        confirmLogout.onclick = () => {
+            window.location.href = "logout.php";
+        };
+
+
+
+        /* POPUP PROFILI */
+        
+        const timePopup = document.getElementById("timePopup");
+        const signPopup = document.getElementById("signaturePopup");
+        const img1 = document.getElementById("popupUserImg");
+        const name1 = document.getElementById("popupUserName");
+        const img2 = document.getElementById("popupUserImg2");
+        const name2 = document.getElementById("popupUserName2");
+
+        let selectedIdIscritto = null;
+
+        document.querySelectorAll(".profile-card").forEach(card => {
+            card.onclick = () => {
+                const img = card.querySelector("img").src;
+                const name = card.querySelector("h3").textContent;
+
+                img1.src = img;
+                name1.textContent = name;
+                img2.src = img;
+                name2.textContent = name;
+
+                // Salvo l'ID per quando confermo la firma
+                selectedIdIscritto = card.getAttribute("data-id");
+
+                overlay.classList.add("show");
+                timePopup.classList.add("show");
+                document.body.classList.add("popup-open");
+            };
+        });
+
+        document.getElementById("goSignature").onclick = () => {
+
+            const timeIn = document.getElementById("timeIn").value;
+            const timeOut = document.getElementById("timeOut").value;
+
+            // CONTROLLO PRIMA DI ANDARE ALLA FIRMA
+            if(timeIn === "" || timeOut === ""){
+                alert("Inserisci prima l'orario di ingresso e di uscita!");
+                return; // blocca il passaggio alla firma
+            }
+
+            // se ok → vai alla firma
