@@ -140,10 +140,6 @@ $resultResoconti = $conn->query($sqlResoconti);
             <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
 
             <div class="user-dropdown" id="userDropdown">
-                <a href="impostazioni.php">
-                    <span class="icon">⚙</span>
-                    <span class="text">Impostazioni</span>
-                </a>
                 <a href="#" class="danger" id="logoutBtn">
                     <span class="icon">⏻</span>
                     <span class="text">Logout</span>
@@ -720,6 +716,17 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </svg>
                         </div>
                         <p class="success-text" id="success-text-agenda">Agenda creata!</p>
+                    </div>
+                </div>
+
+
+                <div class="modal-box danger" id="modalDeleteAgenda">
+                    <h3>Elimina Agenda</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteAgenda">Elimina</button>
                     </div>
                 </div>
             </div>
@@ -1338,7 +1345,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <a href="#top" class="footer-image"></a>
                 </div>
                 <div class="footer-right">
-                    <a href="index.html" class="hover-underline-animation">PRIVACY POLICY</a>
+                    <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
                 </div>
             </footer>
 
@@ -2410,121 +2417,215 @@ $resultResoconti = $conn->query($sqlResoconti);
 
     
         
-        // ========== AGENDA ==========
-        let agendaData = [];
-        let agendaWeekStart = null;
-        let selectedDayIndex = 0;
+       // ================= AGENDA =================
+let agendaData = [];
+let agendaWeekStart = null;
+let selectedDayIndex = 0;
 
-        // Calcola le date della settimana (preferisce la data del server)
-        function calculateWeekDates(weekStartStr) {
-            const today = new Date();
-            let monday;
+// utilità: YYYY-MM-DD locale
+function getLocalDateString(date) {
+    const y = date.getFullYear();
+    const m = (date.getMonth() + 1).toString().padStart(2,'0');
+    const d = date.getDate().toString().padStart(2,'0');
+    return `${y}-${m}-${d}`;
+}
 
-            if (weekStartStr) {
-                const parsed = new Date(weekStartStr + "T00:00:00");
-                monday = isNaN(parsed.getTime()) ? new Date(today) : parsed;
-            } else {
-                monday = new Date(today);
-                monday.setDate(today.getDate() - today.getDay() + 1);
-            }
-            
-            const dates = [];
-            const dateLabels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
-            
-            for (let i = 0; i < 5; i++) {
-                const date = new Date(monday);
-                date.setDate(monday.getDate() + i);
-                dates.push(date.toISOString().split('T')[0]);
-                
-                const label = document.getElementById(dateLabels[i]);
-                if (label) {
-                    const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
-                    label.innerText = dateStr;
-                }
-            }
-            
-            return dates;
-        }// Carica l'agenda dal server
-        function loadAgenda() {
-            const contentDiv = document.getElementById('agendaContent');
-            contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
-            
-            fetch('api/api_get_agenda.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        agendaData = data.data;
-                        agendaWeekStart = data.monday || null;
-                        calculateWeekDates(agendaWeekStart);
-                        displayAgenda(0);
-                    } else {
-                        contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore:', error);
-                    contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
-                });
+// calcola le date della settimana e aggiorna le label
+function calculateWeekDates(weekStartStr) {
+    const today = new Date();
+    let monday;
+
+    if (weekStartStr) {
+        const parts = weekStartStr.split('-'); // "YYYY-MM-DD"
+        monday = new Date(parts[0], parts[1]-1, parts[2]);
+    } else {
+        monday = new Date(today);
+        monday.setDate(today.getDate() - today.getDay() + 1); // lunedì
+    }
+
+    const dates = [];
+    const dateLabels = ['date-monday','date-tuesday','date-wednesday','date-thursday','date-friday'];
+
+    for (let i=0; i<5; i++) {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
+        dates.push(getLocalDateString(date));
+
+        const label = document.getElementById(dateLabels[i]);
+        if (label) {
+            const dateStr = date.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});
+            label.innerText = dateStr;
         }
+    }
 
-        // Mostra le attività per il giorno selezionato
-        function displayAgenda(dayIndex) {
+    return dates;
+}
+
+// carica agenda dal server
+function loadAgenda() {
+    const contentDiv = document.getElementById('agendaContent');
+    contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
+
+    fetch('api/api_get_agenda.php')
+        .then(res => res.json())
+        .then(data => {
+            if(data.success){
+                agendaData = data.data || [];
+                agendaWeekStart = data.monday || null;
+                calculateWeekDates(agendaWeekStart);
+                displayAgenda(0);
+            } else {
+                contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
+        });
+}
+
+// mostra attività per il giorno selezionato
+function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
     const contentDiv = document.getElementById('agendaContent');
-    
-    // Calcola la data del giorno selezionato
-    const today = new Date();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - today.getDay() + 1);
+
+    if(!agendaData || agendaData.length === 0){
+        contentDiv.innerHTML = '<div class="no-activities">Nessuna attività disponibile</div>';
+        return;
+    }
+
+    // calcola lunedì della settimana
+    let monday;
+    if(agendaWeekStart){
+        const parts = agendaWeekStart.split('-');
+        monday = new Date(parts[0], parts[1]-1, parts[2]);
+    } else {
+        monday = new Date();
+        monday.setDate(monday.getDate() - monday.getDay() + 1);
+    }
+
     const selectedDate = new Date(monday);
     selectedDate.setDate(monday.getDate() + dayIndex);
-    const selectedDateStr = selectedDate.toISOString().split('T')[0];
-    
-    // Filtra le attività per il giorno selezionato
+    const selectedDateStr = getLocalDateString(selectedDate);
+
+    // filtra attività per giorno
     const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
-    
-    if (dayActivities.length === 0) {
+
+    if(dayActivities.length === 0){
         contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
         return;
     }
-    
-    // Ordina le attività per ora di inizio
-    dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
-    
+
+    // ordina per ora_inizio
+    dayActivities.sort((a,b)=> a.ora_inizio.localeCompare(b.ora_inizio));
+
     let html = '<div class="activities-list">';
-    
+
     dayActivities.forEach(att => {
-        const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
-        const ragazziText = att.ragazzi.map(r => `${r.nome} ${r.cognome}`).join(', ') || '—';
-        
+        // orari
+        const inizio_no_seconds = att.ora_inizio.substring(0,5);
+        const fine_no_seconds   = att.ora_fine.substring(0,5);
+
+        // educatori unici
+        const educatoriText = Array.from(
+            new Map(att.educatori.map(e=>[e.id,e])).values()
+        ).map(e=>`${e.nome} ${e.cognome}`).join(', ');
+
+        // ragazzi unici
+        const ragazziText = Array.from(
+            new Map(att.ragazzi.map(r=>[r.id,r])).values()
+        ).map(r=>`${r.nome} ${r.cognome}`).join(', ') || '—';
+
         html += `
-            <div class="activity-card">
-                <div class="activity-header">
-                    <h3>${att.attivita_nome}</h3>
-                    <span class="activity-time">
-                        🕐 ${att.ora_inizio} - ${att.ora_fine}
-                    </span>
+        <div class="activity-card" data-id="${att.id}">
+            <div class="activity-header">
+                <h3>${att.attivita_nome}</h3>
+                <span class="activity-time"><img class="resoconti-icon" src="immagini/rescheduling.png" style="width:22px; height:22px; margin-right:8px;"> ${inizio_no_seconds} - ${fine_no_seconds}</span>
+            </div>
+            <div class="activity-description">${att.descrizione}</div>
+            <div class="activity-participants">
+                <div class="participant-group">
+                    <label>Educatori:</label>
+                    <span>${educatoriText}</span>
                 </div>
-                <div class="activity-description">
-                    ${att.descrizione}
-                </div>
-                <div class="activity-participants">
-                    <div class="participant-group">
-                        <label>Educatori:</label>
-                        <span>${educatoriText}</span>
-                    </div>
-                    <div class="participant-group">
-                        <label>Ragazzi:</label>
-                        <span>${ragazziText}</span>
-                    </div>
+                <div class="participant-group">
+                    <label>Ragazzi:</label>
+                    <span>${ragazziText}</span>
                 </div>
             </div>
+            <div class="activity-actions">
+                <button class="delete-agenda-btn" data-id="${att.id}" title="Elimina">
+                    <img src="immagini/delete.png" alt="Elimina">
+                </button>
+            </div>
+        </div>
         `;
     });
-    
+
     html += '</div>';
-    contentDiv.innerHTML = html; // <-- Questa riga mancava!
+    contentDiv.innerHTML = html;
 }
+
+// event listeners per i tab dei giorni
+document.querySelectorAll('.day-tab').forEach((tab,index)=>{
+    tab.addEventListener('click',()=>{
+        document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        displayAgenda(index);
+    });
+});
+
+// carica agenda al load
+window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
+
+// ========== MODAL MODIFICA AGENDA ==========
+
+const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
+const modalModificaAgenda = document.getElementById("modalModificaAgenda");
+
+
+
+// Delete Agenda
+let agendaToDelete = null;
+document.addEventListener('click', function(e){
+    if(e.target.closest('.delete-agenda-btn')){
+        const btn = e.target.closest('.delete-agenda-btn');
+        agendaToDelete = btn.dataset.id;
+        openModal(modalDeleteAgenda);
+    }
+});
+
+document.getElementById("confirmDeleteAgenda").onclick = () => {
+    if(!agendaToDelete) return;
+
+    fetch("api/api_elimina_agenda.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ id: agendaToDelete })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            modalDeleteAgenda.classList.remove("show");
+            if(Overlay) Overlay.classList.remove("show");
+            successText.innerText = "Agenda Eliminata!!";
+            showSuccess(successPopup, Overlay);
+            setTimeout(() => {
+                hideSuccess(successPopup, Overlay);
+                location.reload();
+            }, 1800);
+        } else {
+            alert("Errore: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Errore di comunicazione con il server");
+    });
+};
 
 
 
@@ -2733,7 +2834,6 @@ $resultResoconti = $conn->query($sqlResoconti);
 
     // CAMBIO MESE NEL MODAL
     if(meseInput) meseInput.addEventListener("change", caricaResocontoGiorni);
-
     // FUNZIONE CARICA RESOCONTI MENSILI
     function caricaResocontiMensili(mese){
         if(!resocontiMensiliBody) return;
@@ -2841,19 +2941,33 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             for(let i=0;i<startPadding;i++) calendarHTML += `<div class="calendar-cell empty"></div>`;
 
-            for(let d=1; d<=lastDay.getDate(); d++){
+            for (let d = 1; d <= lastDay.getDate(); d++) {
                 const day = daysMap.get(d);
-                const hasActivity = day && day.ore > 0; // <-- prima guardavamo solo attivita
-                calendarHTML += `<div class="calendar-cell ${hasActivity ? 'has-activity' : ''}">
-                    <div class="day-number">${d}</div>`;
-                
-                if(day && day.attivita.length > 0){
+                const presente = day && day.ore > 0;
+
+                calendarHTML += `<div class="calendar-cell ${presente ? 'has-activity' : ''}">`;
+
+                if (day) {
+                        console.log("Giorno", d, "ore:", day.ore);
+                    }
+
+
+                if (presente) {
+                    calendarHTML += `<img class="presente-icon" src="immagini/presente.png" alt="Presente">`;
+                }
+
+                calendarHTML += `<div class="day-number">${d}</div>`;
+
+                if (day && day.attivita.length > 0) {
                     calendarHTML += `<div class="day-activities">`;
                     day.attivita.forEach(a => {
-                        calendarHTML += `<div class="activity-item">
-                            <span class="activity-name">${a.Nome}</span>
-                            <span class="activity-meta">${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€</span>
-                        </div>`;
+                        calendarHTML += `
+                            <div class="activity-item">
+                                <span class="activity-name">${a.Nome}</span>
+                                <span class="activity-meta">
+                                    ${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€
+                                </span>
+                            </div>`;
                     });
                     calendarHTML += `</div>`;
                 }
@@ -2861,13 +2975,14 @@ $resultResoconti = $conn->query($sqlResoconti);
                 calendarHTML += `</div>`;
             }
 
+
             calendarHTML += `</div>`;
 
             // Totali
             calendarHTML += `<div class="resoconto-totals">
-                <div class="total-card"><div class="total-label">📊 Ore Totali</div><div class="total-value hours">${totalOre.toFixed(2)}</div></div>
-                <div class="total-card"><div class="total-label">💰 Costo Totale</div><div class="total-value currency">${totalCosto.toFixed(2)}</div></div>
-                <div class="total-card"><div class="total-label">📅 Giorni Attivi</div><div class="total-value">${daysMap.size}</div></div>
+                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(1)}</div></div>
+                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Costo Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
+                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${daysMap.size}</div></div>
             </div>`;
 
             resocontoContent.innerHTML = calendarHTML;
@@ -2890,6 +3005,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     altFormat: "F Y"   
                 })
             ],
+            defaultDate: new Date(),
             altInput: true
         });
 
@@ -2901,6 +3017,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     altFormat: "F Y"
                 })
             ],
+            defaultDate: new Date(),
             altInput: true
         });
 
@@ -2925,12 +3042,6 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
         syncBodyScrollLock();
-
-
-
-
-
-
 
 
 

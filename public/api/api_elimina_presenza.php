@@ -1,6 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
+header("Cache-Control: no chache");
 
 // Controllo login
 if(!isset($_SESSION['username'])){

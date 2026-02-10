@@ -58,10 +58,6 @@ if($resultClasse && $resultClasse->num_rows > 0){
             <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
 
             <div class="user-dropdown" id="userDropdown">
-                <a href="impostazioni.php">
-                    <span class="icon">⚙</span>
-                    <span class="text">Impostazioni</span>
-                </a>
                 <a href="#" class="danger" id="logoutBtn">
                     <span class="icon">⏻</span>
                     <span class="text">Logout</span>
@@ -214,7 +210,7 @@ if($resultClasse && $resultClasse->num_rows > 0){
             <a href="#top" class="footer-image"></a>
         </div>
         <div class="footer-right">
-            <a href="index.html" class="hover-underline-animation">PRIVACY POLICY</a>
+            <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
         </div>
     </footer>
 

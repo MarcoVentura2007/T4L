@@ -1,6 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
+header("Cache-Control: no chache");
 
 if(!isset($_SESSION['username'])){
     echo json_encode(["success"=>false, "message"=>"Sessione non valida"]);

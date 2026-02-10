@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+header("Cache-Control: no chache");
 session_start();
 
 // Controlla login
@@ -63,10 +64,10 @@ if (!$result) {
 // Organizza attività ed educatori
 $attivita_map = [];
 while ($row = $result->fetch_assoc()) {
-    $key = $row['attivita_id'] . '_' . $row['Data'] . '_' . $row['Ora_Inizio'] . '_' . $row['Ora_Fine'];
+    $key = $row['attivita_id'] . '_' . $row['Data'] . '_' . substr($row['Ora_Inizio'], 0, 5) . '_' . substr($row['Ora_Fine'], 0, 5);
     if (!isset($attivita_map[$key])) {
         $attivita_map[$key] = [
-            'partecipa_id' => $row['partecipa_id'],
+            'id' => $key,
             'data' => $row['Data'],
             'ora_inizio' => $row['Ora_Inizio'],
             'ora_fine' => $row['Ora_Fine'],
@@ -112,7 +113,7 @@ $ragazzi_per_attivita = [];
 
 if ($result_ragazzi) {
     while ($row = $result_ragazzi->fetch_assoc()) {
-        $key = $row['ID_Attivita'] . '_' . $row['Data'] . '_' . $row['Ora_Inizio'] . '_' . $row['Ora_Fine'];
+        $key = $row['ID_Attivita'] . '_' . $row['Data'] . '_' . substr($row['Ora_Inizio'], 0, 5) . '_' . substr($row['Ora_Fine'], 0, 5);
         if (!isset($ragazzi_per_attivita[$key])) $ragazzi_per_attivita[$key] = [];
 
         $ragazzi_per_attivita[$key][] = [
@@ -122,6 +123,15 @@ if ($result_ragazzi) {
             'effettiva_presenza' => (bool)$row['effettiva_presenza']
         ];
     }
+}
+
+// Make ragazzi unique per activity
+foreach ($ragazzi_per_attivita as $key => &$ragazzi) {
+    $unique = [];
+    foreach ($ragazzi as $r) {
+        $unique[$r['id']] = $r;
+    }
+    $ragazzi = array_values($unique);
 }
 
 // Aggiungi ragazzi alle attività

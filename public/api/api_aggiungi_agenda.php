@@ -4,6 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 header('Content-Type: application/json; charset=UTF-8');
+header("Cache-Control: no chache");
 session_start();
 
 /* =========================
