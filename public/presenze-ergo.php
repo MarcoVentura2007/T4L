@@ -619,3 +619,83 @@ async function verificaCodice() {
             }
 
             // se ok → vai alla firma
+            timePopup.classList.remove("show");
+            signPopup.classList.add("show");
+        };
+
+
+
+
+
+        /* PER USCIRE */
+        overlay.onclick = closePopups;
+        function closePopups(){
+            overlay.classList.remove("show");
+            timePopup.classList.remove("show");
+            signPopup.classList.remove("show");
+            document.body.classList.remove("popup-open");
+        }
+
+
+        const backBtn = document.getElementById("backToTimePopup");
+
+        backBtn.onclick = () => {
+            signPopup.classList.remove("show");   // chiude firma
+            timePopup.classList.add("show");      // riapre orari
+        };
+
+
+
+
+
+        /* DISEGNO */
+        const canvas = document.getElementById("signatureCanvas");
+        const ctx = canvas.getContext("2d");
+        function resizeCanvas(){
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        let drawing = false;
+        canvas.addEventListener("pointerdown", e=>{
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+        canvas.addEventListener("pointermove", e=>{
+            if(!drawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        });
+        canvas.addEventListener("pointerup", ()=> drawing=false);
+        canvas.addEventListener("pointerleave", ()=> drawing=false);
+
+        /* PULISCI */
+        document.getElementById("clearSign").onclick = ()=>{
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+        };
+
+
+
+
+
+        /* CHIUDI POPUP FIRMA CON X */
+        const closeSignBtn = document.getElementById("closeSignaturePopup");
+        closeSignBtn.onclick = () => {
+            signPopup.classList.remove("show"); 
+            overlay.classList.remove("show");
+            document.body.classList.remove("popup-open");
+        };
+
+
+
+
+
+
+
+
+
+        /* INSERIMENTO ORA */
+        const timeInPicker = flatpickr("#timeIn", {
