@@ -54,7 +54,7 @@ if($resultClasse && $resultClasse->num_rows > 0){
 <header class="navbar">
 
     <div class="user-box" id="userBox">
-            <img src="immagini/profile-picture.png" alt="Profile">
+            <img src="immagini/profilo-ergo.png" alt="Profile">
             <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
 
             <div class="user-dropdown" id="userDropdown">
@@ -157,9 +157,9 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
     <section class="cards">
 
-        <a href="fogliofirme-centro.php" class="card">
-            <img src="immagini/foglio-over.png">
-            <h3>Foglio Firme</h3>
+        <a href="presenze-ergo.php" class="card">
+            <img src="immagini/presenze-ergo.png">
+            <h3>Presenze</h3>
         </a>
 
         <?php
@@ -173,7 +173,7 @@ if($resultClasse && $resultClasse->num_rows > 0){
         ?>
 
         <a href="#" class="card" id="card-gestionale">
-            <img src="immagini/gestionale-over.png" style="height: 140px;">
+            <img src="immagini/gestionale-ergo.png" style="height: 140px;">
             <h3>Gestionale</h3>
         </a>
 

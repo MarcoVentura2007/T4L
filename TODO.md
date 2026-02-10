@@ -1,0 +1,3 @@
+- [ ] Create presenze-ergo.php by copying fogliofirme-centro.php
+- [ ] Create gestionale_ergo.php by copying gestionale_contabile.php
+- [ ] Change button colors to aqua blue in both files

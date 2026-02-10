@@ -91,9 +91,8 @@ $username = $_SESSION['username'];
             <img src="immagini/Logo-centrodiurno.png">
         </a>
 
-        <a href="#" class="section-card disabled">
+        <a href="ergoterapeutica.php" class="section-card ">
             <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
-            <span>In arrivo</span>
         </a>
 
     </section>

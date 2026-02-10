@@ -209,8 +209,14 @@ $resultResoconti = $conn->query($sqlResoconti);
             </div>
 
             <div class="submenu" id="ergoMenu">
-                <div class="menu-item" data-link="riconoscimento.php">Riconoscimento facciale</div>
-                <div class="menu-item" data-link="gestionale_contabile.php">Gestionale</div>
+                <div class="menu-item" data-link="presenze-ergo.php">
+                    <img src="immagini/presenze-ergo.png" alt="">
+                    Presenze
+                </div>
+                <div class="menu-item" data-link="gestionale_contabile.php">
+                    <img src="immagini/gestionale-ergo.png" alt="">
+                    Gestionale
+                </div>
             </div>
 
         </div>
