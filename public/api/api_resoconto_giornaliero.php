@@ -16,8 +16,8 @@ $conn = new mysqli("localhost","root","","time4all");
 
 // 1️⃣ prendo tutte le presenze già avvenute
 $sql = "
-SELECT * 
-FROM presenza 
+SELECT *
+FROM presenza
 WHERE ID_Iscritto = $idIscritto
 AND MONTH(Ingresso) = $mese
 AND YEAR(Ingresso) = $anno
@@ -25,42 +25,89 @@ AND Ingresso <= NOW()
 ORDER BY Ingresso
 ";
 $res = $conn->query($sql);
-$rows = [];
+$presenze = [];
+$days = [];
+
+// costo orario del ragazzo
+$sqlPrezzo = "SELECT Prezzo_Orario FROM iscritto WHERE id = $idIscritto";
+$resPrezzo = $conn->query($sqlPrezzo);
+$prezzo = $resPrezzo->fetch_assoc()['Prezzo_Orario'];
 
 while($p = $res->fetch_assoc()){
     $giorno = date('Y-m-d', strtotime($p['Ingresso']));
-    $ore_presenza = round((strtotime($p['Uscita']) - strtotime($p['Ingresso']))/3600,2);
-    
-    // costo giornata dalla presenza
-    $sqlPrezzo = "SELECT Prezzo_Orario FROM iscritto WHERE id = $idIscritto";
-    $resPrezzo = $conn->query($sqlPrezzo);
-    $prezzo = $resPrezzo->fetch_assoc()['Prezzo_Orario'];
-    $costo_presenza = round($ore_presenza * $prezzo,2);
+    if(!isset($presenze[$giorno])){
+        $presenze[$giorno] = [];
+    }
+    $presenze[$giorno][] = ['ingresso' => strtotime($p['Ingresso']), 'uscita' => strtotime($p['Uscita'])];
+}
 
-    // 2️⃣ prendo le attività collegate a questa presenza o per la stessa data e ragazzo
+foreach($presenze as $giorno => $pres_list){
+    $days[$giorno] = ['ore' => 0, 'costo' => 0, 'attivita' => []];
+    $ore_tot = 0;
+    foreach($pres_list as $pres){
+        $ore_tot += ($pres['uscita'] - $pres['ingresso']) / 3600;
+    }
+    $days[$giorno]['ore'] = round($ore_tot, 2);
+    $days[$giorno]['costo'] = round($ore_tot * $prezzo, 2);
+
+    // 2️⃣ prendo le attività per la giornata
     $sqlAtt = "
-    SELECT DISTINCT a.Nome,
-           ROUND(TIMESTAMPDIFF(MINUTE, p.Ora_Inizio, p.Ora_Fine)/60,2) AS ore_att,
-           ROUND(TIMESTAMPDIFF(MINUTE, p.Ora_Inizio, p.Ora_Fine)/60 * $prezzo,2) AS costo_att
+    SELECT p.ID_Attivita, a.Nome, p.Ora_Inizio, p.Ora_Fine, p.ID_Educatore
     FROM partecipa p
     JOIN attivita a ON a.id = p.ID_Attivita
-    WHERE (p.ID_Presenza = ".$p['id']." OR (p.ID_Ragazzo = $idIscritto AND p.Data = '$giorno'))
+    WHERE p.ID_Ragazzo = $idIscritto AND p.Data = '$giorno'
     ";
     $resAtt = $conn->query($sqlAtt);
-    $attivita = [];
+    $attivita_data = [];
     while($a = $resAtt->fetch_assoc()){
+        $id_att = $a['ID_Attivita'];
+        if(!isset($attivita_data[$id_att])){
+            $attivita_data[$id_att] = ['nome' => $a['Nome'], 'times' => [], 'educatori' => []];
+        }
+        $attivita_data[$id_att]['times'][] = ['inizio' => strtotime($a['Ora_Inizio']), 'fine' => strtotime($a['Ora_Fine'])];
+        $attivita_data[$id_att]['educatori'][$a['ID_Educatore']] = true;
+    }
+    foreach($attivita_data as $id_att => $data){
+        $nome = $data['nome'];
+        $num_educatori = count($data['educatori']);
+        $total_overlap_seconds = 0;
+        foreach($data['times'] as $time){
+            foreach($pres_list as $pres){
+                $overlap_start = max($time['inizio'], $pres['ingresso']);
+                $overlap_end = min($time['fine'], $pres['uscita']);
+                $overlap_seconds = max(0, $overlap_end - $overlap_start);
+                $total_overlap_seconds += $overlap_seconds;
+            }
+        }
+        $total_overlap_minutes = $total_overlap_seconds / 60;
+        $effective_minutes = $total_overlap_minutes / $num_educatori;
+        $hours = floor($effective_minutes / 60);
+        $minutes = $effective_minutes % 60;
+        $ore_att = $hours + $minutes / 100;
+        $costo_att = round(($effective_minutes / 60) * $prezzo, 2);
+        if(!isset($days[$giorno]['attivita'][$nome])){
+            $days[$giorno]['attivita'][$nome] = ['ore' => 0, 'costo' => 0];
+        }
+        $days[$giorno]['attivita'][$nome]['ore'] += $ore_att;
+        $days[$giorno]['attivita'][$nome]['costo'] += $costo_att;
+    }
+}
+
+$rows = [];
+foreach($days as $giorno => $data){
+    $attivita = [];
+    foreach($data['attivita'] as $nome => $vals){
         $attivita[] = [
-            'Nome' => $a['Nome'],
-            'ore' => floatval($a['ore_att']),
-            'costo' => floatval($a['costo_att'])
+            'Nome' => $nome,
+            'ore' => $vals['ore'],
+            'costo' => $vals['costo']
         ];
     }
-
     $rows[] = [
         'giorno' => $giorno,
-        'ore' => $ore_presenza,        // totale dalla presenza
-        'costo' => $costo_presenza,    // totale dalla presenza
-        'attivita' => $attivita        // dettagli delle attività
+        'ore' => $data['ore'],
+        'costo' => $data['costo'],
+        'attivita' => $attivita
     ];
 }
 
