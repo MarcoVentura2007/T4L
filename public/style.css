@@ -3329,7 +3329,8 @@ select option:checked {
 .calendar-cell.has-activity {
     border-color: var(--border-strong);
     box-shadow: var(--shadow-soft);
-    background-color: var(--bg-accent); ;
+    background-color: var(--bg-accent);
+    cursor: pointer;
 }
 
 .calendar-cell.has-activity:hover {
