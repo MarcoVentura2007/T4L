@@ -916,6 +916,20 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <!-- QUI VIENE COSTRUITO IL CALENDARIO -->
                     <div id="resocontoContent" class="resoconto-calendar"></div>
 
+                    <!-- TABELLA RIASSUNTIVA ATTIVITÀ -->
+                    <div class="users-table-box" style="margin-top: 30px;">
+                        <h4 style="margin-bottom: 15px; color: #2b2b2b; font-weight: 600;">Riepilogo Attività Mensile</h4>
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Attività Svolta</th>
+                                    <th>Ore Totali</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attivitaMensiliBody"></tbody>
+                        </table>
+                    </div>
+
                     <div class="users-table-box" style="display:none">
                         <table class="users-table">
                             <tbody id="resocontoGiorniBody"></tbody>
@@ -2899,18 +2913,22 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         })
         .then(r => r.json())
         .then(json => {
-            if(!bodyResoconto || !document.getElementById("resocontoContent")) return;
+            if(!bodyResoconto || !document.getElementById("resocontoContent") || !document.getElementById("attivitaMensiliBody")) return;
             bodyResoconto.innerHTML = "";
             const resocontoContent = document.getElementById("resocontoContent");
             resocontoContent.innerHTML = "";
+            const attivitaMensiliBody = document.getElementById("attivitaMensiliBody");
+            attivitaMensiliBody.innerHTML = "";
 
             if(!json.success || json.data.length === 0){
                 bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
                 resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">📅 Nessun dato disponibile per questo mese</p>`;
+                attivitaMensiliBody.innerHTML = `<tr><td colspan="2">Nessuna attività</td></tr>`;
                 return;
             }
 
             const daysMap = new Map();
+            const attivitaMap = new Map(); // Per aggregare attività
             let totalOre = 0;
             let totalCosto = 0;
 
@@ -2919,7 +2937,12 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 if(!daysMap.has(giorno)) daysMap.set(giorno, {attivita: [], ore:0, costo:0});
                 const day = daysMap.get(giorno);
 
-                r.attivita.forEach(a => day.attivita.push(a));
+                r.attivita.forEach(a => {
+                    day.attivita.push(a);
+                    // Aggrega per attività
+                    if(!attivitaMap.has(a.Nome)) attivitaMap.set(a.Nome, 0);
+                    attivitaMap.set(a.Nome, attivitaMap.get(a.Nome) + a.ore);
+                });
                 day.ore += r.ore;
                 day.costo += r.costo;
 
@@ -2933,6 +2956,16 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                         <td>${attHTML}</td>
                         <td>${r.ore.toFixed(2)}</td>
                         <td>${r.costo.toFixed(2)} €</td>
+                    </tr>
+                `;
+            });
+
+            // Popola tabella attività mensili
+            attivitaMap.forEach((ore, nome) => {
+                attivitaMensiliBody.innerHTML += `
+                    <tr>
+                        <td>${nome}</td>
+                        <td>${ore.toFixed(2)} ore</td>
                     </tr>
                 `;
             });

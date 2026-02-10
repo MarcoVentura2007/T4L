@@ -89,10 +89,18 @@ $username = $_SESSION['username'];
 
         <a href="centrodiurno.php" class="section-card">
             <img src="immagini/Logo-centrodiurno.png">
+            <div class="particles">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
         </a>
 
         <a href="ergoterapeutica.php" class="section-card ">
             <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+            <div class="particles">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
         </a>
 
     </section>
