@@ -699,3 +699,107 @@ async function verificaCodice() {
 
         /* INSERIMENTO ORA */
         const timeInPicker = flatpickr("#timeIn", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            minuteIncrement: 15,
+
+            onChange: function(selectedDates, dateStr) {
+                timeOutPicker.set("minTime", dateStr);
+
+                if(timeOutPicker.input.value && timeOutPicker.input.value < dateStr){
+                    timeOutPicker.clear();
+                }
+            }
+        });
+
+        const timeOutPicker = flatpickr("#timeOut", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            minuteIncrement: 15
+        });
+
+
+
+
+
+        /* POPUP SUCCESSO */
+        document.querySelector(".btn-confirm").onclick = () => {
+
+            const timeIn = document.getElementById("timeIn").value;
+            const timeOut = document.getElementById("timeOut").value;
+            const check_firma = 1;
+            const idIscritto = selectedIdIscritto;
+
+            // CONTROLLO CAMPI VUOTI
+            if(timeIn === "" || timeOut === ""){
+                alert("Inserisci sia l'orario di ingresso che quello di uscita!");
+                return; // BLOCCA L'INVIO
+            }
+
+            // INVIO DATI A api_firma.php
+            fetch("api/api_firma.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    id_iscritto: idIscritto,
+                    ora_ingresso: timeIn,
+                    ora_uscita: timeOut,
+                    check_firma: check_firma
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                if (!data.success) {
+                    alert("Errore nel salvataggio firma");
+                    return;
+                }
+
+                signPopup.classList.remove("show");
+                successPopup.classList.add("show");
+
+                setTimeout(()=>{
+                    successPopup.classList.remove("show");
+                    overlay.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+                    location.reload();
+                },1800);
+
+            });
+        }
+
+        // Blocca scroll del body quando un popup è aperto
+        const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
+        const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
+
+        function syncBodyScrollLock() {
+            const anyOpen = document.querySelector(popupShowSelector);
+            document.body.classList.toggle("popup-open", Boolean(anyOpen));
+        }
+
+        const popupObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                const target = mutation.target;
+                if (target === document.body || (target instanceof Element && target.matches(popupTargetsSelector))) {
+                    syncBodyScrollLock();
+                    break;
+                }
+            }
+        });
+
+        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        syncBodyScrollLock();
+
+
+
+    </script>
+
+</body>
+</html>
