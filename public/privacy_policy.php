@@ -14,7 +14,7 @@ $username = $_SESSION['username'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Time4All</title>
+    <title>T4L | Privacy Policy</title>
     <link rel="icon" href="immagini/Icona.ico">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,7 +35,6 @@ $username = $_SESSION['username'];
             margin: 0 auto;
             background: white;
             padding: 2rem;
-            margin-top: 2rem;
             margin-bottom: 2rem;
         }
         .privacy-header {
@@ -112,6 +111,61 @@ $username = $_SESSION['username'];
             border-radius: 5px;
             margin-top: 1rem;
         }
+        .cta {
+        border: none;
+        background: none;
+        cursor: pointer;
+        margin-left: 40px;
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding-bottom: 6px;
+        }
+
+        .cta span {
+        padding-bottom: 4px;
+        letter-spacing: 4px;
+        font-size: 14px;
+        padding-right: 1px;
+        text-transform: uppercase;
+        }
+
+        .cta svg {
+        transform: translateX(-8px);
+        transition: all 0.3s ease;
+        }
+
+        .cta:hover svg {
+        transform: translateX(-15px);
+        }
+
+        .cta:active svg {
+        transform: scale(0.9);
+        }
+
+        .hover-underline-animation1 {
+        color: black;
+        }
+
+        .cta:after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: #000000;
+        transform-origin: bottom left;
+        transition: transform 0.25s ease-out;
+        }
+
+        .cta:hover:after {
+        transform: scaleX(1);
+        transform-origin: bottom right;
+        }
+
         @media (max-width: 768px) {
             .privacy-container {
                 max-width: 95%;
@@ -128,39 +182,38 @@ $username = $_SESSION['username'];
 <!-- NAVBAR -->
 <header class="navbar">
 
-    <div class="user-box" id="userBox">
-        <img src="immagini/profile-picture.png" alt="Profile">
-        <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
+        <div class="user-box" id="userBox">
+            <img src="immagini/profile-picture.png" alt="Profile">
+            <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
 
-        <div class="user-dropdown" id="userDropdown">
-            <a href="impostazioni.php">
-                <span class="icon">⚙</span>
-                <span class="text">Impostazioni</span>
-            </a>
-            <a href="#" class="danger" id="logoutBtn">
-                <span class="icon">⏻</span>
-                <span class="text">Logout</span>
-            </a>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="#" class="danger" id="logoutBtn">
+                    <span class="icon">⏻</span>
+                    <span class="text">Logout</span>
+                </a>
+            </div>
         </div>
-    </div>
 
-    <div class="logout-overlay" id="logoutOverlay"></div>
+        <div class="logout-overlay" id="logoutOverlay"></div>
 
-    <div class="logout-modal" id="logoutModal">
-        <h3>Conferma logout</h3>
-        <p>Sei sicuro di voler uscire dal tuo account?</p>
+        <div class="logout-modal" id="logoutModal">
+            <h3>Conferma logout</h3>
+            <p>Sei sicuro di voler uscire dal tuo account?</p>
 
-        <div class="logout-actions">
-            <button class="btn-cancel" id="cancelLogout">Annulla</button>
-            <button class="btn-logout" id="confirmLogout">Logout</button>
+            <div class="logout-actions">
+                <button class="btn-cancel" id="cancelLogout">Annulla</button>
+                <button class="btn-logout" id="confirmLogout">Logout</button>
+            </div>
         </div>
-    </div>
 
-    <div class="logo-area">
-        <img src="immagini/Logo-centrodiurno.png">
-        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png">
-        <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
-    </div>
+
+     <div class="logo-area">
+            <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
+            <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
+            <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+        </div>
+
+    
 
 </header>
 
@@ -168,10 +221,25 @@ $username = $_SESSION['username'];
 
 <main class="privacy-main" style="padding-top: 100px;">
 
-    <div class="page-header" style="text-align: left; margin-bottom: 2rem;">
-        <h1>Privacy Policy</h1>
-        <p>La tua privacy è importante per noi</p>
-    </div>
+    <button class="cta" onclick="window.history.back()">
+    <svg
+        id="arrow-horizontal"
+        xmlns="http://www.w3.org/2000/svg"
+        width="30"
+        height="10"
+        viewBox="0 0 46 16"
+    >
+        <path
+        id="Path_10"
+        data-name="Path 10"
+        d="M8,0,6.545,1.455l5.506,5.506H-30V9.039H12.052L6.545,14.545,8,16l8-8Z"
+        transform="translate(30) scale(-1,1)"
+        ></path>
+    </svg>
+    <span class="hover-underline-animation1"> Indietro </span>
+    </button>
+
+
 
     <div class="privacy-container">
     <header class="privacy-hero">
@@ -315,7 +383,38 @@ $username = $_SESSION['username'];
 </main>
 
 
-<script>
+<script>    
+
+        const userBox = document.getElementById("userBox");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutOverlay = document.getElementById("logoutOverlay");
+        const logoutModal = document.getElementById("logoutModal");
+        const cancelLogout = document.getElementById("cancelLogout");
+        const confirmLogout = document.getElementById("confirmLogout");
+
+        userBox.addEventListener("click", (e)=>{
+            e.stopPropagation();
+            document.getElementById("userDropdown").classList.toggle("show");
+        });
+
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            logoutOverlay.classList.add("show");
+            logoutModal.classList.add("show");
+        });
+
+        cancelLogout.onclick = closeLogout;
+        logoutOverlay.onclick = closeLogout;
+
+        function closeLogout(){
+            logoutOverlay.classList.remove("show");
+            logoutModal.classList.remove("show");
+        }
+
+        confirmLogout.onclick = () => {
+            window.location.href = "logout.php";
+        };
+
 // Smooth scrolling for table of contents
 document.querySelectorAll('.toc a').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -349,6 +448,8 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(section);
     });
 });
+
+
 </script>
 
 </body>

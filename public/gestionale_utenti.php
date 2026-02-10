@@ -89,10 +89,6 @@ if($classe !== 'Educatore'){
             <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
 
             <div class="user-dropdown" id="userDropdown">
-                <a href="impostazioni.php">
-                    <span class="icon">⚙</span>
-                    <span class="text">Impostazioni</span>
-                </a>
                 <a href="#" class="danger" id="logoutBtn">
                     <span class="icon">⏻</span>
                     <span class="text">Logout</span>
