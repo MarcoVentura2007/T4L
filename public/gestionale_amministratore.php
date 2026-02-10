@@ -2493,7 +2493,8 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                displayAgenda(0);
+                const savedDayIndex = parseInt(sessionStorage.getItem("selectedDayIndex")) || 0;
+                displayAgenda(savedDayIndex);
             } else {
                 contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
             }
@@ -2507,6 +2508,17 @@ function loadAgenda() {
 // mostra attività per il giorno selezionato
 function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
+    sessionStorage.setItem("selectedDayIndex", dayIndex);
+
+    // Aggiorna l'aspetto dei tab dei giorni
+    document.querySelectorAll('.day-tab').forEach((tab, index) => {
+        if (index === dayIndex) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+
     const contentDiv = document.getElementById('agendaContent');
 
     if(!agendaData || agendaData.length === 0){
@@ -3059,6 +3071,21 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             defaultDate: new Date(),
             altInput: true
         });
+
+        // Salva stato sidebar
+        const checkboxInput = document.getElementById('checkbox-input');
+        if (checkboxInput) {
+            // Ripristina stato al caricamento
+            const sidebarState = localStorage.getItem('sidebarOpen');
+            if (sidebarState !== null) {
+                checkboxInput.checked = sidebarState === 'true';
+            }
+
+            // Salva stato al cambio
+            checkboxInput.addEventListener('change', () => {
+                localStorage.setItem('sidebarOpen', checkboxInput.checked);
+            });
+        }
 
         // Blocca scroll del body quando un popup è aperto
         const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";

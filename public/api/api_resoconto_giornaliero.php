@@ -37,14 +37,14 @@ while($p = $res->fetch_assoc()){
     $prezzo = $resPrezzo->fetch_assoc()['Prezzo_Orario'];
     $costo_presenza = round($ore_presenza * $prezzo,2);
 
-    // 2️⃣ prendo le attività collegate a questa presenza
+    // 2️⃣ prendo le attività collegate a questa presenza o per la stessa data e ragazzo
     $sqlAtt = "
-    SELECT a.Nome, 
+    SELECT DISTINCT a.Nome,
            ROUND(TIMESTAMPDIFF(MINUTE, p.Ora_Inizio, p.Ora_Fine)/60,2) AS ore_att,
            ROUND(TIMESTAMPDIFF(MINUTE, p.Ora_Inizio, p.Ora_Fine)/60 * $prezzo,2) AS costo_att
     FROM partecipa p
     JOIN attivita a ON a.id = p.ID_Attivita
-    WHERE p.ID_Presenza = ".$p['id']."
+    WHERE (p.ID_Presenza = ".$p['id']." OR (p.ID_Ragazzo = $idIscritto AND p.Data = '$giorno'))
     ";
     $resAtt = $conn->query($sqlAtt);
     $attivita = [];

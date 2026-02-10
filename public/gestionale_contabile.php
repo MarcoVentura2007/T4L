@@ -1,4 +1,4 @@
- <?php
+<?php
 session_start();
 
 // Se l'utente non è loggato → redirect a login.php
@@ -1794,6 +1794,14 @@ function calculateWeekDates(weekStartStr) {
     return dates;
 }
 
+// funzione per ottenere cookie
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
 // carica agenda dal server
 function loadAgenda() {
     const contentDiv = document.getElementById('agendaContent');
@@ -1806,7 +1814,10 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                displayAgenda(0);
+                let defaultDayIndex = new Date().getDay() - 1; // 0 for Monday, 1 for Tuesday, etc.
+                if (defaultDayIndex < 0) defaultDayIndex = 6; // Sunday becomes 6
+                const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
+                displayAgenda(savedDayIndex);
             } else {
                 contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
             }
@@ -1820,6 +1831,17 @@ function loadAgenda() {
 // mostra attività per il giorno selezionato
 function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
+    localStorage.setItem("selectedDayIndex", dayIndex);
+
+    // Aggiorna la classe active sui tab
+    document.querySelectorAll('.day-tab').forEach((tab, index) => {
+        if (index === dayIndex) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+
     const contentDiv = document.getElementById('agendaContent');
 
     if(!agendaData || agendaData.length === 0){
@@ -2367,6 +2389,21 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 }
             }
         });
+
+        // Salva stato sidebar
+        const checkboxInput = document.getElementById('checkbox-input');
+        if (checkboxInput) {
+            // Ripristina stato al caricamento
+            const sidebarState = localStorage.getItem('sidebarOpen');
+            if (sidebarState !== null) {
+                checkboxInput.checked = sidebarState === 'true';
+            }
+
+            // Salva stato al cambio
+            checkboxInput.addEventListener('change', () => {
+                localStorage.setItem('sidebarOpen', checkboxInput.checked);
+            });
+        }
 
         popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
         syncBodyScrollLock();

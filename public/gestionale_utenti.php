@@ -462,12 +462,12 @@ if($classe !== 'Educatore'){
             document.getElementById(target).classList.add("active");
 
             // Salva il tab attivo in localStorage
-            sessionStorage.setItem("activeTab", target);
+            localStorage.setItem("activeTab", target);
         });
     });
 
     window.addEventListener("DOMContentLoaded", () => {
-        const savedTab = sessionStorage.getItem("activeTab");
+        const savedTab = localStorage.getItem("activeTab");
         if (savedTab) {
             // Rimuovi 'active' da tutti
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
@@ -750,7 +750,7 @@ function calculateWeekDates(weekStartStr) {
 function loadAgenda() {
     const contentDiv = document.getElementById('agendaContent');
     contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
-    
+
     fetch('api/api_get_agenda.php')
         .then(response => response.json())
         .then(data => {
@@ -758,7 +758,8 @@ function loadAgenda() {
                 agendaData = data.data;
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                displayAgenda(0);
+                const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || 0;
+                displayAgenda(savedDayIndex);
             } else {
                 contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
             }
@@ -772,6 +773,17 @@ function loadAgenda() {
 // Mostra le attività per il giorno selezionato
 function displayAgenda(dayIndex) {
     selectedDayIndex = dayIndex;
+    localStorage.setItem("selectedDayIndex", dayIndex);
+
+    // Aggiorna l'aspetto dei tab dei giorni
+    document.querySelectorAll('.day-tab').forEach((tab, index) => {
+        if (index === dayIndex) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+
     const contentDiv = document.getElementById('agendaContent');
     
     // Calcola la data del giorno selezionato
@@ -844,27 +856,42 @@ window.addEventListener('DOMContentLoaded', () => {
     loadAgenda();
 });
 
-// Blocca scroll del body quando un popup è aperto
-const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
-const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
+        // Salva stato sidebar
+        const checkboxInput = document.getElementById('checkbox-input');
+        if (checkboxInput) {
+            // Ripristina stato al caricamento
+            const sidebarState = localStorage.getItem('sidebarOpen');
+            if (sidebarState !== null) {
+                checkboxInput.checked = sidebarState === 'true';
+            }
 
-function syncBodyScrollLock() {
-    const anyOpen = document.querySelector(popupShowSelector);
-    document.body.classList.toggle("popup-open", Boolean(anyOpen));
-}
-
-const popupObserver = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-        const target = mutation.target;
-        if (target === document.body || (target instanceof Element && target.matches(popupTargetsSelector))) {
-            syncBodyScrollLock();
-            break;
+            // Salva stato al cambio
+            checkboxInput.addEventListener('change', () => {
+                localStorage.setItem('sidebarOpen', checkboxInput.checked);
+            });
         }
-    }
-});
 
-popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
-syncBodyScrollLock();
+        // Blocca scroll del body quando un popup è aperto
+        const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
+        const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
+
+        function syncBodyScrollLock() {
+            const anyOpen = document.querySelector(popupShowSelector);
+            document.body.classList.toggle("popup-open", Boolean(anyOpen));
+        }
+
+        const popupObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                const target = mutation.target;
+                if (target === document.body || (target instanceof Element && target.matches(popupTargetsSelector))) {
+                    syncBodyScrollLock();
+                    break;
+                }
+            }
+        });
+
+        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        syncBodyScrollLock();
 </script>
 
 </body>

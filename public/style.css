@@ -2774,8 +2774,8 @@ td img:hover{
 
 .edit-field input:focus,
 .edit-field textarea:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    border-color: #64000c;
+    box-shadow: 0 0 0 3px rgba(64, 1, 24, 0.2);
 }
 
 .edit-field textarea {
@@ -3675,7 +3675,7 @@ section h3 {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 85%;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
