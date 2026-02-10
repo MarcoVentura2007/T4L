@@ -119,7 +119,7 @@ $username = $_SESSION['username'];
         width: fit-content;
         display: flex;
         align-items: center;
-        position: relative;
+        position: fixed;
         padding-bottom: 6px;
         }
 
