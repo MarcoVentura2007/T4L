@@ -3363,6 +3363,12 @@ select {
 
     padding: 10px;
     min-height: 120px;
+    max-height: 142px;
+
+    overflow: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-soft) transparent;
 
     display: flex;
     flex-direction: column;
