@@ -1927,6 +1927,8 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
         document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
         displayAgenda(index);
+        // Animazione di scorrimento per centrare il tab attivo
+        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     });
 });
 

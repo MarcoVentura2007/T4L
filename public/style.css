@@ -1,4 +1,4 @@
-::selection{
+  ::selection{
     background: rgba(67, 3, 43, 0.4);
     color: rgb(255, 255, 255);
     text-shadow: 0 0 0.1rem black;
@@ -2987,10 +2987,29 @@ td img:hover{
     gap: 12px;
     margin-bottom: 24px;
     border-bottom: 2px solid #e5e7eb;
-    overflow-x: auto;
+    overflow: hidden;
     padding-bottom: 12px;
     cursor: pointer;
+    position: relative;
+    --active-index: 0;
+    width: 700px;
+    transition: transform 0.3s ease;
 }
+
+.days-tabs::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 131px;
+    height: 3px;
+    background: linear-gradient(90deg, #430330, #640a35);
+    border-radius: 2px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(calc(var(--active-index) * 142px));
+    z-index: 1;
+}
+
 
 .day-tab {
     display: flex;
@@ -3011,8 +3030,9 @@ td img:hover{
 }
 
 .day-tab.active {
-    border-bottom-color: #430330;
-    background-color: #f2f1f1;
+    background-color: rgba(242, 241, 241, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 4px 4px 0 0;
 }
 
