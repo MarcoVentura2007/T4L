@@ -46,8 +46,21 @@ $sql = "
 ";
 $result = $conn->query($sql);
 
+// Crea un array per mappare nome completo a ID
+$userMap = [];
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $fullName = $row['nome'] . " " . $row['cognome'];
+        $userMap[$fullName] = $row['id'];
+    }
+}
+
 $conn->close();
 ?>
+
+<script>
+var userMap = <?php echo json_encode($userMap); ?>;
+</script>
 
 <!DOCTYPE html>
 <html lang="it">
@@ -58,10 +71,7 @@ $conn->close();
 <title>T4L | Selezione</title>
 
 <link rel="icon" href="immagini/Icona.ico">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 <link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -174,41 +184,18 @@ $conn->close();
     <main class="carousel-dashboard">
 
         <h1 class="carousel-title">
-            Selezionati sullo schermo per firmare
+            Riconoscimento Facciale per Presenze
         </h1>
 
         <p class="carousel-subtitle">
-            Scorri le schede e clicca sul profilo desiderato
+            Posizionati davanti alla webcam e scatta per verificare la tua identità
         </p>
 
-        <div class="swiper mySwiper">
-
-            <div class="swiper-wrapper">
-                <?php
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
-                        $nome = htmlspecialchars($row['nome']);
-                        $cognome = htmlspecialchars($row['cognome']);
-                        $img = htmlspecialchars($row['fotografia']);
-                        echo '
-                        <div class="swiper-slide profile-card" data-id="' . $row['id'] . '">
-                            <a href="#">
-                                <img src="' . $img . '">
-                                <h3>' . $nome . " " . $cognome . '</h3>
-                            </a>
-                        </div>
-                        ';
-                    }
-                } else {
-                    echo '<p>Tutti gli utenti hanno già effettuato la firma!!</p>';
-                }
-                ?>
-            </div>
-
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-pagination"></div>
-
+        <div style="text-align: center; margin: 20px;">
+            <video id="video" width="320" height="240" autoplay style="border: 1px solid #ccc;"></video><br>
+            <button id="snap" style="margin-top: 10px; padding: 10px 20px; background-color: aqua; border: none; cursor: pointer;">Scatta e verifica</button>
+            <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+            <pre id="output" style="margin-top: 10px; font-family: monospace;"></pre>
         </div>
 
         <!-- POPUP OVERLAY -->
@@ -335,6 +322,97 @@ $conn->close();
 
     <script>
 
+        // FACEID ELEMENTS
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");        
+        const snap = document.getElementById("snap");
+        const output = document.getElementById("output");
+
+        // WEBCAM ACCESS
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Errore accesso webcam:", err);
+                output.textContent = "Errore accesso webcam";
+            });
+
+        // SNAP AND VERIFY
+        snap.addEventListener("click", () => {
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append("image", blob, "photo.png");
+
+                fetch("../faceid/public/upload.php", { method: "POST", body: formData })
+                    .then(res => {
+                        console.log("DEBUG: Response status:", res.status);
+                        return res.text();
+                    })
+                    .then(text => {
+                        console.log("DEBUG: Response text:", text);
+                        try {
+                            const data = JSON.parse(text);
+                            console.log("DEBUG: Parsed data:", data);
+
+                            if (data.result && data.result.error) {
+                                output.textContent = "Errore: " + data.result.error;
+                                console.error("DEBUG: Error in result:", data.result);
+                                if (data.result.raw) {
+                                    console.log("DEBUG: Raw Python output:", data.result.raw);
+                                }
+                                return;
+                            }
+                            if (!data.result) {
+                                output.textContent = "Risposta non valida dal server";
+                                console.error("DEBUG: No result in response:", data);
+                                return;
+                            }
+
+                            if (data.result.known) {
+                                const recognizedName = data.result.name;
+                                output.textContent = "VOLTO RICONOSCIUTO: " + recognizedName;
+                                console.log("DEBUG: Face recognized:", recognizedName);
+
+                                // Check if recognized name is in userMap
+                                if (userMap[recognizedName]) {
+                                    const userId = userMap[recognizedName];
+                                    console.log("DEBUG: User authorized, opening popup for ID:", userId);
+
+                                    // For now, set popup with name, and placeholder img
+                                    const imgSrc = "immagini/profile-picture.png"; // placeholder
+                                    img1.src = imgSrc;
+                                    name1.textContent = recognizedName;
+                                    img2.src = imgSrc;
+                                    name2.textContent = recognizedName;
+                                    selectedIdIscritto = userId;
+
+                                    overlay.classList.add("show");
+                                    timePopup.classList.add("show");
+                                    document.body.classList.add("popup-open");
+                                } else {
+                                    output.textContent = "Utente riconosciuto ma non autorizzato per oggi.";
+                                    console.log("DEBUG: User recognized but not authorized today");
+                                }
+                            } else {
+                                output.textContent = "VOLTO NON RICONOSCIUTO";
+                                console.log("DEBUG: Face not recognized");
+                            }
+                        } catch (e) {
+                            console.error("DEBUG: JSON parse error:", e);
+                            output.textContent = "Errore parsing JSON";
+                        }
+                    })
+                    .catch(err => {
+                        console.error("DEBUG: Fetch error:", err);
+                        output.textContent = "Errore comunicazione server";
+                    });
+            }, "image/png");
+        });
+
         // ELEMENTI
     const cardGestionale = document.getElementById("cardGestionale");
     const overlay = document.getElementById("popupOverlay");
@@ -450,35 +528,6 @@ async function verificaCodice() {
             verificaCodice();
         }
     });
-
-
-        
-        /* SWIPER */
-        const swiper = new Swiper(".mySwiper", {
-            slidesPerView: 3,
-            spaceBetween: 80,
-            centeredSlides: true,
-            grabCursor: true,
-            loop: false,
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-            },
-            breakpoints: {
-                0: { slidesPerView: 1.2 },
-                700: { slidesPerView: 2 },
-                1100: { slidesPerView: 3 }
-            }
-        });
-
-
-
-
-
 
 
         /* HAMBURGER */
@@ -648,154 +697,13 @@ async function verificaCodice() {
 
 
 
-        /* DISEGNO */
-        const canvas = document.getElementById("signatureCanvas");
-        const ctx = canvas.getContext("2d");
-        function resizeCanvas(){
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-        }
-        resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
-
-        let drawing = false;
-        canvas.addEventListener("pointerdown", e=>{
-            drawing = true;
-            ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
-        });
-        canvas.addEventListener("pointermove", e=>{
-            if(!drawing) return;
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-        });
-        canvas.addEventListener("pointerup", ()=> drawing=false);
-        canvas.addEventListener("pointerleave", ()=> drawing=false);
-
-        /* PULISCI */
-        document.getElementById("clearSign").onclick = ()=>{
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-        };
 
 
 
 
 
-        /* CHIUDI POPUP FIRMA CON X */
-        const closeSignBtn = document.getElementById("closeSignaturePopup");
-        closeSignBtn.onclick = () => {
-            signPopup.classList.remove("show"); 
-            overlay.classList.remove("show");
-            document.body.classList.remove("popup-open");
-        };
-
-
-
-
-
-
-
-
-
-        /* INSERIMENTO ORA */
-        const timeInPicker = flatpickr("#timeIn", {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: "H:i",
-            time_24hr: true,
-            minuteIncrement: 15,
-
-            onChange: function(selectedDates, dateStr) {
-                timeOutPicker.set("minTime", dateStr);
-
-                if(timeOutPicker.input.value && timeOutPicker.input.value < dateStr){
-                    timeOutPicker.clear();
-                }
-            }
-        });
-
-        const timeOutPicker = flatpickr("#timeOut", {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: "H:i",
-            time_24hr: true,
-            minuteIncrement: 15
-        });
-
-
-
-
-
-        /* POPUP SUCCESSO */
-        document.querySelector(".btn-confirm").onclick = () => {
-
-            const timeIn = document.getElementById("timeIn").value;
-            const timeOut = document.getElementById("timeOut").value;
-            const check_firma = 1;
-            const idIscritto = selectedIdIscritto;
-
-            // CONTROLLO CAMPI VUOTI
-            if(timeIn === "" || timeOut === ""){
-                alert("Inserisci sia l'orario di ingresso che quello di uscita!");
-                return; // BLOCCA L'INVIO
-            }
-
-            // INVIO DATI A api_firma.php
-            fetch("api/api_firma.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({
-                    id_iscritto: idIscritto,
-                    ora_ingresso: timeIn,
-                    ora_uscita: timeOut,
-                    check_firma: check_firma
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-
-                if (!data.success) {
-                    alert("Errore nel salvataggio firma");
-                    return;
-                }
-
-                signPopup.classList.remove("show");
-                successPopup.classList.add("show");
-
-                setTimeout(()=>{
-                    successPopup.classList.remove("show");
-                    overlay.classList.remove("show");
-                    document.body.classList.remove("popup-open");
-                    location.reload();
-                },1800);
-
-            });
-        }
-
-        // Blocca scroll del body quando un popup è aperto
-        const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
-        const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
-
-        function syncBodyScrollLock() {
-            const anyOpen = document.querySelector(popupShowSelector);
-            document.body.classList.toggle("popup-open", Boolean(anyOpen));
-        }
-
-        const popupObserver = new MutationObserver((mutations) => {
-            for (const mutation of mutations) {
-                const target = mutation.target;
-                if (target === document.body || (target instanceof Element && target.matches(popupTargetsSelector))) {
-                    syncBodyScrollLock();
-                    break;
-                }
-            }
-        });
-
-        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
-        syncBodyScrollLock();
+        
+        
 
 
 
