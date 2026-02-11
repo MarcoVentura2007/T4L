@@ -2519,6 +2519,9 @@ function displayAgenda(dayIndex){
         }
     });
 
+        document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
+
+
     const contentDiv = document.getElementById('agendaContent');
 
     if(!agendaData || agendaData.length === 0){

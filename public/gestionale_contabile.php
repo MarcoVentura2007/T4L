@@ -1829,11 +1829,12 @@ function loadAgenda() {
 }
 
 // mostra attività per il giorno selezionato
+// mostra attività per il giorno selezionato
 function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
-    localStorage.setItem("selectedDayIndex", dayIndex);
+    sessionStorage.setItem("selectedDayIndex", dayIndex);
 
-    // Aggiorna la classe active sui tab
+    // Aggiorna l'aspetto dei tab dei giorni
     document.querySelectorAll('.day-tab').forEach((tab, index) => {
         if (index === dayIndex) {
             tab.classList.add('active');
@@ -1841,6 +1842,9 @@ function displayAgenda(dayIndex){
             tab.classList.remove('active');
         }
     });
+
+        document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
+
 
     const contentDiv = document.getElementById('agendaContent');
 
@@ -1892,10 +1896,10 @@ function displayAgenda(dayIndex){
         ).map(r=>`${r.nome} ${r.cognome}`).join(', ') || '—';
 
         html += `
-        <div class="activity-card">
+        <div class="activity-card" data-id="${att.id}">
             <div class="activity-header">
                 <h3>${att.attivita_nome}</h3>
-                <span class="activity-time">🕐 ${inizio_no_seconds} - ${fine_no_seconds}</span>
+                <span class="activity-time"><img class="resoconti-icon" src="immagini/rescheduling.png" style="width:22px; height:22px; margin-right:8px;"> ${inizio_no_seconds} - ${fine_no_seconds}</span>
             </div>
             <div class="activity-description">${att.descrizione}</div>
             <div class="activity-participants">

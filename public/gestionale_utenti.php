@@ -771,9 +771,10 @@ function loadAgenda() {
 }
 
 // Mostra le attività per il giorno selezionato
-function displayAgenda(dayIndex) {
+// mostra attività per il giorno selezionato
+function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
-    localStorage.setItem("selectedDayIndex", dayIndex);
+    sessionStorage.setItem("selectedDayIndex", dayIndex);
 
     // Aggiorna l'aspetto dei tab dei giorni
     document.querySelectorAll('.day-tab').forEach((tab, index) => {
@@ -784,65 +785,86 @@ function displayAgenda(dayIndex) {
         }
     });
 
-    // Aggiorna l'indice attivo per l'animazione di scorrimento
-    document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
+        document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
+
 
     const contentDiv = document.getElementById('agendaContent');
-    
-    // Calcola la data del giorno selezionato
-    const today = new Date();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - today.getDay() + 1);
+
+    if(!agendaData || agendaData.length === 0){
+        contentDiv.innerHTML = '<div class="no-activities">Nessuna attività disponibile</div>';
+        return;
+    }
+
+    // calcola lunedì della settimana
+    let monday;
+    if(agendaWeekStart){
+        const parts = agendaWeekStart.split('-');
+        monday = new Date(parts[0], parts[1]-1, parts[2]);
+    } else {
+        monday = new Date();
+        monday.setDate(monday.getDate() - monday.getDay() + 1);
+    }
+
     const selectedDate = new Date(monday);
     selectedDate.setDate(monday.getDate() + dayIndex);
-    const selectedDateStr = selectedDate.toISOString().split('T')[0];
-    
-    // Filtra le attività per il giorno selezionato
+    const selectedDateStr = getLocalDateString(selectedDate);
+
+    // filtra attività per giorno
     const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
-    
-    if (dayActivities.length === 0) {
+
+    if(dayActivities.length === 0){
         contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
         return;
     }
-    
-    // Ordina le attività per ora di inizio
-    dayActivities.sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
-    const inizio_no_seconds = dayActivities.map(att => att.ora_inizio.substring(0,5));
-    const fine_no_seconds = dayActivities.map(att => att.ora_fine.substring(0,5));
-    
+
+    // ordina per ora_inizio
+    dayActivities.sort((a,b)=> a.ora_inizio.localeCompare(b.ora_inizio));
+
     let html = '<div class="activities-list">';
-    
+
     dayActivities.forEach(att => {
-        const educatoriText = att.educatori.map(e => `${e.nome} ${e.cognome}`).join(', ');
-        const ragazziText = att.ragazzi.map(r => `${r.nome} ${r.cognome}`).join(', ') || '—';
-        
+        // orari
+        const inizio_no_seconds = att.ora_inizio.substring(0,5);
+        const fine_no_seconds   = att.ora_fine.substring(0,5);
+
+        // educatori unici
+        const educatoriText = Array.from(
+            new Map(att.educatori.map(e=>[e.id,e])).values()
+        ).map(e=>`${e.nome} ${e.cognome}`).join(', ');
+
+        // ragazzi unici
+        const ragazziText = Array.from(
+            new Map(att.ragazzi.map(r=>[r.id,r])).values()
+        ).map(r=>`${r.nome} ${r.cognome}`).join(', ') || '—';
+
         html += `
-            <div class="activity-card">
-                <div class="activity-header">
-                    <h3>${att.attivita_nome}</h3>
-                    <span class="activity-time">
-                        🕐 ${inizio_no_seconds} - ${fine_no_seconds}
-                    </span>
+        <div class="activity-card" data-id="${att.id}">
+            <div class="activity-header">
+                <h3>${att.attivita_nome}</h3>
+                <span class="activity-time"><img class="resoconti-icon" src="immagini/rescheduling.png" style="width:22px; height:22px; margin-right:8px;"> ${inizio_no_seconds} - ${fine_no_seconds}</span>
+            </div>
+            <div class="activity-description">${att.descrizione}</div>
+            <div class="activity-participants">
+                <div class="participant-group">
+                    <label>Educatori:</label>
+                    <span>${educatoriText}</span>
                 </div>
-                <div class="activity-description">
-                    ${att.descrizione}
-                </div>
-                <div class="activity-participants">
-                    <div class="participant-group">
-                        <label>Educatori:</label>
-                        <span>${educatoriText}</span>
-                    </div>
-                    <div class="participant-group">
-                        <label>Ragazzi:</label>
-                        <span>${ragazziText}</span>
-                    </div>
+                <div class="participant-group">
+                    <label>Ragazzi:</label>
+                    <span>${ragazziText}</span>
                 </div>
             </div>
+            <div class="activity-actions">
+                <button class="delete-agenda-btn" data-id="${att.id}" title="Elimina">
+                    <img src="immagini/delete.png" alt="Elimina">
+                </button>
+            </div>
+        </div>
         `;
     });
-    
+
     html += '</div>';
-    contentDiv.innerHTML = html; // <-- Questa riga mancava!
+    contentDiv.innerHTML = html;
 }
 
 // Event listeners per i tab dei giorni
