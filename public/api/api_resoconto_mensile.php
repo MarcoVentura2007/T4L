@@ -40,7 +40,9 @@ $rows = [];
 while($r = $res->fetch_assoc()){
     $r['ore_totali'] = round($r['ore_totali'],2);
     $r['costo'] = round($r['ore_totali'] * $r['Prezzo_Orario'],2);
-    $rows[] = $r;
+    if($r['ore_totali'] > 0){
+        $rows[] = $r;
+    }
 }
 
 echo json_encode(['success'=>true,'data'=>$rows]);

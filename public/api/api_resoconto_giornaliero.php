@@ -89,11 +89,13 @@ foreach($presenze as $giorno => $pres_list){
         $minutes = $effective_minutes % 60;
         $ore_att = $hours + $minutes / 100;
         $costo_att = round(($effective_minutes / 60) * $prezzo, 2);
-        if(!isset($days[$giorno]['attivita'][$nome])){
-            $days[$giorno]['attivita'][$nome] = ['ore' => 0, 'costo' => 0];
+        if($ore_att > 0){
+            if(!isset($days[$giorno]['attivita'][$nome])){
+                $days[$giorno]['attivita'][$nome] = ['ore' => 0, 'costo' => 0];
+            }
+            $days[$giorno]['attivita'][$nome]['ore'] += $ore_att;
+            $days[$giorno]['attivita'][$nome]['costo'] += $costo_att;
         }
-        $days[$giorno]['attivita'][$nome]['ore'] += $ore_att;
-        $days[$giorno]['attivita'][$nome]['costo'] += $costo_att;
     }
 }
 
