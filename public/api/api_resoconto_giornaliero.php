@@ -85,7 +85,9 @@ foreach($presenze as $giorno => $pres_list){
         } else {
             $effective_minutes = $total_overlap_minutes / $num_educatori;
         }
-        $ore_att = round($effective_minutes / 60, 2);
+        $hours = floor($effective_minutes / 60);
+        $minutes = $effective_minutes % 60;
+        $ore_att = $hours + $minutes / 100;
         $costo_att = round(($effective_minutes / 60) * $prezzo, 2);
         if(!isset($days[$giorno]['attivita'][$nome])){
             $days[$giorno]['attivita'][$nome] = ['ore' => 0, 'costo' => 0];
