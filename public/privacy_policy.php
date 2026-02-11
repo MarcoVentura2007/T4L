@@ -78,9 +78,6 @@ $username = $_SESSION['username'];
         .toc a:hover {
             text-decoration: underline;
         }
-        .privacy-section {
-            margin-bottom: 2rem;
-        }
         .privacy-section h2 {
             color: #2B2B30;
             font-size: 1.5rem;

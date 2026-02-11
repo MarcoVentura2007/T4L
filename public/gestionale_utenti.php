@@ -710,71 +710,80 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// ========== AGENDA ==========
+  // ================= AGENDA =================
 let agendaData = [];
 let agendaWeekStart = null;
 let selectedDayIndex = 0;
 
-// Calcola le date della settimana (preferisce la data del server)
+// utilità: YYYY-MM-DD locale
+function getLocalDateString(date) {
+    const y = date.getFullYear();
+    const m = (date.getMonth() + 1).toString().padStart(2,'0');
+    const d = date.getDate().toString().padStart(2,'0');
+    return `${y}-${m}-${d}`;
+}
+
+// calcola le date della settimana e aggiorna le label
 function calculateWeekDates(weekStartStr) {
     const today = new Date();
     let monday;
 
     if (weekStartStr) {
-        const parsed = new Date(weekStartStr + "T00:00:00");
-        monday = isNaN(parsed.getTime()) ? new Date(today) : parsed;
+        const parts = weekStartStr.split('-'); // "YYYY-MM-DD"
+        monday = new Date(parts[0], parts[1]-1, parts[2]);
     } else {
         monday = new Date(today);
-        monday.setDate(today.getDate() - today.getDay() + 1);
+        monday.setDate(today.getDate() - today.getDay() + 1); // lunedì
     }
-    
+
     const dates = [];
-    const dateLabels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
-    
-    for (let i = 0; i < 5; i++) {
+    const dateLabels = ['date-monday','date-tuesday','date-wednesday','date-thursday','date-friday'];
+
+    for (let i=0; i<5; i++) {
         const date = new Date(monday);
         date.setDate(monday.getDate() + i);
-        dates.push(date.toISOString().split('T')[0]);
-        
+        dates.push(getLocalDateString(date));
+
         const label = document.getElementById(dateLabels[i]);
         if (label) {
-            const dateStr = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+            const dateStr = date.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});
             label.innerText = dateStr;
         }
     }
-    
+
     return dates;
 }
 
-// Carica l'agenda dal server
+// carica agenda dal server
 function loadAgenda() {
     const contentDiv = document.getElementById('agendaContent');
     contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
 
     fetch('api/api_get_agenda.php')
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                agendaData = data.data;
+            if(data.success){
+                agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || 0;
+                let defaultDayIndex = new Date(); // 0 for Monday, 1 for Tuesday, etc.
+                if (defaultDayIndex < 0) defaultDayIndex = 6; // Sunday becomes 6
+                const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
                 displayAgenda(savedDayIndex);
             } else {
                 contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
             }
         })
-        .catch(error => {
-            console.error('Errore:', error);
+        .catch(err => {
+            console.error(err);
             contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
         });
 }
 
-// Mostra le attività per il giorno selezionato
 // mostra attività per il giorno selezionato
 function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
-    sessionStorage.setItem("selectedDayIndex", dayIndex);
+    localStorage.setItem("selectedDayIndex", dayIndex);
 
     // Aggiorna l'aspetto dei tab dei giorni
     document.querySelectorAll('.day-tab').forEach((tab, index) => {
@@ -785,7 +794,7 @@ function displayAgenda(dayIndex){
         }
     });
 
-        document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
+    document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
 
 
     const contentDiv = document.getElementById('agendaContent');
@@ -867,10 +876,10 @@ function displayAgenda(dayIndex){
     contentDiv.innerHTML = html;
 }
 
-// Event listeners per i tab dei giorni
-document.querySelectorAll('.day-tab').forEach((tab, index) => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+// event listeners per i tab dei giorni
+document.querySelectorAll('.day-tab').forEach((tab,index)=>{
+    tab.addEventListener('click',()=>{
+        document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
         displayAgenda(index);
         // Animazione di scorrimento per centrare il tab attivo
@@ -878,10 +887,69 @@ document.querySelectorAll('.day-tab').forEach((tab, index) => {
     });
 });
 
-// Carica l'agenda al caricamento della pagina
-window.addEventListener('DOMContentLoaded', () => {
-    loadAgenda();
+// carica agenda al load
+window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
+
+// ========== MODAL MODIFICA AGENDA ==========
+
+const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
+const modalModificaAgenda = document.getElementById("modalModificaAgenda");
+
+
+
+// Delete Agenda
+let agendaToDelete = null;
+document.addEventListener('click', function(e){
+    if(e.target.closest('.delete-agenda-btn')){
+        const btn = e.target.closest('.delete-agenda-btn');
+        agendaToDelete = btn.dataset.id;
+        openModal(modalDeleteAgenda);
+    }
 });
+
+document.getElementById("confirmDeleteAgenda").onclick = () => {
+    if(!agendaToDelete) return;
+
+    fetch("api/api_elimina_agenda.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ id: agendaToDelete })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            modalDeleteAgenda.classList.remove("show");
+            if(Overlay) Overlay.classList.remove("show");
+            successText.innerText = "Agenda Eliminata!!";
+            showSuccess(successPopup, Overlay);
+            setTimeout(() => {
+                hideSuccess(successPopup, Overlay);
+                location.reload();
+            }, 1800);
+        } else {
+            alert("Errore: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Errore di comunicazione con il server");
+    });
+};
+
+
+
+        // Event listeners per i tab dei giorni
+        document.querySelectorAll('.day-tab').forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                displayAgenda(index);
+            });
+        });
+
 
         // Salva stato sidebar
         const checkboxInput = document.getElementById('checkbox-input');
@@ -919,6 +987,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
         popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
         syncBodyScrollLock();
+
+        // utilità: YYYY-MM-DD locale
+        function getLocalDateString(date) {
+            const y = date.getFullYear();
+            const m = (date.getMonth() + 1).toString().padStart(2,'0');
+            const d = date.getDate().toString().padStart(2,'0');
+            return `${y}-${m}-${d}`;
+        }
 </script>
 
 </body>

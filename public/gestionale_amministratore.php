@@ -2493,7 +2493,9 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                const savedDayIndex = parseInt(sessionStorage.getItem("selectedDayIndex")) || 0;
+                let defaultDayIndex = new Date(); // 0 for Monday, 1 for Tuesday, etc.
+                if (defaultDayIndex < 0) defaultDayIndex = 6; // Sunday becomes 6
+                const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
                 displayAgenda(savedDayIndex);
             } else {
                 contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
@@ -2508,7 +2510,7 @@ function loadAgenda() {
 // mostra attività per il giorno selezionato
 function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
-    sessionStorage.setItem("selectedDayIndex", dayIndex);
+    localStorage.setItem("selectedDayIndex", dayIndex);
 
     // Aggiorna l'aspetto dei tab dei giorni
     document.querySelectorAll('.day-tab').forEach((tab, index) => {
@@ -2519,7 +2521,7 @@ function displayAgenda(dayIndex){
         }
     });
 
-        document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
+    document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
 
 
     const contentDiv = document.getElementById('agendaContent');
@@ -3113,6 +3115,14 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
         popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
         syncBodyScrollLock();
+
+        // utilità: YYYY-MM-DD locale
+        function getLocalDateString(date) {
+            const y = date.getFullYear();
+            const m = (date.getMonth() + 1).toString().padStart(2,'0');
+            const d = date.getDate().toString().padStart(2,'0');
+            return `${y}-${m}-${d}`;
+        }
 
 
 

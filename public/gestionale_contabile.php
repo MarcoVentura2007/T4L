@@ -1750,7 +1750,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
         });
 
-               // ================= AGENDA =================
+                // ================= AGENDA =================
 let agendaData = [];
 let agendaWeekStart = null;
 let selectedDayIndex = 0;
@@ -1794,14 +1794,6 @@ function calculateWeekDates(weekStartStr) {
     return dates;
 }
 
-// funzione per ottenere cookie
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
-
 // carica agenda dal server
 function loadAgenda() {
     const contentDiv = document.getElementById('agendaContent');
@@ -1814,7 +1806,7 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                let defaultDayIndex = new Date().getDay() - 1; // 0 for Monday, 1 for Tuesday, etc.
+                let defaultDayIndex = new Date(); // 0 for Monday, 1 for Tuesday, etc.
                 if (defaultDayIndex < 0) defaultDayIndex = 6; // Sunday becomes 6
                 const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
                 displayAgenda(savedDayIndex);
@@ -1829,10 +1821,9 @@ function loadAgenda() {
 }
 
 // mostra attività per il giorno selezionato
-// mostra attività per il giorno selezionato
 function displayAgenda(dayIndex){
     selectedDayIndex = dayIndex;
-    sessionStorage.setItem("selectedDayIndex", dayIndex);
+    localStorage.setItem("selectedDayIndex", dayIndex);
 
     // Aggiorna l'aspetto dei tab dei giorni
     document.querySelectorAll('.day-tab').forEach((tab, index) => {
@@ -1843,7 +1834,7 @@ function displayAgenda(dayIndex){
         }
     });
 
-        document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
+    document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
 
 
     const contentDiv = document.getElementById('agendaContent');
@@ -1939,144 +1930,11 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
 // carica agenda al load
 window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
 
-// ========== MODAL CREA AGENDA ==========
-const creaAgendaBtn = document.getElementById("creaAgendaBtn");
-const formCreaAgenda = document.getElementById("formCreaAgenda");
-// agendaOverlay should reuse single global overlay when available
-const agendaOverlay = document.getElementById("agendaOverlay") || modalOverlay;
-const successPopupAgenda = document.getElementById("successPopupAgenda");
+// ========== MODAL MODIFICA AGENDA ==========
 
-if(creaAgendaBtn) {
-    creaAgendaBtn.onclick = () => {
-        // Popola la select con le date della settimana
-        const today = new Date();
-        const monday = new Date(today);
-        monday.setDate(today.getDate() - today.getDay() + 1);
 
-        const dataSelect = document.getElementById("agendaData");
-        const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
-        
-        // Pulisci le opzioni mantendo la prima (placeholder)
-        while (dataSelect.options.length > 1) {
-            dataSelect.remove(1);
-        }
 
-        for (let i = 0; i < 5; i++) {
-            const date = new Date(monday);
-            date.setDate(monday.getDate() + i);
-            const dateStr = date.toISOString().split('T')[0];
-            const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-            const option = document.createElement("option");
-            option.value = dateStr;
-            option.text = `${giorni[i]} ${dateFormatted}`;
-            dataSelect.appendChild(option);
-        }
-
-        openModal(modalCreaAgenda);
-    };
-}
-
-if(agendaOverlay) {
-    agendaOverlay.onclick = () => {
-        closeModal();
-    };
-}
-
-// Submit form
-if(formCreaAgenda) {
-    formCreaAgenda.onsubmit = function(e) {
-        e.preventDefault();
-        console.log("Form submit triggered");
-
-        const data = document.getElementById("agendaData").value;
-        const ora_inizio = document.getElementById("agendaOraInizio").value;
-        const ora_fine = document.getElementById("agendaOraFine").value;
-        const id_attivita = document.getElementById("agendaAttivita").value;
-        
-        console.log("Data:", data, "Ora inizio:", ora_inizio, "Ora fine:", ora_fine, "Attività:", id_attivita);
-
-        const educatoriCheckboxes = document.querySelectorAll(".educatore-checkbox:checked");
-        const ragazziCheckboxes = document.querySelectorAll(".ragazzo-checkbox:checked");
-        
-        const educatori = Array.from(educatoriCheckboxes)
-            .map(cb => {
-                const val = parseInt(cb.value, 10);
-                console.log("Educatore checkbox value:", cb.value, "parsed:", val);
-                return val;
-            })
-            .filter(id => !isNaN(id) && id > 0);
-            
-        const ragazzi = Array.from(ragazziCheckboxes)
-            .map(cb => {
-                const val = parseInt(cb.value, 10);
-                console.log("Ragazzo checkbox value:", cb.value, "parsed:", val);
-                return val;
-            })
-            .filter(id => !isNaN(id) && id > 0);
-
-        console.log("Educatori selezionati:", educatori);
-        console.log("Ragazzi selezionati:", ragazzi);
-
-        if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
-            alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
-            return;
-        }
-
-        if (ragazzi.length === 0) {
-            alert("Seleziona almeno un ragazzo!");
-            return;
-        }
-
-        console.log("Invio fetch all'API");
-        const payload = {
-            data: data,
-            ora_inizio: ora_inizio,
-            ora_fine: ora_fine,
-            id_attivita: parseInt(id_attivita),
-            educatori: educatori,
-            ragazzi: ragazzi
-        };
-        console.log("Payload:", payload);
-
-        fetch("api/api_aggiungi_agenda.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Requested-With": "XMLHttpRequest"
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(res => {
-            console.log("Response status:", res.status);
-            return res.json();
-        })
-        .then(data => {
-            console.log("Risposta API:", data);
-            if(data.success) {
-                console.log("Successo! Chiudo modal e reload");
-                if (modalCreaAgenda) modalCreaAgenda.classList.remove("show");
-                if (agendaOverlay) agendaOverlay.classList.remove("show");
-                if (successPopupAgenda) {
-                    showSuccess(successPopupAgenda, agendaOverlay);
-                    setTimeout(() => {
-                        if (successPopupAgenda) hideSuccess(successPopupAgenda, agendaOverlay);
-                        location.reload();
-                    }, 2500);
-                } else {
-                    location.reload();
-                }
-            } else {
-                alert("Errore API: " + (data.error || data.message));
-            }
-        })
-        .catch(err => {
-            console.error("Fetch error completo:", err);
-            console.error("Stack:", err.stack);
-            alert("Errore di comunicazione con il server: " + err.message);
-        });
-    };
-}
 
 // Delete Agenda
 let agendaToDelete = null;
@@ -2103,11 +1961,11 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
     .then(data => {
         if(data.success) {
             modalDeleteAgenda.classList.remove("show");
-            if(modalOverlay) modalOverlay.classList.remove("show");
+            if(Overlay) Overlay.classList.remove("show");
             successText.innerText = "Agenda Eliminata!!";
-            showSuccess(successPopup, modalOverlay);
+            showSuccess(successPopup, Overlay);
             setTimeout(() => {
-                hideSuccess(successPopup, modalOverlay);
+                hideSuccess(successPopup, Overlay);
                 location.reload();
             }, 1800);
         } else {
@@ -2119,6 +1977,160 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         alert("Errore di comunicazione con il server");
     });
 };
+
+
+
+        // Event listeners per i tab dei giorni
+        document.querySelectorAll('.day-tab').forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                displayAgenda(index);
+            });
+        });
+
+        // ========== MODAL CREA AGENDA ==========
+        const creaAgendaBtn = document.getElementById("creaAgendaBtn");
+        const formCreaAgenda = document.getElementById("formCreaAgenda");
+          // agendaOverlay should reuse single global overlay when available
+        const agendaOverlay = document.getElementById("agendaOverlay") || Overlay;
+        const successPopupAgenda = document.getElementById("successPopupAgenda");
+
+        if(creaAgendaBtn) {
+            creaAgendaBtn.onclick = () => {
+                // Popola la select con le date della settimana
+                const today = new Date();
+                const monday = new Date(today);
+                monday.setDate(today.getDate() - today.getDay() + 1);
+
+                const dataSelect = document.getElementById("agendaData");
+                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+                
+                // Pulisci le opzioni mantendo la prima (placeholder)
+                while (dataSelect.options.length > 1) {
+                    dataSelect.remove(1);
+                }
+
+                for (let i = 0; i < 5; i++) {
+                    const date = new Date(monday);
+                    date.setDate(monday.getDate() + i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                    const option = document.createElement("option");
+                    option.value = dateStr;
+                    option.text = `${giorni[i]} ${dateFormatted}`;
+                    dataSelect.appendChild(option);
+                }
+
+                openModal(modalCreaAgenda);
+            };
+        }
+
+        if(agendaOverlay) {
+            agendaOverlay.onclick = () => {
+                closeModal();
+            };
+        }
+
+        // Submit form
+        if(formCreaAgenda) {
+            formCreaAgenda.onsubmit = function(e) {
+                e.preventDefault();
+                console.log("Form submit triggered");
+
+                const data = document.getElementById("agendaData").value;
+                const ora_inizio = document.getElementById("agendaOraInizio").value;
+                const ora_fine = document.getElementById("agendaOraFine").value;
+                const id_attivita = document.getElementById("agendaAttivita").value;
+                
+                console.log("Data:", data, "Ora inizio:", ora_inizio, "Ora fine:", ora_fine, "Attività:", id_attivita);
+
+                const educatoriCheckboxes = document.querySelectorAll(".educatore-checkbox:checked");
+                const ragazziCheckboxes = document.querySelectorAll(".ragazzo-checkbox:checked");
+                
+                const educatori = Array.from(educatoriCheckboxes)
+                    .map(cb => {
+                        const val = parseInt(cb.value, 10);
+                        console.log("Educatore checkbox value:", cb.value, "parsed:", val);
+                        return val;
+                    })
+                    .filter(id => !isNaN(id) && id > 0);
+                    
+                const ragazzi = Array.from(ragazziCheckboxes)
+                    .map(cb => {
+                        const val = parseInt(cb.value, 10);
+                        console.log("Ragazzo checkbox value:", cb.value, "parsed:", val);
+                        return val;
+                    })
+                    .filter(id => !isNaN(id) && id > 0);
+
+                console.log("Educatori selezionati:", educatori);
+                console.log("Ragazzi selezionati:", ragazzi);
+
+                if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
+                    alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
+                    return;
+                }
+
+                if (ragazzi.length === 0) {
+                    alert("Seleziona almeno un ragazzo!");
+                    return;
+                }
+
+                console.log("Invio fetch all'API");
+                const payload = {
+                    data: data,
+                    ora_inizio: ora_inizio,
+                    ora_fine: ora_fine,
+                    id_attivita: parseInt(id_attivita),
+                    educatori: educatori,
+                    ragazzi: ragazzi
+                };
+                console.log("Payload:", payload);
+
+                fetch("api/api_aggiungi_agenda.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => {
+                    console.log("Response status:", res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log("Risposta API:", data);
+                    if(data.success) {
+                        console.log("Successo! Chiudo modal e reload");
+                        if (modalCreaAgenda) modalCreaAgenda.classList.remove("show");
+                        if (agendaOverlay) agendaOverlay.classList.remove("show");
+                        if (successPopupAgenda) {
+                            showSuccess(successPopupAgenda, agendaOverlay);
+                            setTimeout(() => {
+                                if (successPopupAgenda) hideSuccess(successPopupAgenda, agendaOverlay);
+                                location.reload();
+                            }, 2500);
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        alert("Errore API: " + (data.error || data.message));
+                    }
+                })
+                .catch(err => {
+                    console.error("Fetch error completo:", err);
+                    console.error("Stack:", err.stack);
+                    alert("Errore di comunicazione con il server: " + err.message);
+                });
+            };
+        }
+        // Carica l'agenda al caricamento della pagina
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAgenda();
+        });
 
 
 
@@ -2172,7 +2184,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
     // CAMBIO MESE NEL MODAL
     if(meseInput) meseInput.addEventListener("change", caricaResocontoGiorni);
-
     // FUNZIONE CARICA RESOCONTI MENSILI
     function caricaResocontiMensili(mese){
         if(!resocontiMensiliBody) return;
@@ -2196,7 +2207,8 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 const ore = parseFloat(r.ore_totali).toFixed(2);
                 const costo = parseFloat(r.ore_totali * r.Prezzo_Orario).toFixed(2);
 
-                resocontiMensiliBody.innerHTML += `                    <tr>
+                resocontiMensiliBody.innerHTML += `
+                    <tr>
                         <td><img src="${r.Fotografia}" class="user-avatar"></td>
                         <td>${r.Nome}</td>
                         <td>${r.Cognome}</td>
@@ -2298,7 +2310,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
             for(let i=0;i<startPadding;i++) calendarHTML += `<div class="calendar-cell empty"></div>`;
 
-           for (let d = 1; d <= lastDay.getDate(); d++) {
+            for (let d = 1; d <= lastDay.getDate(); d++) {
                 const day = daysMap.get(d);
                 const presente = day && day.ore > 0;
 
@@ -2332,11 +2344,12 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 calendarHTML += `</div>`;
             }
 
+
             calendarHTML += `</div>`;
 
             // Totali
             calendarHTML += `<div class="resoconto-totals">
-                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(2)}</div></div>
+                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(1)}</div></div>
                 <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Costo Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
                 <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${daysMap.size}</div></div>
             </div>`;
@@ -2377,6 +2390,21 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             altInput: true
         });
 
+        // Salva stato sidebar
+        const checkboxInput = document.getElementById('checkbox-input');
+        if (checkboxInput) {
+            // Ripristina stato al caricamento
+            const sidebarState = localStorage.getItem('sidebarOpen');
+            if (sidebarState !== null) {
+                checkboxInput.checked = sidebarState === 'true';
+            }
+
+            // Salva stato al cambio
+            checkboxInput.addEventListener('change', () => {
+                localStorage.setItem('sidebarOpen', checkboxInput.checked);
+            });
+        }
+
         // Blocca scroll del body quando un popup è aperto
         const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
         const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
@@ -2396,31 +2424,16 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             }
         });
 
-        // Salva stato sidebar
-        const checkboxInput = document.getElementById('checkbox-input');
-        if (checkboxInput) {
-            // Ripristina stato al caricamento
-            const sidebarState = localStorage.getItem('sidebarOpen');
-            if (sidebarState !== null) {
-                checkboxInput.checked = sidebarState === 'true';
-            }
-
-            // Salva stato al cambio
-            checkboxInput.addEventListener('change', () => {
-                localStorage.setItem('sidebarOpen', checkboxInput.checked);
-            });
-        }
-
         popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
         syncBodyScrollLock();
 
-
-
-
-
-
-
-
+        // utilità: YYYY-MM-DD locale
+        function getLocalDateString(date) {
+            const y = date.getFullYear();
+            const m = (date.getMonth() + 1).toString().padStart(2,'0');
+            const d = date.getDate().toString().padStart(2,'0');
+            return `${y}-${m}-${d}`;
+        }
 
 
 
