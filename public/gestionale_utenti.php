@@ -842,9 +842,12 @@ function displayAgenda(dayIndex){
         ).map(e=>`${e.nome} ${e.cognome}`).join(', ');
 
         // ragazzi unici
-        const ragazziText = Array.from(
+        const ragazziPhotos = Array.from(
             new Map(att.ragazzi.map(r=>[r.id,r])).values()
-        ).map(r=>`${r.nome} ${r.cognome}`).join(', ') || '—';
+               ).map(r=>`<div class="ragazzo-item">
+            <img src="${r.fotografia}" alt="${r.nome} ${r.cognome}" class="ragazzo-avatar">
+            <span class="ragazzo-cognome">${r.cognome}</span>
+</div>`).join('') || '—';
 
         html += `
         <div class="activity-card" data-id="${att.id}">
@@ -860,13 +863,11 @@ function displayAgenda(dayIndex){
                 </div>
                 <div class="participant-group">
                     <label>Ragazzi:</label>
-                    <span>${ragazziText}</span>
+                    <span class="ragazzi-photos">${ragazziPhotos}</span>
                 </div>
             </div>
             <div class="activity-actions">
-                <button class="delete-agenda-btn" data-id="${att.id}" title="Elimina">
-                    <img src="immagini/delete.png" alt="Elimina">
-                </button>
+                
             </div>
         </div>
         `;

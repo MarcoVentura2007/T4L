@@ -577,7 +577,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </svg>
                 </button>
 
-                <div class="agenda-container">
+                <div class="agenda-container" style="margin: 0 auto; max-width: 1200px;">
+                    <div class="header-agenda">
                     <div class="days-tabs">
                         <button class="day-tab active" data-day="0">
                             <span class="day-name">Lunedì</span>
@@ -599,6 +600,38 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <span class="day-name">Venerdì</span>
                             <span class="day-date" id="date-friday"></span>
                         </button>
+                    </div>
+
+                    <button class="print-btn" id="stampaAgendaBtn">
+                    <span class="printer-wrapper">
+                        <span class="printer-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 92 75">
+                            <path
+                            stroke-width="5"
+                            stroke="black"
+                            d="M12 37.5H80C85.2467 37.5 89.5 41.7533 89.5 47V69C89.5 70.933 87.933 72.5 86 72.5H6C4.067 72.5 2.5 70.933 2.5 69V47C2.5 41.7533 6.75329 37.5 12 37.5Z"
+                            ></path>
+                            <mask fill="white" id="path-2-inside-1_30_7">
+                            <path
+                                d="M12 12C12 5.37258 17.3726 0 24 0H57C70.2548 0 81 10.7452 81 24V29H12V12Z"
+                            ></path>
+                            </mask>
+                            <path
+                            mask="url(#path-2-inside-1_30_7)"
+                            fill="black"
+                            d="M7 12C7 2.61116 14.6112 -5 24 -5H57C73.0163 -5 86 7.98374 86 24H76C76 13.5066 67.4934 5 57 5H24C20.134 5 17 8.13401 17 12H7ZM81 29H12H81ZM7 29V12C7 2.61116 14.6112 -5 24 -5V5C20.134 5 17 8.13401 17 12V29H7ZM57 -5C73.0163 -5 86 7.98374 86 24V29H76V24C76 13.5066 67.4934 5 57 5V-5Z"
+                            ></path>
+                            <circle fill="black" r="3" cy="49" cx="78"></circle>
+                        </svg>
+                        </span>
+
+                        <span class="printer-page-wrapper">
+                        <span class="printer-page"></span>
+                        </span>
+                    </span>
+                    Stampa
+                    </button>
+
                     </div>
 
                     <div class="agenda-content" id="agendaContent">
@@ -1882,9 +1915,12 @@ function displayAgenda(dayIndex){
         ).map(e=>`${e.nome} ${e.cognome}`).join(', ');
 
         // ragazzi unici
-        const ragazziText = Array.from(
+        const ragazziPhotos = Array.from(
             new Map(att.ragazzi.map(r=>[r.id,r])).values()
-        ).map(r=>`${r.nome} ${r.cognome}`).join(', ') || '—';
+               ).map(r=>`<div class="ragazzo-item">
+            <img src="${r.fotografia}" alt="${r.nome} ${r.cognome}" class="ragazzo-avatar">
+            <span class="ragazzo-cognome">${r.cognome}</span>
+</div>`).join('') || '—';
 
         html += `
         <div class="activity-card" data-id="${att.id}">
@@ -1900,7 +1936,7 @@ function displayAgenda(dayIndex){
                 </div>
                 <div class="participant-group">
                     <label>Ragazzi:</label>
-                    <span>${ragazziText}</span>
+                    <span class="ragazzi-photos">${ragazziPhotos}</span>
                 </div>
             </div>
             <div class="activity-actions">
@@ -1988,6 +2024,123 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 displayAgenda(index);
             });
         });
+
+        
+        // ========== STAMPA AGENDA ==========
+        const stampaAgendaBtn = document.getElementById("stampaAgendaBtn");
+        if(stampaAgendaBtn) {
+            stampaAgendaBtn.onclick = () => {
+                // Apri una nuova finestra per la stampa
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+                // Definisci le fasce orarie
+                const timeSlots = [
+                    { start: '08:00', end: '10:00', label: '08:00 - 10:00', bg: '#e6f7ff' },
+                    { start: '10:00', end: '12:00', label: '10:00 - 12:00', bg: '#fff7e6' },
+                    { start: '12:00', end: '14:00', label: '12:00 - 14:00', bg: '#f6ffed' },
+                    { start: '14:00', end: '16:00', label: '14:00 - 16:00', bg: '#fff2f0' },
+                    { start: '16:00', end: '18:00', label: '16:00 - 18:00', bg: '#f9f0ff' }
+                ];
+
+                // Raggruppa attività per giorno e fascia oraria
+                const groupedActivities = {};
+                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+                const dayIndices = [0, 1, 2, 3, 4];
+
+                timeSlots.forEach(slot => {
+                    groupedActivities[slot.label] = {};
+                    dayIndices.forEach((dayIndex, idx) => {
+                        const dayName = giorni[idx];
+                        groupedActivities[slot.label][dayName] = [];
+
+                        const dayActivities = agendaData.filter(att => {
+                            let monday;
+                            if(agendaWeekStart){
+                                const parts = agendaWeekStart.split('-');
+                                monday = new Date(parts[0], parts[1]-1, parts[2]);
+                            } else {
+                                monday = new Date();
+                                monday.setDate(monday.getDate() - monday.getDay() + 1);
+                            }
+                            const selectedDate = new Date(monday);
+                            selectedDate.setDate(monday.getDate() + dayIndex);
+                            const selectedDateStr = getLocalDateString(selectedDate);
+                            return att.data === selectedDateStr && att.ora_inizio >= slot.start && att.ora_inizio < slot.end;
+                        });
+
+                        dayActivities.sort((a,b)=> a.ora_inizio.localeCompare(b.ora_inizio)).forEach(att => {
+                            const educatori = Array.from(new Map(att.educatori.map(e=>[e.id,e])).values()).map(e=>`${e.nome} ${e.cognome}`).join(', ');
+                            const ragazziSurnames = Array.from(new Map(att.ragazzi.map(r=>[r.id,r])).values()).map(r=>r.cognome).join(', ');
+
+                            groupedActivities[slot.label][dayName].push(`
+                                <div class="activity">
+                                    <strong>${att.attivita_nome} (${educatori})</strong><br>
+                                    <span class="ragazzi-surnames">${ragazziSurnames}</span>
+                                </div>
+                            `);
+                        });
+                    });
+                });
+
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Stampa Agenda Settimanale</title>
+                        <style>
+                            @page { size: A4 landscape; }
+                            body { font-family: Arial, sans-serif; margin: 3px; width: 297mm; }
+                            table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+                            th, td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: top; width: 20%; max-width: 20%; word-wrap: break-word; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            th { background: #f0f0f0; font-weight: bold; }
+                            .activity { margin-bottom: 6px; page-break-inside: avoid; }
+                            .participants { font-size: 12px; }
+                            .ragazzi-photos { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
+                            .ragazzo-photo { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc; }
+                            @media print { body { margin: 0; } table { width: 100%; } }
+                        </style>
+                    </head>
+                    <body>
+                        <h2 style="text-align: center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Lunedì</th>
+                                    <th>Martedì</th>
+                                    <th>Mercoledì</th>
+                                    <th>Giovedì</th>
+                                    <th>Venerdì</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `);
+
+                timeSlots.forEach(slot => {
+                    printWindow.document.write(`<tr>`);
+                    dayIndices.forEach((dayIndex, idx) => {
+                        const dayName = giorni[idx];
+                        const activities = groupedActivities[slot.label][dayName];
+                        printWindow.document.write(`<td style="background-color: ${slot.bg};">`);
+                        if(activities.length === 0) {
+                            printWindow.document.write(`Nessuna attività`);
+                        } else {
+                            activities.forEach(act => printWindow.document.write(act));
+                        }
+                        printWindow.document.write(`</td>`);
+                    });
+                    printWindow.document.write(`</tr>`);
+                });
+
+                printWindow.document.write(`
+                            </tbody>
+                        </table>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            };
+        }
+
 
         // ========== MODAL CREA AGENDA ==========
         const creaAgendaBtn = document.getElementById("creaAgendaBtn");
