@@ -20,7 +20,13 @@ $username = $_SESSION['username'];
 <link rel="icon" href="immagini/Icona.ico">
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2B2B30">
+<meta name="theme-color" content="#640a35">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Time4All">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileColor" content="#640a35">
+<meta name="msapplication-config" content="/browserconfig.xml">
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -65,9 +71,9 @@ $username = $_SESSION['username'];
 
 
     <div class="logo-area">
-        <img src="immagini/Logo-centrodiurno.png">
-        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png">
-        <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+        <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
+        <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
+        <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
     </div>
 
     
@@ -104,9 +110,6 @@ $username = $_SESSION['username'];
         </a>
 
     </section>
-
-</main>
-
     <footer class="footer-bar">
         <div class="footer-left">© Time4All • 2026</div>
          <div class="footer-top">
@@ -117,7 +120,23 @@ $username = $_SESSION['username'];
         </div>
     </footer>
 
+</main>
+
+    
+
 <script>
+// Registrazione Service Worker per PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((registration) => {
+        console.log('SW registered: ', registration);
+      })
+      .catch((registrationError) => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
 
 /* MENU */
 

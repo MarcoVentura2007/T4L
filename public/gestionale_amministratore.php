@@ -164,7 +164,7 @@ $resultResoconti = $conn->query($sqlResoconti);
         <div class="logo-area">
             <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
             <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
-            <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+            <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
         </div>
 
         <div class="hamburger" id="hamburger">
@@ -172,6 +172,15 @@ $resultResoconti = $conn->query($sqlResoconti);
             <span></span>
             <span></span>
         </div>
+
+        <!-- Mobile Sidebar Toggle -->
+        <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
 
         <div class="dropdown" id="dropdown">
 

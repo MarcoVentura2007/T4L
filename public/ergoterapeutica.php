@@ -46,6 +46,12 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="immagini/Icona.ico">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#640a35">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Time4All">
+<meta name="mobile-web-app-capable" content="yes">
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
@@ -65,6 +71,12 @@ if($resultClasse && $resultClasse->num_rows > 0){
             </div>
         </div>
 
+        <div class="logo-area">
+            <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
+            <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
+            <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
+        </div>
+
         <div class="logout-overlay" id="logoutOverlay"></div>
 
         <div class="logout-modal" id="logoutModal">
@@ -78,9 +90,9 @@ if($resultClasse && $resultClasse->num_rows > 0){
         </div>
 
     <div class="logo-area">
-        <img src="immagini/Logo-centrodiurno.png">
+        <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
         <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
-        <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+        <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
     </div>
 
     <div class="hamburger" id="hamburger">
@@ -148,7 +160,6 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
 
 </header>
-
 
 <main class="dashboard">
 

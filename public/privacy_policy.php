@@ -204,10 +204,10 @@ $username = $_SESSION['username'];
         </div>
 
 
-     <div class="logo-area">
+        <div class="logo-area">
             <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
             <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
-            <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+            <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
         </div>
 
     

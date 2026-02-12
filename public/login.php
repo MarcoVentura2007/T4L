@@ -11,9 +11,14 @@ if (isset($_SESSION['username'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T4L | Login</title>
-    <link rel="icon" href="immagini/Icona.ico">
-    <link rel="stylesheet" href="style.css">
-    <meta name="theme-color" content="#2B2B30">
+<link rel="icon" href="immagini/Icona.ico">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#640a35">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Time4All">
+<meta name="mobile-web-app-capable" content="yes">
 
     <script src="https://cdn.tailwindcss.com"></script>
 </head>

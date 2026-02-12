@@ -1,0 +1,33 @@
+{
+  "name": "Time4All - Gestionale",
+  "short_name": "T4L",
+  "description": "Sistema di gestione per Centro Diurno e Ergoterapeutica",
+  "start_url": "index.php",
+  "serviceworker": {
+    "src": "sw.js",
+    "scope": "/",
+    "update_via_cache": "none"
+  },
+  "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#640a35",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "immagini/TIME4ALL_LOGO-removebg-preview.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "immagini/TIME4ALL_LOGO-removebg-preview.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "health"],
+  "lang": "it-IT",
+  "dir": "ltr"
+}

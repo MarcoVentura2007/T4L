@@ -78,9 +78,9 @@ if($resultClasse && $resultClasse->num_rows > 0){
         </div>
 
     <div class="logo-area">
-        <img src="immagini/Logo-centrodiurno.png">
+        <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
         <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
-        <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+        <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
     </div>
 
     <div class="hamburger" id="hamburger">

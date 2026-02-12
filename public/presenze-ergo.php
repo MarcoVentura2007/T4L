@@ -98,7 +98,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
             </div>
         </div>
 
-        <div class="logout-overlay" id="logoutOverlay"></div>
+    <div class="logout-overlay" id="logoutOverlay"></div>
 
         <div class="logout-modal" id="logoutModal">
             <h3>Conferma logout</h3>
@@ -110,10 +110,10 @@ var userMap = <?php echo json_encode($userMap); ?>;
             </div>
         </div>
 
-        <div class="logo-area">
+    <div class="logo-area">
             <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
             <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
-            <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+            <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
         </div>
 
         <div class="hamburger" id="hamburger">
@@ -598,9 +598,7 @@ async function verificaCodice() {
             }
         });
 
-
-
-/* LOGOUT */
+        /* LOGOUT */
         const logoutBtn = document.getElementById("logoutBtn");
         const logoutOverlay = document.getElementById("logoutOverlay");
         const logoutModal = document.getElementById("logoutModal");
@@ -623,6 +621,28 @@ async function verificaCodice() {
         confirmLogout.onclick = () => {
             window.location.href = "logout.php";
         };
+
+        // Blocca scroll del body quando un popup è aperto
+        const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
+        const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
+
+        function syncBodyScrollLock() {
+            const anyOpen = document.querySelector(popupShowSelector);
+            document.body.classList.toggle("popup-open", Boolean(anyOpen));
+        }
+
+        const popupObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                const target = mutation.target;
+                if (target === document.body || (target instanceof Element && target.matches(popupTargetsSelector))) {
+                    syncBodyScrollLock();
+                    break;
+                }
+            }
+        });
+
+        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        syncBodyScrollLock();
 
 
 
