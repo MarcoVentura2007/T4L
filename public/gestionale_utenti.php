@@ -995,7 +995,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             const d = date.getDate().toString().padStart(2,'0');
             return `${y}-${m}-${d}`;
         }
-</script>
+o</script>
 
 </body>
 </html>
