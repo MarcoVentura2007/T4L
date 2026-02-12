@@ -94,7 +94,7 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // --- Query ragazzi ---
-$sql_ragazzi = "SELECT 
+$sql_ragazzi = "SELECT
                     p.ID_Attivita,
                     p.Data,
                     p.Ora_Inizio,
@@ -102,6 +102,7 @@ $sql_ragazzi = "SELECT
                     i.id AS ragazzo_id,
                     i.nome AS ragazzo_nome,
                     i.cognome AS ragazzo_cognome,
+                    i.fotografia AS ragazzo_fotografia,
                     p.presenza_effettiva AS effettiva_presenza
                 FROM partecipa p
                 INNER JOIN iscritto i ON p.ID_Ragazzo = i.id
@@ -120,6 +121,7 @@ if ($result_ragazzi) {
             'id' => $row['ragazzo_id'],
             'nome' => $row['ragazzo_nome'],
             'cognome' => $row['ragazzo_cognome'],
+            'fotografia' => $row['ragazzo_fotografia'],
             'effettiva_presenza' => (bool)$row['effettiva_presenza']
         ];
     }

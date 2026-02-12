@@ -173,15 +173,6 @@ $resultResoconti = $conn->query($sqlResoconti);
             <span></span>
         </div>
 
-        <!-- Mobile Sidebar Toggle -->
-        <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-        </button>
-
         <div class="dropdown" id="dropdown">
 
         <div class="menu-group">
@@ -2578,9 +2569,12 @@ function displayAgenda(dayIndex){
         ).map(e=>`${e.nome} ${e.cognome}`).join(', ');
 
         // ragazzi unici
-        const ragazziText = Array.from(
+        const ragazziPhotos = Array.from(
             new Map(att.ragazzi.map(r=>[r.id,r])).values()
-        ).map(r=>`${r.nome} ${r.cognome}`).join(', ') || '—';
+        ).map(r=>`<div class="ragazzo-item">
+            <img src="${r.fotografia}" alt="${r.nome} ${r.cognome}" class="ragazzo-avatar">
+            <span class="ragazzo-cognome">${r.cognome}</span>
+        </div>`).join('') || '—';
 
         html += `
         <div class="activity-card" data-id="${att.id}">
@@ -2596,7 +2590,7 @@ function displayAgenda(dayIndex){
                 </div>
                 <div class="participant-group">
                     <label>Ragazzi:</label>
-                    <span>${ragazziText}</span>
+                    <div class="ragazzi-photos">${ragazziPhotos}</div>
                 </div>
             </div>
             <div class="activity-actions">
