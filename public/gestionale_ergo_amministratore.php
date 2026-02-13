@@ -1,96 +1,127 @@
- <?php
+<?php
 session_start();
 
-// Se l'utente non è loggato → redirect a login.php
+// Prendi info account dell'utente loggato
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit;
 }
-
 $username = $_SESSION['username'];
 
-// Connessione al DB
-$host = "localhost";    
-$user = "root";         
-$pass = "";             
-$db   = "time4all"; 
+// ===============================
+//  1️⃣ Connessione al DB Account (vecchio DB)
+// ===============================
+$hostAccount = "localhost";
+$userAccount = "root";
+$passAccount = "";
+$dbAccount   = "time4all"; // DB dove c'è Account
 
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
+$connAccount = new mysqli($hostAccount, $userAccount, $passAccount, $dbAccount);
+if($connAccount->connect_error){
+    die("Connessione DB Account fallita: " . $connAccount->connect_error);
 }
 
-// Prendi la classe dell'utente loggato
-$resultClasse = $conn->query("SELECT classe FROM Account WHERE nome_utente = '$username'");
+
+
+$stmtClasse = $connAccount->prepare("SELECT classe, codice_univoco FROM Account WHERE nome_utente = ?");
+$stmtClasse->bind_param("s", $username);
+$stmtClasse->execute();
+$resultClasse = $stmtClasse->get_result();
+
 if($resultClasse && $resultClasse->num_rows > 0){
     $rowClasse = $resultClasse->fetch_assoc();
     $classe = $rowClasse['classe'];
+    $codiceUnivoco = $rowClasse['codice_univoco'];
 } else {
-    $classe = ""; // default se non trovato
+    $classe = "";
+    $codiceUnivoco = "";
 }
 
-// Controlla se il codice è stato verificato (timeout 30 minuti)
-if(
-    !isset($_SESSION['codice_verificato']) || 
-    $_SESSION['codice_verificato'] !== true ||
-    !isset($_SESSION['codice_verificato_time']) ||
-    (time() - $_SESSION['codice_verificato_time']) > 1800
-){
-    header("Location: index.php");
-    exit;
-}
+$stmtClasse->close();
+$connAccount->close();
 
-// Preleva i profili dal DB
-$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
-        FROM iscritto ORDER BY cognome ASC";
-$result = $conn->query($sql);
-
-// Presenze giornaliere di default
-$oggi = date('Y-m-d')."%";
-$sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.uscita 
-                FROM presenza p 
-                INNER JOIN iscritto i ON p.ID_Iscritto = i.id 
-                WHERE p.ingresso LIKE '$oggi'
-                
-                ORDER BY p.ingresso ASC";
-$resultPresenze = $conn->query($sqlPresenze);
-
-//se la classe non è Amministratore, redirect a index.php
+// Se non amministratore → redirect
 if($classe !== 'Amministratore'){
     header("Location: index.php");
     exit;
 }
 
-// Preleva gli account dal DB
-$sqlAccount = "SELECT nome_utente, codice_univoco, classe FROM Account ORDER BY nome_utente ASC";
-$resultAccount = $conn->query($sqlAccount);
+// ===============================
+//  2️⃣ Connessione al nuovo DB time4allergo
+// ===============================
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "time4allergo";
 
+$conn = new mysqli($host, $user, $pass, $db);
+if($conn->connect_error){
+    die("Connessione DB time4allergo fallita: " . $conn->connect_error);
+}
 
-$mese = date('m'); // mese corrente
+// Preleva iscritti
+$sql = "
+SELECT 
+    id,
+    Nome,
+    Cognome,
+    Fotografia,
+    Data_nascita,
+    Disabilita,
+    Stipendio_Orario,
+    Codice_fiscale,
+    Contatti,
+    Note
+FROM iscritto
+ORDER BY Cognome ASC
+";
+$result = $conn->query($sql);
+
+// Presenze giornaliere
+$oggi = date('Y-m-d') . "%";
+$stmtPresenze = $conn->prepare("
+SELECT 
+    i.Fotografia, 
+    p.id, 
+    i.Nome, 
+    i.Cognome, 
+    p.Ingresso, 
+    p.Uscita 
+FROM presenza p 
+INNER JOIN iscritto i ON p.ID_Iscritto = i.id 
+WHERE p.Ingresso LIKE ?
+ORDER BY p.Ingresso ASC
+");
+$stmtPresenze->bind_param("s", $oggi);
+$stmtPresenze->execute();
+$resultPresenze = $stmtPresenze->get_result();
+$stmtPresenze->close();
+
+// Resoconto mensile
+$mese = date('m');
 $anno = date('Y');
-
-$sqlResoconti = "
+$stmtResoconti = $conn->prepare("
 SELECT 
     i.id,
     i.Nome,
     i.Cognome,
     i.Fotografia,
-    i.Prezzo_Orario,
+    i.Stipendio_Orario,
     SUM(TIMESTAMPDIFF(MINUTE, p.Ingresso, p.Uscita)) / 60 AS ore_totali
 FROM iscritto i
 LEFT JOIN presenza p 
     ON p.ID_Iscritto = i.id
-    AND MONTH(p.Ingresso) = $mese
-    AND YEAR(p.Ingresso) = $anno
+    AND MONTH(p.Ingresso) = ?
+    AND YEAR(p.Ingresso) = ?
 GROUP BY i.id
 ORDER BY i.Cognome
-";
+");
+$stmtResoconti->bind_param("ii", $mese, $anno);
+$stmtResoconti->execute();
+$resultResoconti = $stmtResoconti->get_result();
+$stmtResoconti->close();
 
-$resultResoconti = $conn->query($sqlResoconti);
-
-
-
-
+// Connessione al nuovo DB rimane aperta per le future operazioni CRUD
 ?>
 
 <!DOCTYPE html>
@@ -171,7 +202,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 </div>
                 <?php
                         if($classe === 'Educatore'){
-                            $gestionalePage = "gestionale_utenti.php";
+                            $gestionalePage = "gestional_utenti.php";
                         } elseif($classe === 'Contabile'){
                             $gestionalePage = "gestionale_contabile.php";
                         } elseif($classe === 'Amministratore') {
@@ -180,7 +211,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             $gestionalePage = "#"; 
                         }
                     ?>
-                <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
+                <div class="menu-item" data-link="<?php echo $gestionalePage; ?>">
                     <img src="immagini/gestionale-over.png" alt="">
                     Gestionale
                 </div>
@@ -201,7 +232,20 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <img src="immagini/presenze-ergo.png" alt="">
                     Presenze
                 </div>
-                <div class="menu-item" data-link="gestionale_contabile.php">
+
+                <?php
+                        if($classe === 'Educatore'){
+                            $gestionalePageErgo = "gestional_ergo_utenti.php";
+                        } elseif($classe === 'Contabile'){
+                            $gestionalePageErgo = "gestionale_ergo_contabile.php";
+                        } elseif($classe === 'Amministratore') {
+                            $gestionalePageErgo = "gestionale_ergo_amministratore.php";
+                        } else {
+                            $gestionalePageErgo = "#"; 
+                        }
+                    ?>
+
+                <div class="menu-item" data-link="<?php echo $gestionalePageErgo; ?>">
                     <img src="immagini/gestionale-ergo.png" alt="">
                     Gestionale
                 </div>

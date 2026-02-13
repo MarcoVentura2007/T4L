@@ -89,11 +89,6 @@ if($resultClasse && $resultClasse->num_rows > 0){
             </div>
         </div>
 
-    <div class="logo-area">
-        <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
-        <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
-        <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
-    </div>
 
     <div class="hamburger" id="hamburger">
         <span></span>
@@ -150,17 +145,18 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
                 <?php
                         if($classe === 'Educatore'){
-                            $gestionalePage = "gestionale_ergo_utenti.php";
+                            $gestionalePageErgo = "gestionale_ergo_utenti.php";
+
                         } else if($classe === 'Contabile'){
-                            $gestionalePage = "gestionale_ergo_contabile.php";
+                            $gestionalePageErgo = "gestionale_ergo_contabile.php";
                         } else if($classe === 'Amministratore') {
-                            $gestionalePage = "gestionale_ergo_amministratore.php"; 
+                            $gestionalePageErgo = "gestionale_ergo_amministratore.php"; 
                         } else {
-                            $gestionalePage = "#"; 
+                            $gestionalePageErgo = "#"; 
                         }
                     ?>
                 
-                <div class="menu-item" data-link="contabile.php">
+                <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
                     <img src="immagini/gestionale-ergo.png" alt="">
                     Gestionale
                 </div>
@@ -186,17 +182,8 @@ if($resultClasse && $resultClasse->num_rows > 0){
             <h3>Presenze</h3>
         </a>
 
-        <?php
-        if($classe === 'Educatore'){
-            $gestionalePage = "gestionale_ergo_utenti.php";
-        } elseif($classe === 'Contabile'){
-            $gestionalePage = "gestionale_ergo_contabile.php";
-        } elseif($classe === 'Amministratore') {
-            $gestionalePage = "gestionale_ergo_amministratore.php"; 
-        }
-        ?>
 
-        <a href="#" class="card" id="card-gestionale">
+        <a href="#" class="card" id="card-gestionale" >
             <img src="immagini/gestionale-ergo.png" style="height: 140px;">
             <h3>Gestionale</h3>
         </a>
@@ -230,6 +217,33 @@ if($resultClasse && $resultClasse->num_rows > 0){
             </div>
         </div>
 
+        <div id="code-popup-ergo" class="popupErgo">
+                <div class="content">
+                    <p class="codice-text">Inserisci il codice di accesso</p>
+                   <input 
+                        type="password" 
+                        placeholder="Codice d'accesso" 
+                        id="password-ergo"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        requi
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    >
+
+                    <button class="learn-more" id="button-gestionale-ergo">
+                        <span class="circle" aria-hidden="true">
+                        <span class="icon arrow"></span>
+                        </span>
+                        <span class="button-text">Continua</span>
+                    </button>
+
+                    <div id="notify" class="notify hidden">
+                        <div class="icon" id="notify-icon"></div>
+                        <div class="text" id="notify-text"></div>
+                    </div>
+            </div>
+        </div>
+
     </section>
 
 </main>
@@ -246,12 +260,14 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
 
 <script>
-    // ELEMENTI
+// ELEMENTI
     const cardGestionale = document.getElementById("card-gestionale");
     const overlay = document.getElementById("popupOverlay");
     const codePopup = document.getElementById("code-popup");
+    const codePopupErgo = document.getElementById("code-popup-ergo");
     const buttonGestionale = document.getElementById("button-gestionale");
     const passwordField = document.getElementById("password");
+    const passwordFieldErgo = document.getElementById("password-ergo");
     const hamGestionale = document.getElementById("ham-gestionale");
 
 
@@ -297,19 +313,60 @@ function showNotification(success = true, message = "Messaggio") {
 cardGestionale.addEventListener("click", (e) => {
     e.preventDefault();
     overlay.classList.add("show");
-    codePopup.classList.add("show");
+    codePopupErgo.classList.add("show");
     document.body.classList.add("popup-open");
-    passwordField.focus(); // focus automatico sull'input
+    passwordFieldErgo.focus(); 
 });
 
 // CHIUDI POPUP CLICCANDO FUORI
 overlay.addEventListener("click", () => {
     overlay.classList.remove("show");
     codePopup.classList.remove("show");
+    codePopupErgo.classList.remove("show");
     document.body.classList.remove("popup-open");
 });
 
 // FUNZIONE DI CONTROLLO CODICE
+async function verificaCodiceErgo() {
+    const codice = passwordFieldErgo.value.trim();
+
+    if (!codice) {
+        showNotification(false, "Inserisci il codice");
+        return;
+    }
+
+    try {
+        const response = await fetch("api/api_codice_gestionale_ergo.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `codice=${encodeURIComponent(codice)}`
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification(true, "Accesso consentito");
+
+            // Chiudi popup
+            overlay.classList.remove("show");
+            codePopupErgo.classList.remove("show");
+            document.body.classList.remove("popup-open");
+
+            // Redirect alla pagina di gestionale
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 2000);
+        } else {
+            showNotification(false, result.message);
+            passwordFieldErgo.value = ""; // pulisci input se sbagliato
+        }
+
+    } catch (err) {
+        showNotification(false, "Errore server");
+        console.error(err);
+    }
+}
+
 async function verificaCodice() {
     const codice = passwordField.value.trim();
 
@@ -350,8 +407,11 @@ async function verificaCodice() {
     }
 }
 
+
 // BOTTONE CONTINUA
 buttonGestionale.addEventListener("click", verificaCodice);
+const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
+buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
 
 // INVIO DALL'INPUT
 passwordField.addEventListener("keydown", (e) => {
@@ -360,14 +420,22 @@ passwordField.addEventListener("keydown", (e) => {
         verificaCodice();
     }
 });
+
+passwordFieldErgo.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault(); // evita submit involontario
+        verificaCodiceErgo();
+    }
+});
         // CHIUDI POPUP CLICCANDO FUORI
         overlay.onclick = closePopups;
 
-        function closePopups(){
-            overlay.classList.remove("show");
-            codePopup.classList.remove("show");
-            document.body.classList.remove("popup-open");
-        }
+function closePopups(){
+    overlay.classList.remove("show");
+    codePopup.classList.remove("show");
+    codePopupErgo.classList.remove("show");
+    document.body.classList.remove("popup-open");
+}
         
 
         /* HAMBURGER */
@@ -403,7 +471,17 @@ passwordField.addEventListener("keydown", (e) => {
         // Prendi tutti i link "menu-item" con data-link
         document.querySelectorAll(".menu-item[data-link]").forEach(item => {
             const link = item.dataset.link;
-            if(link.includes("gestionale")) { // intercetta solo link gestionale
+            if(link.includes("gestionale_ergo")) { 
+                // Ergoterapeutica Gestionale - usa popup ergo
+                item.addEventListener("click", (e) => {
+                    e.preventDefault(); // previeni redirect
+                    overlay.classList.add("show");
+                    codePopupErgo.classList.add("show");
+                    document.body.classList.add("popup-open");
+                    passwordFieldErgo.focus(); // focus input
+                });
+            } else if(link.includes("gestionale")) { 
+                // Centro Diurno Gestionale - usa popup standard
                 item.addEventListener("click", (e) => {
                     e.preventDefault(); // previeni redirect
                     overlay.classList.add("show");

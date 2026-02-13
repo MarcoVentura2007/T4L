@@ -877,6 +877,7 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
         document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
         displayAgenda(index);
+
         tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     });
 });
