@@ -447,7 +447,6 @@ if($classe !== 'Educatore'){
         </div>
     </footer>
 <script>
-    // Cambia tab
     // Cambia tab e salva stato
     document.querySelectorAll(".tab-link").forEach(link => {
         link.addEventListener("click", e => {
@@ -457,11 +456,9 @@ if($classe !== 'Educatore'){
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
             document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
 
-            // Attiva link e tab cliccati
             e.currentTarget.classList.add("active");
             document.getElementById(target).classList.add("active");
 
-            // Salva il tab attivo in localStorage
             localStorage.setItem("activeTab", target);
         });
     });
@@ -469,11 +466,9 @@ if($classe !== 'Educatore'){
     window.addEventListener("DOMContentLoaded", () => {
         const savedTab = localStorage.getItem("activeTab");
         if (savedTab) {
-            // Rimuovi 'active' da tutti
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
             document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
 
-            // Attiva quello salvato
             const link = document.querySelector(`.tab-link[data-tab="${savedTab}"]`);
             const page = document.getElementById(savedTab);
             if (link && page) {
@@ -502,13 +497,13 @@ if($classe !== 'Educatore'){
             document.querySelectorAll(".submenu").forEach(menu => {
                 if(menu !== targetMenu){
                     menu.classList.remove("open");
-                    menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                    menu.previousElementSibling.classList.remove("open"); 
                 }
             });
 
             // toggle quello cliccato
             targetMenu.classList.toggle("open");
-            main.classList.toggle("open"); // per la freccetta
+            main.classList.toggle("open");
         });
 
     });
@@ -609,7 +604,6 @@ document.querySelectorAll(".view-btn").forEach(btn=>{
         openModal(viewModal);
     }
 });
-// overlay click already handled above
 
 // ========== MODAL PRESENZE ==========
 const modalPresenze = document.getElementById("modalPresenze");
@@ -634,8 +628,8 @@ function openPresenzeModal(isDelete = false){
 
 formPresenze.addEventListener("submit", (e) => {
     e.preventDefault();
-    const newIngresso = document.getElementById("presenzeIngresso").value;  // es: "14:30"
-    const newUscita = document.getElementById("presenzeUscita").value;      // es: "15:45"
+    const newIngresso = document.getElementById("presenzeIngresso").value; 
+    const newUscita = document.getElementById("presenzeUscita").value;   
     
     // Ottenere la data di oggi in formato YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
@@ -689,8 +683,8 @@ document.addEventListener('click', (e) => {
     if(editBtn){
         const tr = editBtn.closest('tr');
         currentPresenzeId = editBtn.dataset.id;
-        const ingresso = tr.dataset.ingresso || '';  // es: "2026-02-07 14:30:00"
-        const uscita = tr.dataset.uscita || '';      // es: "2026-02-07 15:45:00"
+        const ingresso = tr.dataset.ingresso || ''; 
+        const uscita = tr.dataset.uscita || '';      
         
         // Estrarre solo l'ora (HH:MM)
         const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
@@ -766,8 +760,8 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                let defaultDayIndex = new Date(); // 0 for Monday, 1 for Tuesday, etc.
-                if (defaultDayIndex < 0) defaultDayIndex = 6; // Sunday becomes 6
+                let defaultDayIndex = new Date(); 
+                if (defaultDayIndex < 0) defaultDayIndex = 6; 
                 const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
                 displayAgenda(savedDayIndex);
             } else {
@@ -883,7 +877,6 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
         document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
         displayAgenda(index);
-        // Animazione di scorrimento per centrare il tab attivo
         tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     });
 });
@@ -955,13 +948,11 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         // Salva stato sidebar
         const checkboxInput = document.getElementById('checkbox-input');
         if (checkboxInput) {
-            // Ripristina stato al caricamento
             const sidebarState = localStorage.getItem('sidebarOpen');
             if (sidebarState !== null) {
                 checkboxInput.checked = sidebarState === 'true';
             }
 
-            // Salva stato al cambio
             checkboxInput.addEventListener('change', () => {
                 localStorage.setItem('sidebarOpen', checkboxInput.checked);
             });

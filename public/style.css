@@ -150,17 +150,6 @@ a{
     box-shadow: 0 4px 5px rgba(0, 0, 0, 0.3);
 }
 
-#eyeicon {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 25px;
-  height: 25px;
-  opacity: 0.75;
-  transition: 0.2s ease;
-}
-
 #eyeicon:hover {
   opacity: 1;
 }
@@ -210,6 +199,36 @@ input::placeholder {
 
 #password::-webkit-textfield-decoration-container {
   display: none !important;
+}
+
+/* iOS Safari password input fix - allows typing without clicking eye icon first */
+#password, 
+input[type="password"] {
+  -webkit-user-select: text;
+  user-select: text;
+  touch-action: manipulation;
+  pointer-events: auto;
+}
+
+/* Fix for eye icon on iOS - ensure it doesn't block password input interaction */
+#eyeicon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  opacity: 0.75;
+  transition: 0.2s ease;
+  pointer-events: auto;
+  -webkit-pointer-events: auto;
+  touch-action: manipulation;
+}
+
+/* Ensure input-wrap doesn't block interaction on iOS */
+.input-wrap {
+  pointer-events: auto;
+  -webkit-pointer-events: auto;
 }
 
 

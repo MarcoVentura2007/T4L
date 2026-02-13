@@ -147,7 +147,20 @@ if($resultClasse && $resultClasse->num_rows > 0){
                     <img src="immagini/presenze-ergo.png" alt="">
                     Presenze
                 </div>
-                <div class="menu-item" data-link="gestionale_contabile.php">
+
+                <?php
+                        if($classe === 'Educatore'){
+                            $gestionalePage = "gestionale_ergo_utenti.php";
+                        } else if($classe === 'Contabile'){
+                            $gestionalePage = "gestionale_ergo_contabile.php";
+                        } else if($classe === 'Amministratore') {
+                            $gestionalePage = "gestionale_ergo_amministratore.php"; 
+                        } else {
+                            $gestionalePage = "#"; 
+                        }
+                    ?>
+                
+                <div class="menu-item" data-link="contabile.php">
                     <img src="immagini/gestionale-ergo.png" alt="">
                     Gestionale
                 </div>
@@ -175,11 +188,11 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
         <?php
         if($classe === 'Educatore'){
-            $gestionalePage = "gestionale_utenti.php";
+            $gestionalePage = "gestionale_ergo_utenti.php";
         } elseif($classe === 'Contabile'){
-            $gestionalePage = "gestionale_contabile.php";
+            $gestionalePage = "gestionale_ergo_contabile.php";
         } elseif($classe === 'Amministratore') {
-            $gestionalePage = "gestionale_amministratore.php"; 
+            $gestionalePage = "gestionale_ergo_amministratore.php"; 
         }
         ?>
 

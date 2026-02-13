@@ -638,7 +638,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <div class="loading">Caricamento attività...</div>
                     </div>
                 </div>
-<!-- MODAL CREA AGENDA -->
+
+                <!-- MODAL CREA AGENDA -->
                 <div class="modal-box large" id="modalCreaAgenda">
                     <h3 class="modal-title">Crea nuova Agenda</h3>
 
@@ -1134,21 +1135,17 @@ $resultResoconti = $conn->query($sqlResoconti);
     <!-- OVERLAY PRINCIPALE PER MODALI -->
 <script>
     const Overlay = document.getElementById("modalOverlay");
-        // Cambia tab e salva stato
     document.querySelectorAll(".tab-link").forEach(link => {
         link.addEventListener("click", e => {
             e.preventDefault();
             const target = e.currentTarget.dataset.tab;
 
-            // Rimuovi 'active' da tutti i link e tab
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
             document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
 
-            // Attiva link e tab cliccati
             e.currentTarget.classList.add("active");
             document.getElementById(target).classList.add("active");
 
-            // Salva il tab attivo in localStorage
             sessionStorage.setItem("activeTab", target);
         });
     });
@@ -1156,11 +1153,9 @@ $resultResoconti = $conn->query($sqlResoconti);
     window.addEventListener("DOMContentLoaded", () => {
         const savedTab = sessionStorage.getItem("activeTab");
         if (savedTab) {
-            // Rimuovi 'active' da tutti
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
             document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
 
-            // Attiva quello salvato
             const link = document.querySelector(`.tab-link[data-tab="${savedTab}"]`);
             const page = document.getElementById(savedTab);
             if (link && page) {
@@ -1184,17 +1179,15 @@ $resultResoconti = $conn->query($sqlResoconti);
             const targetId = main.dataset.target;
             const targetMenu = document.getElementById(targetId);
 
-            // chiudi tutti gli altri submenu
             document.querySelectorAll(".submenu").forEach(menu => {
                 if(menu !== targetMenu){
                     menu.classList.remove("open");
-                    menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                    menu.previousElementSibling.classList.remove("open"); 
                 }
             });
 
-            // toggle quello cliccato
             targetMenu.classList.toggle("open");
-            main.classList.toggle("open"); // per la freccetta
+            main.classList.toggle("open"); 
         });
 
     });
@@ -1363,7 +1356,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("deleteModal").querySelector("h3").innerText = "Eliminazione " + btn.closest("tr").dataset.nome + " " + btn.closest("tr").dataset.cognome;
                 openModal(deleteModal);
 
-                // Imposta il listener sul bottone "Elimina" nella modale
                 const confirmDelete = deleteModal.querySelector(".btn-danger");
                 confirmDelete.onclick = () => {
                     fetch("api/api_elimina_utente.php", {
@@ -1497,7 +1489,6 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
         // MODIFICA E ELIMINA ATTIVITA
-        // MODIFICA
         document.querySelectorAll(".edit-attivita-btn").forEach(btn => {
             btn.onclick = e => {
                 const row = btn.closest("tr");
@@ -1663,7 +1654,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             if(!this.files.length){
                 preview.style.display = "none";
                 fileNameSpan.innerText = "Nessun file";
-                clearBtn.style.display = "none"; // nasconde la X
+                clearBtn.style.display = "none"; 
                 return;
             }
 
@@ -1674,15 +1665,15 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             fileNameSpan.innerText = file.name;
 
-            clearBtn.style.display = "block"; // mostra la X
+            clearBtn.style.display = "block";
         });
 
         // rimuove file selezionato
         clearBtn.addEventListener("click", function(){
-            utenteFoto.value = ""; // reset input
+            utenteFoto.value = ""; 
             preview.style.display = "none";
             fileNameSpan.innerText = "Nessun file";
-            clearBtn.style.display = "none"; // nasconde la X
+            clearBtn.style.display = "none"; 
         });
 
         // ========== MODAL PRESENZE ==========
@@ -1707,8 +1698,8 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         formPresenze.addEventListener("submit", (e) => {
             e.preventDefault();
-            const newIngresso = document.getElementById("presenzeIngresso").value;  // es: "14:30"
-            const newUscita = document.getElementById("presenzeUscita").value;      // es: "15:45"
+            const newIngresso = document.getElementById("presenzeIngresso").value; 
+            const newUscita = document.getElementById("presenzeUscita").value;      
             
             // Ottenere la data di oggi in formato YYYY-MM-DD
             const today = new Date().toISOString().split('T')[0];
@@ -1762,8 +1753,8 @@ $resultResoconti = $conn->query($sqlResoconti);
             if(editBtn){
                 const tr = editBtn.closest('tr');
                 currentPresenzeId = editBtn.dataset.id;
-                const ingresso = tr.dataset.ingresso || '';  // es: "2026-02-07 14:30:00"
-                const uscita = tr.dataset.uscita || '';      // es: "2026-02-07 15:45:00"
+                const ingresso = tr.dataset.ingresso || '';  
+                const uscita = tr.dataset.uscita || '';      
                 
                 // Estrarre solo l'ora (HH:MM)
                 const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
@@ -1839,8 +1830,8 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                let defaultDayIndex = new Date(); // 0 for Monday, 1 for Tuesday, etc.
-                if (defaultDayIndex < 0) defaultDayIndex = 6; // Sunday becomes 6
+                let defaultDayIndex = new Date(); 
+                if (defaultDayIndex < 0) defaultDayIndex = 6; 
                 const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
                 displayAgenda(savedDayIndex);
             } else {
@@ -2030,10 +2021,8 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         const stampaAgendaBtn = document.getElementById("stampaAgendaBtn");
         if(stampaAgendaBtn) {
             stampaAgendaBtn.onclick = () => {
-                // Apri una nuova finestra per la stampa
                 const printWindow = window.open('', '_blank', 'width=800,height=600');
 
-                // Definisci le fasce orarie
                 const timeSlots = [
                     { start: '08:00', end: '10:00', label: '08:00 - 10:00', bg: '#e6f7ff' },
                     { start: '10:00', end: '12:00', label: '10:00 - 12:00', bg: '#fff7e6' },
@@ -2042,7 +2031,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     { start: '16:00', end: '18:00', label: '16:00 - 18:00', bg: '#f9f0ff' }
                 ];
 
-                // Raggruppa attività per giorno e fascia oraria
                 const groupedActivities = {};
                 const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
                 const dayIndices = [0, 1, 2, 3, 4];
@@ -2145,13 +2133,11 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         // ========== MODAL CREA AGENDA ==========
         const creaAgendaBtn = document.getElementById("creaAgendaBtn");
         const formCreaAgenda = document.getElementById("formCreaAgenda");
-          // agendaOverlay should reuse single global overlay when available
         const agendaOverlay = document.getElementById("agendaOverlay") || Overlay;
         const successPopupAgenda = document.getElementById("successPopupAgenda");
 
         if(creaAgendaBtn) {
             creaAgendaBtn.onclick = () => {
-                // Popola la select con le date della settimana
                 const today = new Date();
                 const monday = new Date(today);
                 monday.setDate(today.getDate() - today.getDay() + 1);
@@ -2159,7 +2145,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 const dataSelect = document.getElementById("agendaData");
                 const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
                 
-                // Pulisci le opzioni mantendo la prima (placeholder)
                 while (dataSelect.options.length > 1) {
                     dataSelect.remove(1);
                 }
@@ -2411,7 +2396,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             }
 
             const daysMap = new Map();
-            const attivitaMap = new Map(); // Per aggregare attività
+            const attivitaMap = new Map(); 
             let totalOre = 0;
             let totalCosto = 0;
 
@@ -2422,7 +2407,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
                 r.attivita.forEach(a => {
                     day.attivita.push(a);
-                    // Aggrega per attività
                     if(!attivitaMap.has(a.Nome)) attivitaMap.set(a.Nome, 0);
                     attivitaMap.set(a.Nome, attivitaMap.get(a.Nome) + a.ore);
                 });

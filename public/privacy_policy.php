@@ -422,7 +422,6 @@ $username = $_SESSION['username'];
             window.location.href = "logout.php";
         };
 
-// Smooth scrolling for table of contents
 document.querySelectorAll('.toc a').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -436,7 +435,6 @@ document.querySelectorAll('.toc a').forEach(anchor => {
     });
 });
 
-// Add fade-in animation
 document.addEventListener('DOMContentLoaded', function() {
     const sections = document.querySelectorAll('.privacy-section');
     const observer = new IntersectionObserver((entries) => {

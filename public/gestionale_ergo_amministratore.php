@@ -65,24 +65,6 @@ if($classe !== 'Amministratore'){
 $sqlAccount = "SELECT nome_utente, codice_univoco, classe FROM Account ORDER BY nome_utente ASC";
 $resultAccount = $conn->query($sqlAccount);
 
-// Preleva gli educatori dal DB
-$sqlEducatori = "SELECT id, nome, cognome, codice_fiscale, data_nascita, telefono, mail FROM educatore ORDER BY cognome ASC";
-$resultEducatori = $conn->query($sqlEducatori);
-
-// Query per attività (per combobox nella modal agenda)
-$sqlAttivitaCombo = "SELECT id, Nome FROM attivita ORDER BY Nome ASC";
-$resultAttivitaCombo = $conn->query($sqlAttivitaCombo);
-
-// Query per educatori (per combobox nella modal agenda)
-$sqlEducatoriAgenda = "SELECT id, nome, cognome FROM educatore ORDER BY cognome ASC, nome ASC";
-$resultEducatoriAgenda = $conn->query($sqlEducatoriAgenda);
-
-// Query per ragazzi (per checkbox nella modal agenda)
-$sqlRagazzi = "SELECT id, nome, cognome FROM iscritto ORDER BY cognome ASC, nome ASC";
-$resultRagazzi = $conn->query($sqlRagazzi);
-
-
-
 
 $mese = date('m'); // mese corrente
 $anno = date('Y');
@@ -195,7 +177,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         } elseif($classe === 'Amministratore') {
                             $gestionalePage = "gestionale_amministratore.php";
                         } else {
-                            $gestionalePage = "#"; // default se classe sconosciuta
+                            $gestionalePage = "#"; 
                         }
                     ?>
                 <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
@@ -242,7 +224,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <div class="sidebar__toggle-container">
                         <label tabindex="0" for="checkbox-input" id="label-for-checkbox-input" class="nav__toggle">
                             <span class="toggle--icons" aria-hidden="true">
-                                <!-- Icone di toggle, puoi lasciare SVG o cambiare con immagini se vuoi -->
                                 <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--open">
                                     <path d="M3 5a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2zM2 12a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1M2 18a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1"></path>
                                 </svg>
@@ -273,12 +254,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <span class="text">Presenze</span>
                             </a>
                         </li>
-                        <li class="sidebar__item">
-                            <a class="sidebar__link tab-link" href="#" data-tab="tab-agenda" data-tooltip="Agenda">
-                                <span class="sidebar-icon"><img src="immagini/book.png" alt=""></span>
-                                <span class="text">Agenda</span>
-                            </a>
-                        </li>
                         <li>
                             <hr/>
                         </li>
@@ -286,12 +261,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <h2 class="sidebar__item--heading">Gestione</h2>
                         </li>
                         
-                        <li class="sidebar__item">
-                            <a class="sidebar__link tab-link" href="#" data-tab="tab-attivita" data-tooltip="Attivita">
-                                <span class="sidebar-icon"><img src="immagini/attivita.png" alt=""></span>
-                                <span class="text">Attività</span>
-                            </a>
-                        </li>
+
                         <li class="sidebar__item">
                             <a class="sidebar__link tab-link" href="#" data-tab="tab-resoconti" data-tooltip="Resoconti">
                                 <span class="sidebar-icon"><img src="immagini/resoconti.png" alt=""></span>
@@ -308,12 +278,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <h2 class="sidebar__item--heading">AMMINISTRAZIONE</h2>
                         </li>
                         
-                        <li class="sidebar__item">
-                            <a class="sidebar__link tab-link" href="#" data-tab="tab-educatori" data-tooltip="Educatori">
-                                <span class="sidebar-icon"><img src="immagini/educatore.png" alt=""></span>
-                                <span class="text">Educatori</span>
-                            </a>
-                        </li>
                         <li class="sidebar__item">
                             <a class="sidebar__link tab-link" href="#" data-tab="tab-account" data-tooltip="Account">
                                 <span class="sidebar-icon"><img src="immagini/account.png" alt=""></span>
@@ -348,8 +312,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
                     </svg>
                 </button>
-                
-                <!-- Modal Aggiungi Utente -->
+<!-- Modal Aggiungi Utente -->
                 <div class="modal-box large" id="modalAggiungiUtente">
                     <h3>Aggiungi nuovo utente</h3>
                     <form id="formAggiungiUtente">
@@ -583,316 +546,11 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
-            <!-- TAB AGENDA -->
-            <div class="page-tab" id="tab-agenda">
-                <div class="page-header">
-                    <h1>Agenda</h1>
-                    <p>Attività della settimana (Lunedì - Venerdì)</p>
-                </div>
-
-                <button class="animated-button" id="creaAgendaBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-
-                    <span class="text">Crea nuova Agenda</span>
-                    <span class="circle"></span>
-
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-                </button>
-
-                
-
-                <div class="agenda-container" style="margin: 0 auto; max-width: 1200px;">
-                    <div class="header-agenda">
-                    <div class="days-tabs">
-                        <button class="day-tab active" data-day="0">
-                            <span class="day-name">Lunedì</span>
-                            <span class="day-date" id="date-monday"></span>
-                        </button>
-                        <button class="day-tab" data-day="1">
-                            <span class="day-name">Martedì</span>
-                            <span class="day-date" id="date-tuesday"></span>
-                        </button>
-                        <button class="day-tab" data-day="2">
-                            <span class="day-name">Mercoledì</span>
-                            <span class="day-date" id="date-wednesday"></span>
-                        </button>
-                        <button class="day-tab" data-day="3">
-                            <span class="day-name">Giovedì</span>
-                            <span class="day-date" id="date-thursday"></span>
-                        </button>
-                        <button class="day-tab" data-day="4">
-                            <span class="day-name">Venerdì</span>
-                            <span class="day-date" id="date-friday"></span>
-                        </button>
-                    </div>
-
-                    <button class="print-btn" id="stampaAgendaBtn">
-                    <span class="printer-wrapper">
-                        <span class="printer-container">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 92 75">
-                            <path
-                            stroke-width="5"
-                            stroke="black"
-                            d="M12 37.5H80C85.2467 37.5 89.5 41.7533 89.5 47V69C89.5 70.933 87.933 72.5 86 72.5H6C4.067 72.5 2.5 70.933 2.5 69V47C2.5 41.7533 6.75329 37.5 12 37.5Z"
-                            ></path>
-                            <mask fill="white" id="path-2-inside-1_30_7">
-                            <path
-                                d="M12 12C12 5.37258 17.3726 0 24 0H57C70.2548 0 81 10.7452 81 24V29H12V12Z"
-                            ></path>
-                            </mask>
-                            <path
-                            mask="url(#path-2-inside-1_30_7)"
-                            fill="black"
-                            d="M7 12C7 2.61116 14.6112 -5 24 -5H57C73.0163 -5 86 7.98374 86 24H76C76 13.5066 67.4934 5 57 5H24C20.134 5 17 8.13401 17 12H7ZM81 29H12H81ZM7 29V12C7 2.61116 14.6112 -5 24 -5V5C20.134 5 17 8.13401 17 12V29H7ZM57 -5C73.0163 -5 86 7.98374 86 24V29H76V24C76 13.5066 67.4934 5 57 5V-5Z"
-                            ></path>
-                            <circle fill="black" r="3" cy="49" cx="78"></circle>
-                        </svg>
-                        </span>
-
-                        <span class="printer-page-wrapper">
-                        <span class="printer-page"></span>
-                        </span>
-                    </span>
-                    Stampa
-                    </button>
-
-                    </div>
-
-                    <div class="agenda-content" id="agendaContent">
-                        <div class="loading">Caricamento attività...</div>
-                    </div>
-                </div>
-
-                <!-- MODAL CREA AGENDA -->  
-                <div class="modal-box large" id="modalCreaAgenda">
-                    <h3 class="modal-title">Crea nuova Agenda</h3>
-
-                    <form id="formCreaAgenda">
-                        <div class="edit-field">
-                            <label>Data</label>
-                            <select id="agendaData" required>
-                                <option value="">-- Seleziona data --</option>
-                                <option value="">Lunedì</option>
-                                <option value="">Martedì</option>
-                                <option value="">Mercoledì</option>
-                                <option value="">Giovedì</option>
-                                <option value="">Venerdì</option>
-                            </select>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Ora inizio</label>
-                            <input type="time"  id="agendaOraInizio" required>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Ora fine</label>
-                            <input type="time" id="agendaOraFine" required>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Attività</label>
-                            <select id="agendaAttivita" required>
-                                <option value="">-- Seleziona attività --</option>
-                                <?php
-                                if($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0){
-                                    while($row = $resultAttivitaCombo->fetch_assoc()){
-                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['Nome']).'</option>';
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Educatori</label>
-                            <div class="checkbox-group" id="educatoriCheckboxes">
-                                <?php
-                                if($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0){
-                                    while($row = $resultEducatoriAgenda->fetch_assoc()){
-                                        echo '<label class="checkbox-item">';
-                                        echo '<input type="checkbox" class="educatore-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
-                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
-                                        echo '</label>';
-                                    }
-                                }
-                                ?>
-                            </div>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Ragazzi partecipanti</label>
-                            <div class="checkbox-group" id="ragazziCheckboxes">
-                                <?php
-                                if($resultRagazzi && $resultRagazzi->num_rows > 0){
-                                    while($row = $resultRagazzi->fetch_assoc()){
-                                        echo '<label class="checkbox-item">';
-                                        echo '<input type="checkbox" class="ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
-                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
-                                        echo '</label>';
-                                    }
-                                }
-                                ?>
-                            </div>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button type="submit" class="btn-primary">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- POPUP AGENDA CREATA -->
-                <div class="popup success-popup" id="successPopupAgenda">
-                    <div class="success-content">
-                        <div class="success-icon">
-                        <svg viewBox="-2 -2 56 56">
-                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
-                        </svg>
-                        </div>
-                        <p class="success-text" id="success-text-agenda">Agenda creata!</p>
-                    </div>
-                </div>
-
-
-                <div class="modal-box danger" id="modalDeleteAgenda">
-                    <h3>Elimina Agenda</h3>
-                    <p>Questa azione è definitiva. Vuoi continuare?</p>
-
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
-                        <button class="btn-danger" id="confirmDeleteAgenda">Elimina</button>
-                    </div>
-                </div>
-            </div>
 
 
 
 
 
-            <!-- TAB ATTIVITA -->
-            <div class="page-tab" id="tab-attivita">
-                <div class="page-header">
-                    <h1>Attività</h1>
-                    <p>Gestione delle attività</p>
-                </div>
-
-                <button class="animated-button" id="aggiungiAttivitaBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-
-                    <span class="text">Aggiungi Attività</span>
-                    <span class="circle"></span>
-
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-                </button>
-
-                <div class="users-table-box">
-                    <table class="users-table" id="attivitaTable">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Descrizione</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        $sqlAttivita = "SELECT id, Nome, Descrizione FROM attivita ORDER BY Nome ASC";
-                        $resultAttivita = $conn->query($sqlAttivita);
-                        if($resultAttivita && $resultAttivita->num_rows > 0){
-                            while($row = $resultAttivita->fetch_assoc()){
-                                echo '<tr data-id="'.htmlspecialchars($row['id']).'">
-                                        <td>'.htmlspecialchars($row['Nome']).'</td>
-                                        <td>'.htmlspecialchars($row['Descrizione']).'</td>
-                                        <td>
-                                            <button class="edit-attivita-btn"><img src="immagini/edit.png" alt="Modifica"></button>
-                                            <button class="delete-attivita-btn"><img src="immagini/delete.png" alt="Elimina"></button>
-                                        </td>
-                                    </tr>';
-                            }
-                        } else {
-                            echo '<tr><td colspan="3">Nessuna attività registrata.</td></tr>';
-                        }
-                        ?>
-                        </tbody>
-                    </table>
-                </div>
-                <!-- MODAL AGGIUNGI ATTIVITA -->
-                <div class="modal-box large" id="modalAggiungiAttivita">
-                    <h3 class="modal-title">Aggiungi nuova attività</h3>
-
-                    <form id="formAttivita">
-                        <div class="edit-field">
-                            <label>Nome</label>
-                            <input type="text" id="attivitaNome" placeholder="Nome attività" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Descrizione</label>
-                            <textarea id="attivitaDescrizione" placeholder="Descrizione" required></textarea>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" id="closeAddAttivita" onclick="closeModal()">Chiudi</button>
-                            <button class="btn-primary" id="salvaAttivita">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
-
-
-
-
-                <!-- MODAL MODIFICA ATTIVITA -->
-                <div class="modal-box large" id="modalModificaAttivita">
-                    <h3 class="modal-title">Modifica attività</h3>
-
-                    <form id="formModificaAttivita">
-                        <input type="hidden" id="editAttivitaId">
-
-                        <div class="edit-field">
-                            <label>Nome</label>
-                            <input type="text" id="editAttivitaNome" placeholder="Nome attività" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Descrizione</label>
-                            <textarea id="editAttivitaDescrizione" placeholder="Descrizione" required></textarea>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button class="btn-primary" id="salvaModificaAttivita">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="modal-box danger" id="modalDeleteAttivita">
-                    <h3>Elimina attività</h3>
-                    <p>Questa azione è definitiva. Vuoi continuare?</p>
-
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
-                        <button class="btn-danger" id="confirmDeleteAttivita">Elimina</button>
-                    </div>
-                </div>
-
-
-
-                
-            </div>
 
 
 
@@ -989,158 +647,6 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
-            <!-- TAB EDUCATORI -->
-            <div class="page-tab" id="tab-educatori">
-                <button class="animated-button" id="aggiungi-educatore-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-
-                    <span class="text">Aggiungi Educatore</span>
-                    <span class="circle"></span>
-
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-                </button>
-
-                <!-- Modal Aggiungi Educatore -->
-                <div class="modal-box large" id="modalAggiungiEducatore">
-                    <h3>Aggiungi nuovo educatore</h3>
-                    <form id="formAggiungiEducatore">
-                        <div class="edit-field">
-                            <label>Nome</label>
-                            <input type="text" id="educatoreNome" placeholder="Nome" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Cognome</label>
-                            <input type="text" id="educatoreCognome" placeholder="Cognome" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Data di nascita</label>
-                            <input type="date" id="educatoreData" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Codice Fiscale</label>
-                            <input type="text" id="educatoreCF" placeholder="Codice Fiscale" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Telefono</label>
-                            <input type="text" id="educatoreTelefono" placeholder="Telefono">
-                        </div>
-                        <div class="edit-field">
-                            <label>Email</label>
-                            <input type="email" id="educatoreMail" placeholder="Email">
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button type="submit" class="btn-primary">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="page-header">
-                    <h1>Educatori</h1>
-                    <p>Personale educativo</p>
-                </div>
-
-                <div class="users-table-box">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Cognome</th>
-                                <th>Data di nascita</th>
-                                <th>Codice Fiscale</th>
-                                <th>Telefono</th>
-                                <th>Email</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        if($resultEducatori && $resultEducatori->num_rows > 0){
-                            while($row = $resultEducatori->fetch_assoc()){
-                                echo '<tr '
-                                    . 'data-id="'.htmlspecialchars($row['id']).'" '
-                                    . 'data-nome="'.htmlspecialchars($row['nome']).'" '
-                                    . 'data-cognome="'.htmlspecialchars($row['cognome']).'" '
-                                    . 'data-nascita="'.htmlspecialchars($row['data_nascita']).'" '
-                                    . 'data-cf="'.htmlspecialchars($row['codice_fiscale']).'" '
-                                    . 'data-telefono="'.htmlspecialchars($row['telefono']).'" '
-                                    . 'data-mail="'.htmlspecialchars($row['mail']).'">'
-                                    . '<td>'.htmlspecialchars($row['nome']).'</td>'
-                                    . '<td>'.htmlspecialchars($row['cognome']).'</td>'
-                                    . '<td>'.htmlspecialchars($row['data_nascita']).'</td>'
-                                    . '<td>'.htmlspecialchars($row['codice_fiscale']).'</td>'
-                                    . '<td>'.htmlspecialchars($row['telefono']).'</td>'
-                                    . '<td>'.htmlspecialchars($row['mail']).'</td>'
-                                    . '<td>'
-                                        . '<button class="edit-educatore-btn"><img src="immagini/edit.png" alt="Modifica"></button>'
-                                        . '<button class="delete-educatore-btn"><img src="immagini/delete.png" alt="Elimina"></button>'
-                                    . '</td>'
-                                . '</tr>';
-                            }
-                        } else {
-                            echo '<tr><td colspan="7">Nessun educatore registrato.</td></tr>';
-                        }
-                        ?>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- MODAL MODIFICA EDUCATORI -->
-                <div class="modal-box large" id="modalModificaEducatore">
-                    <h3 class="modal-title">Modifica educatore</h3>
-
-                    <form id="formModificaEducatore">
-                        <input type="hidden" id="editEducatoreId">
-
-                        <div class="edit-field">
-                            <label>Nome</label>
-                            <input type="text" id="editEducatoreNome" placeholder="Nome" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Cognome</label>
-                            <input type="text" id="editEducatoreCognome" placeholder="Cognome" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Data di nascita</label>
-                            <input type="date" id="editEducatoreData" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Codice Fiscale</label>
-                            <input type="text" id="editEducatoreCF" placeholder="Codice Fiscale" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Telefono</label>
-                            <input type="text" id="editEducatoreTelefono" placeholder="Telefono">
-                        </div>
-                        <div class="edit-field">
-                            <label>Email</label>
-                            <input type="email" id="editEducatoreMail" placeholder="Email">
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button class="btn-primary" id="salvaModificaEducatore">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="modal-box danger" id="modalDeleteEducatore">
-                    <h3>Elimina educatore</h3>
-                    <p>Questa azione è definitiva. Vuoi continuare?</p>
-
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
-                        <button class="btn-danger" id="confirmDeleteEducatore">Elimina</button>
-                    </div>
-                </div>
-            </div>
 
 
             <!-- TAB ACCOUNT -->
@@ -1458,13 +964,12 @@ $resultResoconti = $conn->query($sqlResoconti);
             document.querySelectorAll(".submenu").forEach(menu => {
                 if(menu !== targetMenu){
                     menu.classList.remove("open");
-                    menu.previousElementSibling.classList.remove("open");
+                    menu.previousElementSibling.classList.remove("open"); 
                 }
             });
 
-            // toggle quello cliccato
             targetMenu.classList.toggle("open");
-            main.classList.toggle("open");
+            main.classList.toggle("open"); 
         });
 
     });
@@ -1599,7 +1104,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             const uscita = row.dataset.uscita || '';
             const avatar = row.querySelector('img').src;
 
-            // Nascondi i campi utente e mostra quelli presenza
+            // Nasconde i campi utente e mostra quelli presenza
             document.getElementById('profileHeader').style.display = 'none';
             document.getElementById('fieldNome').style.display = 'none';
             document.getElementById('fieldCognome').style.display = 'none';
@@ -1620,7 +1125,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             editModal.dataset.editType = 'presenza';
             editModal.dataset.presenzeId = id;
 
-            // Estrai solo l'ora dal formato DB (YYYY-MM-DD HH:MM:SS)
+            // Estrae solo l'ora dal formato DB (YYYY-MM-DD HH:MM:SS)
             const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
             const uscitaTime = uscita.split(' ')[1]?.slice(0, 5) || '';
 
@@ -1645,7 +1150,6 @@ $resultResoconti = $conn->query($sqlResoconti);
             deleteModal.dataset.presenzeId = id;
             openModal(deleteModal);
 
-            // Imposta il listener sul bottone "Elimina" nella modale
             const confirmDelete = deleteModal.querySelector('.btn-danger');
             confirmDelete.onclick = () => {
                 fetch('api/api_elimina_presenza.php', {
@@ -1729,6 +1233,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 deleteModal.dataset.userId = row.dataset.id;
                 openModal(deleteModal);
 
+                // Imposta il listener sul bottone "Elimina" nella modale
                 const confirmDelete = deleteModal.querySelector(".btn-danger");
                 confirmDelete.onclick = () => {
                     fetch("api/api_elimina_utente.php", {
@@ -1769,7 +1274,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             if(editType === 'presenza'){
                 const id = editModal.dataset.presenzeId;
                 const ingresso = document.getElementById("editIngresso").value;  
-                const uscita = document.getElementById("editUscita").value;      
+                const uscita = document.getElementById("editUscita").value;    
 
                 // Ottenere la data di oggi in formato YYYY-MM-DD
                 const today = new Date().toISOString().split('T')[0];
@@ -1852,166 +1357,6 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
-        // SEZIONE ATTIVITA !!!!!!!!!!!!!!!
-
-        // MODAL AGGIUNGI ATTIVITA
-        const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
-        // point attivita overlay to the single global overlay if present
-        const attivitaOverlay = document.getElementById("attivitaOverlay") || Overlay;
-
-        aggiungiAttivitaBtn.onclick = () => {
-            openModal(modalAggiungiAttivita);
-        } 
-
-        attivitaOverlay.onclick = () => {
-            closeModal();
-        };
-
-        const salvaAttivitaBtn = document.getElementById("salvaAttivita");
-        const formAttivita = document.getElementById("formAttivita");
-        salvaAttivitaBtn.onclick = function(e){
-            e.preventDefault();
-            if(!formAttivita.reportValidity()) return;
-
-            const nome = document.getElementById("attivitaNome").value.trim();
-            const descrizione = document.getElementById("attivitaDescrizione").value.trim();
-
-            fetch("api/api_aggiungi_attivita.php", {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({ nome: nome, descrizione: descrizione })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    modalAggiungiAttivita.classList.remove("show");
-                    successText.innerText = "Attività Aggiunta!!";
-                    showSuccess(successPopup, Overlay);
-                    
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        attivitaOverlay.classList.remove("show");
-                        location.reload();
-                    }, 1800);
-
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            });
-        };
-
-
-
-
-
-
-
-
-        // MODIFICA E ELIMINA ATTIVITA
-
-        const modalModificaAttivita = document.getElementById("modalModificaAttivita");
-        const deleteAttivitaModal = document.getElementById("modalDeleteAttivita");
-        const successPopupModificaAttivita = document.getElementById("successPopupModificaAttivita");
-
-        // MODIFICA
-        document.querySelectorAll(".edit-attivita-btn").forEach(btn => {
-            btn.onclick = e => {
-                const row = btn.closest("tr");
-                const id = row.dataset.id;
-                const nome = row.children[0].innerText;
-                const descr = row.children[1].innerText;
-
-                document.getElementById("editAttivitaId").value = id;
-                document.getElementById("editAttivitaNome").value = nome;
-                document.getElementById("editAttivitaDescrizione").value = descr;
-
-                openModal(modalModificaAttivita);
-                attivitaOverlay.classList.add("show");
-            }
-        });
-
-        // Salva modifica
-        document.getElementById("salvaModificaAttivita").onclick = e => {
-            e.preventDefault();
-            const id = document.getElementById("editAttivitaId").value;
-            const nome = document.getElementById("editAttivitaNome").value.trim();
-            const descr = document.getElementById("editAttivitaDescrizione").value.trim();
-
-            fetch("api/api_modifica_attivita.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({id, nome, descrizione: descr})
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    modalModificaAttivita.classList.remove("show");
-                    successText.innerText = "Attività Modificata!!";
-                    showSuccess(successPopup, Overlay);
-                    
-
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        attivitaOverlay.classList.remove("show");
-                        location.reload();
-                    }, 1800);
-
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            });
-        };
-
-        // ELIMINA
-        let rowToDelete = null;
-        document.querySelectorAll(".delete-attivita-btn").forEach(btn => {
-            btn.onclick = e => {
-                rowToDelete = btn.closest("tr");
-                openModal(deleteAttivitaModal);
-                attivitaOverlay.classList.add("show");
-            }
-        });
-
-        document.getElementById("confirmDeleteAttivita").onclick = () => {
-            if(!rowToDelete) return;
-            const id = rowToDelete.dataset.id;
-
-            fetch("api/api_elimina_attivita.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({id})
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    deleteAttivitaModal.classList.remove("show");
-                    successText.innerText = "Attività Eliminata!!";
-                    showSuccess(successPopup, Overlay);
-                    
-
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        attivitaOverlay.classList.remove("show");
-                        location.reload();
-                    }, 1800);
-
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            });
-        };
 
 
 
@@ -2048,7 +1393,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             const fotoInput = document.getElementById("utenteFoto");
             if(fotoInput.files.length > 0){
-                formData.append("foto", fotoInput.files[0]); 
+                formData.append("foto", fotoInput.files[0]); // il file
             }
 
             fetch("api/api_aggiungi_utente.php", {
@@ -2102,12 +1447,12 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             fileNameSpan.innerText = file.name;
 
-            clearBtn.style.display = "block"; 
+            clearBtn.style.display = "block";
         });
 
         // rimuove file selezionato
         clearBtn.addEventListener("click", function(){
-            utenteFoto.value = ""; // reset input
+            utenteFoto.value = ""; 
             preview.style.display = "none";
             fileNameSpan.innerText = "Nessun file";
             clearBtn.style.display = "none"; 
@@ -2289,683 +1634,9 @@ $resultResoconti = $conn->query($sqlResoconti);
         };
 
 
-        // ---------- SEZIONE EDUCATORI (JS handlers) ----------
-        const aggiungiEducatoreBtn = document.getElementById("aggiungi-educatore-btn");
-        const modalAggiungiEducatore = document.getElementById("modalAggiungiEducatore");
-        const formAggiungiEducatore = document.getElementById("formAggiungiEducatore");
-        const modalModificaEducatore = document.getElementById("modalModificaEducatore");
-        const modalDeleteEducatore = document.getElementById("modalDeleteEducatore");
-
-        if(aggiungiEducatoreBtn){
-            aggiungiEducatoreBtn.onclick = () => {
-                openModal(modalAggiungiEducatore);
-            };
-        }
-
-        if(formAggiungiEducatore){
-            formAggiungiEducatore.onsubmit = function(e){
-                e.preventDefault();
-
-                const nome = document.getElementById("educatoreNome").value.trim();
-                const cognome = document.getElementById("educatoreCognome").value.trim();
-                const data_nascita = document.getElementById("educatoreData").value;
-                const codice_fiscale = document.getElementById("educatoreCF").value.trim();
-                const telefono = document.getElementById("educatoreTelefono").value.trim();
-                const mail = document.getElementById("educatoreMail").value.trim();
-
-                if(!nome || !cognome){
-                    alert("Compila tutti i campi obbligatori!");
-                    return;
-                }
-
-                fetch("api/api_aggiungi_educatore.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify({ nome, cognome, data_nascita, codice_fiscale, telefono, mail })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success){
-                        modalAggiungiEducatore.classList.remove("show");
-                        successText.innerText = "Educatore Aggiunto!!";
-                        showSuccess(successPopup, Overlay);
-
-                        setTimeout(() => {
-                            hideSuccess(successPopup, Overlay);
-                            if(Overlay) Overlay.classList.remove("show");
-                            location.reload();
-                        }, 1400);
-                    } else {
-                        alert("Errore: " + data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Errore nel caricamento!");
-                });
-            };
-        }
-
-        // Edit Educatore
-        document.querySelectorAll(".edit-educatore-btn").forEach(btn => {
-            btn.onclick = e => {
-                const row = btn.closest("tr");
-                const id = row.dataset.id;
-                const nome = row.children[0].innerText;
-                const cognome = row.children[1].innerText;
-                const data_nascita = row.children[2] ? row.children[2].innerText : "";
-                const codice_fiscale = row.children[3] ? row.children[3].innerText : "";
-                const telefono = row.children[4] ? row.children[4].innerText : "";
-                const mail = row.children[5] ? row.children[5].innerText : "";
-
-                document.getElementById("editEducatoreId").value = id;
-                document.getElementById("editEducatoreNome").value = nome;
-                document.getElementById("editEducatoreCognome").value = cognome;
-                document.getElementById("editEducatoreData").value = data_nascita;
-                document.getElementById("editEducatoreCF").value = codice_fiscale;
-                document.getElementById("editEducatoreTelefono").value = telefono;
-                document.getElementById("editEducatoreMail").value = mail;
-
-                openModal(modalModificaEducatore);
-            };
-        });
-
-        // Save edit educatore
-        const salvaModificaEducatoreBtn = document.getElementById("salvaModificaEducatore");
-        if(salvaModificaEducatoreBtn){
-            salvaModificaEducatoreBtn.onclick = e => {
-                e.preventDefault();
-                const id = document.getElementById("editEducatoreId").value;
-                const nome = document.getElementById("editEducatoreNome").value.trim();
-                const cognome = document.getElementById("editEducatoreCognome").value.trim();
-                const data_nascita = document.getElementById("editEducatoreData").value;
-                const codice_fiscale = document.getElementById("editEducatoreCF").value.trim();
-                const telefono = document.getElementById("editEducatoreTelefono").value.trim();
-                const mail = document.getElementById("editEducatoreMail").value.trim();
-
-                if(!nome || !cognome){
-                    alert("Compila tutti i campi obbligatori!");
-                    return;
-                }
-
-                fetch("api/api_modifica_educatore.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify({ id, nome, cognome, data_nascita, codice_fiscale, telefono, mail })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success){
-                        modalModificaEducatore.classList.remove("show");
-                        successText.innerText = "Educatore Modificato!!";
-                        showSuccess(successPopup, Overlay);
-
-                        setTimeout(() => {
-                            hideSuccess(successPopup, Overlay);
-                            if(Overlay) Overlay.classList.remove("show");
-                            location.reload();
-                        }, 1400);
-                    } else {
-                        alert("Errore: " + data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Errore nella modifica!");
-                });
-            };
-        }
-
-        // Delete Educatore
-        let rowToDeleteEducatore = null;
-        document.querySelectorAll(".delete-educatore-btn").forEach(btn => {
-            btn.onclick = e => {
-                rowToDeleteEducatore = btn.closest("tr");
-                const nome = rowToDeleteEducatore.children[0].innerText;
-                document.querySelector("#modalDeleteEducatore h3").innerText = "Elimina educatore: " + nome;
-                modalDeleteEducatore.classList.add("show");
-                if(Overlay) Overlay.classList.add("show");
-            };
-        });
-
-        document.getElementById("confirmDeleteEducatore")?.addEventListener("click", () => {
-            if(!rowToDeleteEducatore) return;
-            const id = rowToDeleteEducatore.dataset.id;
-
-            fetch("api/api_elimina_educatore.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({ id })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){
-                    modalDeleteEducatore.classList.remove("show");
-                    successText.innerText = "Educatore Eliminato!!";
-                    showSuccess(successPopup, Overlay);
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        if(Overlay) Overlay.classList.remove("show");
-                        location.reload();
-                    }, 1800);
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            });
-        });
 
     
         
-       // ================= AGENDA =================
-let agendaData = [];
-let agendaWeekStart = null;
-let selectedDayIndex = 0;
-
-// utilità: YYYY-MM-DD locale
-function getLocalDateString(date) {
-    const y = date.getFullYear();
-    const m = (date.getMonth() + 1).toString().padStart(2,'0');
-    const d = date.getDate().toString().padStart(2,'0');
-    return `${y}-${m}-${d}`;
-}
-
-// calcola le date della settimana e aggiorna le label
-function calculateWeekDates(weekStartStr) {
-    const today = new Date();
-    let monday;
-
-    if (weekStartStr) {
-        const parts = weekStartStr.split('-'); // "YYYY-MM-DD"
-        monday = new Date(parts[0], parts[1]-1, parts[2]);
-    } else {
-        monday = new Date(today);
-        monday.setDate(today.getDate() - today.getDay() + 1); // lunedì
-    }
-
-    const dates = [];
-    const dateLabels = ['date-monday','date-tuesday','date-wednesday','date-thursday','date-friday'];
-
-    for (let i=0; i<5; i++) {
-        const date = new Date(monday);
-        date.setDate(monday.getDate() + i);
-        dates.push(getLocalDateString(date));
-
-        const label = document.getElementById(dateLabels[i]);
-        if (label) {
-            const dateStr = date.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});
-            label.innerText = dateStr;
-        }
-    }
-
-    return dates;
-}
-
-// carica agenda dal server
-function loadAgenda() {
-    const contentDiv = document.getElementById('agendaContent');
-    contentDiv.innerHTML = '<div class="loading">Caricamento attività...</div>';
-
-    fetch('api/api_get_agenda.php')
-        .then(res => res.json())
-        .then(data => {
-            if(data.success){
-                agendaData = data.data || [];
-                agendaWeekStart = data.monday || null;
-                calculateWeekDates(agendaWeekStart);
-                let defaultDayIndex = new Date(); // 0 for Monday, 1 for Tuesday, etc.
-                if (defaultDayIndex < 0) defaultDayIndex = 6; // Sunday becomes 6
-                const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
-                displayAgenda(savedDayIndex);
-            } else {
-                contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            contentDiv.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
-        });
-}
-
-// mostra attività per il giorno selezionato
-function displayAgenda(dayIndex){
-    selectedDayIndex = dayIndex;
-    localStorage.setItem("selectedDayIndex", dayIndex);
-
-    // Aggiorna l'aspetto dei tab dei giorni
-    document.querySelectorAll('.day-tab').forEach((tab, index) => {
-        if (index === dayIndex) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-    });
-
-    document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
-
-
-    const contentDiv = document.getElementById('agendaContent');
-
-    if(!agendaData || agendaData.length === 0){
-        contentDiv.innerHTML = '<div class="no-activities">Nessuna attività disponibile</div>';
-        return;
-    }
-
-    // calcola lunedì della settimana
-    let monday;
-    if(agendaWeekStart){
-        const parts = agendaWeekStart.split('-');
-        monday = new Date(parts[0], parts[1]-1, parts[2]);
-    } else {
-        monday = new Date();
-        monday.setDate(monday.getDate() - monday.getDay() + 1);
-    }
-
-    const selectedDate = new Date(monday);
-    selectedDate.setDate(monday.getDate() + dayIndex);
-    const selectedDateStr = getLocalDateString(selectedDate);
-
-    // filtra attività per giorno
-    const dayActivities = agendaData.filter(att => att.data === selectedDateStr);
-
-    if(dayActivities.length === 0){
-        contentDiv.innerHTML = '<div class="no-activities">Nessuna attività per questo giorno</div>';
-        return;
-    }
-
-    // ordina per ora_inizio
-    dayActivities.sort((a,b)=> a.ora_inizio.localeCompare(b.ora_inizio));
-
-    let html = '<div class="activities-list">';
-
-    dayActivities.forEach(att => {
-        // orari
-        const inizio_no_seconds = att.ora_inizio.substring(0,5);
-        const fine_no_seconds   = att.ora_fine.substring(0,5);
-
-        // educatori unici
-        const educatoriText = Array.from(
-            new Map(att.educatori.map(e=>[e.id,e])).values()
-        ).map(e=>`${e.nome} ${e.cognome}`).join(', ');
-
-        // ragazzi unici
-        const ragazziPhotos = Array.from(
-            new Map(att.ragazzi.map(r=>[r.id,r])).values()
-               ).map(r=>`<div class="ragazzo-item">
-            <img src="${r.fotografia}" alt="${r.nome} ${r.cognome}" class="ragazzo-avatar">
-            <span class="ragazzo-cognome">${r.cognome}</span>
-</div>`).join('') || '—';
-
-        html += `
-        <div class="activity-card" data-id="${att.id}">
-            <div class="activity-header">
-                <h3>${att.attivita_nome}</h3>
-                <span class="activity-time"><img class="resoconti-icon" src="immagini/rescheduling.png" style="width:22px; height:22px; margin-right:8px;"> ${inizio_no_seconds} - ${fine_no_seconds}</span>
-            </div>
-            <div class="activity-description">${att.descrizione}</div>
-            <div class="activity-participants">
-                <div class="participant-group">
-                    <label>Educatori:</label>
-                    <span>${educatoriText}</span>
-                </div>
-                <div class="participant-group">
-                    <label>Ragazzi:</label>
-                    <span class="ragazzi-photos">${ragazziPhotos}</span>
-                </div>
-            </div>
-            <div class="activity-actions">
-                <button class="delete-agenda-btn" data-id="${att.id}" title="Elimina">
-                    <img src="immagini/delete.png" alt="Elimina">
-                </button>
-            </div>
-        </div>
-        `;
-    });
-
-    html += '</div>';
-    contentDiv.innerHTML = html;
-}
-
-// event listeners per i tab dei giorni
-document.querySelectorAll('.day-tab').forEach((tab,index)=>{
-    tab.addEventListener('click',()=>{
-        document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
-        tab.classList.add('active');
-        displayAgenda(index);
-        // Animazione di scorrimento per centrare il tab attivo
-        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    });
-});
-
-// carica agenda al load
-window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
-
-// ========== MODAL MODIFICA AGENDA ==========
-
-const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
-const modalModificaAgenda = document.getElementById("modalModificaAgenda");
-
-
-
-// Delete Agenda
-let agendaToDelete = null;
-document.addEventListener('click', function(e){
-    if(e.target.closest('.delete-agenda-btn')){
-        const btn = e.target.closest('.delete-agenda-btn');
-        agendaToDelete = btn.dataset.id;
-        openModal(modalDeleteAgenda);
-    }
-});
-
-document.getElementById("confirmDeleteAgenda").onclick = () => {
-    if(!agendaToDelete) return;
-
-    fetch("api/api_elimina_agenda.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify({ id: agendaToDelete })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) {
-            modalDeleteAgenda.classList.remove("show");
-            if(Overlay) Overlay.classList.remove("show");
-            successText.innerText = "Agenda Eliminata!!";
-            showSuccess(successPopup, Overlay);
-            setTimeout(() => {
-                hideSuccess(successPopup, Overlay);
-                location.reload();
-            }, 1800);
-        } else {
-            alert("Errore: " + data.message);
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Errore di comunicazione con il server");
-    });
-};
-
-
-
-        // Event listeners per i tab dei giorni
-        document.querySelectorAll('.day-tab').forEach((tab, index) => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                displayAgenda(index);
-            });
-        });
-
-        // ========== MODAL CREA AGENDA ==========
-        const creaAgendaBtn = document.getElementById("creaAgendaBtn");
-        const formCreaAgenda = document.getElementById("formCreaAgenda");
-        const modalCreaAgenda = document.getElementById("modalCreaAgenda");
-        // agendaOverlay should reuse single global overlay when available
-        const agendaOverlay = document.getElementById("agendaOverlay") || Overlay;
-        const successPopupAgenda = document.getElementById("successPopupAgenda");
-
-        if(creaAgendaBtn) {
-            creaAgendaBtn.onclick = () => {
-                // Popola la select con le date della settimana
-                const today = new Date();
-                const monday = new Date(today);
-                monday.setDate(today.getDate() - today.getDay() + 1);
-
-                const dataSelect = document.getElementById("agendaData");
-                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
-                
-                // Pulisci le opzioni mantendo la prima (placeholder)
-                while (dataSelect.options.length > 1) {
-                    dataSelect.remove(1);
-                }
-
-                for (let i = 0; i < 5; i++) {
-                    const date = new Date(monday);
-                    date.setDate(monday.getDate() + i);
-                    const dateStr = date.toISOString().split('T')[0];
-                    const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-                    const option = document.createElement("option");
-                    option.value = dateStr;
-                    option.text = `${giorni[i]} ${dateFormatted}`;
-                    dataSelect.appendChild(option);
-                }
-
-                openModal(modalCreaAgenda);
-            };
-        }
-
-        if(agendaOverlay) {
-            agendaOverlay.onclick = () => {
-                closeModal();
-            };
-        }
-
-        // Submit form
-        if(formCreaAgenda) {
-            formCreaAgenda.onsubmit = function(e) {
-                e.preventDefault();
-                console.log("Form submit triggered");
-
-                const data = document.getElementById("agendaData").value;
-                const ora_inizio = document.getElementById("agendaOraInizio").value;
-                const ora_fine = document.getElementById("agendaOraFine").value;
-                const id_attivita = document.getElementById("agendaAttivita").value;
-                
-                console.log("Data:", data, "Ora inizio:", ora_inizio, "Ora fine:", ora_fine, "Attività:", id_attivita);
-
-                const educatoriCheckboxes = document.querySelectorAll(".educatore-checkbox:checked");
-                const ragazziCheckboxes = document.querySelectorAll(".ragazzo-checkbox:checked");
-                
-                const educatori = Array.from(educatoriCheckboxes)
-                    .map(cb => {
-                        const val = parseInt(cb.value, 10);
-                        console.log("Educatore checkbox value:", cb.value, "parsed:", val);
-                        return val;
-                    })
-                    .filter(id => !isNaN(id) && id > 0);
-                    
-                const ragazzi = Array.from(ragazziCheckboxes)
-                    .map(cb => {
-                        const val = parseInt(cb.value, 10);
-                        console.log("Ragazzo checkbox value:", cb.value, "parsed:", val);
-                        return val;
-                    })
-                    .filter(id => !isNaN(id) && id > 0);
-
-                console.log("Educatori selezionati:", educatori);
-                console.log("Ragazzi selezionati:", ragazzi);
-
-                if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
-                    alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
-                    return;
-                }
-
-                if (ragazzi.length === 0) {
-                    alert("Seleziona almeno un ragazzo!");
-                    return;
-                }
-
-                console.log("Invio fetch all'API");
-                const payload = {
-                    data: data,
-                    ora_inizio: ora_inizio,
-                    ora_fine: ora_fine,
-                    id_attivita: parseInt(id_attivita),
-                    educatori: educatori,
-                    ragazzi: ragazzi
-                };
-                console.log("Payload:", payload);
-
-                fetch("api/api_aggiungi_agenda.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(res => {
-                    console.log("Response status:", res.status);
-                    return res.json();
-                })
-                .then(data => {
-                    console.log("Risposta API:", data);
-                    if(data.success) {
-                        console.log("Successo! Chiudo modal e reload");
-                        if (modalCreaAgenda) modalCreaAgenda.classList.remove("show");
-                        if (agendaOverlay) agendaOverlay.classList.remove("show");
-                        if (successPopupAgenda) {
-                            showSuccess(successPopupAgenda, agendaOverlay);
-                            setTimeout(() => {
-                                if (successPopupAgenda) hideSuccess(successPopupAgenda, agendaOverlay);
-                                location.reload();
-                            }, 2500);
-                        } else {
-                            location.reload();
-                        }
-                    } else {
-                        alert("Errore API: " + (data.error || data.message));
-                    }
-                })
-                .catch(err => {
-                    console.error("Fetch error completo:", err);
-                    console.error("Stack:", err.stack);
-                    alert("Errore di comunicazione con il server: " + err.message);
-                });
-            };
-        }
-        // Carica l'agenda al caricamento della pagina
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAgenda();
-        });
-
-
-
-// ========== STAMPA AGENDA ==========
-        const stampaAgendaBtn = document.getElementById("stampaAgendaBtn");
-        if(stampaAgendaBtn) {
-            stampaAgendaBtn.onclick = () => {
-                const printWindow = window.open('', '_blank', 'width=800,height=600');
-
-                const timeSlots = [
-                    { start: '08:00', end: '10:00', label: '08:00 - 10:00', bg: '#e6f7ff' },
-                    { start: '10:00', end: '12:00', label: '10:00 - 12:00', bg: '#fff7e6' },
-                    { start: '12:00', end: '14:00', label: '12:00 - 14:00', bg: '#f6ffed' },
-                    { start: '14:00', end: '16:00', label: '14:00 - 16:00', bg: '#fff2f0' },
-                    { start: '16:00', end: '18:00', label: '16:00 - 18:00', bg: '#f9f0ff' }
-                ];
-
-                const groupedActivities = {};
-                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
-                const dayIndices = [0, 1, 2, 3, 4];
-
-                timeSlots.forEach(slot => {
-                    groupedActivities[slot.label] = {};
-                    dayIndices.forEach((dayIndex, idx) => {
-                        const dayName = giorni[idx];
-                        groupedActivities[slot.label][dayName] = [];
-
-                        const dayActivities = agendaData.filter(att => {
-                            let monday;
-                            if(agendaWeekStart){
-                                const parts = agendaWeekStart.split('-');
-                                monday = new Date(parts[0], parts[1]-1, parts[2]);
-                            } else {
-                                monday = new Date();
-                                monday.setDate(monday.getDate() - monday.getDay() + 1);
-                            }
-                            const selectedDate = new Date(monday);
-                            selectedDate.setDate(monday.getDate() + dayIndex);
-                            const selectedDateStr = getLocalDateString(selectedDate);
-                            return att.data === selectedDateStr && att.ora_inizio >= slot.start && att.ora_inizio < slot.end;
-                        });
-
-                        dayActivities.sort((a,b)=> a.ora_inizio.localeCompare(b.ora_inizio)).forEach(att => {
-                            const educatori = Array.from(new Map(att.educatori.map(e=>[e.id,e])).values()).map(e=>`${e.nome} ${e.cognome}`).join(', ');
-                            const ragazziSurnames = Array.from(new Map(att.ragazzi.map(r=>[r.id,r])).values()).map(r=>r.cognome).join(', ');
-
-                            groupedActivities[slot.label][dayName].push(`
-                                <div class="activity">
-                                    <strong>${att.attivita_nome} (${educatori})</strong><br>
-                                    <span class="ragazzi-surnames">${ragazziSurnames}</span>
-                                </div>
-                            `);
-                        });
-                    });
-                });
-
-                printWindow.document.write(`
-                    <html>
-                    <head>
-                        <title>Stampa Agenda Settimanale</title>
-                        <style>
-                            @page { size: A4 landscape; }
-                            body { font-family: Arial, sans-serif; margin: 3px; width: 297mm; }
-                            table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
-                            th, td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: top; width: 20%; max-width: 20%; word-wrap: break-word; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            th { background: #f0f0f0; font-weight: bold; }
-                            .activity { margin-bottom: 6px; page-break-inside: avoid; }
-                            .participants { font-size: 12px; }
-                            .ragazzi-photos { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
-                            .ragazzo-photo { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc; }
-                            @media print { body { margin: 0; } table { width: 100%; } }
-                        </style>
-                    </head>
-                    <body>
-                        <h2 style="text-align: center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Lunedì</th>
-                                    <th>Martedì</th>
-                                    <th>Mercoledì</th>
-                                    <th>Giovedì</th>
-                                    <th>Venerdì</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `);
-
-                timeSlots.forEach(slot => {
-                    printWindow.document.write(`<tr>`);
-                    dayIndices.forEach((dayIndex, idx) => {
-                        const dayName = giorni[idx];
-                        const activities = groupedActivities[slot.label][dayName];
-                        printWindow.document.write(`<td style="background-color: ${slot.bg};">`);
-                        if(activities.length === 0) {
-                            printWindow.document.write(`Nessuna attività`);
-                        } else {
-                            activities.forEach(act => printWindow.document.write(act));
-                        }
-                        printWindow.document.write(`</td>`);
-                    });
-                    printWindow.document.write(`</tr>`);
-                });
-
-                printWindow.document.write(`
-                            </tbody>
-                        </table>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
-                printWindow.print();
-            };
-        }
 
 
 
@@ -2981,6 +1652,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
     let currentIscritto = null;
 
+    // CARICAMENTO INIZIALE MENSILE
     if(resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
 
     // CAMBIO MESE GLOBALE
@@ -3223,13 +1895,11 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         // Salva stato sidebar
         const checkboxInput = document.getElementById('checkbox-input');
         if (checkboxInput) {
-            // Ripristina stato al caricamento
             const sidebarState = localStorage.getItem('sidebarOpen');
             if (sidebarState !== null) {
                 checkboxInput.checked = sidebarState === 'true';
             }
 
-            // Salva stato al cambio
             checkboxInput.addEventListener('change', () => {
                 localStorage.setItem('sidebarOpen', checkboxInput.checked);
             });
