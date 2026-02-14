@@ -59,6 +59,12 @@ if($conn->connect_error){
     die("Connessione DB time4allergo fallita: " . $conn->connect_error);
 }
 
+// Preleva gli account dal DB (per la sezione Account) - usa la connessione time4all
+$connAccount2 = new mysqli($hostAccount, $userAccount, $passAccount, $dbAccount);
+$sqlAccount = "SELECT nome_utente, codice_univoco, classe FROM Account ORDER BY nome_utente ASC";
+$resultAccount = $connAccount2->query($sqlAccount);
+$connAccount2->close();
+
 // Preleva iscritti
 $sql = "
 SELECT 
@@ -122,6 +128,8 @@ $stmtResoconti->execute();
 $resultResoconti = $stmtResoconti->get_result();
 $stmtResoconti->close();
 
+
+
 // Connessione al nuovo DB rimane aperta per le future operazioni CRUD
 ?>
 
@@ -142,9 +150,9 @@ $stmtResoconti->close();
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
 
-
-
 </head>
+<body>
+    <!-- NAVBAR -->
 <body>
     <!-- NAVBAR -->
     <header class="navbar">
@@ -379,6 +387,13 @@ $stmtResoconti->close();
                             <input type="text" id="utenteCF" placeholder="Codice Fiscale" required>
                         </div>
                         <div class="edit-field">
+                            <label>Fotografia</label>
+                            <input type="file" id="utenteFotoFile" accept="image/*" class="file-input">
+                            <div class="file-preview-container" id="utenteFotoPreview" style="display: none; margin-top: 10px;">
+                                <img src="" alt="Preview" class="preview-mini" id="utenteFotoPreviewImg">
+                            </div>
+                        </div>
+                        <div class="edit-field">
                             <label>Contatti</label>
                             <input type="text" id="utenteContatti" placeholder="Email o telefono" required>
                         </div>
@@ -419,12 +434,8 @@ $stmtResoconti->close();
                                 <th>Nome</th>
                                 <th>Cognome</th>
                                 <th>Data di nascita</th>
-                                <th>Codice Fiscale</th>
                                 <th>Contatti</th>
                                 <th>Disabilità</th>
-                                <th>Intolleranze</th>
-                                <th>Stipendio/ora</th>
-                                <th>Note</th>
                                 <th>Azioni</th>
                             </tr>
                         </thead>
@@ -448,16 +459,14 @@ $stmtResoconti->close();
                                     <td>'.htmlspecialchars($row['Nome']).'</td>
                                     <td>'.htmlspecialchars($row['Cognome']).'</td>
                                     <td>'.htmlspecialchars($row['Data_nascita']).'</td>
-                                    <td>'.htmlspecialchars($row['Codice_fiscale']).'</td>
                                     <td>'.htmlspecialchars($row['Contatti']).'</td>
                                     <td>'.htmlspecialchars($row['Disabilita']).'</td>
-                                    <td>'.htmlspecialchars($row['Allergie_intolleranze'] ?? '').'</td>
-                                    <td>'.htmlspecialchars($row['Stipendio_Orario']).'</td>
-                                    <td>'.htmlspecialchars($row['Note']).'</td>
                                     <td>'
+                                        .'<button class="view-btn"><img src="immagini/open-eye.png" alt="Visualizza"></button>'
                                         .'<button class="edit-utente-btn"><img src="immagini/edit.png" alt="Modifica"></button>'
                                         .'<button class="delete-utente-btn"><img src="immagini/delete.png" alt="Elimina"></button>'
                                     .'</td>'
+
                                 .'</tr>';
                             }
                         } else {
@@ -525,7 +534,23 @@ $stmtResoconti->close();
                         <button type="button" class="btn-danger" id="confirmDeleteUtente">Elimina</button>
                     </div>
                 </div>
+
+                <!-- Modal Visualizza Utente -->
+                <div class="modal-box large" id="viewModal">
+                    <div class="profile-header">
+                        <img id="viewAvatar" class="profile-avatar">
+                        <div class="profile-main">
+                            <h3 id="viewFullname"></h3>
+                            <span id="viewBirth"></span>
+                        </div>
+                    </div>
+                    <div class="profile-grid" id="viewContent"></div>
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal(document.getElementById('viewModal'))">Chiudi</button>
+                    </div>
+                </div>
             </div>
+
 
 
 
@@ -1074,25 +1099,29 @@ $stmtResoconti->close();
         };
 
     // Modal (use the global `Overlay` element for modal backdrop)
-    const Overlay = document.getElementById("Overlay") || document.getElementById("modalOverlay");
+    const Overlay = document.getElementById("Overlay");
     const viewModal = document.getElementById("viewModal");
     const editModal = document.getElementById("editModal");
     const deleteModal = document.getElementById("deleteModal");
-    const modalAggiungiAttivita = document.getElementById("modalAggiungiAttivita");
+
     const successText = document.getElementById("success-text");
+    const successPopup = document.getElementById("successPopup");
 
     function openModal(modal){
+        if(!modal) return;
         modal.classList.add("show");
         if(Overlay) Overlay.classList.add("show");
     }
-    function closeModal(){
+    
+    function closeModal(modal){
         if(Overlay) Overlay.classList.remove("show");
-        document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
-        const attivitaOverlay = document.getElementById("attivitaOverlay");
-        if(attivitaOverlay) attivitaOverlay.classList.remove("show");
-        const agendaOverlay = document.getElementById("agendaOverlay");
-        if(agendaOverlay) agendaOverlay.classList.remove("show");
+        if(modal){
+            modal.classList.remove("show");
+        } else {
+            document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
+        }
     }
+
 
     function showSuccess(popup, overlay) {
         if (popup) popup.classList.add("show");
@@ -1104,21 +1133,22 @@ $stmtResoconti->close();
     }
 
 
+    if(Overlay) Overlay.onclick = () => closeModal();
+
     // Popup view
     document.querySelectorAll(".view-btn").forEach(btn=>{
         btn.onclick = e=>{
             const row = e.target.closest("tr");
-
             const avatar = row.querySelector("img").src;
             const nome = row.dataset.nome;
             const cognome = row.dataset.cognome;
             const data = row.dataset.nascita;
-            const note = row.dataset.note;
             const cf = row.dataset.cf;
             const contatti = row.dataset.contatti;
             const disabilita = row.dataset.disabilita;
             const intolleranze = row.dataset.intolleranze;
             const prezzo = row.dataset.prezzo;
+            const note = row.dataset.note;
 
             document.getElementById("viewAvatar").src = avatar;
             document.getElementById("viewFullname").innerText = nome + " " + cognome;
@@ -1128,20 +1158,19 @@ $stmtResoconti->close();
                 <div class="profile-field"><label>Nome</label><span>${nome}</span></div>
                 <div class="profile-field"><label>Cognome</label><span>${cognome}</span></div>
                 <div class="profile-field"><label>Data di nascita</label><span>${data}</span></div>
-                <div class="profile-field"><label>Codice Fiscale</label><span>${cf || "—"}</span></div>
-                <div class="profile-field"><label>Contatti</label><span>${contatti || "—"}</span></div>
-                <div class="profile-field"><label>Disabilità</label><span>${disabilita || "—"}</span></div>
-                <div class="profile-field"><label style="font-weight: bold;">Intolleranze ⚠️</label><span style="font-weight: bold;">${intolleranze || "—"}</span></div>
-                <div class="profile-field"><label>Prezzo orario</label><span>${prezzo || "—"} €</span></div>
-                <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
+                <div class="profile-field"><label>Codice Fiscale</label><span>${cf}</span></div>
+                <div class="profile-field"><label>Contatti</label><span>${contatti}</span></div>
+                <div class="profile-field"><label>Disabilità</label><span>${disabilita || '-'}</span></div>
+                <div class="profile-field"><label>Intolleranze / Allergie</label><span>${intolleranze || '-'}</span></div>
+                <div class="profile-field"><label>Stipendio orario</label><span>${prezzo ? prezzo + ' €' : '-'}</span></div>
+                <div class="profile-field"><label>Note</label><span>${note || '-'}</span></div>
             `;
-
             openModal(viewModal);
         }
     });
-    if(Overlay) Overlay.onclick = closeModal;
 
     // Presenze: edit/delete handlers
+
     document.addEventListener('click', function(e){
         // Edit presenza
         if(e.target.closest && e.target.closest('.edit-presenza-btn')){
@@ -1416,102 +1445,8 @@ $stmtResoconti->close();
 
         
 
-        const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
-        const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
-        const formAggiungiUtente = document.getElementById("formAggiungiUtente");
-
-        // Apri modal
-        aggiungiUtenteBtn.onclick = () => {
-            openModal(modalAggiungiUtente);
-        };
-
-
-        // Submit form
-        formAggiungiUtente.onsubmit = function(e) {
-            e.preventDefault();
-
-            const formData = new FormData();
-            formData.append("nome", document.getElementById("utenteNome").value.trim());
-            formData.append("cognome", document.getElementById("utenteCognome").value.trim());
-            formData.append("data_nascita", document.getElementById("utenteData").value);
-            formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-            formData.append("contatti", document.getElementById("utenteContatti").value.trim());
-            formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
-            formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
-            formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value));
-            formData.append("note", document.getElementById("utenteNote").value.trim());
-
-            const fotoInput = document.getElementById("utenteFoto");
-            if(fotoInput.files.length > 0){
-                formData.append("foto", fotoInput.files[0]); // il file
-            }
-
-            fetch("api/api_aggiungi_utente.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    modalAggiungiUtente.classList.remove("show");
-                    successText.innerText = "Utente Aggiunto!!";
-                    showSuccess(successPopup, Overlay);
-                    
-
-
-                        setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        if(Overlay) Overlay.classList.remove("show");
-                        location.reload();
-                    },1800); 
-
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Errore nel caricamento!");
-            });
-        };
-
-
-        const utenteFoto = document.getElementById("utenteFoto");
-        const preview = document.getElementById("previewFotoMini");
-        const fileNameSpan = document.getElementById("nomeFileFoto");
-        const clearBtn = document.getElementById("clearFileBtn");
-
-        utenteFoto.addEventListener("change", function(){
-
-            if(!this.files.length){
-                preview.style.display = "none";
-                fileNameSpan.innerText = "Nessun file";
-                clearBtn.style.display = "none"; 
-                return;
-            }
-
-            const file = this.files[0];
-
-            preview.src = URL.createObjectURL(file);
-            preview.style.display = "block";
-
-            fileNameSpan.innerText = file.name;
-
-            clearBtn.style.display = "block";
-        });
-
-        // rimuove file selezionato
-        clearBtn.addEventListener("click", function(){
-            utenteFoto.value = ""; 
-            preview.style.display = "none";
-            fileNameSpan.innerText = "Nessun file";
-            clearBtn.style.display = "none"; 
-        });
-
-
-
-
         // SEZIONE ACCOUNT !!!!!!!!!!!!!!!
+
 
         const aggiungiAccountBtn = document.getElementById("aggiungi-account-btn");
         const modalAggiungiAccount = document.getElementById("modalAggiungiAccount");
@@ -2004,38 +1939,79 @@ $stmtResoconti->close();
 
 
         const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
         const modalModificaUtente = document.getElementById("modalModificaUtente");
         const modalDeleteUtente = document.getElementById("modalDeleteUtente");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
-        const formModificaUtente = document.getElementById("formModificaUtente");
 
         aggiungiUtenteBtn?.addEventListener("click", () => openModal(modalAggiungiUtente));
 
-        document.getElementById("salvaNuovoUtente")?.addEventListener("click", () => {
+        // Click handler for Salva button - triggers form submission
+        document.getElementById("salvaNuovoUtente")?.addEventListener("click", function() {
+            formAggiungiUtente.dispatchEvent(new Event('submit'));
+        });
+
+        // Submit form
+        formAggiungiUtente.onsubmit = function(e) {
+            e.preventDefault();
+
+            // Validazione client-side
             const nome = document.getElementById("utenteNome").value.trim();
             const cognome = document.getElementById("utenteCognome").value.trim();
-            const data_nascita = document.getElementById("utenteData").value;
+            const data = document.getElementById("utenteData").value;
             const cf = document.getElementById("utenteCF").value.trim();
             const contatti = document.getElementById("utenteContatti").value.trim();
-            const disabilita = document.getElementById("utenteDisabilita").value.trim();
-            const intolleranze = document.getElementById("utenteIntolleranze").value.trim();
-            const prezzo = parseFloat(document.getElementById("utentePrezzo").value) || 0;
-            const note = document.getElementById("utenteNote").value.trim();
+
+            if (!nome) { alert("Il campo Nome è obbligatorio"); return; }
+            if (!cognome) { alert("Il campo Cognome è obbligatorio"); return; }
+            if (!data) { alert("Il campo Data di nascita è obbligatorio"); return; }
+            if (!cf) { alert("Il campo Codice Fiscale è obbligatorio"); return; }
+            if (!contatti) { alert("Il campo Contatti è obbligatorio"); return; }
+
+            const formData = new FormData();
+            formData.append("nome", document.getElementById("utenteNome").value.trim());
+            formData.append("cognome", document.getElementById("utenteCognome").value.trim());
+            formData.append("data_nascita", document.getElementById("utenteData").value);
+            formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
+            formData.append("contatti", document.getElementById("utenteContatti").value.trim());
+            formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
+            formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
+            const prezzoValue = document.getElementById("utentePrezzo").value;
+            formData.append("prezzo_orario", prezzoValue ? parseFloat(prezzoValue) : 0);
+            formData.append("note", document.getElementById("utenteNote").value.trim());
+
+            const fotoInput = document.getElementById("utenteFotoFile");
+            if(fotoInput.files.length > 0){
+                formData.append("foto", fotoInput.files[0]);
+            }
 
             fetch("api/api_aggiungi_utente_ergo.php", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nome, cognome, data_nascita, codice_fiscale: cf, contatti, disabilita, intolleranze, prezzo_orario: prezzo, note })
+                body: formData
             })
             .then(res => res.json())
             .then(data => {
                 if(data.success){
-                    closeModal(modalAggiungiUtente);
-                    location.reload();
-                } else alert("Errore: " + data.message);
+                    modalAggiungiUtente.classList.remove("show");
+                    successText.innerText = "Utente Aggiunto!!";
+                    showSuccess(successPopup, Overlay);
+
+                    setTimeout(() => {
+                        hideSuccess(successPopup, Overlay);
+                        if(Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    },1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
             })
-            .catch(err => alert("Errore: " + err));
-        });
+            .catch(err => {
+                console.error(err);
+                alert("Errore nel caricamento!");
+            });
+        };
+
 
         // Edit utente
         document.querySelectorAll(".edit-utente-btn").forEach(btn => {
@@ -2075,8 +2051,15 @@ $stmtResoconti->close();
             .then(res => res.json())
             .then(data => {
                 if(data.success){
-                    closeModal(modalModificaUtente);
-                    location.reload();
+                    modalModificaUtente.classList.remove("show");
+                    successText.innerText = "Utente modificato!!";
+                    showSuccess(successPopup, Overlay);
+
+                    setTimeout(() => {
+                        hideSuccess(successPopup, Overlay);
+                        if(Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
                 } else alert("Errore: " + data.message);
             })
             .catch(err => alert("Errore: " + err));
@@ -2103,7 +2086,14 @@ $stmtResoconti->close();
             .then(data => {
                 if(data.success){
                     closeModal(modalDeleteUtente);
-                    location.reload();
+                    successText.innerText = "Utente Eliminato!!";
+                    showSuccess(successPopup, Overlay);
+
+                    setTimeout(() => {
+                        hideSuccess(successPopup, Overlay);
+                        if(Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
                 } else alert("Errore: " + data.message);
             })
             .catch(err => alert("Errore: " + err));
