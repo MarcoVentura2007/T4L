@@ -227,6 +227,7 @@ if($classe !== 'Educatore'){
 
         <!-- MAIN CONTENT -->
         <main class="main-content">
+            <div class="main-container">
             <!-- TAB UTENTI -->
             <div class="page-tab active" id="tab-utenti">
                 <div class="page-header">
@@ -430,7 +431,7 @@ if($classe !== 'Educatore'){
                         <div class="loading">Caricamento attività...</div>
                     </div>
                 </div>
-
+            </div>
         </main>
     </div>
 

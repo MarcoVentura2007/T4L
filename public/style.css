@@ -3029,9 +3029,13 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     border-radius:8px;
     padding:24px;
     box-shadow:0 8px 28px rgba(0,0,0,.05);
-    overflow-x: auto; /* Scroll orizzontale per tabelle su mobile */
+    overflow-x: auto;
 }
 
+.main-container{
+    max-width: 92%;
+    margin: 0 auto;
+}
 /* MOBILE OPTIMIZATIONS FOR GESTIONALE AMMINISTRATORE */
 @media (max-width: 768px) {
     .app-layout {
@@ -3634,7 +3638,7 @@ td img:hover{
 .animated-button {
   position: absolute;
     top: 140px;
-    right: 90px;
+    right: 110px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -3643,7 +3647,7 @@ td img:hover{
   border-color: transparent;
   font-size: 16px;
   background-color: inherit;
-  border-radius: 40px;
+  border-radius: 16px;
   font-weight: 600;
   color: black;
   box-shadow: 0 0 0 2px #640a35;
