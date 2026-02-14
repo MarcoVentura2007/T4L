@@ -1,38 +1,79 @@
 <?php
-session_start(); header('Content-Type: application/json');
-if(!isset($_SESSION['username'])){ echo json_encode(['success'=>false,'message'=>'Non autorizzato']); exit; }
+session_start();
+header('Content-Type: application/json');
+header("Cache-Control: no-cache");
 
-$host="localhost"; $user="root"; $pass=""; $db="time4allergo";
-$conn = new mysqli($host,$user,$pass,$db); if($conn->connect_error){ echo json_encode(['success'=>false,'message'=>$conn->connect_error]); exit; }
-
-$id=$_POST['id']??0; if(!$id){ echo json_encode(['success'=>false,'message'=>'ID mancante']); exit; }
-
-$fields=['nome','cognome','data_nascita','codice_fiscale','contatti','disabilita','note','prezzo_orario'];
-$params=[];
-$types="";
-
-foreach($fields as $f){
-    $params[]=$_POST[$f] ?? '';
-    $types.="s";
+// Controllo login
+if(!isset($_SESSION['username'])){
+    echo json_encode(['success' => false, 'message' => 'Non autorizzato']);
+    exit;
 }
 
-$fotografia=null;
-if(isset($_FILES['foto']) && $_FILES['foto']['error']==0){
-    $uploadDir=__DIR__."/../immagini/";
-    if(!is_dir($uploadDir)) mkdir($uploadDir,0755,true);
-    $name=time()."_".basename($_FILES['foto']['name']);
-    move_uploaded_file($_FILES['foto']['tmp_name'],$uploadDir.$name);
-    $fotografia="immagini/".$name;
+// Legge dati JSON inviati
+$input = json_decode(file_get_contents('php://input'), true);
+
+if(!$input || !isset($input['id'])){
+    echo json_encode(['success' => false, 'message' => 'Dati mancanti']);
+    exit;
 }
 
-$sql="UPDATE iscritto SET Nome=?,Cognome=?,Data_nascita=?,Codice_fiscale=?,Contatti=?,Disabilita=?,Note=?,Stipendio_Orario=?";
-if($fotografia) { $sql.=",Fotografia=?"; $params[]=$fotografia; $types.="s"; }
-$sql.=" WHERE id=?";
-$params[]=$id; $types.="i";
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "time4allergo";
 
-$stmt=$conn->prepare($sql);
-$stmt->bind_param($types,...$params);
-if($stmt->execute()) echo json_encode(['success'=>true]);
-else echo json_encode(['success'=>false,'message'=>$stmt->error]);
+$conn = new mysqli($host, $user, $pass, $db);
+if($conn->connect_error){
+    echo json_encode(['success' => false, 'message' => 'Connessione fallita']);
+    exit;
+}
 
-$stmt->close(); $conn->close();
+$id = intval($input['id']);
+
+// Campi validi per la tabella iscritto (senza intolleranze che non esiste nel DB)
+$fields = [
+    'nome' => $input['nome'] ?? '',
+    'cognome' => $input['cognome'] ?? '',
+    'data_nascita' => $input['data_nascita'] ?? '',
+    'codice_fiscale' => $input['codice_fiscale'] ?? '',
+    'contatti' => $input['contatti'] ?? '',
+    'disabilita' => $input['disabilita'] ?? '',
+    'note' => $input['note'] ?? '',
+    'prezzo_orario' => floatval($input['prezzo_orario'] ?? 0)
+];
+
+$sql = "UPDATE iscritto SET 
+    Nome = ?, 
+    Cognome = ?, 
+    Data_nascita = ?, 
+    Codice_fiscale = ?, 
+    Contatti = ?, 
+    Disabilita = ?, 
+    Note = ?, 
+    Stipendio_Orario = ? 
+WHERE id = ?";
+
+$params = [
+    $fields['nome'],
+    $fields['cognome'],
+    $fields['data_nascita'],
+    $fields['codice_fiscale'],
+    $fields['contatti'],
+    $fields['disabilita'],
+    $fields['note'],
+    $fields['prezzo_orario'],
+    $id
+];
+$types = "sssssssdi";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param($types, ...$params);
+
+if($stmt->execute()){
+    echo json_encode(['success' => true, 'message' => 'Utente modificato con successo']);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore: ' . $stmt->error]);
+}
+
+$stmt->close();
+$conn->close();
