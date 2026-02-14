@@ -2084,6 +2084,7 @@ body{
 .carousel-dashboard{
     padding-top:150px;
     text-align:center;
+    min-height: 98vh;
 }
 
 .carousel-title{

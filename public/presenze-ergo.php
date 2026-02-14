@@ -292,9 +292,11 @@ var userMap = <?php echo json_encode($userMap); ?>;
                         id="password"
                         inputmode="numeric"
                         pattern="[0-9]*"
-                        requi
+                        autocomplete="off"
+                        required
                         oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                     >
+
 
                     <button class="learn-more" id="button-gestionale" style="background-color: aqua;">
                         <span class="circle" aria-hidden="true">

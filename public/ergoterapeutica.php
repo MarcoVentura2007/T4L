@@ -199,9 +199,11 @@ if($resultClasse && $resultClasse->num_rows > 0){
                         id="password"
                         inputmode="numeric"
                         pattern="[0-9]*"
-                        requi
+                        autocomplete="off"
+                        required
                         oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                     >
+
 
                     <button class="learn-more" id="button-gestionale">
                         <span class="circle" aria-hidden="true">
@@ -226,9 +228,11 @@ if($resultClasse && $resultClasse->num_rows > 0){
                         id="password-ergo"
                         inputmode="numeric"
                         pattern="[0-9]*"
-                        requi
+                        autocomplete="off"
+                        required
                         oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                     >
+
 
                     <button class="learn-more" id="button-gestionale-ergo">
                         <span class="circle" aria-hidden="true">
