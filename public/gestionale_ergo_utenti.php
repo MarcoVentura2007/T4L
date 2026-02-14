@@ -41,7 +41,7 @@ $stmtClasse->close();
 $connAccount->close();
 
 // Se non amministratore → redirect
-if($classe !== 'Amministratore'){
+if($classe !== 'Educatore'){
     header("Location: index.php");
     exit;
 }
@@ -59,13 +59,8 @@ if($conn->connect_error){
     die("Connessione DB time4allergo fallita: " . $conn->connect_error);
 }
 
-// Preleva gli account dal DB (per la sezione Account) - usa la connessione time4all
-$connAccount2 = new mysqli($hostAccount, $userAccount, $passAccount, $dbAccount);
-$sqlAccount = "SELECT nome_utente, codice_univoco, classe FROM Account ORDER BY nome_utente ASC";
-$resultAccount = $connAccount2->query($sqlAccount);
-$connAccount2->close();
-
 // Preleva iscritti
+
 $sql = "
 SELECT 
     id,
@@ -131,6 +126,9 @@ $stmtResoconti->close();
 
 // Connessione al nuovo DB rimane aperta per le future operazioni CRUD
 ?>
+
+
+
 
 <!DOCTYPE html>
 
@@ -314,28 +312,9 @@ $stmtResoconti->close();
                         </li>
                         
 
-                        <li class="sidebar__item">
-                            <a class="sidebar__link tab-link" href="#" data-tab="tab-resoconti" data-tooltip="Resoconti">
-                                <span class="sidebar-icon"><img src="immagini/resoconti.png" alt=""></span>
-                                <span class="text">Resoconti</span>
-                            </a>
-                        </li>
 
 
-                        <!-- Solo per amministratore -->
-                        <li>
-                            <hr/>
-                        </li>
-                        <li class="sidebar__item item--heading">
-                            <h2 class="sidebar__item--heading">AMMINISTRAZIONE</h2>
-                        </li>
-                        
-                        <li class="sidebar__item">
-                            <a class="sidebar__link tab-link" href="#" data-tab="tab-account" data-tooltip="Account">
-                                <span class="sidebar-icon"><img src="immagini/account.png" alt=""></span>
-                                <span class="text">Account</span>
-                            </a>
-                        </li>
+
 
                     </ul>
 
@@ -710,147 +689,7 @@ $stmtResoconti->close();
 
 
 
-            <!-- TAB ACCOUNT -->
-            <div class="page-tab" id="tab-account">
-                <button class="animated-button" id="aggiungi-account-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
 
-                    <span class="text">Aggiungi Account</span>
-                    <span class="circle"></span>
-
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-                </button>
-
-                <!-- Modal Aggiungi Account -->
-                <div class="modal-box large" id="modalAggiungiAccount">
-                    <h3>Aggiungi nuovo account</h3>
-                    <form id="formAggiungiAccount">
-                        <div class="edit-field">
-                            <label>Nome Utente</label>
-                            <input type="text" id="accountNomeUtente" placeholder="Nome utente" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Password</label>
-                            <input type="password" id="accountPassword" placeholder="Password" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Classe</label>
-                            <select id="accountClasse" required>
-                                <option value="">Seleziona una classe</option>
-                                <option value="Educatore">Educatore</option>
-                                <option value="Contabile">Contabile</option>
-                                <option value="Amministratore">Amministratore</option>
-                            </select>
-                        </div>
-                        <div class="edit-field">
-                            <label>Codice Univoco</label>
-                            <input type="text" id="accountCodice" placeholder="Codice univoco" required>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button type="submit" class="btn-primary">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="page-header">
-                    <h1>Account</h1>
-                    <p>Gestione account Overlimits</p>
-                </div>
-
-                <div class="users-table-box">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Nome Utente</th>
-                                <th>Password</th>
-                                <th>Codice Univoco</th>
-                                <th>Classe</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        if($resultAccount && $resultAccount->num_rows > 0){
-                            while($row = $resultAccount->fetch_assoc()){
-                                echo '
-                                    <tr
-                                        data-nome_utente="'.htmlspecialchars($row['nome_utente']).'" 
-                                        data-codice="'.htmlspecialchars($row['codice_univoco']).'" 
-                                        data-classe="'.htmlspecialchars($row['classe']).'"
-                                    >
-                                        <td>'.htmlspecialchars($row['nome_utente']).'</td>
-                                        <td>••••••••</td>
-                                        <td>'.htmlspecialchars($row['codice_univoco']).'</td>
-                                        <td>'.htmlspecialchars($row['classe']).'</td>
-                                        <td>
-                                            <button class="edit-account-btn"><img src="immagini/edit.png" alt="Modifica"></button>
-                                            <button class="delete-account-btn"><img src="immagini/delete.png" alt="Elimina"></button>
-                                        </td>
-                                    </tr>
-                                ';
-                            }
-                        } else {
-                            echo '<tr><td colspan="5">Nessun account registrato.</td></tr>';
-                        }
-                        ?>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- MODAL MODIFICA ACCOUNT -->
-                <div class="modal-box large" id="modalModificaAccount">
-                    <h3 class="modal-title">Modifica account</h3>
-
-                    <form id="formModificaAccount">
-                        <input type="hidden" id="editAccountNomeUtente">
-
-                        <div class="edit-field">
-                            <label>Nome Utente</label>
-                            <input type="text" id="editAccountNomeUtenteDisplay" placeholder="Nome utente" disabled>
-                        </div>
-                        <div class="edit-field">
-                            <label>Password (lascia vuoto per non modificare)</label>
-                            <input type="password" id="editAccountPassword" placeholder="Password">
-                        </div>
-                        <div class="edit-field">
-                            <label>Classe</label>
-                            <select id="editAccountClasse" required>
-                                <option value="">Seleziona una classe</option>
-                                <option value="Educatore">Educatore</option>
-                                <option value="Contabile">Contabile</option>
-                                <option value="Amministratore">Amministratore</option>
-                            </select>
-                        </div>
-                        <div class="edit-field">
-                            <label>Codice Univoco</label>
-                            <input type="text" id="editAccountCodice" placeholder="Codice univoco" required>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button class="btn-primary" id="salvaModificaAccount">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="modal-box danger" id="modalDeleteAccount">
-                    <h3>Elimina account</h3>
-                    <p>Questa azione è definitiva. Vuoi continuare?</p>
-
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
-                        <button class="btn-danger" id="confirmDeleteAccount">Elimina</button>
-                    </div>
-                </div>
-            </div>
 
 
 
@@ -1432,178 +1271,6 @@ $stmtResoconti->close();
 
         
 
-        // SEZIONE ACCOUNT !!!!!!!!!!!!!!!
-
-
-        const aggiungiAccountBtn = document.getElementById("aggiungi-account-btn");
-        const modalAggiungiAccount = document.getElementById("modalAggiungiAccount");
-        const formAggiungiAccount = document.getElementById("formAggiungiAccount");
-        const modalModificaAccount = document.getElementById("modalModificaAccount");
-        const modalDeleteAccount = document.getElementById("modalDeleteAccount");
-
-        // Apri modal
-        aggiungiAccountBtn.onclick = () => {
-            openModal(modalAggiungiAccount);
-        };
-
-        // Submit form
-        formAggiungiAccount.onsubmit = function(e) {
-            e.preventDefault();
-
-            const nomeUtente = document.getElementById("accountNomeUtente").value.trim();
-            const password = document.getElementById("accountPassword").value.trim();
-            const classe = document.getElementById("accountClasse").value;
-            const codice = document.getElementById("accountCodice").value.trim();
-
-            if(!nomeUtente || !password || !classe || !codice){
-                alert("Compila tutti i campi!");
-                return;
-            }
-
-            fetch("api/api_aggiungi_account.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({ 
-                    nome_utente: nomeUtente, 
-                    password: password,
-                    classe: classe,
-                    codice_univoco: codice
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    modalAggiungiAccount.classList.remove("show");
-                    successText.innerText = "Account Aggiunto!!";
-                    showSuccess(successPopup, Overlay);
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        if(Overlay) Overlay.classList.remove("show");
-                        location.reload();
-                    }, 1800);
-
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Errore nel caricamento!");
-            });
-        };
-
-
-        // MODIFICA ACCOUNT
-        document.querySelectorAll(".edit-account-btn").forEach(btn => {
-            btn.onclick = e => {
-                const row = btn.closest("tr");
-                const nomeUtente = row.dataset.nome_utente;
-                const classe = row.dataset.classe;
-                const codice = row.dataset.codice;
-
-                document.getElementById("editAccountNomeUtente").value = nomeUtente;
-                document.getElementById("editAccountNomeUtenteDisplay").value = nomeUtente;
-                document.getElementById("editAccountClasse").value = classe;
-                document.getElementById("editAccountCodice").value = codice;
-                document.getElementById("editAccountPassword").value = "";
-
-                openModal(modalModificaAccount);
-            }
-        });
-
-        // Salva modifica account
-        document.getElementById("salvaModificaAccount").onclick = e => {
-            e.preventDefault();
-            const nomeUtente = document.getElementById("editAccountNomeUtente").value;
-            const password = document.getElementById("editAccountPassword").value.trim();
-            const classe = document.getElementById("editAccountClasse").value;
-            const codice = document.getElementById("editAccountCodice").value.trim();
-
-            if(!classe || !codice){
-                alert("Compila tutti i campi obbligatori!");
-                return;
-            }
-
-            fetch("api/api_modifica_account.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({
-                    nome_utente: nomeUtente,
-                    password: password,
-                    classe: classe,
-                    codice_univoco: codice
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    modalModificaAccount.classList.remove("show");
-                    successText.innerText = "Account Modificato!!";
-                    showSuccess(successPopup, Overlay);
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        closeModal();
-                        location.reload();
-                    }, 1800);
-
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            });
-        };
-
-        // ELIMINA ACCOUNT
-        let rowToDeleteAccount = null;
-        document.querySelectorAll(".delete-account-btn").forEach(btn => {
-            btn.onclick = e => {
-                rowToDeleteAccount = btn.closest("tr");
-                const nomeUtente = rowToDeleteAccount.dataset.nome_utente;
-                
-                openModal(modalDeleteAccount);
-                
-                // Aggiorna il titolo del modal
-                document.querySelector("#modalDeleteAccount h3").innerText = "Elimina account: " + nomeUtente;
-            }
-        });
-
-        document.getElementById("confirmDeleteAccount").onclick = () => {
-            if(!rowToDeleteAccount) return;
-            const nomeUtente = rowToDeleteAccount.dataset.nome_utente;
-
-            fetch("api/api_elimina_account.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({nome_utente: nomeUtente})
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    modalDeleteAccount.classList.remove("show");
-                    successText.innerText = "Account Eliminato!!";
-                    showSuccess(successPopup, Overlay);
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        if(Overlay) Overlay.classList.remove("show");
-                        location.reload();
-                    }, 1800);
-
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            });
-        };
 
 
 
