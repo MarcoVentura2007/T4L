@@ -743,6 +743,8 @@ async function verificaCodice() {
             overlay.classList.remove("show");
             codePopup.classList.remove("show");
             codePopupErgo.classList.remove("show");
+            timePopup.classList.remove("show");
+            signPopup.classList.remove("show");
             document.body.classList.remove("popup-open");
         }
 
