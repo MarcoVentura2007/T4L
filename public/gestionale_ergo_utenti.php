@@ -307,9 +307,6 @@ $stmtResoconti->close();
                         <li>
                             <hr/>
                         </li>
-                        <li class="sidebar__item item--heading">
-                            <h2 class="sidebar__item--heading">Gestione</h2>
-                        </li>
                         
 
 
@@ -330,76 +327,6 @@ $stmtResoconti->close();
             <div class="main-container">
             <!-- TAB UTENTI -->
             <div class="page-tab active" id="tab-utenti">
-                <button class="animated-button" id="aggiungi-utente-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-
-                    <span class="text">Aggiungi Utente</span>
-                    <span class="circle"></span>
-
-                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
-                        <path d="M12 5v14M5 12h14"
-                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-                </button>
-
-                <!-- Modal Aggiungi Utente -->
-                <div class="modal-box large" id="modalAggiungiUtente">
-                    <h3>Aggiungi nuovo utente</h3>
-                    <form id="formAggiungiUtente">
-                        <div class="edit-field">
-                            <label>Nome</label>
-                            <input type="text" id="utenteNome" placeholder="Nome" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Cognome</label>
-                            <input type="text" id="utenteCognome" placeholder="Cognome" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Data di nascita</label>
-                            <input type="date" id="utenteData" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Codice Fiscale</label>
-                            <input type="text" id="utenteCF" placeholder="Codice Fiscale" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Fotografia</label>
-                            <input type="file" id="utenteFotoFile" accept="image/*" class="file-input">
-                            <div class="file-preview-container" id="utenteFotoPreview" style="display: none; margin-top: 10px;">
-                                <img src="" alt="Preview" class="preview-mini" id="utenteFotoPreviewImg">
-                            </div>
-                        </div>
-                        <div class="edit-field">
-                            <label>Contatti</label>
-                            <input type="text" id="utenteContatti" placeholder="Email o telefono" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Disabilità</label>
-                            <input type="text" id="utenteDisabilita" placeholder="Disabilità">
-                        </div>
-                        <div class="edit-field">
-                            <label>Intolleranze / Allergie</label>
-                            <input type="text" id="utenteIntolleranze" placeholder="Intolleranze / Allergie">
-                        </div>
-                        <div class="edit-field">
-                            <label>Stipendio orario (€)</label>
-                            <input type="number" id="utentePrezzo" placeholder="Stipendio orario" step="0.01">
-                        </div>
-                        <div class="edit-field">
-                            <label>Note</label>
-                            <textarea id="utenteNote"></textarea>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal(document.getElementById('modalAggiungiUtente'))">Chiudi</button>
-                            <button type="button" class="btn-primary" id="salvaNuovoUtente">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
                 <div class="page-header">
                     <h1>Utenti</h1>
                     <p>Elenco iscritti registrati</p>
@@ -442,8 +369,6 @@ $stmtResoconti->close();
                                     <td>'.htmlspecialchars($row['Disabilita']).'</td>
                                     <td>'
                                         .'<button class="view-btn"><img src="immagini/open-eye.png" alt="Visualizza"></button>'
-                                        .'<button class="edit-utente-btn"><img src="immagini/edit.png" alt="Modifica"></button>'
-                                        .'<button class="delete-utente-btn"><img src="immagini/delete.png" alt="Elimina"></button>'
                                     .'</td>'
 
                                 .'</tr>';
