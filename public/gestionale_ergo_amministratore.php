@@ -77,6 +77,7 @@ ORDER BY Cognome ASC
 ";
 $result = $conn->query($sql);
 
+
 // Presenze giornaliere
 $oggi = date('Y-m-d') . "%";
 $stmtPresenze = $conn->prepare("
@@ -356,7 +357,8 @@ $stmtResoconti->close();
                             stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
                     </svg>
                 </button>
-<!-- Modal Aggiungi Utente -->
+
+                <!-- Modal Aggiungi Utente -->
                 <div class="modal-box large" id="modalAggiungiUtente">
                     <h3>Aggiungi nuovo utente</h3>
                     <form id="formAggiungiUtente">
@@ -381,39 +383,16 @@ $stmtResoconti->close();
                             <input type="text" id="utenteContatti" placeholder="Email o telefono" required>
                         </div>
                         <div class="edit-field">
-                            <label>Fotografia</label>
-
-                            <div class="file-inline" id="fileContainer">
-
-                                <input type="file" id="utenteFoto" accept="image/*" hidden>
-
-                                <button type="button" class="file-btn-minimal"
-                                    onclick="document.getElementById('utenteFoto').click()">
-                                    Scegli file
-                                </button>
-
-                                <div class="file-preview-container">
-                                    <img id="previewFotoMini" class="preview-mini" style="display:none;">
-                                    <button type="button" id="clearFileBtn" class="clear-file-btn" title="Rimuovi file">&times;</button>
-                                </div>
-
-                                <span class="file-name" id="nomeFileFoto">Nessun file</span>
-
-                            </div>
-                        </div>
-
-
-                        <div class="edit-field">
                             <label>Disabilità</label>
-                            <input type="text" id="utenteDisabilita">
+                            <input type="text" id="utenteDisabilita" placeholder="Disabilità">
                         </div>
                         <div class="edit-field">
                             <label>Intolleranze / Allergie</label>
-                            <input type="text" id="utenteIntolleranze">
+                            <input type="text" id="utenteIntolleranze" placeholder="Intolleranze / Allergie">
                         </div>
                         <div class="edit-field">
-                            <label>Prezzo orario (€)</label>
-                            <input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.01">
+                            <label>Stipendio orario (€)</label>
+                            <input type="number" id="utentePrezzo" placeholder="Stipendio orario" step="0.01">
                         </div>
                         <div class="edit-field">
                             <label>Note</label>
@@ -421,11 +400,12 @@ $stmtResoconti->close();
                         </div>
 
                         <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button type="submit" class="btn-primary">Salva</button>
+                            <button type="button" class="btn-secondary" onclick="closeModal(document.getElementById('modalAggiungiUtente'))">Chiudi</button>
+                            <button type="button" class="btn-primary" id="salvaNuovoUtente">Salva</button>
                         </div>
                     </form>
                 </div>
+
                 <div class="page-header">
                     <h1>Utenti</h1>
                     <p>Elenco iscritti registrati</p>
@@ -439,7 +419,11 @@ $stmtResoconti->close();
                                 <th>Nome</th>
                                 <th>Cognome</th>
                                 <th>Data di nascita</th>
+                                <th>Codice Fiscale</th>
+                                <th>Contatti</th>
                                 <th>Disabilità</th>
+                                <th>Intolleranze</th>
+                                <th>Stipendio/ora</th>
                                 <th>Note</th>
                                 <th>Azioni</th>
                             </tr>
@@ -448,87 +432,106 @@ $stmtResoconti->close();
                         <?php
                         if($result && $result->num_rows > 0){
                             while($row = $result->fetch_assoc()){
-                                echo '
-                                    <tr
-                                        data-id="'.htmlspecialchars($row['id']).'"
-                                        data-nome="'.htmlspecialchars($row['nome']).'" 
-                                        data-cognome="'.htmlspecialchars($row['cognome']).'" 
-                                        data-nascita="'.htmlspecialchars($row['data_nascita']).'" 
-                                        data-note="'.htmlspecialchars($row['note']).'" 
-                                        data-cf="'.htmlspecialchars($row['codice_fiscale']).'" 
-                                        data-contatti="'.htmlspecialchars($row['contatti']).'" 
-                                        data-disabilita="'.htmlspecialchars($row['disabilita']).'" 
-                                        data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'" 
-                                        data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
-                                    >
-                                        <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
-                                        <td>'.htmlspecialchars($row['nome']).'</td>
-                                        <td>'.htmlspecialchars($row['cognome']).'</td>
-                                        <td>'.htmlspecialchars($row['data_nascita']).'</td>
-                                        <td>'.htmlspecialchars($row['disabilita']).'</td>
-                                        <td>'.htmlspecialchars($row['note']).'</td>
-                                        <td>
-                                            <button class="view-btn"><img src="immagini/open-eye.png"></button>
-                                            <button class="edit-btn"><img src="immagini/edit.png"></button>
-                                            <button class="delete-btn"><img src="immagini/delete.png"></button>
-                                        </td>
-                                    </tr>
-                                ';
+                                echo '<tr '
+                                    .'data-id="'.htmlspecialchars($row['id']).'" '
+                                    .'data-nome="'.htmlspecialchars($row['Nome']).'" '
+                                    .'data-cognome="'.htmlspecialchars($row['Cognome']).'" '
+                                    .'data-nascita="'.htmlspecialchars($row['Data_nascita']).'" '
+                                    .'data-cf="'.htmlspecialchars($row['Codice_fiscale']).'" '
+                                    .'data-contatti="'.htmlspecialchars($row['Contatti']).'" '
+                                    .'data-disabilita="'.htmlspecialchars($row['Disabilita']).'" '
+                                    .'data-intolleranze="'.htmlspecialchars($row['Allergie_intolleranze'] ?? '').'" '
+                                    .'data-prezzo="'.htmlspecialchars($row['Stipendio_Orario']).'" '
+                                    .'data-note="'.htmlspecialchars($row['Note']).'"
+                                >
+                                    <td><img class="user-avatar" src="'.$row['Fotografia'].'"></td>
+                                    <td>'.htmlspecialchars($row['Nome']).'</td>
+                                    <td>'.htmlspecialchars($row['Cognome']).'</td>
+                                    <td>'.htmlspecialchars($row['Data_nascita']).'</td>
+                                    <td>'.htmlspecialchars($row['Codice_fiscale']).'</td>
+                                    <td>'.htmlspecialchars($row['Contatti']).'</td>
+                                    <td>'.htmlspecialchars($row['Disabilita']).'</td>
+                                    <td>'.htmlspecialchars($row['Allergie_intolleranze'] ?? '').'</td>
+                                    <td>'.htmlspecialchars($row['Stipendio_Orario']).'</td>
+                                    <td>'.htmlspecialchars($row['Note']).'</td>
+                                    <td>'
+                                        .'<button class="edit-utente-btn"><img src="immagini/edit.png" alt="Modifica"></button>'
+                                        .'<button class="delete-utente-btn"><img src="immagini/delete.png" alt="Elimina"></button>'
+                                    .'</td>'
+                                .'</tr>';
                             }
+                        } else {
+                            echo '<tr><td colspan="10">Nessun utente registrato.</td></tr>';
                         }
                         ?>
                         </tbody>
                     </table>
-
-                
-                    <div class="modal-box large" id="viewModal">
-                        <div class="profile-header">
-                            <img id="viewAvatar" class="profile-avatar">
-                            <div class="profile-main">
-                                <h3 id="viewFullname"></h3>
-                                <span id="viewBirth"></span>
-                            </div>
-                        </div>
-                        <div class="profile-grid" id="viewContent"></div>
-                        <div class="modal-actions">
-                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                        </div>
-
-                        <!-- Presenze form (hidden by default) -->
-                        <div id="presenzeFormBox" style="display:none;">
-                            <form id="formModificaPresenza">
-                                <div class="edit-field">
-                                    <label>Ingresso (YYYY-MM-DD HH:MM:SS)</label>
-                                    <input type="text" id="presenzeIngresso" required>
-                                </div>
-                                <div class="edit-field">
-                                    <label>Uscita (YYYY-MM-DD HH:MM:SS)</label>
-                                    <input type="text" id="presenzeUscita" required>
-                                </div>
-                                <div class="modal-actions">
-                                    <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                                    <button type="submit" class="btn-primary">Salva</button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <!-- Presenze delete box (hidden by default) -->
-                        <div id="deletePresenzaBox" style="display:none;">
-                            <p>Questa azione è definitiva. Vuoi continuare?</p>
-                            <div class="modal-actions">
-                                <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
-                                <button class="btn-danger" id="confirmDeletePresenza">Elimina</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
+                <!-- Modal Modifica Utente -->
+                <div class="modal-box large" id="modalModificaUtente">
+                    <h3 class="modal-title">Modifica utente</h3>
+                    <form id="formModificaUtente">
+                        <input type="hidden" id="editUtenteId">
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="editUtenteNome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Cognome</label>
+                            <input type="text" id="editUtenteCognome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Data di nascita</label>
+                            <input type="date" id="editUtenteData" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Fiscale</label>
+                            <input type="text" id="editUtenteCF" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Contatti</label>
+                            <input type="text" id="editUtenteContatti">
+                        </div>
+                        <div class="edit-field">
+                            <label>Disabilità</label>
+                            <input type="text" id="editUtenteDisabilita">
+                        </div>
+                        <div class="edit-field">
+                            <label>Intolleranze / Allergie</label>
+                            <input type="text" id="editUtenteIntolleranze">
+                        </div>
+                        <div class="edit-field">
+                            <label>Stipendio orario (€)</label>
+                            <input type="number" id="editUtentePrezzo" step="0.01">
+                        </div>
+                        <div class="edit-field">
+                            <label>Note</label>
+                            <textarea id="editUtenteNote"></textarea>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal(document.getElementById('modalModificaUtente'))">Chiudi</button>
+                            <button type="button" class="btn-primary" id="salvaModificaUtente">Salva</button>
+                        </div>
+                    </form>
+                </div>
 
-
-
-
-                
+                <!-- Modal Delete Utente -->
+                <div class="modal-box danger" id="modalDeleteUtente">
+                    <h3>Elimina utente</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal(document.getElementById('modalDeleteUtente'))">Annulla</button>
+                        <button type="button" class="btn-danger" id="confirmDeleteUtente">Elimina</button>
+                    </div>
+                </div>
             </div>
+
+
+
+
+
+
 
             <!-- TAB PRESENZE -->
             <div class="page-tab" id="tab-presenze">
@@ -995,34 +998,37 @@ $stmtResoconti->close();
             /* HAMBURGER */
         const ham = document.getElementById("hamburger");
         const drop = document.getElementById("dropdown");
-        ham.onclick = () => {
-            ham.classList.toggle("active");
-            drop.classList.toggle("show");
-        };
+        
+        if (ham) {
+            ham.onclick = () => {
+                ham.classList.toggle("active");
+                drop.classList.toggle("show");
+            };
+        }
+        
         document.querySelectorAll(".menu-main").forEach(main => {
-        main.addEventListener("click", () => {
+            main.addEventListener("click", () => {
 
-            const targetId = main.dataset.target;
-            const targetMenu = document.getElementById(targetId);
+                const targetId = main.dataset.target;
+                const targetMenu = document.getElementById(targetId);
 
-            document.querySelectorAll(".submenu").forEach(menu => {
-                if(menu !== targetMenu){
-                    menu.classList.remove("open");
-                    menu.previousElementSibling.classList.remove("open"); 
-                }
+                document.querySelectorAll(".submenu").forEach(menu => {
+                    if(menu !== targetMenu){
+                        menu.classList.remove("open");
+                        menu.previousElementSibling.classList.remove("open"); 
+                    }
+                });
+
+                targetMenu.classList.toggle("open");
+                main.classList.toggle("open"); 
             });
-
-            targetMenu.classList.toggle("open");
-            main.classList.toggle("open"); 
         });
-
-    });
 
     document.querySelectorAll(".menu-item").forEach(item => {
-            item.onclick = () => {
-                window.location.href = item.dataset.link;
-            }
-        });
+        item.onclick = () => {
+            window.location.href = item.dataset.link;
+        }
+    });
 
     
 
@@ -1936,16 +1942,27 @@ $stmtResoconti->close();
             altInput: true
         });
 
-        // Salva stato sidebar
+        // Salva stato sidebar e toggle visibilità
         const checkboxInput = document.getElementById('checkbox-input');
-        if (checkboxInput) {
+        const sidebar = document.querySelector('.vertical-sidebar');
+        if (checkboxInput && sidebar) {
             const sidebarState = localStorage.getItem('sidebarOpen');
             if (sidebarState !== null) {
                 checkboxInput.checked = sidebarState === 'true';
+                if (sidebarState === 'true') {
+                    sidebar.classList.add('open');
+                } else {
+                    sidebar.classList.remove('open');
+                }
             }
 
             checkboxInput.addEventListener('change', () => {
                 localStorage.setItem('sidebarOpen', checkboxInput.checked);
+                if (checkboxInput.checked) {
+                    sidebar.classList.add('open');
+                } else {
+                    sidebar.classList.remove('open');
+                }
             });
         }
 
@@ -1978,6 +1995,125 @@ $stmtResoconti->close();
             const d = date.getDate().toString().padStart(2,'0');
             return `${y}-${m}-${d}`;
         }
+
+
+
+
+
+
+
+
+        const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const modalModificaUtente = document.getElementById("modalModificaUtente");
+        const modalDeleteUtente = document.getElementById("modalDeleteUtente");
+        const formAggiungiUtente = document.getElementById("formAggiungiUtente");
+        const formModificaUtente = document.getElementById("formModificaUtente");
+
+        aggiungiUtenteBtn?.addEventListener("click", () => openModal(modalAggiungiUtente));
+
+        document.getElementById("salvaNuovoUtente")?.addEventListener("click", () => {
+            const nome = document.getElementById("utenteNome").value.trim();
+            const cognome = document.getElementById("utenteCognome").value.trim();
+            const data_nascita = document.getElementById("utenteData").value;
+            const cf = document.getElementById("utenteCF").value.trim();
+            const contatti = document.getElementById("utenteContatti").value.trim();
+            const disabilita = document.getElementById("utenteDisabilita").value.trim();
+            const intolleranze = document.getElementById("utenteIntolleranze").value.trim();
+            const prezzo = parseFloat(document.getElementById("utentePrezzo").value) || 0;
+            const note = document.getElementById("utenteNote").value.trim();
+
+            fetch("api/api_aggiungi_utente_ergo.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nome, cognome, data_nascita, codice_fiscale: cf, contatti, disabilita, intolleranze, prezzo_orario: prezzo, note })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    closeModal(modalAggiungiUtente);
+                    location.reload();
+                } else alert("Errore: " + data.message);
+            })
+            .catch(err => alert("Errore: " + err));
+        });
+
+        // Edit utente
+        document.querySelectorAll(".edit-utente-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const row = btn.closest("tr");
+                document.getElementById("editUtenteId").value = row.dataset.id;
+                document.getElementById("editUtenteNome").value = row.dataset.nome;
+                document.getElementById("editUtenteCognome").value = row.dataset.cognome;
+                document.getElementById("editUtenteData").value = row.dataset.nascita;
+                document.getElementById("editUtenteCF").value = row.dataset.cf;
+                document.getElementById("editUtenteContatti").value = row.dataset.contatti;
+                document.getElementById("editUtenteDisabilita").value = row.dataset.disabilita;
+                document.getElementById("editUtenteIntolleranze").value = row.dataset.intolleranze;
+                document.getElementById("editUtentePrezzo").value = row.dataset.prezzo;
+                document.getElementById("editUtenteNote").value = row.dataset.note;
+                openModal(modalModificaUtente);
+            });
+        });
+
+        document.getElementById("salvaModificaUtente")?.addEventListener("click", () => {
+            const id = document.getElementById("editUtenteId").value;
+            const nome = document.getElementById("editUtenteNome").value.trim();
+            const cognome = document.getElementById("editUtenteCognome").value.trim();
+            const data_nascita = document.getElementById("editUtenteData").value;
+            const cf = document.getElementById("editUtenteCF").value.trim();
+            const contatti = document.getElementById("editUtenteContatti").value.trim();
+            const disabilita = document.getElementById("editUtenteDisabilita").value.trim();
+            const intolleranze = document.getElementById("editUtenteIntolleranze").value.trim();
+            const prezzo = parseFloat(document.getElementById("editUtentePrezzo").value) || 0;
+            const note = document.getElementById("editUtenteNote").value.trim();
+
+            fetch("api/api_modifica_utente_ergo.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, nome, cognome, data_nascita, codice_fiscale: cf, contatti, disabilita, intolleranze, prezzo_orario: prezzo, note })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    closeModal(modalModificaUtente);
+                    location.reload();
+                } else alert("Errore: " + data.message);
+            })
+            .catch(err => alert("Errore: " + err));
+        });
+
+        // Delete utente
+        let rowToDelete = null;
+        document.querySelectorAll(".delete-utente-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                rowToDelete = btn.closest("tr");
+                document.querySelector("#modalDeleteUtente h3").innerText = "Elimina utente: " + rowToDelete.dataset.nome;
+                openModal(modalDeleteUtente);
+            });
+        });
+
+        document.getElementById("confirmDeleteUtente")?.addEventListener("click", () => {
+            if(!rowToDelete) return;
+            fetch("api/api_elimina_utente_ergo.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: rowToDelete.dataset.id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    closeModal(modalDeleteUtente);
+                    location.reload();
+                } else alert("Errore: " + data.message);
+            })
+            .catch(err => alert("Errore: " + err));
+        });
+
+
+
+
+
+
 
 
 

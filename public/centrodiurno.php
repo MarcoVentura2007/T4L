@@ -306,6 +306,8 @@ async function verificaCodice() {
         if (result.success) {
             showNotification(true, "Accesso consentito");
 
+            passwordField.value = "";
+
             // Chiudi popup
             overlay.classList.remove("show");
             codePopup.classList.remove("show");

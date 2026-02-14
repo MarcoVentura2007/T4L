@@ -347,6 +347,8 @@ async function verificaCodiceErgo() {
         if (result.success) {
             showNotification(true, "Accesso consentito");
 
+            passwordFieldErgo.value = "";
+
             // Chiudi popup
             overlay.classList.remove("show");
             codePopupErgo.classList.remove("show");
@@ -386,6 +388,8 @@ async function verificaCodice() {
 
         if (result.success) {
             showNotification(true, "Accesso consentito");
+
+            passwordField.value = "";
 
             // Chiudi popup
             overlay.classList.remove("show");

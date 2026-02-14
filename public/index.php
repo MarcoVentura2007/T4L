@@ -110,7 +110,11 @@ $username = $_SESSION['username'];
         </a>
 
     </section>
-    <footer class="footer-bar">
+    
+
+</main>
+
+<footer class="footer-bar">
         <div class="footer-left">© Time4All • 2026</div>
          <div class="footer-top">
             <a href="#top" class="footer-image"></a>
@@ -119,8 +123,6 @@ $username = $_SESSION['username'];
             <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
         </div>
     </footer>
-
-</main>
 
     
 

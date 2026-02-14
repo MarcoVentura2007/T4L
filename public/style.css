@@ -418,7 +418,7 @@ input[type="password"] {
 
 .sections-dashboard{
     padding-top:150px;
-    height: calc(100vh);
+    height: 100vh;
     text-align:center;
 }
 
@@ -1581,6 +1581,7 @@ body{
     padding-top:150px;
     text-align:center;
     margin-bottom: 1rem;
+    min-height: 98vh;
 }
 
 .dashboard h1{
@@ -3784,7 +3785,7 @@ td img:hover{
 
 .footer-bar {
     position: relative;
-    margin-top: 8rem;
+    margin-top: 3rem;
     background: rgb(241, 241, 246);
     color: rgb(18, 18, 24);
     font-family: sans-serif;
