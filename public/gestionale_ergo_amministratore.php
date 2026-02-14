@@ -85,7 +85,6 @@ $result = $conn->query($sql);
 
 
 // Presenze giornaliere
-$oggi = date('Y-m-d') . "%";
 $stmtPresenze = $conn->prepare("
 SELECT 
     i.Fotografia, 
@@ -96,10 +95,10 @@ SELECT
     p.Uscita 
 FROM presenza p 
 INNER JOIN iscritto i ON p.ID_Iscritto = i.id 
-WHERE p.Ingresso LIKE ?
+WHERE DATE(p.Ingresso) = CURDATE()
 ORDER BY p.Ingresso ASC
 ");
-$stmtPresenze->bind_param("s", $oggi);
+
 $stmtPresenze->execute();
 $resultPresenze = $stmtPresenze->get_result();
 $stmtPresenze->close();
@@ -588,16 +587,16 @@ $stmtResoconti->close();
                                 echo '
                                     <tr
                                         data-id="'.htmlspecialchars($row['id']).'"
-                                        data-nome="'.htmlspecialchars($row['nome']).'"
-                                        data-cognome="'.htmlspecialchars($row['cognome']).'"
-                                        data-ingresso="'.htmlspecialchars($row['ingresso']).'"
-                                        data-uscita="'.htmlspecialchars($row['uscita']).'"
+                                        data-nome="'.htmlspecialchars($row['Nome']).'"
+                                        data-cognome="'.htmlspecialchars($row['Cognome']).'"
+                                        data-ingresso="'.htmlspecialchars($row['Ingresso']).'"
+                                        data-uscita="'.htmlspecialchars($row['Uscita']).'"
                                     >
-                                        <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
-                                        <td>'.htmlspecialchars($row['nome']).'</td>
-                                        <td>'.htmlspecialchars($row['cognome']).'</td>
-                                        <td>'.htmlspecialchars($row['ingresso']).'</td>
-                                        <td>'.htmlspecialchars($row['uscita']).'</td>
+                                        <td><img class="user-avatar" src="'.$row['Fotografia'].'"></td>
+                                        <td>'.htmlspecialchars($row['Nome']).'</td>
+                                        <td>'.htmlspecialchars($row['Cognome']).'</td>
+                                        <td>'.htmlspecialchars($row['Ingresso']).'</td>
+                                        <td>'.htmlspecialchars($row['Uscita']).'</td>
                                         <td>
                                             <button class="edit-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/edit.png" alt="Modifica"></button>
                                             <button class="delete-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/delete.png" alt="Elimina"></button>
@@ -608,6 +607,7 @@ $stmtResoconti->close();
                         } else {
                             echo '<tr><td colspan="6">Nessuna presenza registrata oggi.</td></tr>';
                         }
+
                         ?>
                         </tbody>
                     </table>
@@ -659,10 +659,11 @@ $stmtResoconti->close();
                                 <th>Nome</th>
                                 <th>Cognome</th>
                                 <th>Ore totali</th>
-                                <th>Costo totale (€)</th>
+                                <th>Stipendio totale (€)</th>
                                 <th>Azioni</th>
                             </tr>
                         </thead>
+
                         <tbody id="resocontiMensiliBody">
                             <tr><td colspan="6">Caricamento...</td></tr>
                         </tbody>
@@ -683,19 +684,7 @@ $stmtResoconti->close();
                     <!-- QUI VIENE COSTRUITO IL CALENDARIO -->
                     <div id="resocontoContent" class="resoconto-calendar"></div>
 
-                    <!-- TABELLA RIASSUNTIVA ATTIVITÀ -->
-                    <div class="users-table-box" style="margin-top: 30px;">
-                        <h4 style="margin-bottom: 15px; color: #2b2b2b; font-weight: 600;">Riepilogo Attività Mensile</h4>
-                        <table class="users-table">
-                            <thead>
-                                <tr>
-                                    <th>Attività Svolta</th>
-                                    <th>Ore Totali</th>
-                                </tr>
-                            </thead>
-                            <tbody id="attivitaMensiliBody"></tbody>
-                        </table>
-                    </div>
+
 
                     <div class="users-table-box" style="display:none">
                         <table class="users-table">
@@ -1170,7 +1159,6 @@ $stmtResoconti->close();
     });
 
     // Presenze: edit/delete handlers
-
     document.addEventListener('click', function(e){
         // Edit presenza
         if(e.target.closest && e.target.closest('.edit-presenza-btn')){
@@ -1181,7 +1169,6 @@ $stmtResoconti->close();
             const cognome = row.dataset.cognome;
             const ingresso = row.dataset.ingresso || '';
             const uscita = row.dataset.uscita || '';
-            const avatar = row.querySelector('img').src;
 
             // Nasconde i campi utente e mostra quelli presenza
             document.getElementById('profileHeader').style.display = 'none';
@@ -1211,8 +1198,6 @@ $stmtResoconti->close();
             document.getElementById('editIngresso').value = ingressoTime;
             document.getElementById('editUscita').value = uscitaTime;
 
-            
-
             openModal(editModal);
         }
 
@@ -1231,7 +1216,7 @@ $stmtResoconti->close();
 
             const confirmDelete = deleteModal.querySelector('.btn-danger');
             confirmDelete.onclick = () => {
-                fetch('api/api_elimina_presenza.php', {
+                fetch('api/api_elimina_presenza_ergo.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     body: JSON.stringify({ id: id })
@@ -1252,6 +1237,7 @@ $stmtResoconti->close();
             };
         }
     });
+
 
         document.querySelectorAll(".edit-btn").forEach(btn=>{
             btn.onclick = e=>{
@@ -1362,7 +1348,8 @@ $stmtResoconti->close();
                 const ingressoDb = today + ' ' + ingresso + ':00';
                 const uscitaDb = today + ' ' + uscita + ':00';
 
-                fetch('api/api_modifica_presenza.php', {
+                fetch('api/api_modifica_presenza_ergo.php', {
+
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1677,7 +1664,7 @@ $stmtResoconti->close();
         if(!resocontiMensiliBody) return;
         resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
 
-        fetch("api/api_resoconto_mensile.php", {
+        fetch("api/api_resoconto_mensile_ergo.php", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({mese})
@@ -1693,7 +1680,7 @@ $stmtResoconti->close();
 
             json.data.forEach(r => {
                 const ore = parseFloat(r.ore_totali).toFixed(2);
-                const costo = parseFloat(r.ore_totali * r.Prezzo_Orario).toFixed(2);
+                const stipendio = parseFloat(r.ore_totali * r.Stipendio_Orario).toFixed(2);
 
                 resocontiMensiliBody.innerHTML += `
                     <tr>
@@ -1701,7 +1688,8 @@ $stmtResoconti->close();
                         <td>${r.Nome}</td>
                         <td>${r.Cognome}</td>
                         <td>${ore}</td>
-                        <td>${costo} €</td>
+                        <td>${stipendio} €</td>
+
                         <td>
                             <button class="btn-icon calendario-btn" data-id="${r.id}" data-nome="${r.Nome}" data-cognome="${r.Cognome}">
                                 <img src="immagini/calendario.png" alt="Calendario">
@@ -1717,11 +1705,12 @@ $stmtResoconti->close();
         });
     }
 
-    // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ E CALENDARIO
+
+    // FUNZIONE CARICA RESOCONTO GIORNI CON CALENDARIO
     function caricaResocontoGiorni(){
         if(!currentIscritto || !meseInput) return;
 
-        fetch("api/api_resoconto_giornaliero.php", {
+        fetch("api/api_resoconto_giornaliero_ergo.php", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
@@ -1731,62 +1720,45 @@ $stmtResoconti->close();
         })
         .then(r => r.json())
         .then(json => {
-            if(!bodyResoconto || !document.getElementById("resocontoContent") || !document.getElementById("attivitaMensiliBody")) return;
+            if(!bodyResoconto || !document.getElementById("resocontoContent")) return;
             bodyResoconto.innerHTML = "";
             const resocontoContent = document.getElementById("resocontoContent");
             resocontoContent.innerHTML = "";
-            const attivitaMensiliBody = document.getElementById("attivitaMensiliBody");
-            attivitaMensiliBody.innerHTML = "";
 
             if(!json.success || json.data.length === 0){
                 bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
                 resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">📅 Nessun dato disponibile per questo mese</p>`;
-                attivitaMensiliBody.innerHTML = `<tr><td colspan="2">Nessuna attività</td></tr>`;
                 return;
             }
 
+
             const daysMap = new Map();
-            const attivitaMap = new Map(); 
             let totalOre = 0;
             let totalCosto = 0;
 
             json.data.forEach(r => {
                 const giorno = new Date(r.giorno).getDate();
-                if(!daysMap.has(giorno)) daysMap.set(giorno, {attivita: [], ore:0, costo:0});
+                if(!daysMap.has(giorno)) daysMap.set(giorno, {ore:0, costo:0});
                 const day = daysMap.get(giorno);
 
-                r.attivita.forEach(a => {
-                    day.attivita.push(a);
-                    if(!attivitaMap.has(a.Nome)) attivitaMap.set(a.Nome, 0);
-                    attivitaMap.set(a.Nome, attivitaMap.get(a.Nome) + a.ore);
-                });
                 day.ore += r.ore;
                 day.costo += r.costo;
 
                 totalOre += r.ore;
                 totalCosto += r.costo;
 
-                let attHTML = r.attivita.map(a => `${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€)`).join('<br>');
                 bodyResoconto.innerHTML += `
                     <tr>
                         <td>${giorno}</td>
-                        <td>${attHTML}</td>
+                        <td>Presenza</td>
                         <td>${r.ore.toFixed(2)}</td>
                         <td>${r.costo.toFixed(2)} €</td>
                     </tr>
                 `;
             });
 
-            // Popola tabella attività mensili
-            attivitaMap.forEach((ore, nome) => {
-                attivitaMensiliBody.innerHTML += `
-                    <tr>
-                        <td>${nome}</td>
-                        <td>${ore.toFixed(2)} ore</td>
-                    </tr>
-                `;
-            });
             const [anno, mese] = meseInput.value.split('-');
+
             const firstDay = new Date(anno, mese-1, 1);
             const lastDay = new Date(anno, mese, 0);
             const startPadding = firstDay.getDay() === 0 ? 6 : firstDay.getDay()-1;
@@ -1804,9 +1776,8 @@ $stmtResoconti->close();
                 calendarHTML += `<div class="calendar-cell ${presente ? 'has-activity' : ''}">`;
 
                 if (day) {
-                        console.log("Giorno", d, "ore:", day.ore);
-                    }
-
+                    console.log("Giorno", d, "ore:", day.ore);
+                }
 
                 if (presente) {
                     calendarHTML += `<img class="presente-icon" src="immagini/presente.png" alt="Presente">`;
@@ -1814,30 +1785,28 @@ $stmtResoconti->close();
 
                 calendarHTML += `<div class="day-number">${d}</div>`;
 
-                if (day && day.attivita.length > 0) {
+                if (day && day.ore > 0) {
                     calendarHTML += `<div class="day-activities">`;
-                    day.attivita.forEach(a => {
-                        calendarHTML += `
-                            <div class="activity-item">
-                                <span class="activity-name">${a.Nome}</span>
-                                <span class="activity-meta">
-                                    ${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€
-                                </span>
-                            </div>`;
-                    });
+                    calendarHTML += `
+                        <div class="activity-item">
+                            <span class="activity-name">Ore lavorate</span>
+                            <span class="activity-meta">
+                                ${day.ore.toFixed(2)}h, ${day.costo.toFixed(2)}€
+                            </span>
+                        </div>`;
                     calendarHTML += `</div>`;
                 }
 
                 calendarHTML += `</div>`;
             }
 
-
             calendarHTML += `</div>`;
 
             // Totali
             calendarHTML += `<div class="resoconto-totals">
                 <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(1)}</div></div>
-                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Costo Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
+                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Stipendio Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
+
                 <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${daysMap.size}</div></div>
             </div>`;
 
@@ -1850,6 +1819,7 @@ $stmtResoconti->close();
             if(resocontoContent) resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">❌ Errore nel caricamento</p>`;
         });
     }
+
 });
 
 
