@@ -219,7 +219,20 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <img src="immagini/presenze-ergo.png" alt="">
                     Presenze
                 </div>
-                <div class="menu-item" data-link="gestionale_contabile.php">
+                <?php
+                        if($classe === 'Educatore'){
+                            $gestionalePageErgo = "gestionale_ergo_utenti.php";
+
+                        } else if($classe === 'Contabile'){
+                            $gestionalePageErgo = "gestionale_ergo_contabile.php";
+                        } else if($classe === 'Amministratore') {
+                            $gestionalePageErgo = "gestionale_ergo_amministratore.php"; 
+                        } else {
+                            $gestionalePageErgo = "#"; 
+                        }
+                    ?>
+                
+                <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
                     <img src="immagini/gestionale-ergo.png" alt="">
                     Gestionale
                 </div>
@@ -608,7 +621,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                 
 
-                <div class="agenda-container" style="margin: 0 auto; max-width: 1200px;">
+                <div class="agenda-container" style="margin: 0 auto;">
                     <div class="header-agenda">
                     <div class="days-tabs">
                         <button class="day-tab active" data-day="0">

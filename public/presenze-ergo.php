@@ -166,7 +166,20 @@ var userMap = <?php echo json_encode($userMap); ?>;
                     <img src="immagini/presenze-ergo.png" alt="">
                     Presenze
                 </div>
-                <div class="menu-item" data-link="gestionale_contabile.php">
+                <?php
+                        if($classe === 'Educatore'){
+                            $gestionalePageErgo = "gestionale_ergo_utenti.php";
+
+                        } else if($classe === 'Contabile'){
+                            $gestionalePageErgo = "gestionale_ergo_contabile.php";
+                        } else if($classe === 'Amministratore') {
+                            $gestionalePageErgo = "gestionale_ergo_amministratore.php"; 
+                        } else {
+                            $gestionalePageErgo = "#"; 
+                        }
+                    ?>
+                
+                <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
                     <img src="immagini/gestionale-ergo.png" alt="">
                     Gestionale
                 </div>
@@ -282,6 +295,35 @@ var userMap = <?php echo json_encode($userMap); ?>;
 
 
     </main>
+
+    <div id="code-popup-ergo" class="popupErgo">
+                <div class="content">
+                    <p class="codice-text">Inserisci il codice di accesso</p>
+                   <input 
+                        type="password" 
+                        placeholder="Codice d'accesso" 
+                        id="password-ergo"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        autocomplete="off"
+                        required
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    >
+
+
+                    <button class="learn-more" id="button-gestionale-ergo">
+                        <span class="circle" aria-hidden="true">
+                        <span class="icon arrow"></span>
+                        </span>
+                        <span class="button-text">Continua</span>
+                    </button>
+
+                    <div id="notify" class="notify hidden">
+                        <div class="icon" id="notify-icon"></div>
+                        <div class="text" id="notify-text"></div>
+                    </div>
+            </div>
+        </div>
     <!-- POPUP CODICE GESTIONALE -->
         <div id="code-popup" class="popup">
                 <div class="content">
@@ -480,6 +522,65 @@ overlay.addEventListener("click", () => {
     document.body.classList.remove("popup-open");
 });
 
+const passwordFieldErgo = document.getElementById("password-ergo");
+const codePopupErgo = document.getElementById("code-popup-ergo");
+
+const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
+buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
+
+// FUNZIONE DI CONTROLLO CODICE
+async function verificaCodiceErgo() {
+    const codice = passwordFieldErgo.value.trim();
+
+    if (!codice) {
+        showNotification(false, "Inserisci il codice");
+        return;
+    }
+
+    try {
+        const response = await fetch("api/api_codice_gestionale_ergo.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `codice=${encodeURIComponent(codice)}`
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification(true, "Accesso consentito");
+
+            passwordFieldErgo.value = "";
+
+            // Chiudi popup
+            overlay.classList.remove("show");
+            codePopupErgo.classList.remove("show");
+            document.body.classList.remove("popup-open");
+
+            // Redirect alla pagina di gestionale
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 2000);
+        } else {
+            showNotification(false, result.message);
+            passwordFieldErgo.value = ""; // pulisci input se sbagliato
+        }
+
+    } catch (err) {
+        showNotification(false, "Errore server");
+        console.error(err);
+    }
+}
+
+        overlay.onclick = closePopups;
+
+passwordFieldErgo.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault(); // evita submit involontario
+        verificaCodiceErgo();
+    }
+});
+
+
 // FUNZIONE DI CONTROLLO CODICE
 async function verificaCodice() {
     const codice = passwordField.value.trim();
@@ -562,10 +663,19 @@ async function verificaCodice() {
         });
 
 
-        // Prendi tutti i link "menu-item" con data-link
         document.querySelectorAll(".menu-item[data-link]").forEach(item => {
             const link = item.dataset.link;
-            if(link.includes("gestionale")) { // intercetta solo link gestionale
+            if(link.includes("gestionale_ergo")) { 
+                // Ergoterapeutica Gestionale - usa popup ergo
+                item.addEventListener("click", (e) => {
+                    e.preventDefault(); // previeni redirect
+                    overlay.classList.add("show");
+                    codePopupErgo.classList.add("show");
+                    document.body.classList.add("popup-open");
+                    passwordFieldErgo.focus(); // focus input
+                });
+            } else if(link.includes("gestionale")) { 
+                // Centro Diurno Gestionale - usa popup standard
                 item.addEventListener("click", (e) => {
                     e.preventDefault(); // previeni redirect
                     overlay.classList.add("show");
@@ -580,7 +690,6 @@ async function verificaCodice() {
                 });
             }
         });
-
 
 
 
@@ -700,10 +809,11 @@ async function verificaCodice() {
 
         /* PER USCIRE */
         overlay.onclick = closePopups;
-        function closePopups(){
+        
+         function closePopups(){
             overlay.classList.remove("show");
-            timePopup.classList.remove("show");
-            signPopup.classList.remove("show");
+            codePopup.classList.remove("show");
+            codePopupErgo.classList.remove("show");
             document.body.classList.remove("popup-open");
         }
 

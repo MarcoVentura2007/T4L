@@ -333,6 +333,7 @@ $stmtResoconti->close();
 
 
         <main class="main-content">
+            <div class="main-container">
             <!-- TAB UTENTI -->
             <div class="page-tab active" id="tab-utenti">
                 <button class="animated-button" id="aggiungi-utente-btn">
@@ -706,7 +707,7 @@ $stmtResoconti->close();
 
 
 
-
+            <div class="main-container">
         </main>
     </div>
     
