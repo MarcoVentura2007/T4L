@@ -413,9 +413,23 @@ $stmtResoconti->close();
                         </div>
                         <div class="edit-field">
                             <label>Fotografia</label>
-                            <input type="file" id="utenteFotoFile" accept="image/*" class="file-input">
-                            <div class="file-preview-container" id="utenteFotoPreview" style="display: none; margin-top: 10px;">
-                                <img src="" alt="Preview" class="preview-mini" id="utenteFotoPreviewImg">
+
+                            <div class="file-inline" id="fileContainer">
+
+                                <input type="file" id="utenteFoto" accept="image/*" hidden>
+
+                                <button type="button" class="file-btn-minimal"
+                                    onclick="document.getElementById('utenteFoto').click()">
+                                    Scegli file
+                                </button>
+
+                                <div class="file-preview-container">
+                                    <img id="previewFotoMini" class="preview-mini" style="display:none;">
+                                    <button type="button" id="clearFileBtn" class="clear-file-btn" title="Rimuovi file">&times;</button>
+                                </div>
+
+                                <span class="file-name" id="nomeFileFoto">Nessun file</span>
+
                             </div>
                         </div>
                         <div class="edit-field">
@@ -2099,6 +2113,37 @@ $stmtResoconti->close();
 
 
 
+         const utenteFoto = document.getElementById("utenteFoto");
+        const preview = document.getElementById("previewFotoMini");
+        const fileNameSpan = document.getElementById("nomeFileFoto");
+        const clearBtn = document.getElementById("clearFileBtn");
+
+        utenteFoto.addEventListener("change", function(){
+
+            if(!this.files.length){
+                preview.style.display = "none";
+                fileNameSpan.innerText = "Nessun file";
+                clearBtn.style.display = "none"; 
+                return;
+            }
+
+            const file = this.files[0];
+
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = "block";
+
+            fileNameSpan.innerText = file.name;
+
+            clearBtn.style.display = "block";
+        });
+
+        // rimuove file selezionato
+        clearBtn.addEventListener("click", function(){
+            utenteFoto.value = ""; 
+            preview.style.display = "none";
+            fileNameSpan.innerText = "Nessun file";
+            clearBtn.style.display = "none"; 
+        });
 
 
 
