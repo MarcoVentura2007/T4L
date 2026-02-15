@@ -175,6 +175,12 @@ $stmtResoconti->close();
     .check-circle{
         stroke: #0b516c;
     }
+
+    .edit-field input:focus,
+    .edit-field textarea:focus {
+        border-color: #0b516c;
+        box-shadow: 0 0 0 3px rgba(1, 30, 64, 0.2);
+    }
 </style>
 </head>
 <body>
