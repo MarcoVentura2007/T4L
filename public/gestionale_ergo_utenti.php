@@ -763,8 +763,25 @@ $stmtResoconti->close();
                 </div>
             </footer>
 
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-bottom-nav">
+        <a href="#" class="mobile-nav-item active" data-tab="tab-utenti" onclick="switchTab('tab-utenti', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/group.png" alt="Utenti">
+            </div>
+            <span class="mobile-nav-label">Utenti</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-tab="tab-presenze" onclick="switchTab('tab-presenze', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/attendance.png" alt="Presenze">
+            </div>
+            <span class="mobile-nav-label">Presenze</span>
+        </a>
+    </nav>
+
     <!-- OVERLAY PRINCIPALE PER MODALI -->
     <div class="modal-overlay" id="Overlay"></div>
+
     
 
     <script>
@@ -1519,183 +1536,45 @@ $stmtResoconti->close();
             return `${y}-${m}-${d}`;
         }
 
+        // Mobile tab switching function
+        function switchTab(tabId, navItem) {
+            // Update active states on mobile nav
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            navItem.classList.add('active');
 
-
-
-
-
-
-
-        const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
-        const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
-        const modalModificaUtente = document.getElementById("modalModificaUtente");
-        const modalDeleteUtente = document.getElementById("modalDeleteUtente");
-        const formAggiungiUtente = document.getElementById("formAggiungiUtente");
-
-        aggiungiUtenteBtn?.addEventListener("click", () => openModal(modalAggiungiUtente));
-
-        // Click handler for Salva button - triggers form submission
-        document.getElementById("salvaNuovoUtente")?.addEventListener("click", function() {
-            formAggiungiUtente.dispatchEvent(new Event('submit'));
-        });
-
-        // Submit form
-        formAggiungiUtente.onsubmit = function(e) {
-            e.preventDefault();
-
-            // Validazione client-side
-            const nome = document.getElementById("utenteNome").value.trim();
-            const cognome = document.getElementById("utenteCognome").value.trim();
-            const data = document.getElementById("utenteData").value;
-            const cf = document.getElementById("utenteCF").value.trim();
-            const contatti = document.getElementById("utenteContatti").value.trim();
-
-            if (!nome) { alert("Il campo Nome è obbligatorio"); return; }
-            if (!cognome) { alert("Il campo Cognome è obbligatorio"); return; }
-            if (!data) { alert("Il campo Data di nascita è obbligatorio"); return; }
-            if (!cf) { alert("Il campo Codice Fiscale è obbligatorio"); return; }
-            if (!contatti) { alert("Il campo Contatti è obbligatorio"); return; }
-
-            const formData = new FormData();
-            formData.append("nome", document.getElementById("utenteNome").value.trim());
-            formData.append("cognome", document.getElementById("utenteCognome").value.trim());
-            formData.append("data_nascita", document.getElementById("utenteData").value);
-            formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-            formData.append("contatti", document.getElementById("utenteContatti").value.trim());
-            formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
-            formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
-            const prezzoValue = document.getElementById("utentePrezzo").value;
-            formData.append("prezzo_orario", prezzoValue ? parseFloat(prezzoValue) : 0);
-            formData.append("note", document.getElementById("utenteNote").value.trim());
-
-            const fotoInput = document.getElementById("utenteFotoFile");
-            if(fotoInput.files.length > 0){
-                formData.append("foto", fotoInput.files[0]);
-            }
-
-            fetch("api/api_aggiungi_utente_ergo.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){
-                    modalAggiungiUtente.classList.remove("show");
-                    successText.innerText = "Utente Aggiunto!!";
-                    showSuccess(successPopup, Overlay);
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        if(Overlay) Overlay.classList.remove("show");
-                        location.reload();
-                    },1800);
-
-                } else {
-                    alert("Errore: " + data.message);
+            // Update desktop sidebar active states
+            document.querySelectorAll('.tab-link').forEach(link => {
+                link.classList.remove('active');
+                if(link.dataset.tab === tabId) {
+                    link.classList.add('active');
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Errore nel caricamento!");
             });
-        };
 
-
-        // Edit utente
-        document.querySelectorAll(".edit-utente-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                const row = btn.closest("tr");
-                document.getElementById("editUtenteId").value = row.dataset.id;
-                document.getElementById("editUtenteNome").value = row.dataset.nome;
-                document.getElementById("editUtenteCognome").value = row.dataset.cognome;
-                document.getElementById("editUtenteData").value = row.dataset.nascita;
-                document.getElementById("editUtenteCF").value = row.dataset.cf;
-                document.getElementById("editUtenteContatti").value = row.dataset.contatti;
-                document.getElementById("editUtenteDisabilita").value = row.dataset.disabilita;
-                document.getElementById("editUtenteIntolleranze").value = row.dataset.intolleranze;
-                document.getElementById("editUtentePrezzo").value = row.dataset.prezzo;
-                document.getElementById("editUtenteNote").value = row.dataset.note;
-                openModal(modalModificaUtente);
+            // Switch tab content
+            document.querySelectorAll('.page-tab').forEach(tab => {
+                tab.classList.remove('active');
             });
+            document.getElementById(tabId).classList.add('active');
+
+            // Save to sessionStorage
+            sessionStorage.setItem("activeTab", tabId);
+        }
+
+        // Sync mobile nav with desktop on load
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedTab = sessionStorage.getItem("activeTab");
+            if (savedTab) {
+                const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
+                if (mobileNavItem) {
+                    document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+                    mobileNavItem.classList.add('active');
+                }
+            }
         });
-
-        document.getElementById("salvaModificaUtente")?.addEventListener("click", () => {
-            const id = document.getElementById("editUtenteId").value;
-            const nome = document.getElementById("editUtenteNome").value.trim();
-            const cognome = document.getElementById("editUtenteCognome").value.trim();
-            const data_nascita = document.getElementById("editUtenteData").value;
-            const cf = document.getElementById("editUtenteCF").value.trim();
-            const contatti = document.getElementById("editUtenteContatti").value.trim();
-            const disabilita = document.getElementById("editUtenteDisabilita").value.trim();
-            const intolleranze = document.getElementById("editUtenteIntolleranze").value.trim();
-            const prezzo = parseFloat(document.getElementById("editUtentePrezzo").value) || 0;
-            const note = document.getElementById("editUtenteNote").value.trim();
-
-            fetch("api/api_modifica_utente_ergo.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, nome, cognome, data_nascita, codice_fiscale: cf, contatti, disabilita, intolleranze, prezzo_orario: prezzo, note })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){
-                    modalModificaUtente.classList.remove("show");
-                    successText.innerText = "Utente modificato!!";
-                    showSuccess(successPopup, Overlay);
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        if(Overlay) Overlay.classList.remove("show");
-                        location.reload();
-                    }, 1800);
-                } else alert("Errore: " + data.message);
-            })
-            .catch(err => alert("Errore: " + err));
-        });
-
-        // Delete utente
-        let rowToDelete = null;
-        document.querySelectorAll(".delete-utente-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                rowToDelete = btn.closest("tr");
-                document.querySelector("#modalDeleteUtente h3").innerText = "Elimina utente: " + rowToDelete.dataset.nome;
-                openModal(modalDeleteUtente);
-            });
-        });
-
-        document.getElementById("confirmDeleteUtente")?.addEventListener("click", () => {
-            if(!rowToDelete) return;
-            fetch("api/api_elimina_utente_ergo.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: rowToDelete.dataset.id })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){
-                    closeModal(modalDeleteUtente);
-                    successText.innerText = "Utente Eliminato!!";
-                    showSuccess(successPopup, Overlay);
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        if(Overlay) Overlay.classList.remove("show");
-                        location.reload();
-                    }, 1800);
-                } else alert("Errore: " + data.message);
-            })
-            .catch(err => alert("Errore: " + err));
-        });
-
-
-
-
-
-
-
-
-
     </script>
+
 
 </body>
 </html>

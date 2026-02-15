@@ -460,6 +460,29 @@ if($classe !== 'Educatore'){
             <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
         </div>
     </footer>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-bottom-nav">
+        <a href="#" class="mobile-nav-item active" data-tab="tab-utenti" onclick="switchTab('tab-utenti', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/group.png" alt="Utenti">
+            </div>
+            <span class="mobile-nav-label">Utenti</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-tab="tab-presenze" onclick="switchTab('tab-presenze', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/attendance.png" alt="Presenze">
+            </div>
+            <span class="mobile-nav-label">Presenze</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-tab="tab-agenda" onclick="switchTab('tab-agenda', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/book.png" alt="Agenda">
+            </div>
+            <span class="mobile-nav-label">Agenda</span>
+        </a>
+    </nav>
+
 <script>
     // Cambia tab e salva stato
     document.querySelectorAll(".tab-link").forEach(link => {
@@ -1004,7 +1027,46 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             const d = date.getDate().toString().padStart(2,'0');
             return `${y}-${m}-${d}`;
         }
-o</script>
+
+        // Mobile tab switching function
+        function switchTab(tabId, navItem) {
+            // Update active states on mobile nav
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            navItem.classList.add('active');
+
+            // Update desktop sidebar active states
+            document.querySelectorAll('.tab-link').forEach(link => {
+                link.classList.remove('active');
+                if(link.dataset.tab === tabId) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Switch tab content
+            document.querySelectorAll('.page-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            // Save to localStorage
+            localStorage.setItem("activeTab", tabId);
+        }
+
+        // Sync mobile nav with desktop on load
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedTab = localStorage.getItem("activeTab");
+            if (savedTab) {
+                const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
+                if (mobileNavItem) {
+                    document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+                    mobileNavItem.classList.add('active');
+                }
+            }
+        });
+    </script>
+
 
 </body>
 </html>

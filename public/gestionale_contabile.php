@@ -336,6 +336,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </svg>
                 </button>
 
+                
+
 
 
                 <!-- Modal Aggiungi Utente -->
@@ -413,6 +415,26 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <p>Elenco iscritti registrati</p>
                 </div>
 
+                <button
+                    title="Add New" id="aggiungi-utente-btn-mobile"
+                    class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
+                    >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="50px"
+                        height="50px"
+                        viewBox="0 0 24 24"
+                        class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
+                    >
+                        <path
+                        d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                        stroke-width="1.5"
+                        ></path>
+                        <path d="M8 12H16" stroke-width="1.5"></path>
+                        <path d="M12 16V8" stroke-width="1.5"></path>
+                    </svg>
+                    </button>
+
                 <div class="users-table-box">
                     <table class="users-table">
                         <thead>
@@ -484,7 +506,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                 
             </div>
 
+                
+
             <!-- TAB PRESENZE -->
+
             <div class="page-tab" id="tab-presenze">
                 <div class="page-header">
                     <h1>Presenze</h1>
@@ -494,6 +519,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="presenze-controls">
                     
                 </div>
+
+                
 
                 <div class="users-table-box">
                     <table class="users-table" id="presenzeTable">
@@ -1602,12 +1629,23 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         // ========== SEZIONE UTENTI ==========
         const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
 
-        // Apri modal
-        aggiungiUtenteBtn.onclick = () => {
-            openModal(modalAggiungiUtente);
-        };
+        // Apri modal (desktop)
+        if(aggiungiUtenteBtn) {
+            aggiungiUtenteBtn.onclick = () => {
+                openModal(modalAggiungiUtente);
+            };
+        }
+
+        // Apri modal (mobile)
+        if(aggiungiUtenteBtnMobile) {
+            aggiungiUtenteBtnMobile.onclick = () => {
+                openModal(modalAggiungiUtente);
+            };
+        }
+
 
 
         // Submit form
@@ -1629,58 +1667,55 @@ $resultResoconti = $conn->query($sqlResoconti);
             if(fotoInput.files.length > 0){
                 formData.append("foto", fotoInput.files[0]); // il file
             }
-
-            fetch("api/api_aggiungi_utente.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    closeModal();
-                    successText.innerText = "Utente Aggiunto!!";
-                    showSuccess(successPopup);
-                    
-
-                    setTimeout(() => {
-                        hideSuccess(successPopup);
-                        location.reload();
-                    }, 1800);
-
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Errore nel caricamento!");
-            });
-        };
+        }
 
 
-        const utenteFoto = document.getElementById("utenteFoto");
-        const preview = document.getElementById("previewFotoMini");
-        const fileNameSpan = document.getElementById("nomeFileFoto");
-        const clearBtn = document.getElementById("clearFileBtn");
 
-        utenteFoto.addEventListener("change", function(){
+// --- GESTIONE CAMBIO FOTO ---
+utenteFoto.addEventListener("change", function () {
 
-            if(!this.files.length){
-                preview.style.display = "none";
-                fileNameSpan.innerText = "Nessun file";
-                clearBtn.style.display = "none"; 
-                return;
-            }
+    if (!this.files.length) {
+        preview.style.display = "none";
+        fileNameSpan.innerText = "Nessun file";
+        clearBtn.style.display = "none";
+        return;
+    }
 
-            const file = this.files[0];
+    const file = this.files[0];
 
-            preview.src = URL.createObjectURL(file);
-            preview.style.display = "block";
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
 
-            fileNameSpan.innerText = file.name;
+    fileNameSpan.innerText = file.name;
+    clearBtn.style.display = "block";
+});
 
-            clearBtn.style.display = "block";
-        });
+
+// --- PULIZIA FOTO ---
+clearBtn.addEventListener("click", function () {
+    utenteFoto.value = "";
+    preview.style.display = "none";
+    fileNameSpan.innerText = "Nessun file";
+    clearBtn.style.display = "none";
+});
+
+
+// --- INVIO FORM ---
+form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    fetch("api/api_aggiungi_utente.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Risposta server:", data);
+    })
+    .catch(err => console.error("Errore:", err));
+});
 
         // rimuove file selezionato
         clearBtn.addEventListener("click", function(){

@@ -2038,13 +2038,24 @@ $resultResoconti = $conn->query($sqlResoconti);
         
 
         const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
         const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
 
-        // Apri modal
-        aggiungiUtenteBtn.onclick = () => {
-            openModal(modalAggiungiUtente);
-        };
+        // Apri modal (desktop)
+        if(aggiungiUtenteBtn) {
+            aggiungiUtenteBtn.onclick = () => {
+                openModal(modalAggiungiUtente);
+            };
+        }
+
+        // Apri modal (mobile)
+        if(aggiungiUtenteBtnMobile) {
+            aggiungiUtenteBtnMobile.onclick = () => {
+                openModal(modalAggiungiUtente);
+            };
+        }
+
 
 
         // Submit form

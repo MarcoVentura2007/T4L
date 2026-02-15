@@ -507,7 +507,22 @@ $stmtResoconti->close();
                     </table>
                 </div>
 
+                <!-- Mobile Add Button -->
+                <button class="animated-button mobile-add-btn" id="aggiungi-utente-btn-mobile">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                    <span class="text">Aggiungi Utente</span>
+                    <span class="circle"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
                 <!-- Modal Modifica Utente -->
+
                 <div class="modal-box large" id="modalModificaUtente">
                     <h3 class="modal-title">Modifica utente</h3>
                     <form id="formModificaUtente">
@@ -1628,14 +1643,18 @@ $stmtResoconti->close();
 
 
         const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
         const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
+
         const modalModificaUtente = document.getElementById("modalModificaUtente");
         const modalDeleteUtente = document.getElementById("modalDeleteUtente");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
 
         aggiungiUtenteBtn?.addEventListener("click", () => openModal(modalAggiungiUtente));
+        aggiungiUtenteBtnMobile?.addEventListener("click", () => openModal(modalAggiungiUtente));
 
         // Click handler for Salva button - triggers form submission
+
         document.getElementById("salvaNuovoUtente")?.addEventListener("click", function() {
             formAggiungiUtente.dispatchEvent(new Event('submit'));
         });

@@ -1957,12 +1957,15 @@ $stmtResoconti->close();
 
 
         const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
         const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
         const modalModificaUtente = document.getElementById("modalModificaUtente");
         const modalDeleteUtente = document.getElementById("modalDeleteUtente");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
 
         aggiungiUtenteBtn?.addEventListener("click", () => openModal(modalAggiungiUtente));
+        aggiungiUtenteBtnMobile?.addEventListener("click", () => openModal(modalAggiungiUtente));
+
 
         // Click handler for Salva button - triggers form submission
         document.getElementById("salvaNuovoUtente")?.addEventListener("click", function() {
