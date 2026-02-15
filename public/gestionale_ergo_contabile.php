@@ -180,7 +180,7 @@ $stmtResoconti->close();
     <header class="navbar">
 
         <div class="user-box" id="userBox">
-            <img src="immagini/profile-picture.png" alt="Profile">
+            <img src="immagini/profilo-ergo.png" alt="Profile">
             <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
 
             <div class="user-dropdown" id="userDropdown">
