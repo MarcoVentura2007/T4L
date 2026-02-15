@@ -1844,8 +1844,10 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                let defaultDayIndex = new Date(); 
-                if (defaultDayIndex < 0) defaultDayIndex = 6; 
+                let defaultDayIndex = new Date().getDay() - 1;
+                if (defaultDayIndex < 0 || defaultDayIndex > 4) defaultDayIndex = 0;
+
+
                 const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
                 displayAgenda(savedDayIndex);
             } else {
@@ -2593,10 +2595,3 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 </body>
 </html>
-
-
-
-
-
-
-

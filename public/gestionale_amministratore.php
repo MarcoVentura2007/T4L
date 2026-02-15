@@ -1184,7 +1184,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                         <div class="edit-field">
                             <label>Password</label>
-                            <input type="password" id="accountPassword" placeholder="Password" required>
+                            <input type="password" id="accountPassword" placeholder="Password" autocomplete="off" required>
+
                         </div>
                         <div class="edit-field">
                             <label>Classe</label>
@@ -1265,7 +1266,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                         <div class="edit-field">
                             <label>Password (lascia vuoto per non modificare)</label>
-                            <input type="password" id="editAccountPassword" placeholder="Password">
+                            <input type="password" id="editAccountPassword" placeholder="Password" autocomplete="off">
+
                         </div>
                         <div class="edit-field">
                             <label>Classe</label>
@@ -2536,8 +2538,10 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                let defaultDayIndex = new Date(); // 0 for Monday, 1 for Tuesday, etc.
-                if (defaultDayIndex < 0) defaultDayIndex = 6; // Sunday becomes 6
+                let defaultDayIndex = new Date().getDay() - 1; // 0 for Monday, 1 for Tuesday, etc.
+                if (defaultDayIndex < 0 || defaultDayIndex > 4) defaultDayIndex = 0; // Weekend defaults to Monday
+
+
                 const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
                 displayAgenda(savedDayIndex);
             } else {

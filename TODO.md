@@ -1,31 +1,12 @@
-# Implementazione Tab Resoconti per Gestionale Ergo Amministratore
+# TODO
 
-## Steps:
+## In Progress
 
-### 1. Create API Files
-- [x] Create `public/api/api_resoconto_mensile_ergo.php`
-  - Connect to time4allergo database
-  - Query iscritto and presenza tables
-  - Calculate total hours and cost per user
-  - Return JSON response
-
-- [x] Create `public/api/api_resoconto_giornaliero_ergo.php`
-  - Connect to time4allergo database
-  - Get presences for specific user and month
-  - Calculate daily hours and cost
-  - Return JSON response (simplified, no activities)
-
-### 2. Update JavaScript in gestionale_ergo_amministratore.php
-- [x] Update `caricaResocontiMensili()` function
-  - Change API endpoint to api_resoconto_mensile_ergo.php
-  - Adapt to Stipendio_Orario field name
-  
-- [x] Update `caricaResocontoGiorni()` function
-  - Change API endpoint to api_resoconto_giornaliero_ergo.php
-  - Simplify calendar display (no activity details)
-  - Keep hours and salary display
-
-### 3. Testing
-- [ ] Verify monthly report loads correctly
-- [ ] Verify daily calendar shows correct data
-- [ ] Verify hours and salary calculations
+## Completed
+- [x] Fix JavaScript bug in agenda day selection where weekend days (Saturday/Sunday) cause tab disappearance. Agenda only supports Monday-Friday (0-4). When current day is Saturday (5) or Sunday (6 or -1), default to Monday (0).
+  - Fixed in `public/gestionale_amministratore.php`
+  - Fixed in `public/gestionale_utenti.php`
+  - Fixed in `public/gestionale_contabile.php`
+- [x] Add `autocomplete="off"` to password inputs in gestionale to prevent browser from showing previous passwords
+  - Fixed in `public/gestionale_ergo_amministratore.php` (2 password inputs)
+  - Fixed in `public/gestionale_amministratore.php` (2 password inputs)

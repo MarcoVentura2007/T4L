@@ -149,15 +149,40 @@ $stmtResoconti->close();
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
 
+<style>
+    .animated-button{
+        box-shadow: 0 0 0 2px #0b516c;
+    }
+    .animated-button .circle{
+        background-color: #0b516c;
+    }
+
+    .btn-primary{
+        background: linear-gradient(135deg, #0b516c, #1085b3);
+    }
+    .btn-primary:hover{
+        background: linear-gradient(135deg, #1085b3, #0b516c);
+        box-shadow: 0 6px 20px rgba(9, 41, 77, 0.4);
+    }
+    .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(14, 55, 92, 0.3);
+    }
+
+    .check-check{
+        stroke: #0b516c;
+    }
+    .check-circle{
+        stroke: #0b516c;
+    }
+</style>
 </head>
-<body>
-    <!-- NAVBAR -->
 <body>
     <!-- NAVBAR -->
     <header class="navbar">
 
         <div class="user-box" id="userBox">
-            <img src="immagini/profile-picture.png" alt="Profile">
+            <img src="immagini/profilo-ergo.png" alt="Profile">
             <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
 
             <div class="user-dropdown" id="userDropdown">
@@ -738,7 +763,8 @@ $stmtResoconti->close();
                         </div>
                         <div class="edit-field">
                             <label>Password</label>
-                            <input type="password" id="accountPassword" placeholder="Password" required>
+                            <input type="password" id="accountPassword" placeholder="Password" autocomplete="off" required>
+
                         </div>
                         <div class="edit-field">
                             <label>Classe</label>
@@ -819,7 +845,8 @@ $stmtResoconti->close();
                         </div>
                         <div class="edit-field">
                             <label>Password (lascia vuoto per non modificare)</label>
-                            <input type="password" id="editAccountPassword" placeholder="Password">
+                            <input type="password" id="editAccountPassword" placeholder="Password" autocomplete="off">
+
                         </div>
                         <div class="edit-field">
                             <label>Classe</label>

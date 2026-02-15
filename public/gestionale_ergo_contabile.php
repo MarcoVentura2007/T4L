@@ -146,10 +146,35 @@ $stmtResoconti->close();
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+<style>
+    .animated-button{
+        box-shadow: 0 0 0 2px #0b516c;
+    }
+    .animated-button .circle{
+        background-color: #0b516c;
+    }
 
+    .btn-primary{
+        background: linear-gradient(135deg, #0b516c, #1085b3);
+    }
+    .btn-primary:hover{
+        background: linear-gradient(135deg, #1085b3, #0b516c);
+        box-shadow: 0 6px 20px rgba(9, 41, 77, 0.4);
+    }
+    .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(14, 55, 92, 0.3);
+    }
+
+    .check-check{
+        stroke: #0b516c;
+    }
+    .check-circle{
+        stroke: #0b516c;
+    }
+</style>
 </head>
-<body>
-    <!-- NAVBAR -->
+
 <body>
     <!-- NAVBAR -->
     <header class="navbar">
