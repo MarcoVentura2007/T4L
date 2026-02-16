@@ -426,6 +426,7 @@ if($classe !== 'Educatore'){
                 </div>
 
                 <div class="agenda-container">
+                    <div class="header-agenda">
                     <div class="days-tabs">
                         <button class="day-tab active" data-day="0">
                             <span class="day-name">Lunedì</span>
@@ -447,6 +448,10 @@ if($classe !== 'Educatore'){
                             <span class="day-name">Venerdì</span>
                             <span class="day-date" id="date-friday"></span>
                         </button>
+                    </div>
+
+            
+
                     </div>
 
                     <div class="agenda-content" id="agendaContent" style="touch-action: pan-y;">
