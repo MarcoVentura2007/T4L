@@ -1881,6 +1881,7 @@ formAggiungiUtente.addEventListener("submit", function (e) {
         });
 
                 // ================= AGENDA =================
+ // ================= AGENDA =================
 let agendaData = [];
 let agendaWeekStart = null;
 let selectedDayIndex = 0;
@@ -1936,8 +1937,8 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                let defaultDayIndex = new Date().getDay() - 1;
-                if (defaultDayIndex < 0 || defaultDayIndex > 4) defaultDayIndex = 0;
+                let defaultDayIndex = new Date().getDay() - 1; // 0 for Monday, 1 for Tuesday, etc.
+                if (defaultDayIndex < 0 || defaultDayIndex > 4) defaultDayIndex = 0; // Weekend defaults to Monday
 
 
                 const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
@@ -2065,7 +2066,7 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
         document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
         displayAgenda(index);
-        
+
         // Scroll del tab in vista su mobile
         if(window.innerWidth <= 768) {
             tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -2074,12 +2075,11 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
 });
 
 
+
 // carica agenda al load
 window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
 
 // ========== MODAL MODIFICA AGENDA ==========
-
-
 
 
 
@@ -2136,128 +2136,16 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             });
         });
 
-        
-        // ========== STAMPA AGENDA ==========
-        const stampaAgendaBtn = document.getElementById("stampaAgendaBtn");
-        if(stampaAgendaBtn) {
-            stampaAgendaBtn.onclick = () => {
-                const printWindow = window.open('', '_blank', 'width=800,height=600');
-
-                const timeSlots = [
-                    { start: '08:00', end: '10:00', label: '08:00 - 10:00', bg: '#e6f7ff' },
-                    { start: '10:00', end: '12:00', label: '10:00 - 12:00', bg: '#fff7e6' },
-                    { start: '12:00', end: '14:00', label: '12:00 - 14:00', bg: '#f6ffed' },
-                    { start: '14:00', end: '16:00', label: '14:00 - 16:00', bg: '#fff2f0' },
-                    { start: '16:00', end: '18:00', label: '16:00 - 18:00', bg: '#f9f0ff' }
-                ];
-
-                const groupedActivities = {};
-                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
-                const dayIndices = [0, 1, 2, 3, 4];
-
-                timeSlots.forEach(slot => {
-                    groupedActivities[slot.label] = {};
-                    dayIndices.forEach((dayIndex, idx) => {
-                        const dayName = giorni[idx];
-                        groupedActivities[slot.label][dayName] = [];
-
-                        const dayActivities = agendaData.filter(att => {
-                            let monday;
-                            if(agendaWeekStart){
-                                const parts = agendaWeekStart.split('-');
-                                monday = new Date(parts[0], parts[1]-1, parts[2]);
-                            } else {
-                                monday = new Date();
-                                monday.setDate(monday.getDate() - monday.getDay() + 1);
-                            }
-                            const selectedDate = new Date(monday);
-                            selectedDate.setDate(monday.getDate() + dayIndex);
-                            const selectedDateStr = getLocalDateString(selectedDate);
-                            return att.data === selectedDateStr && att.ora_inizio >= slot.start && att.ora_inizio < slot.end;
-                        });
-
-                        dayActivities.sort((a,b)=> a.ora_inizio.localeCompare(b.ora_inizio)).forEach(att => {
-                            const educatori = Array.from(new Map(att.educatori.map(e=>[e.id,e])).values()).map(e=>`${e.nome} ${e.cognome}`).join(', ');
-                            const ragazziSurnames = Array.from(new Map(att.ragazzi.map(r=>[r.id,r])).values()).map(r=>r.cognome).join(', ');
-
-                            groupedActivities[slot.label][dayName].push(`
-                                <div class="activity">
-                                    <strong>${att.attivita_nome} (${educatori})</strong><br>
-                                    <span class="ragazzi-surnames">${ragazziSurnames}</span>
-                                </div>
-                            `);
-                        });
-                    });
-                });
-
-                printWindow.document.write(`
-                    <html>
-                    <head>
-                        <title>Stampa Agenda Settimanale</title>
-                        <style>
-                            @page { size: A4 landscape; }
-                            body { font-family: Arial, sans-serif; margin: 3px; width: 297mm; }
-                            table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
-                            th, td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: top; width: 20%; max-width: 20%; word-wrap: break-word; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            th { background: #f0f0f0; font-weight: bold; }
-                            .activity { margin-bottom: 6px; page-break-inside: avoid; }
-                            .participants { font-size: 12px; }
-                            .ragazzi-photos { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
-                            .ragazzo-photo { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc; }
-                            @media print { body { margin: 0; } table { width: 100%; } }
-                        </style>
-                    </head>
-                    <body>
-                        <h2 style="text-align: center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Lunedì</th>
-                                    <th>Martedì</th>
-                                    <th>Mercoledì</th>
-                                    <th>Giovedì</th>
-                                    <th>Venerdì</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `);
-
-                timeSlots.forEach(slot => {
-                    printWindow.document.write(`<tr>`);
-                    dayIndices.forEach((dayIndex, idx) => {
-                        const dayName = giorni[idx];
-                        const activities = groupedActivities[slot.label][dayName];
-                        printWindow.document.write(`<td style="background-color: ${slot.bg};">`);
-                        if(activities.length === 0) {
-                            printWindow.document.write(`Nessuna attività`);
-                        } else {
-                            activities.forEach(act => printWindow.document.write(act));
-                        }
-                        printWindow.document.write(`</td>`);
-                    });
-                    printWindow.document.write(`</tr>`);
-                });
-
-                printWindow.document.write(`
-                            </tbody>
-                        </table>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
-                printWindow.print();
-            };
-        }
-
-
         // ========== MODAL CREA AGENDA ==========
         const creaAgendaBtn = document.getElementById("creaAgendaBtn");
         const formCreaAgenda = document.getElementById("formCreaAgenda");
+        // agendaOverlay should reuse single global overlay when available
         const agendaOverlay = document.getElementById("agendaOverlay") || Overlay;
         const successPopupAgenda = document.getElementById("successPopupAgenda");
 
         if(creaAgendaBtn) {
             creaAgendaBtn.onclick = () => {
+                // Popola la select con le date della settimana
                 const today = new Date();
                 const monday = new Date(today);
                 monday.setDate(today.getDate() - today.getDay() + 1);
@@ -2265,6 +2153,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 const dataSelect = document.getElementById("agendaData");
                 const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
                 
+                // Pulisci le opzioni mantendo la prima (placeholder)
                 while (dataSelect.options.length > 1) {
                     dataSelect.remove(1);
                 }
@@ -2392,6 +2281,117 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 
 
+// ========== STAMPA AGENDA ==========
+        const stampaAgendaBtn = document.getElementById("stampaAgendaBtn");
+        if(stampaAgendaBtn) {
+            stampaAgendaBtn.onclick = () => {
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+                const timeSlots = [
+                    { start: '08:00', end: '10:00', label: '08:00 - 10:00', bg: '#e6f7ff' },
+                    { start: '10:00', end: '12:00', label: '10:00 - 12:00', bg: '#fff7e6' },
+                    { start: '12:00', end: '14:00', label: '12:00 - 14:00', bg: '#f6ffed' },
+                    { start: '14:00', end: '16:00', label: '14:00 - 16:00', bg: '#fff2f0' },
+                    { start: '16:00', end: '18:00', label: '16:00 - 18:00', bg: '#f9f0ff' }
+                ];
+
+                const groupedActivities = {};
+                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+                const dayIndices = [0, 1, 2, 3, 4];
+
+                timeSlots.forEach(slot => {
+                    groupedActivities[slot.label] = {};
+                    dayIndices.forEach((dayIndex, idx) => {
+                        const dayName = giorni[idx];
+                        groupedActivities[slot.label][dayName] = [];
+
+                        const dayActivities = agendaData.filter(att => {
+                            let monday;
+                            if(agendaWeekStart){
+                                const parts = agendaWeekStart.split('-');
+                                monday = new Date(parts[0], parts[1]-1, parts[2]);
+                            } else {
+                                monday = new Date();
+                                monday.setDate(monday.getDate() - monday.getDay() + 1);
+                            }
+                            const selectedDate = new Date(monday);
+                            selectedDate.setDate(monday.getDate() + dayIndex);
+                            const selectedDateStr = getLocalDateString(selectedDate);
+                            return att.data === selectedDateStr && att.ora_inizio >= slot.start && att.ora_inizio < slot.end;
+                        });
+
+                        dayActivities.sort((a,b)=> a.ora_inizio.localeCompare(b.ora_inizio)).forEach(att => {
+                            const educatori = Array.from(new Map(att.educatori.map(e=>[e.id,e])).values()).map(e=>`${e.nome} ${e.cognome}`).join(', ');
+                            const ragazziSurnames = Array.from(new Map(att.ragazzi.map(r=>[r.id,r])).values()).map(r=>r.cognome).join(', ');
+
+                            groupedActivities[slot.label][dayName].push(`
+                                <div class="activity">
+                                    <strong>${att.attivita_nome} (${educatori})</strong><br>
+                                    <span class="ragazzi-surnames">${ragazziSurnames}</span>
+                                </div>
+                            `);
+                        });
+                    });
+                });
+
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Stampa Agenda Settimanale</title>
+                        <style>
+                            @page { size: A4 landscape; }
+                            body { font-family: Arial, sans-serif; margin: 3px; width: 297mm; }
+                            table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+                            th, td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: top; width: 20%; max-width: 20%; word-wrap: break-word; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            th { background: #f0f0f0; font-weight: bold; }
+                            .activity { margin-bottom: 6px; page-break-inside: avoid; }
+                            .participants { font-size: 12px; }
+                            .ragazzi-photos { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
+                            .ragazzo-photo { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc; }
+                            @media print { body { margin: 0; } table { width: 100%; } }
+                        </style>
+                    </head>
+                    <body>
+                        <h2 style="text-align: center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Lunedì</th>
+                                    <th>Martedì</th>
+                                    <th>Mercoledì</th>
+                                    <th>Giovedì</th>
+                                    <th>Venerdì</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `);
+
+                timeSlots.forEach(slot => {
+                    printWindow.document.write(`<tr>`);
+                    dayIndices.forEach((dayIndex, idx) => {
+                        const dayName = giorni[idx];
+                        const activities = groupedActivities[slot.label][dayName];
+                        printWindow.document.write(`<td style="background-color: ${slot.bg};">`);
+                        if(activities.length === 0) {
+                            printWindow.document.write(`Nessuna attività`);
+                        } else {
+                            activities.forEach(act => printWindow.document.write(act));
+                        }
+                        printWindow.document.write(`</td>`);
+                    });
+                    printWindow.document.write(`</tr>`);
+                });
+
+                printWindow.document.write(`
+                            </tbody>
+                        </table>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            };
+        }
 
 
 
