@@ -645,6 +645,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 
 
                 <div class="agenda-container" style="margin: 0 auto;">
+                    <div class="header-agenda">
                     <div class="days-tabs">
                         <button class="day-tab active" data-day="0">
                             <span class="day-name">Lunedì</span>
@@ -699,7 +700,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     Stampa
                     </button>
 
-                    
+                    </div>
 
                     <div class="agenda-content" id="agendaContent" style="touch-action: pan-y;">
                         <div class="loading">Caricamento attività...</div>

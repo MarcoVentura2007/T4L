@@ -622,7 +622,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 </button>
 
                 <div class="agenda-container" style="margin: 0 auto;">
-                    <div class="agenda-header">
+                    <div class="header-agenda">
                     <div class="days-tabs">
                         <button class="day-tab active" data-day="0">
                             <span class="day-name">Lunedì</span>
