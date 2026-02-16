@@ -2656,8 +2656,16 @@ function displayAgenda(dayIndex){
 
     document.querySelector('.days-tabs').style.setProperty('--active-index', dayIndex);
 
+    // Scroll del tab attivo in vista su mobile al caricamento
+    if(window.innerWidth <= 768) {
+        const activeTab = document.querySelector('.day-tab.active');
+        if(activeTab) {
+            activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    }
 
     const contentDiv = document.getElementById('agendaContent');
+
 
     if(!agendaData || agendaData.length === 0){
         contentDiv.innerHTML = '<div class="no-activities">Nessuna attività disponibile</div>';
