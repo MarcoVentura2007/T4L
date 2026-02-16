@@ -204,10 +204,10 @@ input::placeholder {
 /* iOS Safari password input fix - allows typing without clicking eye icon first */
 #password, 
 input[type="password"] {
-  -webkit-user-select: text;
-  user-select: text;
-  touch-action: manipulation;
-  pointer-events: auto;
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  touch-action: manipulation !important;
+  pointer-events: auto !important;
 }
 
 /* Fix for eye icon on iOS - ensure it doesn't block password input interaction */
@@ -1756,26 +1756,7 @@ body{
    INPUT CODICE
 ================================ */
 
-#code-popup-ergo input{
-    width: 100%;
-    padding: 14px 16px;
 
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.3);
-
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(10px);
-
-    color: white;
-    font-size: 15px;
-
-    outline: none;
-
-    transition: 
-        border 0.25s ease,
-        box-shadow 0.25s ease,
-        background 0.25s ease;
-}
 
 #code-popup-ergo input{
     width: 100%;
@@ -1911,27 +1892,6 @@ body{
 /* ================================
    INPUT CODICE
 ================================ */
-
-#code-popup input{
-    width: 100%;
-    padding: 14px 16px;
-
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.3);
-
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(10px);
-
-    color: white;
-    font-size: 15px;
-
-    outline: none;
-
-    transition: 
-        border 0.25s ease,
-        box-shadow 0.25s ease,
-        background 0.25s ease;
-}
 
 #code-popup input{
     width: 100%;
@@ -3008,6 +2968,11 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     max-width: 92%;
     margin: 0 auto;
 }
+
+.mobile-bottom-nav{
+    display: none;
+}
+
 /* MOBILE OPTIMIZATIONS FOR GESTIONALE AMMINISTRATORE */
 @media (max-width: 768px) {
 
@@ -3076,9 +3041,9 @@ aside:has(:checked) :where(figcaption, .item--heading) {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 16px;
+        padding: 4px !important;
         border-bottom: 1px solid #e5e7eb;
-        min-height: 140px;
+        min-height: 110px;
     }
 
 
@@ -3150,7 +3115,7 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     .modal-box.large {
         width: 90% !important;
         max-width: 90% !important;
-        padding: 24px;
+        padding: 24px !important;
         max-height: 80vh !important;
         overflow-y: auto;
         margin: 0 auto;
@@ -3159,7 +3124,7 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     .modal-box {
         width: 90% !important;
         max-width: 90% !important;
-        padding: 24px;
+        padding: 24px !important;
         max-height: 85vh;
         overflow-y: auto;
     }
@@ -3192,14 +3157,19 @@ aside:has(:checked) :where(figcaption, .item--heading) {
 
 
     .edit-grid {
-        gap: 16px;
+        gap: 8px;
     }
 
     .edit-field input,
     .edit-field textarea,
     .edit-field select {
-        padding: 12px;
-        font-size: 1rem;
+        padding: 8px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .edit-field label{
+        padding: 2px !important;
+        font-size: 1rem !important;
     }
 
     .btn-primary,
@@ -3275,36 +3245,54 @@ aside:has(:checked) :where(figcaption, .item--heading) {
         font-size: 1rem;
     }
 
-    /* MOBILE BOTTOM NAVIGATION - Smart Sidebar - BIGGER */
     .mobile-bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: white;
-        border-top: 1px solid #e5e7eb;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-        z-index: 1000;
-        display: flex;
-        justify-content: space-around;
-        padding: 12px 0 20px;
-        height: 90px;
-    }
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
 
-    .mobile-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 10px 20px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-radius: 16px;
-        min-width: 80px;
-        text-decoration: none;
-        color: #6b7280;
-    }
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    z-index: 10 !important;
+
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: 25% !important; /* 100% / 4 = 4 icone visibili */
+
+    padding: 5px 0 20px !important;
+    height: 95px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+}
+
+.footer-bar{
+    display: none !important;
+}
+
+
+
+   .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 16px;
+
+    text-decoration: none;
+    color: #6b7280;
+
+    scroll-snap-align: start;
+}
+
+
 
 
     .mobile-nav-item.active {
@@ -3350,7 +3338,21 @@ aside:has(:checked) :where(figcaption, .item--heading) {
         background: rgba(11, 81, 108, 0.1);
         color: #0b516c;
     }
+
+    .header-mobile{
+        display: flex;
+        gap: 30px;
+        justify-content: space-between;
+    }
+
+    #aggiungi-utente-btn-mobile{
+        display: flex !important;
+    }
+
+    
 }
+
+
 
 
 /* TABLE */
@@ -3627,7 +3629,7 @@ td img:hover{
 /* PROFILE HEADER */
 
 .profile-header{
-    display:flex;
+    display:flex !important;
     align-items:center;
     gap:22px;
     margin-bottom:28px;

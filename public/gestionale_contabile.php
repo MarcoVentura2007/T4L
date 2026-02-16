@@ -433,7 +433,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <path d="M8 12H16" stroke-width="1.5"></path>
                         <path d="M12 16V8" stroke-width="1.5"></path>
                     </svg>
-                    </button>
+                </button>
 
                 <div class="users-table-box">
                     <table class="users-table">
@@ -1173,6 +1173,43 @@ $resultResoconti = $conn->query($sqlResoconti);
         </div>
     </footer>
 
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-bottom-nav">
+        <a href="#" class="mobile-nav-item active" data-tab="tab-utenti" onclick="switchTab('tab-utenti', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/group.png" alt="Utenti">
+            </div>
+            <span class="mobile-nav-label">Utenti</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-tab="tab-presenze" onclick="switchTab('tab-presenze', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/attendance.png" alt="Presenze">
+            </div>
+            <span class="mobile-nav-label">Presenze</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-tab="tab-agenda" onclick="switchTab('tab-agenda', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/book.png" alt="Agenda">
+            </div>
+            <span class="mobile-nav-label">Agenda</span>
+        </a>
+
+        <a href="#" class="mobile-nav-item" data-tab="tab-attivita" onclick="switchTab('tab-attivita', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/attivita.png" alt="attivita">
+            </div>
+            <span class="mobile-nav-label">Attività</span>
+        </a>
+
+        <a href="#" class="mobile-nav-item" data-tab="tab-resoconti" onclick="switchTab('tab-resoconti', this); return false;">
+            <div class="mobile-nav-icon">
+                <img src="immagini/resoconti.png" alt="resoconti">
+            </div>
+            <span class="mobile-nav-label">Resoconti</span>
+        </a>
+    </nav>
+
     <!-- OVERLAY PRINCIPALE PER MODALI -->
 <script>
     const Overlay = document.getElementById("modalOverlay");
@@ -1631,6 +1668,7 @@ $resultResoconti = $conn->query($sqlResoconti);
         const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
         const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
+        const clearBtn = document.getElementById("clearFileBtn");
 
         // Apri modal (desktop)
         if(aggiungiUtenteBtn) {
@@ -1701,7 +1739,7 @@ clearBtn.addEventListener("click", function () {
 
 
 // --- INVIO FORM ---
-form.addEventListener("submit", function (e) {
+formAggiungiUtente.addEventListener("submit", function (e) {
     e.preventDefault();
 
     const formData = new FormData(form);
@@ -2624,7 +2662,43 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         }
 
 
+         // Mobile tab switching function
+        function switchTab(tabId, navItem) {
+            // Update active states on mobile nav
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            navItem.classList.add('active');
 
+            // Update desktop sidebar active states
+            document.querySelectorAll('.tab-link').forEach(link => {
+                link.classList.remove('active');
+                if(link.dataset.tab === tabId) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Switch tab content
+            document.querySelectorAll('.page-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            // Save to localStorage
+            localStorage.setItem("activeTab", tabId);
+        }
+
+        // Sync mobile nav with desktop on load
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedTab = localStorage.getItem("activeTab");
+            if (savedTab) {
+                const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
+                if (mobileNavItem) {
+                    document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+                    mobileNavItem.classList.add('active');
+                }
+            }
+        });
 
     </script>
 
