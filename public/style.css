@@ -3256,9 +3256,14 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
     z-index: 10 !important;
 
-    display: grid !important;
-    grid-auto-flow: column !important;
-    grid-auto-columns: 25% !important; /* 100% / 4 = 4 icone visibili */
+    display: flex !important;
+    overflow-x: auto !important;
+
+
+
+
+
+
 
     padding: 5px 0 20px !important;
     height: 95px;
@@ -3290,7 +3295,12 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     color: #6b7280;
 
     scroll-snap-align: start;
+    
+    flex: 1 1 25% !important;
+    min-width: 25% !important;
+    max-width: 100% !important;
 }
+
 
 
 

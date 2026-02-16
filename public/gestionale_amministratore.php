@@ -120,8 +120,10 @@ $resultResoconti = $conn->query($sqlResoconti);
 <title>T4L | Gestionale utenti</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style_mobile_agenda.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
+
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -643,7 +645,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 
 
                 <div class="agenda-container" style="margin: 0 auto;">
-                    <div class="header-agenda">
                     <div class="days-tabs">
                         <button class="day-tab active" data-day="0">
                             <span class="day-name">Lunedì</span>
@@ -666,6 +667,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <span class="day-date" id="date-friday"></span>
                         </button>
                     </div>
+
 
                     <button class="print-btn" id="stampaAgendaBtn">
                     <span class="printer-wrapper">
@@ -697,11 +699,12 @@ $resultResoconti = $conn->query($sqlResoconti);
                     Stampa
                     </button>
 
-                    </div>
+                    
 
-                    <div class="agenda-content" id="agendaContent">
+                    <div class="agenda-content" id="agendaContent" style="touch-action: pan-y;">
                         <div class="loading">Caricamento attività...</div>
                     </div>
+
                 </div>
 
                 <!-- MODAL CREA AGENDA -->  
@@ -2741,10 +2744,15 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
         document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
         displayAgenda(index);
-        // Animazione di scorrimento per centrare il tab attivo
-        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+        // Scroll del tab in vista su mobile
+        if(window.innerWidth <= 768) {
+            tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
     });
 });
+
+
 
 // carica agenda al load
 window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
@@ -3391,17 +3399,36 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             localStorage.setItem("activeTab", tabId);
         }
 
-        // Sync mobile nav with desktop on load
+        // Sync mobile nav with desktop on load and restore active tab
         window.addEventListener("DOMContentLoaded", () => {
             const savedTab = localStorage.getItem("activeTab");
             if (savedTab) {
+                // Update mobile nav active state
                 const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
                 if (mobileNavItem) {
                     document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
                     mobileNavItem.classList.add('active');
                 }
+                
+                // Update desktop sidebar active state
+                document.querySelectorAll('.tab-link').forEach(link => {
+                    link.classList.remove('active');
+                    if(link.dataset.tab === savedTab) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Show the saved tab content
+                document.querySelectorAll('.page-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                const savedTabContent = document.getElementById(savedTab);
+                if (savedTabContent) {
+                    savedTabContent.classList.add('active');
+                }
             }
         });
+
 
 
 

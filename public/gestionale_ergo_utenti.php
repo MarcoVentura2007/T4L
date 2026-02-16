@@ -1558,21 +1558,40 @@ $stmtResoconti->close();
             });
             document.getElementById(tabId).classList.add('active');
 
-            // Save to sessionStorage
-            sessionStorage.setItem("activeTab", tabId);
+            // Save to localStorage
+            localStorage.setItem("activeTab", tabId);
         }
 
-        // Sync mobile nav with desktop on load
+        // Sync mobile nav with desktop on load and restore active tab
         window.addEventListener("DOMContentLoaded", () => {
-            const savedTab = sessionStorage.getItem("activeTab");
+            const savedTab = localStorage.getItem("activeTab");
             if (savedTab) {
+                // Update mobile nav active state
                 const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
                 if (mobileNavItem) {
                     document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
                     mobileNavItem.classList.add('active');
                 }
+                
+                // Update desktop sidebar active state
+                document.querySelectorAll('.tab-link').forEach(link => {
+                    link.classList.remove('active');
+                    if(link.dataset.tab === savedTab) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Show the saved tab content
+                document.querySelectorAll('.page-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                const savedTabContent = document.getElementById(savedTab);
+                if (savedTabContent) {
+                    savedTabContent.classList.add('active');
+                }
             }
         });
+
     </script>
 
 

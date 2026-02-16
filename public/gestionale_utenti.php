@@ -77,8 +77,10 @@ if($classe !== 'Educatore'){
 <title>T4L | Gestionale utenti</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style_mobile_agenda.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
+
 
 </head>
 <body onload="selezionata()">
@@ -440,11 +442,12 @@ if($classe !== 'Educatore'){
                         </button>
                     </div>
 
-                    <div class="agenda-content" id="agendaContent">
+                    <div class="agenda-content" id="agendaContent" style="touch-action: pan-y;">
                         <div class="loading">Caricamento attività...</div>
                     </div>
                 </div>
             </div>
+
         </main>
     </div>
 
@@ -917,9 +920,13 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
         tab.classList.add('active');
         displayAgenda(index);
 
-        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        // Scroll del tab in vista su mobile
+        if(window.innerWidth <= 768) {
+            tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
     });
 });
+
 
 // carica agenda al load
 window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
@@ -1054,17 +1061,36 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             localStorage.setItem("activeTab", tabId);
         }
 
-        // Sync mobile nav with desktop on load
+        // Sync mobile nav with desktop on load and restore active tab
         window.addEventListener("DOMContentLoaded", () => {
             const savedTab = localStorage.getItem("activeTab");
             if (savedTab) {
+                // Update mobile nav active state
                 const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
                 if (mobileNavItem) {
                     document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
                     mobileNavItem.classList.add('active');
                 }
+                
+                // Update desktop sidebar active state
+                document.querySelectorAll('.tab-link').forEach(link => {
+                    link.classList.remove('active');
+                    if(link.dataset.tab === savedTab) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Show the saved tab content
+                document.querySelectorAll('.page-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                const savedTabContent = document.getElementById(savedTab);
+                if (savedTabContent) {
+                    savedTabContent.classList.add('active');
+                }
             }
         });
+
     </script>
 
 

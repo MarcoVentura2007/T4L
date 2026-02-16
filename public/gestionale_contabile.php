@@ -122,6 +122,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="style_mobile_agenda.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
@@ -410,30 +411,32 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                     </form>
                 </div>
-                <div class="page-header">
-                    <h1>Utenti</h1>
-                    <p>Elenco iscritti registrati</p>
-                </div>
+                <div class="header-mobile">
+                    <div class="page-header">
+                        <h1>Utenti</h1>
+                        <p>Elenco iscritti registrati</p>
+                    </div>
 
-                <button
-                    title="Add New" id="aggiungi-utente-btn-mobile"
-                    class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
-                    >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="50px"
-                        height="50px"
-                        viewBox="0 0 24 24"
-                        class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
-                    >
-                        <path
-                        d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                        stroke-width="1.5"
-                        ></path>
-                        <path d="M8 12H16" stroke-width="1.5"></path>
-                        <path d="M12 16V8" stroke-width="1.5"></path>
-                    </svg>
-                </button>
+                    <button
+                        title="Add New" id="aggiungi-utente-btn-mobile"
+                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
+                        >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50px"
+                            height="50px"
+                            viewBox="0 0 24 24"
+                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
+                        >
+                            <path
+                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                            stroke-width="1.5"
+                            ></path>
+                            <path d="M8 12H16" stroke-width="1.5"></path>
+                            <path d="M12 16V8" stroke-width="1.5"></path>
+                        </svg>
+                    </button>
+                </div>
 
                 <div class="users-table-box">
                     <table class="users-table">
@@ -618,8 +621,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </svg>
                 </button>
 
-                <div class="agenda-container" style="margin: 0 auto; max-width: 1200px;">
-                    <div class="header-agenda">
+                <div class="agenda-container" style="margin: 0 auto;">
+                    <div class="agenda-header">
                     <div class="days-tabs">
                         <button class="day-tab active" data-day="0">
                             <span class="day-name">Lunedì</span>
@@ -674,6 +677,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </button>
 
                     </div>
+
+                    
 
                     <div class="agenda-content" id="agendaContent">
                         <div class="loading">Caricamento attività...</div>
@@ -2038,10 +2043,14 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
         document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
         displayAgenda(index);
-        // Animazione di scorrimento per centrare il tab attivo
-        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        
+        // Scroll del tab in vista su mobile
+        if(window.innerWidth <= 768) {
+            tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
     });
 });
+
 
 // carica agenda al load
 window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
@@ -2688,17 +2697,36 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             localStorage.setItem("activeTab", tabId);
         }
 
-        // Sync mobile nav with desktop on load
+        // Sync mobile nav with desktop on load and restore active tab
         window.addEventListener("DOMContentLoaded", () => {
             const savedTab = localStorage.getItem("activeTab");
             if (savedTab) {
+                // Update mobile nav active state
                 const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
                 if (mobileNavItem) {
                     document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
                     mobileNavItem.classList.add('active');
                 }
+                
+                // Update desktop sidebar active state
+                document.querySelectorAll('.tab-link').forEach(link => {
+                    link.classList.remove('active');
+                    if(link.dataset.tab === savedTab) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Show the saved tab content
+                document.querySelectorAll('.page-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                const savedTabContent = document.getElementById(savedTab);
+                if (savedTabContent) {
+                    savedTabContent.classList.add('active');
+                }
             }
         });
+
 
     </script>
 
