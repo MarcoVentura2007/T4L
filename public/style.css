@@ -2457,17 +2457,16 @@ body.popup-open{
     position: fixed;
     inset: 0;
     padding: 100px;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     pointer-events: none;
-    opacity: 0;
     transition: .4s ease;
     z-index: 10002;
 }
 
 .success-popup.show {
-    opacity: 1;
+    display: flex;
     pointer-events: auto;
 }
 
