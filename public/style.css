@@ -2659,13 +2659,67 @@ body.popup-open{
 
     /* ---------- SUCCESS ---------- */
 
-    .success-content{
-        padding:14px 22px;
+    .success-popup{
+        all: initial !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: none !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 99999 !important;
+        background: rgba(0,0,0,0.5) !important;
+        padding: 16px !important;
+        box-sizing: border-box !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .success-popup.show{
+        visibility: visible !important;
+        pointer-events: auto !important;
+        display: flex !important;
+    }
+
+    .success-popup .success-content{
+        all: initial !important;
+        background: white !important;
+        width: 100% !important;
+        max-width: 280px !important;
+        padding: 20px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .success-popup .success-content .success-icon{
+        width: 40px !important;
+        height: 40px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .success-popup .success-content .success-icon svg{
+        width: 40px !important;
+        height: 40px !important;
     }
 
     .success-text{
-        font-size:1.1rem;
+        font-size: 1rem !important;
+        color: #222 !important;
+        margin: 0 !important;
     }
+
+
+
+
+
+
 
 }
 
