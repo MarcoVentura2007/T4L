@@ -127,6 +127,14 @@ $resultResoconti = $conn->query($sqlResoconti);
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
 
+<style>
+     @media (max-width: 768px){
+        .footer-bar{
+            display: none;
+        }
+    }
+</style>
+
 </head>
 <body>
     <!-- NAVBAR -->
@@ -1229,12 +1237,13 @@ $resultResoconti = $conn->query($sqlResoconti);
             e.currentTarget.classList.add("active");
             document.getElementById(target).classList.add("active");
 
-            sessionStorage.setItem("activeTab", target);
+            localStorage.setItem("activeTab", target);
         });
     });
 
     window.addEventListener("DOMContentLoaded", () => {
-        const savedTab = sessionStorage.getItem("activeTab");
+        const savedTab = localStorage.getItem("activeTab");
+
         if (savedTab) {
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
             document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
@@ -1674,6 +1683,10 @@ $resultResoconti = $conn->query($sqlResoconti);
         const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
         const clearBtn = document.getElementById("clearFileBtn");
+        const utenteFoto = document.getElementById("utenteFoto");
+        const preview = document.getElementById("previewFotoMini");
+        const fileNameSpan = document.getElementById("nomeFileFoto");
+
 
         // Apri modal (desktop)
         if(aggiungiUtenteBtn) {
@@ -1691,32 +1704,12 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
-        // Submit form
-        formAggiungiUtente.onsubmit = function(e) {
-            e.preventDefault();
 
-            const formData = new FormData();
-            formData.append("nome", document.getElementById("utenteNome").value.trim());
-            formData.append("cognome", document.getElementById("utenteCognome").value.trim());
-            formData.append("data_nascita", document.getElementById("utenteData").value);
-            formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-            formData.append("contatti", document.getElementById("utenteContatti").value.trim());
-            formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
-            formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
-            formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value));
-            formData.append("note", document.getElementById("utenteNote").value.trim());
-
-            const fotoInput = document.getElementById("utenteFoto");
-            if(fotoInput.files.length > 0){
-                formData.append("foto", fotoInput.files[0]); // il file
-            }
-        }
 
 
 
 // --- GESTIONE CAMBIO FOTO ---
 utenteFoto.addEventListener("change", function () {
-
     if (!this.files.length) {
         preview.style.display = "none";
         fileNameSpan.innerText = "Nessun file";
@@ -1725,13 +1718,12 @@ utenteFoto.addEventListener("change", function () {
     }
 
     const file = this.files[0];
-
     preview.src = URL.createObjectURL(file);
     preview.style.display = "block";
-
     fileNameSpan.innerText = file.name;
     clearBtn.style.display = "block";
 });
+
 
 
 // --- PULIZIA FOTO ---
@@ -1743,11 +1735,25 @@ clearBtn.addEventListener("click", function () {
 });
 
 
+
 // --- INVIO FORM ---
 formAggiungiUtente.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const formData = new FormData(form);
+    const formData = new FormData();
+    formData.append("nome", document.getElementById("utenteNome").value.trim());
+    formData.append("cognome", document.getElementById("utenteCognome").value.trim());
+    formData.append("data_nascita", document.getElementById("utenteData").value);
+    formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
+    formData.append("contatti", document.getElementById("utenteContatti").value.trim());
+    formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
+    formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
+    formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value) || 0);
+    formData.append("note", document.getElementById("utenteNote").value.trim());
+    
+    if (utenteFoto.files.length > 0) {
+        formData.append("foto", utenteFoto.files[0]);
+    }
 
     fetch("api/api_aggiungi_utente.php", {
         method: "POST",
@@ -1755,18 +1761,26 @@ formAggiungiUtente.addEventListener("submit", function (e) {
     })
     .then(res => res.json())
     .then(data => {
-        console.log("Risposta server:", data);
+        if (data.success) {
+            closeModal();
+            successText.innerText = "Utente aggiunto!!";
+            showSuccess(successPopup);
+            setTimeout(() => {
+                hideSuccess(successPopup);
+                location.reload();
+            }, 1800);
+        } else {
+            alert("Errore: " + (data.message || "Errore sconosciuto"));
+        }
     })
-    .catch(err => console.error("Errore:", err));
+    .catch(err => {
+        console.error("Errore:", err);
+        alert("Errore di comunicazione con il server");
+    });
 });
 
-        // rimuove file selezionato
-        clearBtn.addEventListener("click", function(){
-            utenteFoto.value = ""; 
-            preview.style.display = "none";
-            fileNameSpan.innerText = "Nessun file";
-            clearBtn.style.display = "none"; 
-        });
+
+
 
         // ========== MODAL PRESENZE ==========
         const deletePresenzaBox = document.getElementById("deletePresenzaBox");

@@ -81,6 +81,13 @@ if($classe !== 'Educatore'){
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 
+<style>
+     @media (max-width: 768px){
+        .footer-bar{
+            display: none;
+        }
+    }
+</style>
 
 </head>
 <body onload="selezionata()">

@@ -130,6 +130,13 @@ $resultResoconti = $conn->query($sqlResoconti);
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
 
+<style>
+     @media (max-width: 768px){
+        .footer-bar{
+            display: none;
+        }
+    }
+</style>
 
 
 </head>
@@ -1209,7 +1216,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                         <div class="edit-field">
                             <label>Password</label>
-                            <input type="password" id="accountPassword" placeholder="Password" autocomplete="off" required>
+                            <input type="password" id="accountPassword" placeholder="Password" autocomplete="off" autocapitalize="off" autocorrect="off" required>
+
 
                         </div>
                         <div class="edit-field">
@@ -1291,7 +1299,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                         <div class="edit-field">
                             <label>Password (lascia vuoto per non modificare)</label>
-                            <input type="password" id="editAccountPassword" placeholder="Password" autocomplete="off">
+                            <input type="password" id="editAccountPassword" placeholder="Password" autocomplete="off" autocapitalize="off" autocorrect="off">
+
 
                         </div>
                         <div class="edit-field">
@@ -1513,12 +1522,13 @@ $resultResoconti = $conn->query($sqlResoconti);
             e.currentTarget.classList.add("active");
             document.getElementById(target).classList.add("active");
 
-            sessionStorage.setItem("activeTab", target);
+            localStorage.setItem("activeTab", target);
         });
     });
 
     window.addEventListener("DOMContentLoaded", () => {
-        const savedTab = sessionStorage.getItem("activeTab");
+        const savedTab = localStorage.getItem("activeTab");
+
         if (savedTab) {
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
             document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
@@ -3222,8 +3232,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 });
                 day.ore += r.ore;
                 day.costo += r.costo;
-
-                totalOre += r.ore;
                 totalCosto += r.costo;
 
                 let attHTML = r.attivita.map(a => `${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€)`).join('<br>');

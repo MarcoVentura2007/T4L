@@ -172,6 +172,12 @@ $stmtResoconti->close();
     .check-circle{
         stroke: #0b516c;
     }
+
+     @media (max-width: 768px){
+        .footer-bar{
+            display: none;
+        }
+    }
 </style>
 </head>
 
@@ -796,12 +802,13 @@ $stmtResoconti->close();
             e.currentTarget.classList.add("active");
             document.getElementById(target).classList.add("active");
 
-            sessionStorage.setItem("activeTab", target);
+            localStorage.setItem("activeTab", target);
         });
     });
 
     window.addEventListener("DOMContentLoaded", () => {
-        const savedTab = sessionStorage.getItem("activeTab");
+        const savedTab = localStorage.getItem("activeTab");
+
         if (savedTab) {
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
             document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));

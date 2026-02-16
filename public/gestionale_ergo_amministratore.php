@@ -181,6 +181,12 @@ $stmtResoconti->close();
         border-color: #0b516c;
         box-shadow: 0 0 0 3px rgba(1, 30, 64, 0.2);
     }
+
+     @media (max-width: 768px){
+        .footer-bar{
+            display: none;
+        }
+    }
 </style>
 </head>
 <body>

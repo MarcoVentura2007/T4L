@@ -3273,9 +3273,7 @@ aside:has(:checked) :where(figcaption, .item--heading) {
 
 }
 
-.footer-bar{
-    display: none !important;
-}
+
 
 
 
