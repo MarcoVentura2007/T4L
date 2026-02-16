@@ -90,7 +90,7 @@ if($classe !== 'Educatore'){
 </style>
 
 </head>
-<body onload="selezionata()">
+<body>
     <!-- NAVBAR -->
     <header class="navbar">
         <div class="user-box" id="userBox">
@@ -512,6 +512,7 @@ if($classe !== 'Educatore'){
 
     window.addEventListener("DOMContentLoaded", () => {
         const savedTab = localStorage.getItem("activeTab");
+
         if (savedTab) {
             document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
             document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
@@ -1050,7 +1051,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             return `${y}-${m}-${d}`;
         }
 
-        // Mobile tab switching function
+         // Mobile tab switching function
         function switchTab(tabId, navItem) {
             // Update active states on mobile nav
             document.querySelectorAll('.mobile-nav-item').forEach(item => {
@@ -1079,11 +1080,14 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         // Sync mobile nav with desktop on load and restore active tab
         window.addEventListener("DOMContentLoaded", () => {
             const savedTab = localStorage.getItem("activeTab");
+            
+            // Always reset mobile nav active state first
+            document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+            
             if (savedTab) {
                 // Update mobile nav active state
                 const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
                 if (mobileNavItem) {
-                    document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
                     mobileNavItem.classList.add('active');
                 }
                 
@@ -1103,8 +1107,18 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 if (savedTabContent) {
                     savedTabContent.classList.add('active');
                 }
+            } else {
+                // Default to first tab (Utenti) if no saved tab
+                const firstMobileNavItem = document.querySelector('.mobile-nav-item');
+                if (firstMobileNavItem) {
+                    firstMobileNavItem.classList.add('active');
+                }
             }
         });
+
+
+
+
 
     </script>
 
