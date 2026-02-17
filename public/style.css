@@ -166,12 +166,29 @@ a{
   font-size: 1rem;
   font-family: Arial, Helvetica, sans-serif;
   box-sizing: border-box;
+  color: #222;
 }
 
 input::placeholder {
-    color: #999;
+    color: #666 !important;
     font-family: Arial, Helvetica, sans-serif;
+    opacity: 1;
 }
+
+/* Mobile login password input fix */
+@media (max-width: 768px) {
+  .input-wrap input[type="password"] {
+    color: #222 !important;
+    -webkit-text-fill-color: #222 !important;
+  }
+  
+  .input-wrap input[type="password"]::placeholder {
+    color: #666 !important;
+    -webkit-text-fill-color: #666 !important;
+    opacity: 1 !important;
+  }
+}
+
 
 #password{
   transition: all 0.5s ease;
@@ -197,10 +214,6 @@ input::placeholder {
   pointer-events: none;
 }
 
-#password::-webkit-textfield-decoration-container {
-  display: none !important;
-}
-
 /* iOS Safari password input fix - allows typing without clicking eye icon first */
 #password, 
 input[type="password"] {
@@ -208,7 +221,22 @@ input[type="password"] {
   user-select: text !important;
   touch-action: manipulation !important;
   pointer-events: auto !important;
+  color: #222 !important;
+  -webkit-text-fill-color: #222 !important;
 }
+
+/* Fix for iOS password input text visibility */
+#password::-webkit-textfield-decoration-container {
+  display: block !important;
+  visibility: visible !important;
+}
+
+input[type="password"]::placeholder {
+  color: #666 !important;
+  -webkit-text-fill-color: #666 !important;
+  opacity: 1 !important;
+}
+
 
 /* Fix for eye icon on iOS - ensure it doesn't block password input interaction */
 #eyeicon {
@@ -1350,8 +1378,8 @@ body{
   }
 
 
-  /* Popup mobile ottimizzato */
-  .popup {
+  /* Popup mobile ottimizzato - Centro Diurno */
+  #code-popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -1367,13 +1395,13 @@ body{
     z-index: 10000;
   }
 
-  .popup.show {
+  #code-popup.show {
     opacity: 1;
     pointer-events: auto;
     transform: translate(-50%, -50%) scale(1);
   }
 
-  .popup .content {
+  #code-popup .content {
     padding: 32px 24px;
     text-align: center;
   }
@@ -1385,7 +1413,7 @@ body{
     margin-bottom: 24px;
   }
 
-  .popup input {
+  #code-popup input {
     width: 100%;
     padding: 16px;
     border-radius: 12px;
@@ -1396,7 +1424,20 @@ body{
     margin-bottom: 24px;
     outline: none;
     transition: border-color 0.2s;
+    min-height: 44px;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    touch-action: manipulation !important;
+    color: #222 !important;
+    -webkit-text-fill-color: #222 !important;
   }
+
+  #code-popup input::placeholder {
+    color: #666 !important;
+    -webkit-text-fill-color: #666 !important;
+    opacity: 1 !important;
+  }
+
 
   .footer-bar {
     position: relative;
@@ -1410,10 +1451,70 @@ body{
     z-index: 100;
   }
 
-  .popup input:focus {
+  #code-popup input:focus {
     border-color: #640a35;
     box-shadow: 0 0 0 3px rgba(100, 10, 53, 0.1);
   }
+
+  /* Popup mobile ottimizzato - Ergoterapeutica */
+  #code-popup-ergo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: 90%;
+    max-width: 400px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 10000;
+  }
+
+  #code-popup-ergo.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  #code-popup-ergo .content {
+    padding: 32px 24px;
+    text-align: center;
+  }
+
+  #code-popup-ergo input {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 24px;
+    outline: none;
+    transition: border-color 0.2s;
+    min-height: 44px;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    touch-action: manipulation !important;
+    color: #222 !important;
+    -webkit-text-fill-color: #222 !important;
+  }
+
+  #code-popup-ergo input::placeholder {
+    color: #666 !important;
+    -webkit-text-fill-color: #666 !important;
+    opacity: 1 !important;
+  }
+
+
+  #code-popup-ergo input:focus {
+    border-color: #154262;
+    box-shadow: 0 0 0 3px rgba(10, 46, 60, 0.1);
+  }
+
 
   /* Hamburger menu mobile */
   .hamburger {
@@ -2612,15 +2713,18 @@ body.popup-open{
 
   /* ---------- POPUP ---------- */
 
-  .popup{
+  #code-popup,
+  #code-popup-ergo {
     display: none;
   }
-  .popup.show{
+  #code-popup.show,
+  #code-popup-ergo.show {
     display: block;
     opacity: 1;
     pointer-events: auto;
     transform: translate(-50%, -50%) scale(1);
   }
+
 
 
     /* ---------- ORARI ---------- */
@@ -4900,7 +5004,6 @@ section h3 {
     font-weight: 400;
 }
 
-/* From Uiverse.io by vinodjangid07 */ 
 .print-btn {
   width: 100px;
   height: 45px;

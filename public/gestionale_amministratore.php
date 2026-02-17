@@ -121,6 +121,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="style_mobile_agenda.css">
+<link rel="stylesheet" href="stylr_mobile_no_zoom.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 
