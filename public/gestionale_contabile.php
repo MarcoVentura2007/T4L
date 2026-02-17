@@ -2250,9 +2250,15 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     dataSelect.appendChild(option);
                 }
 
+                // Pre-seleziona il giorno corrente se valido
+                if (selectedDayIndex >= 0 && selectedDayIndex < 5) {
+                    dataSelect.selectedIndex = selectedDayIndex + 1; // +1 per saltare il placeholder
+                }
+
                 openModal(modalCreaAgenda);
             };
         }
+
 
         if(agendaOverlay) {
             agendaOverlay.onclick = () => {
