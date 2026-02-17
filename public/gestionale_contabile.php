@@ -609,12 +609,35 @@ $resultResoconti = $conn->query($sqlResoconti);
 
            <!-- TAB AGENDA -->
             <div class="page-tab" id="tab-agenda">
-                <div class="page-header">
-                    <h1>Agenda</h1>
-                    <p>Attività della settimana (Lunedì - Venerdì)</p>
+                <div class="header-mobile">
+                    <div class="page-header">
+                        <h1>Agenda</h1>
+                        <p>Attività della settimana</p>
+                    </div>
+
+                    <button
+                        title="Add New" id="aggiungi-agenda-btn-mobile"
+                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
+                        >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50px"
+                            height="50px"
+                            viewBox="0 0 24 24"
+                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
+                        >
+                            <path
+                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                            stroke-width="1.5"
+                            ></path>
+                            <path d="M8 12H16" stroke-width="1.5"></path>
+                            <path d="M12 16V8" stroke-width="1.5"></path>
+                        </svg>
+                    </button>
                 </div>
 
                 <button class="animated-button" id="creaAgendaBtn">
+
                     <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
                         <path d="M12 5v14M5 12h14"
                             stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
@@ -702,13 +725,9 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <label>Data</label>
                             <select id="agendaData" required>
                                 <option value="">-- Seleziona data --</option>
-                                <option value="">Lunedì</option>
-                                <option value="">Martedì</option>
-                                <option value="">Mercoledì</option>
-                                <option value="">Giovedì</option>
-                                <option value="">Venerdì</option>
                             </select>
                         </div>
+
 
                         <div class="edit-field">
                             <label>Ora inizio</label>
@@ -881,9 +900,31 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             <!-- TAB ATTIVITA -->
             <div class="page-tab" id="tab-attivita">
-                <div class="page-header">
-                    <h1>Attività</h1>
-                    <p>Gestione delle attività</p>
+                <div class="header-mobile">
+                    <div class="page-header">
+                        <h1>Attività</h1>
+                        <p>Gestione delle attività</p>
+                    </div>
+
+                    <button
+                        title="Add New" id="aggiungi-attivita-btn-mobile"
+                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
+                        >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50px"
+                            height="50px"
+                            viewBox="0 0 24 24"
+                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
+                        >
+                            <path
+                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                            stroke-width="1.5"
+                            ></path>
+                            <path d="M8 12H16" stroke-width="1.5"></path>
+                            <path d="M12 16V8" stroke-width="1.5"></path>
+                        </svg>
+                    </button>
                 </div>
 
                 <button class="animated-button" id="aggiungiAttivitaBtn">
@@ -1766,6 +1807,7 @@ $resultResoconti = $conn->query($sqlResoconti);
         const utenteFoto = document.getElementById("utenteFoto");
         const preview = document.getElementById("previewFotoMini");
         const fileNameSpan = document.getElementById("nomeFileFoto");
+        const aggiungiAttivitaBtnMobile = document.getElementById("aggiungi-attivita-btn-mobile");
 
 
         // Apri modal (desktop)
@@ -1781,6 +1823,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                 openModal(modalAggiungiUtente);
             };
         }
+
+        if(aggiungiAttivitaBtnMobile) {
+            aggiungiAttivitaBtnMobile.onclick = () => {
+                openModal(modalAggiungiAttivita);
+            };
+        }
+
 
 
 
@@ -2218,46 +2267,60 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
         // ========== MODAL CREA AGENDA ==========
         const creaAgendaBtn = document.getElementById("creaAgendaBtn");
+        const aggiungiAgendaBtnMobile = document.getElementById("aggiungi-agenda-btn-mobile");
         const formCreaAgenda = document.getElementById("formCreaAgenda");
         // agendaOverlay should reuse single global overlay when available
         const agendaOverlay = document.getElementById("agendaOverlay") || Overlay;
         const successPopupAgenda = document.getElementById("successPopupAgenda");
 
+        // Funzione per popolare la select delle date
+        function popolaSelectDate() {
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+
+            const dataSelect = document.getElementById("agendaData");
+            const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+            
+            // Pulisci le opzioni mantenendo la prima (placeholder)
+            while (dataSelect.options.length > 1) {
+                dataSelect.remove(1);
+            }
+
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                const dateStr = getLocalDateString(date);
+                const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                const option = document.createElement("option");
+                option.value = dateStr;
+                option.text = `${giorni[i]} ${dateFormatted}`;
+                dataSelect.appendChild(option);
+            }
+
+            // Pre-seleziona il giorno corrente se valido
+            if (selectedDayIndex >= 0 && selectedDayIndex < 5) {
+                dataSelect.selectedIndex = selectedDayIndex + 1; // +1 per saltare il placeholder
+            }
+        }
+
         if(creaAgendaBtn) {
             creaAgendaBtn.onclick = () => {
-                // Popola la select con le date della settimana
-                const today = new Date();
-                const monday = new Date(today);
-                monday.setDate(today.getDate() - today.getDay() + 1);
-
-                const dataSelect = document.getElementById("agendaData");
-                const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
-                
-                // Pulisci le opzioni mantendo la prima (placeholder)
-                while (dataSelect.options.length > 1) {
-                    dataSelect.remove(1);
-                }
-
-                for (let i = 0; i < 5; i++) {
-                    const date = new Date(monday);
-                    date.setDate(monday.getDate() + i);
-                    const dateStr = date.toISOString().split('T')[0];
-                    const dateFormatted = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-                    const option = document.createElement("option");
-                    option.value = dateStr;
-                    option.text = `${giorni[i]} ${dateFormatted}`;
-                    dataSelect.appendChild(option);
-                }
-
-                // Pre-seleziona il giorno corrente se valido
-                if (selectedDayIndex >= 0 && selectedDayIndex < 5) {
-                    dataSelect.selectedIndex = selectedDayIndex + 1; // +1 per saltare il placeholder
-                }
-
+                popolaSelectDate();
                 openModal(modalCreaAgenda);
             };
         }
+
+        if(aggiungiAgendaBtnMobile) {
+            aggiungiAgendaBtnMobile.onclick = () => {
+                popolaSelectDate();
+                openModal(modalCreaAgenda);
+            };
+        }
+
+
+
 
 
         if(agendaOverlay) {
