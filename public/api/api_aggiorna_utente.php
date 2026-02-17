@@ -1,41 +1,20 @@
 <?php
 session_start();
 header('Content-Type: application/json; charset=utf-8');
-header("Cache-Control: no chache");
+header("Cache-Control: no-cache");
+
 // --- BLOCCO ACCESSO DIRETTO ---
-// Permetti solo richieste POST AJAX
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || 
-    empty($_SERVER['HTTP_X_REQUESTED_WITH']) || 
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+// Permetti solo richieste POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }
 
 if(!isset($_SESSION['username'])){
-    echo json_encode(['success'=>false]);
+    echo json_encode(['success'=>false, 'message' => 'Sessione non valida']);
     exit;
 }
 // --- FINE BLOCCO ---
-
-// Legge il JSON inviato dal fetch
-$data = json_decode(file_get_contents('php://input'), true);
-
-// Controllo che ci sia l'id
-if(empty($data['id'])){
-    echo json_encode(['success' => false, 'message' => 'ID mancante']);
-    exit;
-}
-
-$id = intval($data['id']); // ID dell'iscritto
-$nome = $data['nome'] ?? '';
-$cognome = $data['cognome'] ?? '';
-$data_nascita = $data['data_nascita'] ?? '';
-$codice_fiscale = $data['codice_fiscale'] ?? '';
-$contatti = $data['contatti'] ?? '';
-$disabilita = $data['disabilita'] ?? '';
-$intolleranze = $data['intolleranze'] ?? '';
-$prezzo_orario = $data['prezzo_orario'] ?? '';
-$note = $data['note'] ?? '';
 
 // Connessione al DB
 $host = "localhost";    
@@ -48,18 +27,105 @@ if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]));
 }
 
-// Costruzione 
-$sql = "UPDATE iscritto SET 
-        nome='$nome',
-        cognome='$cognome',
-        data_nascita='$data_nascita',
-        codice_fiscale='$codice_fiscale',
-        contatti='$contatti',
-        disabilita='$disabilita',
-        allergie_intolleranze='$intolleranze',
-        prezzo_orario='$prezzo_orario',
-        note='$note'
-        WHERE id=$id";
+// Determina se è una richiesta con file o JSON
+$contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
+
+if (strpos($contentType, 'multipart/form-data') !== false) {
+    // Richiesta con file upload
+    $id = intval($_POST['id'] ?? 0);
+    $nome = $_POST['nome'] ?? '';
+    $cognome = $_POST['cognome'] ?? '';
+    $data_nascita = $_POST['data_nascita'] ?? '';
+    $codice_fiscale = $_POST['codice_fiscale'] ?? '';
+    $contatti = $_POST['contatti'] ?? '';
+    $disabilita = $_POST['disabilita'] ?? '';
+    $intolleranze = $_POST['intolleranze'] ?? '';
+    $prezzo_orario = $_POST['prezzo_orario'] ?? '';
+    $note = $_POST['note'] ?? '';
+    
+    // Gestione upload file
+    $fotografia = null;
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = '../immagini/';
+        
+        // Crea la directory se non esiste
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        // Genera nome file univoco
+        $fileName = time() . '_' . basename($_FILES['foto']['name']);
+        $targetPath = $uploadDir . $fileName;
+        
+        // Verifica che sia un'immagine
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $fileType = mime_content_type($_FILES['foto']['tmp_name']);
+        
+        if (!in_array($fileType, $allowedTypes)) {
+            echo json_encode(['success' => false, 'message' => 'Tipo di file non valido. Solo immagini sono permesse.']);
+            exit;
+        }
+        
+        // Sposta il file
+        if (move_uploaded_file($_FILES['foto']['tmp_name'], $targetPath)) {
+            $fotografia = 'immagini/' . $fileName;
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Errore nel caricamento del file']);
+            exit;
+        }
+    }
+} else {
+    // Richiesta JSON (senza file)
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $id = intval($data['id'] ?? 0);
+    $nome = $data['nome'] ?? '';
+    $cognome = $data['cognome'] ?? '';
+    $data_nascita = $data['data_nascita'] ?? '';
+    $codice_fiscale = $data['codice_fiscale'] ?? '';
+    $contatti = $data['contatti'] ?? '';
+    $disabilita = $data['disabilita'] ?? '';
+    $intolleranze = $data['intolleranze'] ?? '';
+    $prezzo_orario = $data['prezzo_orario'] ?? '';
+    $note = $data['note'] ?? '';
+    $fotografia = null;
+}
+
+// Controllo che ci sia l'id
+if(empty($id)){
+    echo json_encode(['success' => false, 'message' => 'ID mancante']);
+    exit;
+}
+
+// Costruzione query SQL
+if ($fotografia !== null) {
+    // Aggiorna anche la fotografia
+    $sql = "UPDATE iscritto SET 
+            nome='$nome',
+            cognome='$cognome',
+            data_nascita='$data_nascita',
+            codice_fiscale='$codice_fiscale',
+            contatti='$contatti',
+            disabilita='$disabilita',
+            allergie_intolleranze='$intolleranze',
+            prezzo_orario='$prezzo_orario',
+            note='$note',
+            fotografia='$fotografia'
+            WHERE id=$id";
+} else {
+    // Non aggiornare la fotografia
+    $sql = "UPDATE iscritto SET 
+            nome='$nome',
+            cognome='$cognome',
+            data_nascita='$data_nascita',
+            codice_fiscale='$codice_fiscale',
+            contatti='$contatti',
+            disabilita='$disabilita',
+            allergie_intolleranze='$intolleranze',
+            prezzo_orario='$prezzo_orario',
+            note='$note'
+            WHERE id=$id";
+}
 
 if($conn->query($sql) === TRUE){
     echo json_encode(['success' => true, 'message' => 'Utente aggiornato']);

@@ -54,6 +54,9 @@ $res = $stmt->get_result();
 
 $days = [];
 while($p = $res->fetch_assoc()){
+    // Skip if Uscita is NULL or empty - presence not yet completed
+    if(empty($p['Uscita'])) continue;
+    
     $giorno = date('Y-m-d', strtotime($p['Ingresso']));
     
     if(!isset($days[$giorno])){
@@ -70,6 +73,7 @@ while($p = $res->fetch_assoc()){
     
     $days[$giorno]['ore'] += $ore;
 }
+
 
 // Round values and calculate costs
 foreach($days as $giorno => &$data){

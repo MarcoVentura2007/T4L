@@ -1408,6 +1408,40 @@ $resultResoconti = $conn->query($sqlResoconti);
         modalOverlay.onclick = closeModal;
     }
 
+        // File input handlers for edit modal
+        const editFoto = document.getElementById("editFoto");
+        const editPreview = document.getElementById("editPreviewFotoMini");
+        const editFileNameSpan = document.getElementById("editNomeFileFoto");
+        const editClearBtn = document.getElementById("editClearFileBtn");
+
+        if(editFoto) {
+            editFoto.addEventListener("change", function(){
+                if(!this.files.length){
+                    editPreview.style.display = "none";
+                    editFileNameSpan.innerText = "Nessun file";
+                    editClearBtn.style.display = "none"; 
+                    return;
+                }
+
+                const file = this.files[0];
+
+                editPreview.src = URL.createObjectURL(file);
+                editPreview.style.display = "block";
+
+                editFileNameSpan.innerText = file.name;
+
+                editClearBtn.style.display = "block"; 
+            });
+
+            // rimuove file selezionato
+            editClearBtn.addEventListener("click", function(){
+                editFoto.value = ""; // reset input
+                editPreview.style.display = "none";
+                editFileNameSpan.innerText = "Nessun file";
+                editClearBtn.style.display = "none"; 
+            });
+        }
+
         document.querySelectorAll(".edit-btn").forEach(btn=>{
             btn.onclick = e=>{
                 const row = e.target.closest("tr");
@@ -1435,9 +1469,16 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("editPrezzo").value = row.dataset.prezzo;
                 document.getElementById("editNote").value = row.dataset.note;
 
+                // Reset file input
+                if(editFoto) editFoto.value = "";
+                if(editPreview) editPreview.style.display = "none";
+                if(editFileNameSpan) editFileNameSpan.innerText = "Nessun file";
+                if(editClearBtn) editClearBtn.style.display = "none";
+
                 openModal(editModal);
             }
         });
+
         succesPopupDelete = document.getElementById("successPopupDelete");
 
         document.querySelectorAll(".delete-btn").forEach(btn=>{
@@ -1484,45 +1525,84 @@ $resultResoconti = $conn->query($sqlResoconti);
         
         document.getElementById("saveEdit").onclick = () => {
             const id = editModal.dataset.userId; // <-- ID dell'iscritto
+            const fotoInput = document.getElementById("editFoto");
 
-            const payload = {
-                id: id,
-                nome: document.getElementById("editNome").value,
-                cognome: document.getElementById("editCognome").value,
-                data_nascita: document.getElementById("editData").value,
-                codice_fiscale: document.getElementById("editCF").value,
-                contatti: document.getElementById("editContatti").value,
-                disabilita: document.getElementById("editDisabilita").value,
-                intolleranze: document.getElementById("editIntolleranze").value,
-                prezzo_orario: document.getElementById("editPrezzo").value,
-                note: document.getElementById("editNote").value
-            };
+            // Se c'è un file selezionato, usa FormData
+            if(fotoInput && fotoInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append("id", id);
+                formData.append("nome", document.getElementById("editNome").value);
+                formData.append("cognome", document.getElementById("editCognome").value);
+                formData.append("data_nascita", document.getElementById("editData").value);
+                formData.append("codice_fiscale", document.getElementById("editCF").value);
+                formData.append("contatti", document.getElementById("editContatti").value);
+                formData.append("disabilita", document.getElementById("editDisabilita").value);
+                formData.append("intolleranze", document.getElementById("editIntolleranze").value);
+                formData.append("prezzo_orario", document.getElementById("editPrezzo").value);
+                formData.append("note", document.getElementById("editNote").value);
+                formData.append("foto", fotoInput.files[0]);
 
-            fetch('api/api_aggiorna_utente.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){
-                    modalBoxEdit.classList.remove("show");
-                    successText.innerText = "Utente modificato!!";
-                    showSuccess(successPopup);
-                    
+                fetch('api/api_aggiorna_utente.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        modalBoxEdit.classList.remove("show");
+                        successText.innerText = "Utente modificato!!";
+                        showSuccess(successPopup);
 
-                    setTimeout(()=>{
-                        hideSuccess(successPopup);
-                        location.reload();
-                    },1800); 
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            });
+                        setTimeout(()=>{
+                            hideSuccess(successPopup);
+                            location.reload();
+                        },1800); 
+                    } else {
+                        alert("Errore: " + data.message);
+                    }
+                });
+            } else {
+                // Nessun file, usa JSON come prima
+                const payload = {
+                    id: id,
+                    nome: document.getElementById("editNome").value,
+                    cognome: document.getElementById("editCognome").value,
+                    data_nascita: document.getElementById("editData").value,
+                    codice_fiscale: document.getElementById("editCF").value,
+                    contatti: document.getElementById("editContatti").value,
+                    disabilita: document.getElementById("editDisabilita").value,
+                    intolleranze: document.getElementById("editIntolleranze").value,
+                    prezzo_orario: document.getElementById("editPrezzo").value,
+                    note: document.getElementById("editNote").value
+                };
+
+                fetch('api/api_aggiorna_utente.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        modalBoxEdit.classList.remove("show");
+                        successText.innerText = "Utente modificato!!";
+                        showSuccess(successPopup);
+                        
+
+                        setTimeout(()=>{
+                            hideSuccess(successPopup);
+                            location.reload();
+                        },1800); 
+                    } else {
+                        alert("Errore: " + data.message);
+                    }
+                });
+            }
         };
+
 
 
 

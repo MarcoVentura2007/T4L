@@ -3370,13 +3370,7 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     display: flex !important;
     overflow-x: auto !important;
 
-
-
-
-
-
-
-    padding: 5px 0 20px !important;
+    padding: 5px 0 25px !important;
     height: 95px;
 
     overflow-x: auto;
@@ -3394,7 +3388,6 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     align-items: center;
     justify-content: center;
 
-    gap: 6px;
 
     cursor: pointer;
     transition: all 0.2s ease;
@@ -3424,16 +3417,16 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     }
 
     .mobile-nav-icon {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
     .mobile-nav-icon img {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
         filter: grayscale(100%);
         opacity: 0.6;
         transition: all 0.2s ease;
@@ -3446,7 +3439,7 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     }
 
     .mobile-nav-label {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 600;
         text-align: center;
     }

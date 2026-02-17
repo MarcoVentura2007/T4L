@@ -34,12 +34,26 @@ $resPrezzo = $conn->query($sqlPrezzo);
 $prezzo = $resPrezzo->fetch_assoc()['Prezzo_Orario'];
 
 while($p = $res->fetch_assoc()){
-    $giorno = date('Y-m-d', strtotime($p['Ingresso']));
+    // Handle both uppercase and lowercase column names
+    $ingresso = isset($p['Ingresso']) ? $p['Ingresso'] : (isset($p['ingresso']) ? $p['ingresso'] : null);
+    $uscita = isset($p['Uscita']) ? $p['Uscita'] : (isset($p['uscita']) ? $p['uscita'] : null);
+    
+    // Skip if uscita is NULL or empty - presence not yet completed
+
+    if(empty($uscita)) continue;
+    
+    $giorno = date('Y-m-d', strtotime($ingresso));
+    
     if(!isset($presenze[$giorno])){
         $presenze[$giorno] = [];
     }
-    $presenze[$giorno][] = ['ingresso' => strtotime($p['Ingresso']), 'uscita' => strtotime($p['Uscita'])];
+    $presenze[$giorno][] = ['ingresso' => strtotime($ingresso), 'uscita' => strtotime($uscita)];
 }
+
+
+
+
+
 
 foreach($presenze as $giorno => $pres_list){
     $days[$giorno] = ['ore' => 0, 'costo' => 0, 'attivita' => []];
@@ -47,6 +61,8 @@ foreach($presenze as $giorno => $pres_list){
     foreach($pres_list as $pres){
         $ore_tot += ($pres['uscita'] - $pres['ingresso']) / 3600;
     }
+
+
     $days[$giorno]['ore'] = round($ore_tot, 2);
     $days[$giorno]['costo'] = round($ore_tot * $prezzo, 2);
 
