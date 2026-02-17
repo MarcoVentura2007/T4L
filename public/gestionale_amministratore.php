@@ -628,9 +628,31 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             <!-- TAB AGENDA -->
             <div class="page-tab" id="tab-agenda">
-                <div class="page-header">
-                    <h1>Agenda</h1>
-                    <p>Attività della settimana (Lunedì - Venerdì)</p>
+                <div class="header-mobile">
+                    <div class="page-header">
+                        <h1>Agenda</h1>
+                        <p>Attività della settimana</p>
+                    </div>
+
+                    <button
+                        title="Add New" id="aggiungi-agenda-btn-mobile"
+                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
+                        >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50px"
+                            height="50px"
+                            viewBox="0 0 24 24"
+                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
+                        >
+                            <path
+                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                            stroke-width="1.5"
+                            ></path>
+                            <path d="M8 12H16" stroke-width="1.5"></path>
+                            <path d="M12 16V8" stroke-width="1.5"></path>
+                        </svg>
+                    </button>
                 </div>
 
                 <button class="animated-button" id="creaAgendaBtn">
@@ -738,7 +760,26 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                         <div class="edit-field">
                             <label>Ora fine</label>
+                            <input type="time"  id="agendaOraFine" required>
+                        </div>
+
+                        <div class="edit-field">
+                            <label>Attività</label>
+                            <select id="agendaAttivita" required>
+                                <option value="">-- Seleziona attività --</option>
+                                <?php
+                                if($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0){
+                                    while($row = $resultAttivitaCombo->fetch_assoc()){
+                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['Nome']).'</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="edit-field">
                             <label>Educatori</label>
+
                             <div class="checkbox-group" id="educatoriCheckboxes">
                                 <?php
                                 if($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0){
@@ -807,9 +848,31 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             <!-- TAB ATTIVITA -->
             <div class="page-tab" id="tab-attivita">
-                <div class="page-header">
-                    <h1>Attività</h1>
-                    <p>Gestione delle attività</p>
+                <div class="header-mobile">
+                    <div class="page-header">
+                        <h1>Attività</h1>
+                        <p>Gestione delle attività</p>
+                    </div>
+
+                    <button
+                        title="Add New" id="aggiungi-attivita-btn-mobile"
+                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
+                        >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50px"
+                            height="50px"
+                            viewBox="0 0 24 24"
+                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
+                        >
+                            <path
+                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                            stroke-width="1.5"
+                            ></path>
+                            <path d="M8 12H16" stroke-width="1.5"></path>
+                            <path d="M12 16V8" stroke-width="1.5"></path>
+                        </svg>
+                    </button>
                 </div>
 
                 <button class="animated-button" id="aggiungiAttivitaBtn">
@@ -2204,6 +2267,8 @@ $resultResoconti = $conn->query($sqlResoconti);
         const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
         const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
+        const aggiungiAgendaBtnMobile = document.getElementById("aggiungi-agenda-btn-mobile");
+        const aggiungiAttivitaBtnMobile = document.getElementById("aggiungi-attivita-btn-mobile");
 
         // Apri modal (desktop)
         if(aggiungiUtenteBtn) {
@@ -2219,6 +2284,17 @@ $resultResoconti = $conn->query($sqlResoconti);
             };
         }
 
+        if(aggiungiAgendaBtnMobile) {
+            aggiungiAgendaBtnMobile.onclick = () => {
+                openModal(modalCreaAgenda);
+            };
+        }
+
+        if(aggiungiAttivitaBtnMobile) {
+            aggiungiAttivitaBtnMobile.onclick = () => {
+                openModal(modalAggiungiAttivita);
+            };
+        }
 
 
         // Submit form

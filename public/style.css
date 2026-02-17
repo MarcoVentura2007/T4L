@@ -3533,7 +3533,9 @@ aside:has(:checked) :where(figcaption, .item--heading) {
 }
 
 
-
+.group{
+    display: flex;
+}
 
 
     .mobile-nav-item.active {
@@ -4402,6 +4404,7 @@ td img:hover{
         width: 100%;
         justify-content: flex-start;
     }
+    
 }
 
 /* CHECKBOX GROUP STYLES */
@@ -5102,6 +5105,7 @@ section h3 {
     }
 }
 
-#aggiungi-utente-btn-mobile{
-    display: none;
+.group {
+    display: none !important;
 }
+
