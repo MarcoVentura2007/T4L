@@ -1,4 +1,4 @@
- <?php
+<?php
 session_start();
 
 // Se l'utente non è loggato → redirect a login.php
@@ -562,8 +562,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 </div>
 
 
-
-
                  
             </div>
 
@@ -739,24 +737,6 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                         <div class="edit-field">
                             <label>Ora fine</label>
-                            <input type="time" id="agendaOraFine" required>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Attività</label>
-                            <select id="agendaAttivita" required>
-                                <option value="">-- Seleziona attività --</option>
-                                <?php
-                                if($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0){
-                                    while($row = $resultAttivitaCombo->fetch_assoc()){
-                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['Nome']).'</option>';
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </div>
-
-                        <div class="edit-field">
                             <label>Educatori</label>
                             <div class="checkbox-group" id="educatoriCheckboxes">
                                 <?php

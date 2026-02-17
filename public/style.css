@@ -3133,7 +3133,6 @@ aside:has(:checked) :where(figcaption, .item--heading) {
 
     /* MOBILE TABLE - Show only Photo and Actions */
     .users-table thead th:nth-child(2),
-    .users-table thead th:nth-child(3),
     .users-table thead th:nth-child(4),
     .users-table thead th:nth-child(5),
     .users-table thead th:nth-child(6) {
@@ -3141,12 +3140,36 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     }
 
     .users-table tbody td:nth-child(2),
-    .users-table tbody td:nth-child(3),
     .users-table tbody td:nth-child(4),
     .users-table tbody td:nth-child(5),
     .users-table tbody td:nth-child(6) {
         display: none !important;
     }
+
+    
+        /* Tabella Educatori - Mobile: mostra solo Nome e Cognome */
+        #tab-educatori .users-table thead th:nth-child(3),
+        #tab-educatori .users-table thead th:nth-child(4),
+        #tab-educatori .users-table thead th:nth-child(5),
+        #tab-educatori .users-table thead th:nth-child(6),
+        #tab-educatori .users-table tbody td:nth-child(3),
+        #tab-educatori .users-table tbody td:nth-child(4),
+        #tab-educatori .users-table tbody td:nth-child(5),
+        #tab-educatori .users-table tbody td:nth-child(6) {
+            display: none !important;
+        }
+
+        #tab-educatori .users-table tbody td:nth-child(2){
+            display: flex !important;
+        }
+        
+        /* Tabella Account - Mobile: mostra solo Username e Classe */
+        #tab-account .users-table thead th:nth-child(2),
+        #tab-account .users-table thead th:nth-child(3),
+        #tab-account .users-table tbody td:nth-child(2),
+        #tab-account .users-table tbody td:nth-child(3) {
+            display: none !important;
+        }
 
     .users-table tbody tr {
         display: flex;
@@ -3169,6 +3192,7 @@ aside:has(:checked) :where(figcaption, .item--heading) {
         padding-left: 0;
     }
 
+
     .users-table tbody td:last-child {
         flex: 0 0 auto;
         display: flex;
@@ -3186,16 +3210,16 @@ aside:has(:checked) :where(figcaption, .item--heading) {
 
 
     .user-avatar {
-        width: 80px !important;
-        height: 80px !important;
-        margin-left: 10px;
+        width: 65px !important;
+        height: 65px !important;
+        margin-left: 5px;
         border-radius: 16px;
         object-fit: cover;
     }
 
     .view-btn, .edit-btn, .delete-btn, .edit-presenza-btn, .delete-presenza-btn, .calendario-btn {
-        width: 34px !important;
-        height: 34px !important;
+        width: 32px !important;
+        height: 32px !important;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -3204,7 +3228,7 @@ aside:has(:checked) :where(figcaption, .item--heading) {
         border: none;
         cursor: pointer;
         transition: all 0.2s ease;
-        margin: 0 6px;
+        margin: 0 2px;
     }
 
 
