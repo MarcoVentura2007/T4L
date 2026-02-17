@@ -74,6 +74,6 @@ if ($result->num_rows > 0) {
     }
 } 
 else {
-    echo json_encode(['success'=>false, 'message'=>'Diossanto']);
+    echo json_encode(['success'=>false, 'message'=>'Username o password errati']);
 }
 exit;
