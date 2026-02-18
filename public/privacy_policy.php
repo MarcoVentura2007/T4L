@@ -22,6 +22,7 @@ $username = $_SESSION['username'];
         body {
             background: white;
             min-height: 100vh;
+            font-size: 1rem;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
             display: flex;
@@ -180,6 +181,10 @@ $username = $_SESSION['username'];
             p { 
                 font-size: 0.9rem !important;
             }
+            .cta span{
+                font-size: 12px;
+            }
+            
         }
     </style>
 </head>
@@ -233,7 +238,7 @@ $username = $_SESSION['username'];
         xmlns="http://www.w3.org/2000/svg"
         width="30"
         height="10"
-        viewBox="0 0 46 16"
+        viewBox="0 0 36 16"
     >
         <path
         id="Path_10"
