@@ -41,8 +41,9 @@ if(
 }
 
 // Preleva i profili dal DB
-$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
+$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, email, telefono, allergie_intolleranze, note 
         FROM iscritto ORDER BY cognome ASC";
+
 $result = $conn->query($sql);
 
 // Presenze giornaliere di default
@@ -281,8 +282,10 @@ if($classe !== 'Educatore'){
                                         data-nascita="'.htmlspecialchars($row['data_nascita']).'" 
                                         data-note="'.htmlspecialchars($row['note']).'" 
                                         data-cf="'.htmlspecialchars($row['codice_fiscale']).'" 
-                                        data-contatti="'.htmlspecialchars($row['contatti']).'" 
+                                        data-email="'.htmlspecialchars($row['email']).'" 
+                                        data-telefono="'.htmlspecialchars($row['telefono']).'" 
                                         data-disabilita="'.htmlspecialchars($row['disabilita']).'" 
+
                                         data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'" 
                                         data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
                                     >
@@ -633,8 +636,10 @@ document.querySelectorAll(".view-btn").forEach(btn=>{
         const data = row.dataset.nascita;
         const note = row.dataset.note;
         const cf = row.dataset.cf;
-        const contatti = row.dataset.contatti;
+        const email = row.dataset.email;
+        const telefono = row.dataset.telefono;
         const disabilita = row.dataset.disabilita;
+
         const intolleranze = row.dataset.intolleranze;
         const prezzo = row.dataset.prezzo;
 
@@ -647,8 +652,10 @@ document.querySelectorAll(".view-btn").forEach(btn=>{
             <div class="profile-field"><label>Cognome</label><span>${cognome}</span></div>
             <div class="profile-field"><label>Data di nascita</label><span>${data}</span></div>
             <div class="profile-field"><label>Codice Fiscale</label><span>${cf || "—"}</span></div>
-            <div class="profile-field"><label>Contatti</label><span>${contatti || "—"}</span></div>
+            <div class="profile-field"><label>Email</label><span>${email || "—"}</span></div>
+            <div class="profile-field"><label>Telefono</label><span>${telefono || "—"}</span></div>
             <div class="profile-field"><label>Disabilità</label><span>${disabilita || "—"}</span></div>
+
             <div class="profile-field"><label style="font-weight: bold;">Intolleranze ⚠️</label><span style="font-weight: bold;">${intolleranze || "—"}</span></div>
             <div class="profile-field"><label>Prezzo orario</label><span>${prezzo || "—"} €</span></div>
             <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>

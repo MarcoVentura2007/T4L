@@ -37,9 +37,11 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
     $cognome = $_POST['cognome'] ?? '';
     $data_nascita = $_POST['data_nascita'] ?? '';
     $codice_fiscale = $_POST['codice_fiscale'] ?? '';
-    $contatti = $_POST['contatti'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $telefono = $_POST['telefono'] ?? '';
     $disabilita = $_POST['disabilita'] ?? '';
     $intolleranze = $_POST['intolleranze'] ?? '';
+
     $prezzo_orario = $_POST['prezzo_orario'] ?? '';
     $note = $_POST['note'] ?? '';
     
@@ -83,9 +85,11 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
     $cognome = $data['cognome'] ?? '';
     $data_nascita = $data['data_nascita'] ?? '';
     $codice_fiscale = $data['codice_fiscale'] ?? '';
-    $contatti = $data['contatti'] ?? '';
+    $email = $data['email'] ?? '';
+    $telefono = $data['telefono'] ?? '';
     $disabilita = $data['disabilita'] ?? '';
     $intolleranze = $data['intolleranze'] ?? '';
+
     $prezzo_orario = $data['prezzo_orario'] ?? '';
     $note = $data['note'] ?? '';
     $fotografia = null;
@@ -105,7 +109,8 @@ if ($fotografia !== null) {
             cognome='$cognome',
             data_nascita='$data_nascita',
             codice_fiscale='$codice_fiscale',
-            contatti='$contatti',
+            email='$email',
+            telefono='$telefono',
             disabilita='$disabilita',
             allergie_intolleranze='$intolleranze',
             prezzo_orario='$prezzo_orario',
@@ -119,13 +124,15 @@ if ($fotografia !== null) {
             cognome='$cognome',
             data_nascita='$data_nascita',
             codice_fiscale='$codice_fiscale',
-            contatti='$contatti',
+            email='$email',
+            telefono='$telefono',
             disabilita='$disabilita',
             allergie_intolleranze='$intolleranze',
             prezzo_orario='$prezzo_orario',
             note='$note'
             WHERE id=$id";
 }
+
 
 if($conn->query($sql) === TRUE){
     echo json_encode(['success' => true, 'message' => 'Utente aggiornato']);

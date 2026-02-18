@@ -36,35 +36,41 @@ $fields = [
     'cognome' => $input['cognome'] ?? '',
     'data_nascita' => $input['data_nascita'] ?? '',
     'codice_fiscale' => $input['codice_fiscale'] ?? '',
-    'contatti' => $input['contatti'] ?? '',
+    'email' => $input['email'] ?? '',
+    'telefono' => $input['telefono'] ?? '',
     'disabilita' => $input['disabilita'] ?? '',
     'note' => $input['note'] ?? '',
     'prezzo_orario' => floatval($input['prezzo_orario'] ?? 0)
 ];
+
 
 $sql = "UPDATE iscritto SET 
     Nome = ?, 
     Cognome = ?, 
     Data_nascita = ?, 
     Codice_fiscale = ?, 
-    Contatti = ?, 
+    Email = ?, 
+    Telefono = ?, 
     Disabilita = ?, 
     Note = ?, 
     Stipendio_Orario = ? 
 WHERE id = ?";
+
 
 $params = [
     $fields['nome'],
     $fields['cognome'],
     $fields['data_nascita'],
     $fields['codice_fiscale'],
-    $fields['contatti'],
+    $fields['email'],
+    $fields['telefono'],
     $fields['disabilita'],
     $fields['note'],
     $fields['prezzo_orario'],
     $id
 ];
-$types = "sssssssdi";
+$types = "ssssssssdi";
+
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param($types, ...$params);

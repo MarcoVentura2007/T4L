@@ -25,7 +25,8 @@ if($conn->connect_error){
     exit; 
 }
 
-$required = ['nome','cognome','data_nascita','codice_fiscale','contatti'];
+$required = ['nome','cognome','data_nascita','codice_fiscale','email','telefono'];
+
 foreach($required as $f) {
     if(empty($_POST[$f])){ 
         echo json_encode(['success'=>false,'message'=>"Campo $f mancante"]); 
@@ -37,8 +38,10 @@ $nome = $_POST['nome'];
 $cognome = $_POST['cognome']; 
 $data = $_POST['data_nascita']; 
 $cf = $_POST['codice_fiscale'];
-$contatti = $_POST['contatti']; 
-$dis = isset($_POST['disabilita']) ? $_POST['disabilita'] : ''; 
+$email = $_POST['email'];
+$telefono = $_POST['telefono'];
+$dis = isset($_POST['disabilita']) ? $_POST['disabilita'] : '';
+
 $prezzo = isset($_POST['prezzo_orario']) ? floatval($_POST['prezzo_orario']) : 0; 
 $note = isset($_POST['note']) ? $_POST['note'] : '';
 
@@ -66,11 +69,13 @@ if(isset($_FILES['foto']) && $_FILES['foto']['error']==0){
 
 
 try {
-    $stmt = $conn->prepare("INSERT INTO iscritto (Nome,Cognome,Data_nascita,Codice_fiscale,Contatti,Disabilita,Note,Stipendio_Orario,Fotografia) VALUES (?,?,?,?,?,?,?,?,?)");
+    $stmt = $conn->prepare("INSERT INTO iscritto (Nome,Cognome,Data_nascita,Codice_fiscale,Email,Telefono,Disabilita,Note,Stipendio_Orario,Fotografia) VALUES (?,?,?,?,?,?,?,?,?,?)");
+
     if(!$stmt){
         throw new Exception("Prepare failed: " . $conn->error);
     }
-    $stmt->bind_param("sssssssds",$nome,$cognome,$data,$cf,$contatti,$dis,$note,$prezzo,$fotografia);
+    $stmt->bind_param("ssssssssds",$nome,$cognome,$data,$cf,$email,$telefono,$dis,$note,$prezzo,$fotografia);
+
     if(!$stmt->execute()) {
         throw new Exception("Execute failed: " . $stmt->error);
     }

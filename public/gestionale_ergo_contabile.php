@@ -71,8 +71,10 @@ SELECT
     Disabilita,
     Stipendio_Orario,
     Codice_fiscale,
-    Contatti,
+    Email,
+    Telefono,
     Note
+
 FROM iscritto
 ORDER BY Cognome ASC
 ";
@@ -430,9 +432,14 @@ $stmtResoconti->close();
                             </div>
                         </div>
                         <div class="edit-field">
-                            <label>Contatti</label>
-                            <input type="text" id="utenteContatti" placeholder="Email o telefono" required>
+                            <label>Email</label>
+                            <input type="email" id="utenteEmail" placeholder="Email">
                         </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="tel" id="utenteTelefono" placeholder="Telefono">
+                        </div>
+
                         <div class="edit-field">
                             <label>Disabilità</label>
                             <input type="text" id="utenteDisabilita" placeholder="Disabilità">
@@ -470,8 +477,10 @@ $stmtResoconti->close();
                                 <th>Nome</th>
                                 <th>Cognome</th>
                                 <th>Data di nascita</th>
-                                <th>Contatti</th>
+                                <th>Email</th>
+                                <th>Telefono</th>
                                 <th>Disabilità</th>
+
                                 <th>Azioni</th>
                             </tr>
                         </thead>
@@ -485,8 +494,10 @@ $stmtResoconti->close();
                                     .'data-cognome="'.htmlspecialchars($row['Cognome']).'" '
                                     .'data-nascita="'.htmlspecialchars($row['Data_nascita']).'" '
                                     .'data-cf="'.htmlspecialchars($row['Codice_fiscale']).'" '
-                                    .'data-contatti="'.htmlspecialchars($row['Contatti']).'" '
+                                    .'data-email="'.htmlspecialchars($row['Email']).'" '
+                                    .'data-telefono="'.htmlspecialchars($row['Telefono']).'" '
                                     .'data-disabilita="'.htmlspecialchars($row['Disabilita']).'" '
+
                                     .'data-intolleranze="'.htmlspecialchars($row['Allergie_intolleranze'] ?? '').'" '
                                     .'data-prezzo="'.htmlspecialchars($row['Stipendio_Orario']).'" '
                                     .'data-note="'.htmlspecialchars($row['Note']).'"
@@ -495,8 +506,10 @@ $stmtResoconti->close();
                                     <td>'.htmlspecialchars($row['Nome']).'</td>
                                     <td>'.htmlspecialchars($row['Cognome']).'</td>
                                     <td>'.htmlspecialchars($row['Data_nascita']).'</td>
-                                    <td>'.htmlspecialchars($row['Contatti']).'</td>
+                                    <td>'.htmlspecialchars($row['Email']).'</td>
+                                    <td>'.htmlspecialchars($row['Telefono']).'</td>
                                     <td>'.htmlspecialchars($row['Disabilita']).'</td>
+
                                     <td>'
                                         .'<button class="view-btn"><img src="immagini/open-eye.png" alt="Visualizza"></button>'
                                         .'<button class="edit-utente-btn"><img src="immagini/edit.png" alt="Modifica"></button>'
@@ -550,9 +563,14 @@ $stmtResoconti->close();
                             <input type="text" id="editUtenteCF" required>
                         </div>
                         <div class="edit-field">
-                            <label>Contatti</label>
-                            <input type="text" id="editUtenteContatti">
+                            <label>Email</label>
+                            <input type="email" id="editUtenteEmail">
                         </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="tel" id="editUtenteTelefono">
+                        </div>
+
                         <div class="edit-field">
                             <label>Disabilità</label>
                             <input type="text" id="editUtenteDisabilita">
@@ -820,10 +838,15 @@ $stmtResoconti->close();
                                 <label>Codice Fiscale</label>
                                 <input type="text" id="editCF" placeholder="Codice Fiscale">
                             </div>
-                            <div class="edit-field" id="fieldContatti">
-                                <label>Contatti</label>
-                                <input type="text" id="editContatti" placeholder="Contatti">
+                            <div class="edit-field" id="fieldEmail">
+                                <label>Email</label>
+                                <input type="email" id="editEmail" placeholder="Email">
                             </div>
+                            <div class="edit-field" id="fieldTelefono">
+                                <label>Telefono</label>
+                                <input type="tel" id="editTelefono" placeholder="Telefono">
+                            </div>
+
                             <div class="edit-field" id="fieldDisabilita">
                                 <label>Disabilità</label>
                                 <input type="text" id="editDisabilita" placeholder="Disabilità">
@@ -1109,8 +1132,10 @@ $stmtResoconti->close();
             const cognome = row.dataset.cognome;
             const data = row.dataset.nascita;
             const cf = row.dataset.cf;
-            const contatti = row.dataset.contatti;
+            const email = row.dataset.email;
+            const telefono = row.dataset.telefono;
             const disabilita = row.dataset.disabilita;
+
             const intolleranze = row.dataset.intolleranze;
             const prezzo = row.dataset.prezzo;
             const note = row.dataset.note;
@@ -1124,7 +1149,9 @@ $stmtResoconti->close();
                 <div class="profile-field"><label>Cognome</label><span>${cognome}</span></div>
                 <div class="profile-field"><label>Data di nascita</label><span>${data}</span></div>
                 <div class="profile-field"><label>Codice Fiscale</label><span>${cf}</span></div>
-                <div class="profile-field"><label>Contatti</label><span>${contatti}</span></div>
+                <div class="profile-field"><label>Email</label><span>${email || '-'}</span></div>
+                <div class="profile-field"><label>Telefono</label><span>${telefono || '-'}</span></div>
+
                 <div class="profile-field"><label>Disabilità</label><span>${disabilita || '-'}</span></div>
                 <div class="profile-field"><label>Intolleranze / Allergie</label><span>${intolleranze || '-'}</span></div>
                 <div class="profile-field"><label>Stipendio orario</label><span>${prezzo ? prezzo + ' €' : '-'}</span></div>
@@ -1152,7 +1179,9 @@ $stmtResoconti->close();
             document.getElementById('fieldCognome').style.display = 'none';
             document.getElementById('fieldData').style.display = 'none';
             document.getElementById('fieldCF').style.display = 'none';
-            document.getElementById('fieldContatti').style.display = 'none';
+            document.getElementById('fieldEmail').style.display = 'none';
+            document.getElementById('fieldTelefono').style.display = 'none';
+
             document.getElementById('fieldDisabilita').style.display = 'none';
             document.getElementById('fieldIntolleranze').style.display = 'none';
             document.getElementById('fieldPrezzo').style.display = 'none';
@@ -1234,7 +1263,9 @@ $stmtResoconti->close();
                 document.getElementById('fieldCognome').style.display = 'block';
                 document.getElementById('fieldData').style.display = 'block';
                 document.getElementById('fieldCF').style.display = 'block';
-                document.getElementById('fieldContatti').style.display = 'block';
+                document.getElementById('fieldEmail').style.display = 'block';
+                document.getElementById('fieldTelefono').style.display = 'block';
+
                 document.getElementById('fieldDisabilita').style.display = 'block';
                 document.getElementById('fieldIntolleranze').style.display = 'block';
                 document.getElementById('fieldPrezzo').style.display = 'block';
@@ -1253,7 +1284,9 @@ $stmtResoconti->close();
                 document.getElementById("editCognome").value = row.dataset.cognome;
                 document.getElementById("editData").value = row.dataset.nascita;
                 document.getElementById("editCF").value = row.dataset.cf;
-                document.getElementById("editContatti").value = row.dataset.contatti;
+                document.getElementById("editEmail").value = row.dataset.email;
+                document.getElementById("editTelefono").value = row.dataset.telefono;
+
                 document.getElementById("editDisabilita").value = row.dataset.disabilita;
                 document.getElementById("editIntolleranze").value = row.dataset.intolleranze;
                 document.getElementById("editPrezzo").value = row.dataset.prezzo;
@@ -1359,7 +1392,9 @@ $stmtResoconti->close();
                     cognome: document.getElementById("editCognome").value,
                     data_nascita: document.getElementById("editData").value,
                     codice_fiscale: document.getElementById("editCF").value,
-                    contatti: document.getElementById("editContatti").value,
+                    email: document.getElementById("editEmail").value,
+                    telefono: document.getElementById("editTelefono").value,
+
                     disabilita: document.getElementById("editDisabilita").value,
                     intolleranze: document.getElementById("editIntolleranze").value,
                     prezzo_orario: document.getElementById("editPrezzo").value,
@@ -1738,20 +1773,18 @@ $stmtResoconti->close();
             const cognome = document.getElementById("utenteCognome").value.trim();
             const data = document.getElementById("utenteData").value;
             const cf = document.getElementById("utenteCF").value.trim();
-            const contatti = document.getElementById("utenteContatti").value.trim();
+            const email = document.getElementById("utenteEmail").value.trim();
+            const telefono = document.getElementById("utenteTelefono").value.trim();
 
-            if (!nome) { alert("Il campo Nome è obbligatorio"); return; }
-            if (!cognome) { alert("Il campo Cognome è obbligatorio"); return; }
-            if (!data) { alert("Il campo Data di nascita è obbligatorio"); return; }
-            if (!cf) { alert("Il campo Codice Fiscale è obbligatorio"); return; }
-            if (!contatti) { alert("Il campo Contatti è obbligatorio"); return; }
 
             const formData = new FormData();
             formData.append("nome", document.getElementById("utenteNome").value.trim());
             formData.append("cognome", document.getElementById("utenteCognome").value.trim());
             formData.append("data_nascita", document.getElementById("utenteData").value);
             formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-            formData.append("contatti", document.getElementById("utenteContatti").value.trim());
+            formData.append("email", document.getElementById("utenteEmail").value.trim());
+            formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
+
             formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
             formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
             const prezzoValue = document.getElementById("utentePrezzo").value;
@@ -1800,7 +1833,9 @@ $stmtResoconti->close();
                 document.getElementById("editUtenteCognome").value = row.dataset.cognome;
                 document.getElementById("editUtenteData").value = row.dataset.nascita;
                 document.getElementById("editUtenteCF").value = row.dataset.cf;
-                document.getElementById("editUtenteContatti").value = row.dataset.contatti;
+                document.getElementById("editUtenteEmail").value = row.dataset.email;
+                document.getElementById("editUtenteTelefono").value = row.dataset.telefono;
+
                 document.getElementById("editUtenteDisabilita").value = row.dataset.disabilita;
                 document.getElementById("editUtenteIntolleranze").value = row.dataset.intolleranze;
                 document.getElementById("editUtentePrezzo").value = row.dataset.prezzo;
@@ -1815,7 +1850,9 @@ $stmtResoconti->close();
             const cognome = document.getElementById("editUtenteCognome").value.trim();
             const data_nascita = document.getElementById("editUtenteData").value;
             const cf = document.getElementById("editUtenteCF").value.trim();
-            const contatti = document.getElementById("editUtenteContatti").value.trim();
+            const email = document.getElementById("editUtenteEmail").value.trim();
+            const telefono = document.getElementById("editUtenteTelefono").value.trim();
+
             const disabilita = document.getElementById("editUtenteDisabilita").value.trim();
             const intolleranze = document.getElementById("editUtenteIntolleranze").value.trim();
             const prezzo = parseFloat(document.getElementById("editUtentePrezzo").value) || 0;
@@ -1824,7 +1861,8 @@ $stmtResoconti->close();
             fetch("api/api_modifica_utente_ergo.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, nome, cognome, data_nascita, codice_fiscale: cf, contatti, disabilita, intolleranze, prezzo_orario: prezzo, note })
+                body: JSON.stringify({ id, nome, cognome, data_nascita, codice_fiscale: cf, email, telefono, disabilita, intolleranze, prezzo_orario: prezzo, note })
+
             })
             .then(res => res.json())
             .then(data => {

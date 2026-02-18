@@ -15,7 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Recupera i dati dal POST
-$requiredFields = ['nome', 'cognome', 'data_nascita', 'codice_fiscale', 'contatti', 'disabilita', 'intolleranze', 'prezzo_orario', 'note'];
+$requiredFields = ['nome', 'cognome', 'data_nascita', 'codice_fiscale', 'email', 'telefono', 'disabilita', 'intolleranze', 'prezzo_orario', 'note'];
+
 
 foreach ($requiredFields as $field) {
     if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
@@ -29,8 +30,10 @@ $nome = $_POST['nome'];
 $cognome = $_POST['cognome'];
 $data_nascita = $_POST['data_nascita'];
 $codice_fiscale = $_POST['codice_fiscale'];
-$contatti = $_POST['contatti'];
+$email = $_POST['email'];
+$telefono = $_POST['telefono'];
 $disabilita = $_POST['disabilita'];
+
 $intolleranze = $_POST['intolleranze'];
 $prezzo_orario = $_POST['prezzo_orario'];
 $note = $_POST['note'];
@@ -68,25 +71,28 @@ if ($conn->connect_error) {
 }
 
 // Inserimento utente
-$stmt = $conn->prepare("INSERT INTO iscritto (nome, cognome, data_nascita, codice_fiscale, contatti, disabilita, allergie_intolleranze, prezzo_orario, note, fotografia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO iscritto (nome, cognome, data_nascita, codice_fiscale, email, telefono, disabilita, allergie_intolleranze, prezzo_orario, note, fotografia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
 if (!$stmt) {
     echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
     exit;
 }
 
 $stmt->bind_param(
-    "sssssssdss",
+    "ssssssssdss",
     $nome,
     $cognome,
     $data_nascita,
     $codice_fiscale,
-    $contatti,
+    $email,
+    $telefono,
     $disabilita,
     $intolleranze,
     $prezzo_orario,
     $note,
     $fotografia
 );
+
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Utente aggiunto', 'id' => $stmt->insert_id]);

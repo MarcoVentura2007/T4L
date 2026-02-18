@@ -41,8 +41,9 @@ if(
 }
 
 // Preleva i profili dal DB
-$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, contatti, allergie_intolleranze, note 
+$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, email, telefono, allergie_intolleranze, note 
         FROM iscritto ORDER BY cognome ASC";
+
 $result = $conn->query($sql);
 
 // Presenze giornaliere di default
@@ -370,9 +371,14 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <input type="text" id="utenteCF" required>
                         </div>
                         <div class="edit-field">
-                            <label>Contatti</label>
-                            <input type="text" id="utenteContatti" placeholder="Email o telefono" required>
+                            <label>Email</label>
+                            <input type="email" id="utenteEmail" placeholder="Email">
                         </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="tel" id="utenteTelefono" placeholder="Telefono">
+                        </div>
+
                         <div class="edit-field">
                             <label>Fotografia</label>
 
@@ -471,11 +477,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         data-nascita="'.htmlspecialchars($row['data_nascita']).'" 
                                         data-note="'.htmlspecialchars($row['note']).'" 
                                         data-cf="'.htmlspecialchars($row['codice_fiscale']).'" 
-                                        data-contatti="'.htmlspecialchars($row['contatti']).'" 
+                                        data-email="'.htmlspecialchars($row['email']).'" 
+                                        data-telefono="'.htmlspecialchars($row['telefono']).'" 
                                         data-disabilita="'.htmlspecialchars($row['disabilita']).'" 
                                         data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'" 
                                         data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
                                     >
+
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
                                         <td>'.htmlspecialchars($row['nome']).'</td>
                                         <td>'.htmlspecialchars($row['cognome']).'</td>
@@ -1171,8 +1179,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <input type="text" id="editCF" placeholder="Codice Fiscale">
                             </div>
                             <div class="edit-field">
-                                <label>Contatti</label>
-                                <input type="text" id="editContatti" placeholder="Contatti">
+                            <label>Email</label>
+                            <input type="email" id="editEmail" placeholder="Email">
+                        </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="tel" id="editTelefono" placeholder="Telefono">
+
                             </div>
                             <div class="edit-field">
                                 <label>Disabilità</label>
@@ -1421,8 +1434,10 @@ $resultResoconti = $conn->query($sqlResoconti);
             const data = row.dataset.nascita;
             const note = row.dataset.note;
             const cf = row.dataset.cf;
-            const contatti = row.dataset.contatti;
+            const email = row.dataset.email;
+            const telefono = row.dataset.telefono;
             const disabilita = row.dataset.disabilita;
+
             const intolleranze = row.dataset.intolleranze;
             const prezzo = row.dataset.prezzo;
 
@@ -1435,8 +1450,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="profile-field"><label>Cognome</label><span>${cognome}</span></div>
                 <div class="profile-field"><label>Data di nascita</label><span>${data}</span></div>
                 <div class="profile-field"><label>Codice Fiscale</label><span>${cf || "—"}</span></div>
-                <div class="profile-field"><label>Contatti</label><span>${contatti || "—"}</span></div>
+                <div class="profile-field"><label>Email</label><span>${email || "—"}</span></div>
+                <div class="profile-field"><label>Telefono</label><span>${telefono || "—"}</span></div>
                 <div class="profile-field"><label>Disabilità</label><span>${disabilita || "—"}</span></div>
+
                 <div class="profile-field"><label style="font-weight: bold;">Intolleranze ⚠️</label><span style="font-weight: bold;">${intolleranze || "—"}</span></div>
                 <div class="profile-field"><label>Prezzo orario</label><span>${prezzo || "—"} €</span></div>
                 <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
@@ -1504,8 +1521,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("editCognome").value = row.dataset.cognome;
                 document.getElementById("editData").value = row.dataset.nascita;
                 document.getElementById("editCF").value = row.dataset.cf;
-                document.getElementById("editContatti").value = row.dataset.contatti;
+                document.getElementById("editEmail").value = row.dataset.email;
+                document.getElementById("editTelefono").value = row.dataset.telefono;
                 document.getElementById("editDisabilita").value = row.dataset.disabilita;
+
                 document.getElementById("editIntolleranze").value = row.dataset.intolleranze;
                 document.getElementById("editPrezzo").value = row.dataset.prezzo;
                 document.getElementById("editNote").value = row.dataset.note;
@@ -1576,7 +1595,9 @@ $resultResoconti = $conn->query($sqlResoconti);
                 formData.append("cognome", document.getElementById("editCognome").value);
                 formData.append("data_nascita", document.getElementById("editData").value);
                 formData.append("codice_fiscale", document.getElementById("editCF").value);
-                formData.append("contatti", document.getElementById("editContatti").value);
+                formData.append("email", document.getElementById("editEmail").value);
+                formData.append("telefono", document.getElementById("editTelefono").value);
+
                 formData.append("disabilita", document.getElementById("editDisabilita").value);
                 formData.append("intolleranze", document.getElementById("editIntolleranze").value);
                 formData.append("prezzo_orario", document.getElementById("editPrezzo").value);
@@ -1610,8 +1631,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                     cognome: document.getElementById("editCognome").value,
                     data_nascita: document.getElementById("editData").value,
                     codice_fiscale: document.getElementById("editCF").value,
-                    contatti: document.getElementById("editContatti").value,
+                    email: document.getElementById("editEmail").value,
+                    telefono: document.getElementById("editTelefono").value,
                     disabilita: document.getElementById("editDisabilita").value,
+
                     intolleranze: document.getElementById("editIntolleranze").value,
                     prezzo_orario: document.getElementById("editPrezzo").value,
                     note: document.getElementById("editNote").value
@@ -1874,7 +1897,9 @@ formAggiungiUtente.addEventListener("submit", function (e) {
     formData.append("cognome", document.getElementById("utenteCognome").value.trim());
     formData.append("data_nascita", document.getElementById("utenteData").value);
     formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-    formData.append("contatti", document.getElementById("utenteContatti").value.trim());
+            formData.append("email", document.getElementById("utenteEmail").value.trim());
+            formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
+
     formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
     formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
     formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value) || 0);
