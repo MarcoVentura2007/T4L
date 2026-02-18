@@ -2695,18 +2695,22 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         });
     }
 
-        // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ E CALENDARIO MOBILE
-    function caricaResocontoGiorni(){
+    // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ E CALENDARIO MOBILE
+    function caricaResocontoGiorni(meseForzato = null){
         if(!currentIscritto || !meseInput) return;
+        
+        // Usa il mese forzato (dal calendario) o quello del filtro globale
+        const meseDaUsare = meseForzato || meseInput.value;
 
         fetch("api/api_resoconto_giornaliero.php", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 id: currentIscritto,
-                mese: meseInput.value
+                mese: meseDaUsare
             })
         })
+
         .then(r => r.json())
         .then(json => {
             if(!bodyResoconto || !document.getElementById("mobileCalendarContainer") || !document.getElementById("attivitaMensiliBody")) return;
@@ -2738,11 +2742,17 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             const activitiesData = {};
             let giorniPresenza = 0;
 
+            console.log('Dati ricevuti dalla API:', json.data);
+            
             json.data.forEach(r => {
                 const giorno = new Date(r.giorno).getDate();
-                const dateStr = r.giorno; // YYYY-MM-DD
+                const dateStr = r.giorno; // La API restituisce già YYYY-MM-DD
+                
+                console.log('Processing giorno:', r.giorno, '-> dateStr:', dateStr, 'giorno:', giorno);
                 
                 if(!daysMap.has(giorno)) {
+
+
                     daysMap.set(giorno, {attivita: [], ore:0, costo:0});
                     giorniPresenza++; // Conta i giorni di presenza
                 }
@@ -2777,13 +2787,16 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 r.attivita.forEach(a => {
                     activitiesData[dateStr].push({
                         nome: a.Nome,
-                        descrizione: `${a.ore.toFixed(2)} ore - ${a.costo.toFixed(2)}€`,
+                        descrizione: `${parseFloat(a.ore).toFixed(2)} ore - ${parseFloat(a.costo).toFixed(2)}€`,
                         ora_inizio: '',
                         ora_fine: '',
                         educatori: ''
                     });
                 });
             });
+            
+            console.log('activitiesData preparato:', activitiesData);
+
 
             // Popola tabella attività mensili - ORDINATE PER ORE DECRESCENTE
             const attivitaArray = Array.from(attivitaMap.entries());
@@ -2814,16 +2827,35 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 // Distruggi calendario precedente se esiste
                 calendarContainer.innerHTML = '';
                 
-                const [anno, mese] = meseInput.value.split('-');
+                const [anno, mese] = meseDaUsare.split('-');
                 
                 new MobileCalendar('mobileCalendarContainer', {
-                    selectedDate: new Date(anno, mese - 1, 1),
+                    selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
                     activitiesData: activitiesData,
                     activitiesPanel: '#mc-activities-panel',
                     onDayClick: function(dateStr, activities) {
                         console.log('Giorno selezionato:', dateStr, activities);
+                    },
+                    onMonthChange: function(newDate) {
+                        const anno = newDate.getFullYear();
+                        const mese = String(newDate.getMonth() + 1).padStart(2, '0');
+                        const nuovoMeseStr = `${anno}-${mese}`;
+                        
+                        // Aggiorna il valore dell'input mese nel modal
+                        if(meseInput) {
+                            meseInput.value = nuovoMeseStr;
+                            // Aggiorna anche flatpickr se esiste
+                            if(meseInput._flatpickr) {
+                                meseInput._flatpickr.setDate(nuovoMeseStr);
+                            }
+                        }
+                        
+                        caricaResocontoGiorni(nuovoMeseStr);
                     }
+
+
                 });
+
 
             }
         })

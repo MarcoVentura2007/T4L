@@ -1038,16 +1038,43 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                     <h3 class="modal-title" id="resocontoNome"></h3>
 
-                    <div class="edit-field">
-                        <label>Mese</label>
-                        <input type="text" id="resocontoMese">
+                    <!-- RIEPILOGO TOTALI -->
 
+
+                    <div class="resoconto-summary" id="resocontoSummary">
+                        <div class="summary-card">
+                            <div class="summary-label">Ore Totali</div>
+                            <div class="summary-value" id="summaryOre">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Costo Totale</div>
+                            <div class="summary-value" id="summaryCosto">0 €</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Giorni di Presenza</div>
+                            <div class="summary-value" id="summaryGiorni">0</div>
+                        </div>
                     </div>
 
-                    <!-- QUI VIENE COSTRUITO IL CALENDARIO -->
-                    <div id="resocontoContent" class="resoconto-calendar"></div>
+                    <!-- LAYOUT A DUE COLONNE: CALENDARIO + ATTIVITÀ -->
+                    <div class="resoconto-calendar-wrapper">
+                        <!-- CALENDARIO A SINISTRA -->
+                        <div class="calendar-section">
+                            <div id="mobileCalendarContainer"></div>
+                        </div>
+                        
+                        <!-- ATTIVITÀ A DESTRA (pannello esterno) -->
+                        <div class="activities-section">
+                            <div class="mc-activities-panel" id="mc-activities-panel">
+                                <div class="mc-activities-placeholder">
+                                    Seleziona un giorno per vedere le attività
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <!-- TABELLA RIASSUNTIVA ATTIVITÀ -->
+
+                    <!-- TABELLA RIASSUNTIVA ATTIVITÀ MENSILI -->
                     <div class="users-table-box" style="margin-top: 30px;">
                         <h4 style="margin-bottom: 15px; color: #2b2b2b; font-weight: 600;">Riepilogo Attività Mensile</h4>
                         <table class="users-table">
@@ -1072,6 +1099,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
                     </div>
                 </div>
+
             </div>
 
 
@@ -1306,7 +1334,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                         <div class="modal-actions">
                             <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button type="submit" class="btn-primary">Salva</button>
+                            <bu pe="submit" class="btn-primary">Salva</button>
                         </div>
                     </form>
                 </div>
@@ -3353,16 +3381,17 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 
 
-       document.addEventListener("DOMContentLoaded", () => {
+   document.addEventListener("DOMContentLoaded", () => {
     const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
     const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
     const modalResoconto = document.getElementById("modalResocontoGiorni");
     const bodyResoconto = document.getElementById("resocontoGiorniBody");
-    const meseInput = document.getElementById("resocontoMese");
     const titoloResoconto = document.getElementById("resocontoNome");
+
 
     let currentIscritto = null;
 
+    // CARICAMENTO INIZIALE MENSILE
     if(resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
 
     // CAMBIO MESE GLOBALE
@@ -3384,20 +3413,16 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         if(!titoloResoconto) return;
         titoloResoconto.textContent = "Resoconto - " + (cognome + " " + nome).trim();
 
-        if(!meseInput) return;
-        meseInput.value = resocontiMeseFiltro.value;
-
         if(bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Caricamento...</td></tr>`;
+
 
         if(modalResoconto && typeof openModal === "function") openModal(modalResoconto);
 
         caricaResocontoGiorni();
     });
 
-    // CAMBIO MESE NEL MODAL
-    if(meseInput) meseInput.addEventListener("change", caricaResocontoGiorni);
-
     // FUNZIONE CARICA RESOCONTI MENSILI
+
     function caricaResocontiMensili(mese){
         if(!resocontiMensiliBody) return;
         resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
@@ -3442,43 +3467,71 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         });
     }
 
-    // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ E CALENDARIO
-    function caricaResocontoGiorni(){
-        if(!currentIscritto || !meseInput) return;
+    // Variabile per tracciare il mese corrente nel modal
+    let currentModalMese = null;
+
+    // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ E CALENDARIO MOBILE
+
+    function caricaResocontoGiorni(meseForzato = null){
+        if(!currentIscritto) return;
+        
+        // Usa il mese forzato (dal calendario) o quello del filtro globale
+        const meseDaUsare = meseForzato || resocontiMeseFiltro.value;
+        currentModalMese = meseDaUsare;
 
         fetch("api/api_resoconto_giornaliero.php", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 id: currentIscritto,
-                mese: meseInput.value
+                mese: meseDaUsare
             })
         })
+
+
         .then(r => r.json())
         .then(json => {
-            if(!bodyResoconto || !document.getElementById("resocontoContent") || !document.getElementById("attivitaMensiliBody")) return;
+            if(!bodyResoconto || !document.getElementById("mobileCalendarContainer") || !document.getElementById("attivitaMensiliBody")) return;
             bodyResoconto.innerHTML = "";
-            const resocontoContent = document.getElementById("resocontoContent");
-            resocontoContent.innerHTML = "";
             const attivitaMensiliBody = document.getElementById("attivitaMensiliBody");
             attivitaMensiliBody.innerHTML = "";
 
             if(!json.success || json.data.length === 0){
                 bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
-                resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">📅 Nessun dato disponibile per questo mese</p>`;
                 attivitaMensiliBody.innerHTML = `<tr><td colspan="2">Nessuna attività</td></tr>`;
+                
+            // Inizializza calendario vuoto
+                const calendarContainer = document.getElementById("mobileCalendarContainer");
+                if(calendarContainer && window.MobileCalendar) {
+                    const meseVal = resocontiMeseFiltro ? resocontiMeseFiltro.value : new Date().toISOString().slice(0, 7);
+                    new MobileCalendar('mobileCalendarContainer', {
+                        selectedDate: new Date(meseVal + '-01'),
+                        activitiesData: {}
+                    });
+                }
                 return;
+
             }
 
             const daysMap = new Map();
             const attivitaMap = new Map(); 
             let totalOre = 0;
             let totalCosto = 0;
+            
+            // Prepara dati per il calendario mobile
+            const activitiesData = {};
+            let giorniPresenza = 0;
 
             json.data.forEach(r => {
                 const giorno = new Date(r.giorno).getDate();
-                if(!daysMap.has(giorno)) daysMap.set(giorno, {attivita: [], ore:0, costo:0});
+                const dateStr = r.giorno; // YYYY-MM-DD
+                
+                if(!daysMap.has(giorno)) {
+                    daysMap.set(giorno, {attivita: [], ore:0, costo:0});
+                    giorniPresenza++; // Conta i giorni di presenza
+                }
                 const day = daysMap.get(giorno);
+
 
                 r.attivita.forEach(a => {
                     day.attivita.push(a);
@@ -3487,11 +3540,11 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 });
                 day.ore += r.ore;
                 day.costo += r.costo;
+
                 totalOre += r.ore;
                 totalCosto += r.costo;
 
                 let attHTML = r.attivita.map(a => `${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€)`).join('<br>');
-
                 bodyResoconto.innerHTML += `
                     <tr>
                         <td>${giorno}</td>
@@ -3500,11 +3553,25 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                         <td>${r.costo.toFixed(2)} €</td>
                     </tr>
                 `;
+                
+                // Prepara dati attività per calendario
+                if (!activitiesData[dateStr]) {
+                    activitiesData[dateStr] = [];
+                }
+                r.attivita.forEach(a => {
+                    activitiesData[dateStr].push({
+                        nome: a.Nome,
+                        descrizione: `${a.ore.toFixed(2)} ore - ${a.costo.toFixed(2)}€`,
+                        ora_inizio: '',
+                        ora_fine: '',
+                        educatori: ''
+                    });
+                });
             });
 
             // Popola tabella attività mensili - ORDINATE PER ORE DECRESCENTE
-            const attivitaArray = Array.from(attivitaMap.entries()); // [nome, ore]
-            attivitaArray.sort((a, b) => b[1] - a[1]); // Ordina per ore decrescente
+            const attivitaArray = Array.from(attivitaMap.entries());
+            attivitaArray.sort((a, b) => b[1] - a[1]);
 
             attivitaArray.forEach(([nome, ore]) => {
                 attivitaMensiliBody.innerHTML += `
@@ -3515,70 +3582,53 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 `;
             });
 
-            const [anno, mese] = meseInput.value.split('-');
-            const firstDay = new Date(anno, mese-1, 1);
-            const lastDay = new Date(anno, mese, 0);
-            const startPadding = firstDay.getDay() === 0 ? 6 : firstDay.getDay()-1;
+            // Aggiorna i riepiloghi totali
+            const summaryOre = document.getElementById('summaryOre');
+            const summaryCosto = document.getElementById('summaryCosto');
+            const summaryGiorni = document.getElementById('summaryGiorni');
+            
+            if(summaryOre) summaryOre.textContent = totalOre.toFixed(2);
+            if(summaryCosto) summaryCosto.textContent = totalCosto.toFixed(2) + ' €';
+            if(summaryGiorni) summaryGiorni.textContent = giorniPresenza;
 
-            let calendarHTML = `<div class="calendar-weekdays">
-                <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
-            </div><div class="calendar-grid">`;
 
-            for(let i=0;i<startPadding;i++) calendarHTML += `<div class="calendar-cell empty"></div>`;
+            // Inizializza il nuovo calendario mobile
+            const calendarContainer = document.getElementById("mobileCalendarContainer");
+            if(calendarContainer && window.MobileCalendar) {
+                // Distruggi calendario precedente se esiste
+                calendarContainer.innerHTML = '';
+                
+                const [anno, mese] = meseDaUsare.split('-');
+                
+                new MobileCalendar('mobileCalendarContainer', {
+                    selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
 
-            for (let d = 1; d <= lastDay.getDate(); d++) {
-                const day = daysMap.get(d);
-                const presente = day && day.ore > 0;
-
-                calendarHTML += `<div class="calendar-cell ${presente ? 'has-activity' : ''}">`;
-
-                if (day) {
-                        console.log("Giorno", d, "ore:", day.ore);
+                    activitiesData: activitiesData,
+                    activitiesPanel: '#mc-activities-panel',
+                    onDayClick: function(dateStr, activities) {
+                        console.log('Giorno selezionato:', dateStr, activities);
+                    },
+                    onMonthChange: function(nuovaData) {
+                        // Quando cambia il mese dal calendario, ricarica i dati
+                        const nuovoAnno = nuovaData.getFullYear();
+                        const nuovoMese = nuovaData.getMonth() + 1; // getMonth() returns 0-11
+                        const nuovoMeseStr = `${nuovoAnno}-${String(nuovoMese).padStart(2, '0')}`;
+                        caricaResocontoGiorni(nuovoMeseStr);
                     }
 
+                });
 
-                if (presente) {
-                    calendarHTML += `<img class="presente-icon" src="immagini/presente.png" alt="Presente">`;
-                }
 
-                calendarHTML += `<div class="day-number">${d}</div>`;
-
-                if (day && day.attivita.length > 0) {
-                    calendarHTML += `<div class="day-activities">`;
-                    day.attivita.forEach(a => {
-                        calendarHTML += `
-                            <div class="activity-item">
-                                <span class="activity-name">${a.Nome}</span>
-                                <span class="activity-meta">
-                                    ${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€
-                                </span>
-                            </div>`;
-                    });
-                    calendarHTML += `</div>`;
-                }
-
-                calendarHTML += `</div>`;
             }
-
-
-            calendarHTML += `</div>`;
-
-            // Totali
-            calendarHTML += `<div class="resoconto-totals">
-                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(1)}</div></div>
-                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Costo Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
-                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${daysMap.size}</div></div>
-            </div>`;
-
-            resocontoContent.innerHTML = calendarHTML;
         })
         .catch(err => {
             console.error(err);
             if(bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Errore nel caricamento</td></tr>`;
-            const resocontoContent = document.getElementById("resocontoContent");
-            if(resocontoContent) resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">❌ Errore nel caricamento</p>`;
+            const calendarContainer = document.getElementById("mobileCalendarContainer");
+            if(calendarContainer) calendarContainer.innerHTML = `<p style="text-align:center;margin-top:12px;">❌ Errore nel caricamento</p>`;
         });
     }
+
 });
 
 
@@ -3594,17 +3644,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             altInput: true
         });
 
-        flatpickr("#resocontoMese", {
-            plugins: [
-                new monthSelectPlugin({ 
-                    shorthand: false,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y"
-                })
-            ],
-            defaultDate: new Date(),
-            altInput: true
-        });
+
 
         // Salva stato sidebar
         const checkboxInput = document.getElementById('checkbox-input');
@@ -3712,5 +3752,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
     </script>
 
+<script src="js/mobile-calendar.js"></script>
 </body>
 </html>

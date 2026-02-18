@@ -167,13 +167,26 @@ class MobileCalendar {
      */
     changeMonth(direction) {
         this.currentDate.setMonth(this.currentDate.getMonth() + direction);
+        // Clear activities data when changing month - new data will be loaded by parent
+        this.activitiesData = {};
+        this.selectedDay = null;
         this.render();
         this.attachEvents();
+        
+        // Reset external panel to placeholder
+        if (this.externalPanel) {
+            this.externalPanel.innerHTML = `
+                <div class="mc-activities-placeholder">
+                    Caricamento attività...
+                </div>
+            `;
+        }
 
         if (this.options.onMonthChange) {
             this.options.onMonthChange(this.currentDate);
         }
     }
+
 
     /**
      * Select a day and show activities

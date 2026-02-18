@@ -140,11 +140,13 @@ $stmtResoconti->close();
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>T4L | Gestionale utenti</title>
 
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="immagini/Icona.ico">
-<script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style_mobile_agenda.css">
+    <link rel="icon" href="immagini/Icona.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
@@ -748,13 +750,21 @@ $stmtResoconti->close();
                     <div class="edit-field">
                         <label>Mese</label>
                         <input type="text" id="resocontoMese">
-
                     </div>
 
-                    <!-- QUI VIENE COSTRUITO IL CALENDARIO -->
-                    <div id="resocontoContent" class="resoconto-calendar"></div>
-
-
+                    <!-- NUOVO LAYOUT CALENDARIO + ATTIVITÀ -->
+                    <div class="resoconto-calendar-wrapper">
+                        <div class="calendar-section">
+                            <div id="resocontoContent" class="mobile-calendar"></div>
+                        </div>
+                        <div class="activities-section">
+                            <div id="mc-activities-panel" class="mc-activities-panel">
+                                <div class="mc-activities-placeholder">
+                                    Seleziona un giorno per vedere le attività
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="users-table-box" style="display:none">
                         <table class="users-table">
@@ -762,11 +772,11 @@ $stmtResoconti->close();
                         </table>
                     </div>
 
-
                     <div class="modal-actions">
                         <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
                     </div>
                 </div>
+
             </div>
 
 
@@ -1545,7 +1555,9 @@ $stmtResoconti->close();
     }
 
 
-    // FUNZIONE CARICA RESOCONTO GIORNI CON CALENDARIO
+    // FUNZIONE CARICA RESOCONTO GIORNI CON CALENDARIO MOBILE
+    let mobileCalendarInstance = null;
+    
     function caricaResocontoGiorni(){
         if(!currentIscritto || !meseInput) return;
 
@@ -1566,18 +1578,40 @@ $stmtResoconti->close();
 
             if(!json.success || json.data.length === 0){
                 bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
-                resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">📅 Nessun dato disponibile per questo mese</p>`;
+                
+                // Inizializza calendario vuoto
+                if (mobileCalendarInstance) {
+                    mobileCalendarInstance.destroy();
+                }
+                
+                const [anno, mese] = meseInput.value.split('-');
+                mobileCalendarInstance = new MobileCalendar('resocontoContent', {
+                    selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
+                    activitiesData: {},
+                    activitiesPanel: '#mc-activities-panel',
+                    onDayClick: (date, activities) => {
+                        console.log('Giorno selezionato:', date, 'Attività:', activities);
+                    }
+                });
                 return;
             }
-
 
             const daysMap = new Map();
             let totalOre = 0;
             let totalCosto = 0;
+            
+            // Prepara dati per il calendario mobile
+            const activitiesData = {};
+            let giorniPresenza = 0;
 
             json.data.forEach(r => {
                 const giorno = new Date(r.giorno).getDate();
-                if(!daysMap.has(giorno)) daysMap.set(giorno, {ore:0, costo:0});
+                const dateStr = r.giorno; // YYYY-MM-DD
+                
+                if(!daysMap.has(giorno)) {
+                    daysMap.set(giorno, {ore:0, costo:0});
+                    giorniPresenza++;
+                }
                 const day = daysMap.get(giorno);
 
                 day.ore += r.ore;
@@ -1594,62 +1628,59 @@ $stmtResoconti->close();
                         <td>${r.costo.toFixed(2)} €</td>
                     </tr>
                 `;
+                
+                // Prepara dati attività per calendario
+                if (!activitiesData[dateStr]) {
+                    activitiesData[dateStr] = [];
+                }
+                activitiesData[dateStr].push({
+                    nome: 'Presenza',
+                    descrizione: `${day.ore.toFixed(2)} ore - ${day.costo.toFixed(2)}€`,
+                    ora_inizio: '',
+                    ora_fine: '',
+                    educatori: ''
+                });
             });
 
-            const [anno, mese] = meseInput.value.split('-');
-
-            const firstDay = new Date(anno, mese-1, 1);
-            const lastDay = new Date(anno, mese, 0);
-            const startPadding = firstDay.getDay() === 0 ? 6 : firstDay.getDay()-1;
-
-            let calendarHTML = `<div class="calendar-weekdays">
-                <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
-            </div><div class="calendar-grid">`;
-
-            for(let i=0;i<startPadding;i++) calendarHTML += `<div class="calendar-cell empty"></div>`;
-
-            for (let d = 1; d <= lastDay.getDate(); d++) {
-                const day = daysMap.get(d);
-                const presente = day && day.ore > 0;
-
-                calendarHTML += `<div class="calendar-cell ${presente ? 'has-activity' : ''}">`;
-
-                if (day) {
-                    console.log("Giorno", d, "ore:", day.ore);
-                }
-
-                if (presente) {
-                    calendarHTML += `<img class="presente-icon" src="immagini/presente.png" alt="Presente">`;
-                }
-
-                calendarHTML += `<div class="day-number">${d}</div>`;
-
-                if (day && day.ore > 0) {
-                    calendarHTML += `<div class="day-activities">`;
-                    calendarHTML += `
-                        <div class="activity-item">
-                            <span class="activity-name">Ore lavorate</span>
-                            <span class="activity-meta">
-                                ${day.ore.toFixed(2)}h, ${day.costo.toFixed(2)}€
-                            </span>
-                        </div>`;
-                    calendarHTML += `</div>`;
-                }
-
-                calendarHTML += `</div>`;
+            // Inizializza o aggiorna il calendario mobile
+            if (mobileCalendarInstance) {
+                mobileCalendarInstance.destroy();
             }
 
-            calendarHTML += `</div>`;
+            const [anno, mese] = meseInput.value.split('-');
+            
+            mobileCalendarInstance = new MobileCalendar('resocontoContent', {
+                selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
+                activitiesData: activitiesData,
+                activitiesPanel: '#mc-activities-panel',
+                onDayClick: (date, activities) => {
+                    console.log('Giorno selezionato:', date, 'Attività:', activities);
+                }
+            });
 
-            // Totali
-            calendarHTML += `<div class="resoconto-totals">
-                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(1)}</div></div>
-                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Stipendio Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
-
-                <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${daysMap.size}</div></div>
-            </div>`;
-
-            resocontoContent.innerHTML = calendarHTML;
+            // Totali - AGGIORNA I TOTALI ESISTENTI
+            const updateOrCreateTotals = () => {
+                const modal = document.getElementById('modalResocontoGiorni');
+                if (!modal) return;
+                
+                const existingTotals = modal.querySelector('.resoconto-totals');
+                if (existingTotals) {
+                    existingTotals.remove();
+                }
+                
+                const totalsHTML = `<div class="resoconto-totals">
+                    <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(1)}</div></div>
+                    <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Stipendio Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
+                    <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${daysMap.size}</div></div>
+                </div>`;
+                
+                const calendarWrapper = modal.querySelector('.resoconto-calendar-wrapper');
+                if (calendarWrapper) {
+                    calendarWrapper.insertAdjacentHTML('afterend', totalsHTML);
+                }
+            };
+            
+            updateOrCreateTotals();
         })
         .catch(err => {
             console.error(err);
@@ -1658,6 +1689,7 @@ $stmtResoconti->close();
             if(resocontoContent) resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">❌ Errore nel caricamento</p>`;
         });
     }
+
 
 });
 
@@ -1956,5 +1988,6 @@ $stmtResoconti->close();
 
     </script>
 
+    <script src="js/mobile-calendar.js"></script>
 </body>
 </html>

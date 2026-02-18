@@ -627,6 +627,7 @@
   position: relative;
   background: #f9fafb;
   min-height: 44px;
+  border: 1px solid #eaeaea;
 }
 
 .mc-day:hover {
@@ -637,6 +638,7 @@
 .mc-day.mc-empty {
   background: transparent;
   cursor: default;
+  border: none;
 }
 
 .mc-day.mc-empty:hover {
@@ -667,6 +669,7 @@
 .mc-day.mc-has-activity .mc-activity-dot {
   display: block;
 }
+
 
 .mc-day-number {
   font-size: 0.95rem;
@@ -951,6 +954,7 @@
   .mc-day {
     min-height: 65px;
     border-radius: 16px;
+
   }
 
   .mc-day-number {
