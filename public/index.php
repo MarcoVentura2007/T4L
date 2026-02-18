@@ -54,9 +54,6 @@ $username = $_SESSION['username'];
 </div>
 
  
-
-<script src="js/loader.js"></script>
-
 <script src="js/loader.js"></script>
 
 

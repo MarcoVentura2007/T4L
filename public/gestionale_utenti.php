@@ -105,13 +105,8 @@ if($classe !== 'Educatore'){
 </div>
 
  
-
 <script src="js/loader.js"></script>
 
-<script src="js/loader.js"></script>
-
-
-<script src="js/loader.js"></script>
     <!-- NAVBAR -->
     <header class="navbar">
         <div class="user-box" id="userBox">

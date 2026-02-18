@@ -72,12 +72,9 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
  
 
-<script src="js/loader.js"></script>
-
-<script src="js/loader.js"></script>
+ <script src="js/loader.js"></script>
 
 
-<script src="js/loader.js"></script>
 
     <div class="user-box" id="userBox">
             <img src="immagini/profilo-ergo.png" alt="Profile">

@@ -157,9 +157,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
  
 
-<script src="js/loader.js"></script>
-
-<script src="js/loader.js"></script>
+ <script src="js/loader.js"></script>
 
 
 <script src="js/loader.js"></script>

@@ -203,9 +203,7 @@ $username = $_SESSION['username'];
 
  
 
-<script src="js/loader.js"></script>
-
-<script src="js/loader.js"></script>
+ <script src="js/loader.js"></script>
 
 
 <!-- NAVBAR -->

@@ -87,7 +87,6 @@ $conn->close();
 
 <script src="js/loader.js"></script>
 
-<script src="js/loader.js"></script>
 
     <!-- NAVBAR -->
     <header class="navbar">

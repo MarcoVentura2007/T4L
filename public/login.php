@@ -41,7 +41,7 @@ if (isset($_SESSION['username'])) {
 
 <script src="js/loader.js"></script>
 
-<script src="js/loader.js"></script>
+
 
 
   <img src="immagini/top-right.png" alt="" class="top-right">

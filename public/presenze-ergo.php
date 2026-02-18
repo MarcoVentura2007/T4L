@@ -95,9 +95,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
 
  
 
-<script src="js/loader.js"></script>
-
-<script src="js/loader.js"></script>
+ <script src="js/loader.js"></script>
 
 
     <!-- NAVBAR -->
