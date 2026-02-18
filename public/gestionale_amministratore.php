@@ -3502,8 +3502,11 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 `;
             });
 
-            // Popola tabella attività mensili
-            attivitaMap.forEach((ore, nome) => {
+            // Popola tabella attività mensili - ORDINATE PER ORE DECRESCENTE
+            const attivitaArray = Array.from(attivitaMap.entries()); // [nome, ore]
+            attivitaArray.sort((a, b) => b[1] - a[1]); // Ordina per ore decrescente
+
+            attivitaArray.forEach(([nome, ore]) => {
                 attivitaMensiliBody.innerHTML += `
                     <tr>
                         <td>${nome}</td>
@@ -3511,6 +3514,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     </tr>
                 `;
             });
+
             const [anno, mese] = meseInput.value.split('-');
             const firstDay = new Date(anno, mese-1, 1);
             const lastDay = new Date(anno, mese, 0);
