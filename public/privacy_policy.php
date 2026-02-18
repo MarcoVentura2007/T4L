@@ -169,7 +169,16 @@ $username = $_SESSION['username'];
                 padding: 1rem;
             }
             .privacy-header h1 {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
+            }
+            .toc h2{
+                font-size: 1.1rem !important;
+            }
+            body{
+                font-size: 0.9rem !important;
+            }
+            p { 
+                font-size: 0.9rem !important;
             }
         }
     </style>
