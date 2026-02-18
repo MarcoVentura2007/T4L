@@ -1,30 +1,26 @@
-# TODO: Update APIs and Pages for Database Schema Changes
+# Implementazione Calendario Mobile Gestionale Contabile
 
-## Task: Split `contatti` into `email` and `telefono` fields
+## Steps:
+- [x] 1. Analizzare file esistenti e comprendere struttura
+- [x] 2. Creare libreria JavaScript calendario mobile (public/js/mobile-calendar.js)
+- [x] 3. Aggiungere stili CSS per calendario mobile (public/style_mobile_agenda.css)
+- [x] 4. Modificare sezione Resoconti in gestionale_contabile.php
+- [x] 5. Testare funzionalità e responsive
 
-### Phase 1: Update APIs for time4all database
-- [x] `public/api/api_aggiungi_utente.php` - Update to use email and telefono
-- [x] `public/api/api_aggiorna_utente.php` - Update to use email and telefono
+## File coinvolti:
+- public/gestionale_contabile.php
+- public/style_mobile_agenda.css  
+- public/js/mobile-calendar.js (nuovo)
 
+## Implementazione completata!
 
-### Phase 2: Update APIs for time4allergo database
-- [x] `public/api/api_aggiungi_utente_ergo.php` - Update to use email and telefono
-- [x] `public/api/api_modifica_utente_ergo.php` - Update to use email and telefono
+### Caratteristiche del nuovo calendario mobile:
+1. **Design compatto e professionale** - Calendario mensile con navigazione intuitiva
+2. **Giorni cliccabili** - Click su un giorno mostra le attività sotto il calendario
+3. **Indicatore attività** - Puntino verde sui giorni con attività programmate
+4. **Navigazione mese** - Frecce per passare al mese precedente/successivo
+5. **Responsive** - Ottimizzato per dispositivi mobile
+6. **Visualizzazione attività** - Lista dettagliata delle attività del giorno selezionato
 
-
-### Phase 3: Update Pages - time4all (Centro Diurno)
-- [x] `public/gestionale_utenti.php` - Update SQL, data attributes, and JavaScript
-- [x] `public/gestionale_contabile.php` - Update SQL, forms, and JavaScript
-
-
-### Phase 4: Update Pages - time4allergo (Ergoterapeutica)
-- [x] `public/gestionale_ergo_utenti.php` - Update SQL, table, and JavaScript
-- [x] `public/gestionale_ergo_contabile.php` - Update SQL, table, and JavaScript
-- [x] `public/gestionale_ergo_amministratore.php` - Update SQL, table, and JavaScript
-
-
-
-### Phase 5: Testing and Verification
-- [x] Test all APIs with new schema
-- [x] Verify all pages display email/telefono correctly
-- [x] Test add/edit user functionality
+### Ottimizzazioni aggiuntive:
+- **Popup ridimensionato** - Dimensioni ridotte da 1000px a 600px per una visualizzazione più compatta su tutti i dispositivi
