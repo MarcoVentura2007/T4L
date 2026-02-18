@@ -183,18 +183,22 @@ $stmtResoconti->close();
 
 <body>
 
-<!-- LOADER IMMEDIATO - Barra di scorrimento -->
-<div id="page-loader">
-    <div class="loader-logo">
-        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
-    </div>
-    
-    <div class="loader-bar">
-        <div class="loader-progress"></div>
-    </div>
-    
-    
+<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
+<div id="page-loader" class="show">
+<div class="logo-pulse-loader">
+    <div class="logo-pulse-ring"></div>
+    <div class="logo-pulse-ring"></div>
+    <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
 </div>
+
+    <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
+</div>
+
+ 
+
+<script src="js/loader.js"></script>
+
+<script src="js/loader.js"></script>
 
 
 <script src="js/loader.js"></script>

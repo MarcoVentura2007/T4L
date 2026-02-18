@@ -50,21 +50,22 @@ if($resultClasse && $resultClasse->num_rows > 0){
 </head>
 <body>
 
-<!-- LOADER IMMEDIATO - Barra di scorrimento -->
+
+<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
 <div id="page-loader">
-    <div class="loader-logo">
-        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
-    </div>
-    
-    <div class="loader-bar">
-        <div class="loader-progress"></div>
-    </div>
-    
-    
+<div class="logo-pulse-loader">
+    <div class="logo-pulse-ring"></div>
+    <div class="logo-pulse-ring"></div>
+    <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
 </div>
 
+    <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
+</div>
 
 <script src="js/loader.js"></script>
+
+
+
 
 <!-- NAVBAR -->
 <header class="navbar">
@@ -566,7 +567,7 @@ passwordFieldErgo.addEventListener("keydown", (e) => {
         };
 
         // Blocca scroll del body quando un popup è aperto
-        const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
+         const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
         const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
 
         function syncBodyScrollLock() {
