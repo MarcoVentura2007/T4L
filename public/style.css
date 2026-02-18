@@ -3410,7 +3410,6 @@ aside:has(:checked) :where(figcaption, .item--heading) {
     .edit-field select {
         padding: 8px !important;
         font-size: 0.9rem !important;
-        width: 100% !important;
     }
 
     .edit-field label{
