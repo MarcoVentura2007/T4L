@@ -4779,7 +4779,7 @@ select {
 }
 
 #modalResocontoGiorni .activities-section .mc-activities-panel {
-    max-height: 450px;
+    max-height: 500px;
     overflow-y: auto;
     background: #f9fafb;
     border-radius: 8px;

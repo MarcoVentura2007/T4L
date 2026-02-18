@@ -3388,8 +3388,9 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
     const bodyResoconto = document.getElementById("resocontoGiorniBody");
     const titoloResoconto = document.getElementById("resocontoNome");
 
-
     let currentIscritto = null;
+    let mobileCalendarInstance = null;
+
 
     // CARICAMENTO INIZIALE MENSILE
     if(resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
@@ -3487,8 +3488,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 mese: meseDaUsare
             })
         })
-
-
         .then(r => r.json())
         .then(json => {
             if(!bodyResoconto || !document.getElementById("mobileCalendarContainer") || !document.getElementById("attivitaMensiliBody")) return;
@@ -3496,31 +3495,56 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             const attivitaMensiliBody = document.getElementById("attivitaMensiliBody");
             attivitaMensiliBody.innerHTML = "";
 
+            // Reset totali
+            let totalOre = 0;
+            let totalCosto = 0;
+            let giorniPresenza = 0;
+
             if(!json.success || json.data.length === 0){
                 bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
                 attivitaMensiliBody.innerHTML = `<tr><td colspan="2">Nessuna attività</td></tr>`;
                 
-            // Inizializza calendario vuoto
-                const calendarContainer = document.getElementById("mobileCalendarContainer");
-                if(calendarContainer && window.MobileCalendar) {
-                    const meseVal = resocontiMeseFiltro ? resocontiMeseFiltro.value : new Date().toISOString().slice(0, 7);
-                    new MobileCalendar('mobileCalendarContainer', {
-                        selectedDate: new Date(meseVal + '-01'),
-                        activitiesData: {}
-                    });
+                // Aggiorna sommario a zero
+                const summaryOre = document.getElementById('summaryOre');
+                const summaryCosto = document.getElementById('summaryCosto');
+                const summaryGiorni = document.getElementById('summaryGiorni');
+                
+                if(summaryOre) summaryOre.textContent = '0.00';
+                if(summaryCosto) summaryCosto.textContent = '0.00 €';
+                if(summaryGiorni) summaryGiorni.textContent = '0';
+                
+                // Aggiorna calendario esistente con dati vuoti
+                if(mobileCalendarInstance) {
+                    mobileCalendarInstance.setActivitiesData({});
+                } else {
+                    // Inizializza calendario vuoto solo se non esiste
+                    const calendarContainer = document.getElementById("mobileCalendarContainer");
+                    if(calendarContainer && window.MobileCalendar) {
+                        const [anno, mese] = meseDaUsare.split('-');
+                        mobileCalendarInstance = new MobileCalendar('mobileCalendarContainer', {
+                            selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
+                            activitiesData: {},
+                            activitiesPanel: '#mc-activities-panel',
+                            onDayClick: function(dateStr, activities) {
+                                console.log('Giorno selezionato:', dateStr, activities);
+                            },
+                            onMonthChange: function(nuovaData) {
+                                const nuovoAnno = nuovaData.getFullYear();
+                                const nuovoMese = nuovaData.getMonth() + 1;
+                                const nuovoMeseStr = `${nuovoAnno}-${String(nuovoMese).padStart(2, '0')}`;
+                                caricaResocontoGiorni(nuovoMeseStr);
+                            }
+                        });
+                    }
                 }
                 return;
-
             }
 
             const daysMap = new Map();
             const attivitaMap = new Map(); 
-            let totalOre = 0;
-            let totalCosto = 0;
             
             // Prepara dati per il calendario mobile
             const activitiesData = {};
-            let giorniPresenza = 0;
 
             json.data.forEach(r => {
                 const giorno = new Date(r.giorno).getDate();
@@ -3531,7 +3555,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     giorniPresenza++; // Conta i giorni di presenza
                 }
                 const day = daysMap.get(giorno);
-
 
                 r.attivita.forEach(a => {
                     day.attivita.push(a);
@@ -3558,15 +3581,29 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 if (!activitiesData[dateStr]) {
                     activitiesData[dateStr] = [];
                 }
-                r.attivita.forEach(a => {
+                
+                // Se ci sono attività specifiche, aggiungile
+                if (r.attivita && r.attivita.length > 0) {
+                    r.attivita.forEach(a => {
+                        activitiesData[dateStr].push({
+                            nome: a.Nome,
+                            descrizione: `${a.ore.toFixed(2)} ore - ${a.costo.toFixed(2)}€`,
+                            ora_inizio: '',
+                            ora_fine: '',
+                            educatori: ''
+                        });
+                    });
+                } else {
+                    // Se non ci sono attività ma l'iscritto era presente, aggiungi un marker di presenza
                     activitiesData[dateStr].push({
-                        nome: a.Nome,
-                        descrizione: `${a.ore.toFixed(2)} ore - ${a.costo.toFixed(2)}€`,
+                        nome: 'Presente',
+                        descrizione: `${r.ore.toFixed(2)} ore - ${r.costo.toFixed(2)}€`,
                         ora_inizio: '',
                         ora_fine: '',
                         educatori: ''
                     });
-                });
+                }
+
             });
 
             // Popola tabella attività mensili - ORDINATE PER ORE DECRESCENTE
@@ -3591,34 +3628,31 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             if(summaryCosto) summaryCosto.textContent = totalCosto.toFixed(2) + ' €';
             if(summaryGiorni) summaryGiorni.textContent = giorniPresenza;
 
-
-            // Inizializza il nuovo calendario mobile
+            // Aggiorna o crea il calendario mobile
             const calendarContainer = document.getElementById("mobileCalendarContainer");
             if(calendarContainer && window.MobileCalendar) {
-                // Distruggi calendario precedente se esiste
-                calendarContainer.innerHTML = '';
-                
                 const [anno, mese] = meseDaUsare.split('-');
                 
-                new MobileCalendar('mobileCalendarContainer', {
-                    selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
-
-                    activitiesData: activitiesData,
-                    activitiesPanel: '#mc-activities-panel',
-                    onDayClick: function(dateStr, activities) {
-                        console.log('Giorno selezionato:', dateStr, activities);
-                    },
-                    onMonthChange: function(nuovaData) {
-                        // Quando cambia il mese dal calendario, ricarica i dati
-                        const nuovoAnno = nuovaData.getFullYear();
-                        const nuovoMese = nuovaData.getMonth() + 1; // getMonth() returns 0-11
-                        const nuovoMeseStr = `${nuovoAnno}-${String(nuovoMese).padStart(2, '0')}`;
-                        caricaResocontoGiorni(nuovoMeseStr);
-                    }
-
-                });
-
-
+                if(mobileCalendarInstance) {
+                    // Aggiorna calendario esistente
+                    mobileCalendarInstance.setActivitiesData(activitiesData);
+                } else {
+                    // Crea nuovo calendario
+                    mobileCalendarInstance = new MobileCalendar('mobileCalendarContainer', {
+                        selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
+                        activitiesData: activitiesData,
+                        activitiesPanel: '#mc-activities-panel',
+                        onDayClick: function(dateStr, activities) {
+                            console.log('Giorno selezionato:', dateStr, activities);
+                        },
+                        onMonthChange: function(nuovaData) {
+                            const nuovoAnno = nuovaData.getFullYear();
+                            const nuovoMese = nuovaData.getMonth() + 1;
+                            const nuovoMeseStr = `${nuovoAnno}-${String(nuovoMese).padStart(2, '0')}`;
+                            caricaResocontoGiorni(nuovoMeseStr);
+                        }
+                    });
+                }
             }
         })
         .catch(err => {
@@ -3628,6 +3662,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             if(calendarContainer) calendarContainer.innerHTML = `<p style="text-align:center;margin-top:12px;">❌ Errore nel caricamento</p>`;
         });
     }
+
 
 });
 

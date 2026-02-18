@@ -131,6 +131,7 @@ class MobileCalendar {
                 <div class="mc-activities-placeholder">
                     Seleziona un giorno per vedere le attività
                 </div>
+            
             `;
         }
 
@@ -167,8 +168,7 @@ class MobileCalendar {
      */
     changeMonth(direction) {
         this.currentDate.setMonth(this.currentDate.getMonth() + direction);
-        // Clear activities data when changing month - new data will be loaded by parent
-        this.activitiesData = {};
+        // Keep activities data - parent will update via setActivitiesData after onMonthChange
         this.selectedDay = null;
         this.render();
         this.attachEvents();
@@ -186,6 +186,7 @@ class MobileCalendar {
             this.options.onMonthChange(this.currentDate);
         }
     }
+
 
 
     /**
