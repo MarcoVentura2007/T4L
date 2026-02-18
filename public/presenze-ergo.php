@@ -82,6 +82,21 @@ var userMap = <?php echo json_encode($userMap); ?>;
 
 <body>
 
+<!-- LOADER IMMEDIATO - Barra di scorrimento -->
+<div id="page-loader">
+    <div class="loader-logo">
+        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
+    </div>
+    
+    <div class="loader-bar">
+        <div class="loader-progress"></div>
+    </div>
+    
+    
+</div>
+
+<script src="js/loader.js"></script>
+
     <!-- NAVBAR -->
     <header class="navbar">
         
@@ -841,5 +856,7 @@ async function verificaCodice() {
 
     </script>
 
+
 </body>
+
 </html>

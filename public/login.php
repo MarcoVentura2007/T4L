@@ -22,7 +22,25 @@ if (isset($_SESSION['username'])) {
 
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
+
+
 <body style="overflow: hidden;">
+    <!-- LOADER IMMEDIATO - Barra di scorrimento -->
+<div id="page-loader">
+    <div class="loader-logo">
+        <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
+    </div>
+    
+    <div class="loader-bar">
+        <div class="loader-progress"></div>
+    </div>
+    
+    
+</div>
+
+<script src="js/loader.js"></script>
+
   <img src="immagini/top-right.png" alt="" class="top-right">
   <img src="immagini/bottom-left.png" alt="" class="bottom-left">
   <div class="three-columns">
@@ -147,5 +165,7 @@ form.addEventListener('submit', async (event) => {
 </script>
 
 
+
 </body>
+
 </html>
