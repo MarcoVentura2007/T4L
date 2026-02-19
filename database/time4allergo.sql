@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Feb 13, 2026 alle 15:38
+-- Creato il: Feb 19, 2026 alle 12:43
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -24,6 +24,18 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Struttura della tabella `allegati`
+--
+
+CREATE TABLE `allegati` (
+  `id` int(11) NOT NULL,
+  `file` varchar(255) NOT NULL,
+  `ID_Iscritto` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struttura della tabella `iscritto`
 --
 
@@ -33,7 +45,8 @@ CREATE TABLE `iscritto` (
   `Cognome` varchar(255) NOT NULL,
   `Data_nascita` date NOT NULL,
   `Codice_fiscale` varchar(16) NOT NULL,
-  `Contatti` varchar(255) NOT NULL,
+  `Email` varchar(255) NOT NULL,
+  `Telefono` varchar(15) NOT NULL,
   `Disabilita` varchar(255) NOT NULL,
   `Note` varchar(500) NOT NULL,
   `Stipendio_Orario` decimal(10,2) NOT NULL,
@@ -44,13 +57,10 @@ CREATE TABLE `iscritto` (
 -- Dump dei dati per la tabella `iscritto`
 --
 
-INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale`, `Contatti`, `Disabilita`, `Note`, `Stipendio_Orario`, `Fotografia`) VALUES
-(28, 'Jacopo', 'Bertolasi', '2000-01-01', '-', '-', '-', '-', 7.00, 'immagini/1.jpeg'),
-(35, 'Gabriele', 'Corona', '2000-01-01', '--', '-', '-', '-', 10.00, 'immagini/1770635708_6.jpeg'),
-(36, 'Cristian', 'Moretti', '2000-01-01', '---', '---', '-', '-', 10.00, 'immagini/5.jpeg'),
-(38, 'Luca', 'Verzeri', '2000-02-01', '-----', '-----', '-', '-', 15.00, 'immagini/4.jpeg'),
-(45, 'Giorgia', 'Guerini Rocco', '2000-01-01', '------', '-------', '------', '-', 12.00, 'immagini/3.jpeg'),
-(47, 'Davide', 'Nicu', '2000-01-01', '--------', '------', '------', '-------', 11.00, 'immagini/1770635940_2.jpeg');
+INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale`, `Email`, `Telefono`, `Disabilita`, `Note`, `Stipendio_Orario`, `Fotografia`) VALUES
+(28, 'Jacopo', 'Bertolasi', '2000-01-01', '-', '-', 'fhe', '-', '-', 7.00, 'immagini/1.jpeg'),
+(36, 'Cristian', 'Moretti', '2000-01-01', '---', '---', '', '-', '-', 10.00, 'immagini/5.jpeg'),
+(38, 'Luca', 'Verzeri', '2000-02-01', '-----', '---—', '', '-', '-', 15.00, 'immagini/4.jpeg');
 
 -- --------------------------------------------------------
 
@@ -71,12 +81,17 @@ CREATE TABLE `presenza` (
 --
 
 INSERT INTO `presenza` (`id`, `Ingresso`, `Uscita`, `Check_firma`, `ID_Iscritto`) VALUES
-(48, '2026-02-09 08:00:00', '2026-02-09 17:00:00', 1, 35),
 (49, '2026-02-09 09:00:00', '2026-02-09 16:00:00', 1, 36);
 
 --
 -- Indici per le tabelle scaricate
 --
+
+--
+-- Indici per le tabelle `allegati`
+--
+ALTER TABLE `allegati`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indici per le tabelle `iscritto`
@@ -95,6 +110,12 @@ ALTER TABLE `presenza`
 --
 -- AUTO_INCREMENT per le tabelle scaricate
 --
+
+--
+-- AUTO_INCREMENT per la tabella `allegati`
+--
+ALTER TABLE `allegati`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `iscritto`
