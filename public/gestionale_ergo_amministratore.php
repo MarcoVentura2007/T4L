@@ -192,6 +192,62 @@ $stmtResoconti->close();
             display: none;
         }
     }
+
+    #modalResocontoGiorni .summary-value {
+        color: #0b516c;
+    }
+
+    .mc-day.mc-today {
+        background: rgba(13, 44, 107, 0.1);
+        border: 2px solid #0b516c;
+        color: #0b516c;
+    }
+
+    .mc-day.mc-today .mc-day-number {
+        color: #0b516c;
+        font-weight: 700;
+    }
+
+    .mc-day.mc-selected .mc-day-number{
+        color: white;
+    }
+
+    .mc-day.mc-selected {
+        background: #0b516c;
+        color: white;
+        box-shadow: 0 4px 12px rgba(10, 61, 100, 0.3);
+    }
+
+    .mc-day.mc-selected .mc-activity-dot {
+        background: white;
+        box-shadow: 0 0 0 2px #0b516c;
+    }
+
+    .mc-activities-count {
+        background: rgba(10, 59, 100, 0.1);
+        color: #0b516c;
+    }
+
+    .mc-activity-item {
+        border-left: 3px solid #0b516c;
+    }
+
+    .mc-activity-time {
+        color: #0b516c;
+    }
+
+    .form-control{
+        border: 1px solid #0b516c;
+    }
+
+    .mc-nav-btn {
+        color: #0b516c;
+    }
+
+    .mc-nav-btn:hover {
+        background-color: #0b516c;
+    }
+
 </style>
 </head>
 <body>
@@ -1912,18 +1968,26 @@ $stmtResoconti->close();
     }
 
 
+    // Variabile per tracciare il mese corrente nel modal
+    let currentModalMese = null;
+
     // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ E CALENDARIO MOBILE
-    function caricaResocontoGiorni(){
+    function caricaResocontoGiorni(meseForzato = null){
         if(!currentIscritto || !meseInput) return;
+        
+        // Usa il mese forzato (dal calendario) o quello del filtro globale
+        const meseDaUsare = meseForzato || meseInput.value;
+        currentModalMese = meseDaUsare;
 
         fetch("api/api_resoconto_giornaliero_ergo.php", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 id: currentIscritto,
-                mese: meseInput.value
+                mese: meseDaUsare
             })
         })
+
         .then(r => r.json())
         .then(json => {
             if(!bodyResoconto || !document.getElementById("resocontoContent")) return;
@@ -1995,21 +2059,31 @@ $stmtResoconti->close();
                 });
             });
 
+            const [anno, mese] = meseDaUsare.split('-');
+            
             // Inizializza o aggiorna il calendario mobile
             if (mobileCalendarInstance) {
-                mobileCalendarInstance.destroy();
+                // Aggiorna il calendario esistente con i nuovi dati
+                mobileCalendarInstance.setActivitiesData(activitiesData);
+            } else {
+                // Crea nuovo calendario solo la prima volta
+                mobileCalendarInstance = new MobileCalendar('resocontoContent', {
+                    selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
+                    activitiesData: activitiesData,
+                    activitiesPanel: '#mc-activities-panel',
+                    onDayClick: function(date, activities) {
+                        console.log('Giorno selezionato:', date, activities);
+                    },
+                    onMonthChange: function(nuovaData) {
+                        const nuovoAnno = nuovaData.getFullYear();
+                        const nuovoMese = nuovaData.getMonth() + 1;
+                        const nuovoMeseStr = `${nuovoAnno}-${String(nuovoMese).padStart(2, '0')}`;
+                        caricaResocontoGiorni(nuovoMeseStr);
+                    }
+                });
             }
 
-            const [anno, mese] = meseInput.value.split('-');
-            
-            mobileCalendarInstance = new MobileCalendar('resocontoContent', {
-                selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
-                activitiesData: activitiesData,
-                activitiesPanel: '#mc-activities-panel',
-                onDayClick: function(date, activities) {
-                    console.log('Giorno selezionato:', date, activities);
-                }
-            });
+
 
             // Totali - AGGIORNA I TOTALI ESISTENTI
             const updateOrCreateTotals = () => {
