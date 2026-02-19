@@ -51,7 +51,7 @@ if($resultClasse && $resultClasse->num_rows > 0){
 <body>
 
 
-<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
+<!-- LOADER  -->
 <div id="page-loader">
 <div class="logo-pulse-loader">
     <div class="logo-pulse-ring"></div>

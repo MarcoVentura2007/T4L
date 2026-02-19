@@ -91,7 +91,7 @@
             // Fallback: se dopo 10 secondi non sono caricate, procedi comunque
             setTimeout(() => {
                 resolve();
-            }, 7000);
+            }, 4000);
         });
     }
     

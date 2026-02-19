@@ -143,6 +143,7 @@ $stmtResoconti->close();
 <title>T4L | Gestionale utenti</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style_mobile_agenda.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -768,11 +769,29 @@ $stmtResoconti->close();
                         <input type="text" id="resocontoMese">
                     </div>
 
+                    <!-- RIEPILOGO TOTALI -->
+                    <div class="resoconto-summary" id="resocontoSummary">
+                        <div class="summary-card">
+                            <div class="summary-label">Ore Totali</div>
+                            <div class="summary-value" id="summaryOre">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Stipendio Mensile</div>
+                            <div class="summary-value" id="summaryStipendio">0 €</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Giorni di Presenza</div>
+                            <div class="summary-value" id="summaryGiorni">0</div>
+                        </div>
+                    </div>
+
+
                     <!-- NUOVO LAYOUT CALENDARIO + ATTIVITÀ -->
                     <div class="resoconto-calendar-wrapper">
                         <div class="calendar-section">
                             <div id="resocontoContent" class="mobile-calendar"></div>
                         </div>
+
                         <div class="activities-section">
                             <div id="mc-activities-panel" class="mc-activities-panel">
                                 <div class="mc-activities-placeholder">
@@ -1994,30 +2013,18 @@ $stmtResoconti->close();
 
             // Totali - AGGIORNA I TOTALI ESISTENTI
             const updateOrCreateTotals = () => {
-                const modal = document.getElementById('modalResocontoGiorni');
-                if (!modal) return;
+                const summaryOre = document.getElementById('summaryOre');
+                const summaryStipendio = document.getElementById('summaryStipendio');
+                const summaryGiorni = document.getElementById('summaryGiorni');
                 
-                // Rimuovi totali esistenti se presenti
-                const existingTotals = modal.querySelector('.resoconto-totals');
-                if (existingTotals) {
-                    existingTotals.remove();
-                }
-                
-                // Crea nuovi totali
-                const totalsHTML = `<div class="resoconto-totals">
-                    <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(1)}</div></div>
-                    <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Stipendio Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
-                    <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${giorniPresenza}</div></div>
-                </div>`;
-                
-                // Inserisci dopo il wrapper del calendario
-                const calendarWrapper = modal.querySelector('.resoconto-calendar-wrapper');
-                if (calendarWrapper) {
-                    calendarWrapper.insertAdjacentHTML('afterend', totalsHTML);
-                }
+                if(summaryOre) summaryOre.textContent = totalOre.toFixed(2);
+                if(summaryStipendio) summaryStipendio.textContent = totalCosto.toFixed(2) + ' €';
+                if(summaryGiorni) summaryGiorni.textContent = giorniPresenza;
             };
+
             
             updateOrCreateTotals();
+
         })
         .catch(err => {
             console.error(err);
