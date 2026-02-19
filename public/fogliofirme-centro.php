@@ -72,20 +72,6 @@ $conn->close();
 
 <body>
 
-<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
-<div id="page-loader" class="show">
-<div class="logo-pulse-loader">
-    <div class="logo-pulse-ring"></div>
-    <div class="logo-pulse-ring"></div>
-    <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
-</div>
-
-    <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
-</div>
-
- 
-
-<script src="js/loader.js"></script>
 
 
     <!-- NAVBAR -->
@@ -737,20 +723,16 @@ async function verificaCodice() {
             const timeIn = document.getElementById("timeIn").value;
             const timeOut = document.getElementById("timeOut").value;
 
-            // CONTROLLO PRIMA DI ANDARE ALLA FIRMA
             if(timeIn === "" || timeOut === ""){
                 alert("Inserisci prima l'orario di ingresso e di uscita!");
-                return; // blocca il passaggio alla firma
+                return;
             }
 
-            // se ok → vai alla firma
             timePopup.classList.remove("show");
             signPopup.classList.add("show");
             
-            // INIZIALIZZA CANVAS quando il popup si apre
             setTimeout(() => {
                 resizeCanvas();
-                // Forza il focus sul canvas per catturare subito gli eventi
                 canvas.focus();
             }, 50);
         };
@@ -784,7 +766,7 @@ async function verificaCodice() {
 
 
 
-        /* DISEGNO - VERSIONE ROBUSTA */
+        /* DISEGNO */
         const canvas = document.getElementById("signatureCanvas");
         const ctx = canvas.getContext("2d");
         
@@ -798,14 +780,12 @@ async function verificaCodice() {
             const rect = canvas.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
-            // Reimposta le proprietà dopo il resize
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
             ctx.lineWidth = 2;
             ctx.strokeStyle = "#000";
         }
         
-        // Resize iniziale con delay per assicurare che il DOM sia pronto
         setTimeout(resizeCanvas, 100);
         window.addEventListener("resize", resizeCanvas);
 
@@ -813,7 +793,6 @@ async function verificaCodice() {
         let lastX = 0;
         let lastY = 0;
 
-        // Funzione per ottenere coordinate corrette
         function getCoords(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
@@ -824,7 +803,6 @@ async function verificaCodice() {
             };
         }
 
-        // Inizio disegno
         function startDrawing(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -836,7 +814,6 @@ async function verificaCodice() {
             ctx.moveTo(lastX, lastY);
         }
 
-        // Disegno in corso
         function draw(e) {
             if(!drawing) return;
             e.preventDefault();
@@ -848,10 +825,9 @@ async function verificaCodice() {
             lastY = coords.y;
         }
 
-        // Fine disegno
         function stopDrawing(e) {
             drawing = false;
-            ctx.beginPath(); // Resetta il path
+            ctx.beginPath(); 
         }
 
         // Eventi mouse

@@ -21,7 +21,6 @@
   .days-tabs {
     display: flex;
     align-items: stretch;
-    justify-content: center;
     gap: 4px;
     border-bottom: none;
     overflow-x: auto;

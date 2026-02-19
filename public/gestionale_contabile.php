@@ -2082,10 +2082,10 @@ formAggiungiUtente.addEventListener("submit", function (e) {
         });
 
                 // ================= AGENDA =================
- // ================= AGENDA =================
 let agendaData = [];
 let agendaWeekStart = null;
 let selectedDayIndex = 0;
+let currentMonday = null;
 
 // utilità: YYYY-MM-DD locale
 function getLocalDateString(date) {
@@ -2107,6 +2107,8 @@ function calculateWeekDates(weekStartStr) {
         monday = new Date(today);
         monday.setDate(today.getDate() - today.getDay() + 1); // lunedì
     }
+
+    currentMonday = monday;
 
     const dates = [];
     const dateLabels = ['date-monday','date-tuesday','date-wednesday','date-thursday','date-friday'];
@@ -2138,11 +2140,11 @@ function loadAgenda() {
                 agendaData = data.data || [];
                 agendaWeekStart = data.monday || null;
                 calculateWeekDates(agendaWeekStart);
-                let defaultDayIndex = new Date().getDay() - 1; // 0 for Monday, 1 for Tuesday, etc.
-                if (defaultDayIndex < 0 || defaultDayIndex > 4) defaultDayIndex = 0; // Weekend defaults to Monday
+                let defaultDayIndex = new Date().getDay() - 1; // 0 lunedi
+                if (defaultDayIndex < 0 || defaultDayIndex > 4) defaultDayIndex = 0; //weekend forza a lunedi
 
 
-                const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) || defaultDayIndex;
+                const savedDayIndex = parseInt(localStorage.getItem("selectedDayIndex")) ?? defaultDayIndex;
                 displayAgenda(savedDayIndex);
             } else {
                 contentDiv.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
@@ -2186,18 +2188,10 @@ function displayAgenda(dayIndex){
         return;
     }
 
-    // calcola lunedì della settimana
-    let monday;
-    if(agendaWeekStart){
-        const parts = agendaWeekStart.split('-');
-        monday = new Date(parts[0], parts[1]-1, parts[2]);
-    } else {
-        monday = new Date();
-        monday.setDate(monday.getDate() - monday.getDay() + 1);
-    }
+    
 
-    const selectedDate = new Date(monday);
-    selectedDate.setDate(monday.getDate() + dayIndex);
+    const selectedDate = new Date(currentMonday);
+    selectedDate.setDate(currentMonday.getDate() + dayIndex);
     const selectedDateStr = getLocalDateString(selectedDate);
 
     // filtra attività per giorno
