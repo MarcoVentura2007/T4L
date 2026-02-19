@@ -746,7 +746,15 @@ async function verificaCodice() {
             // se ok → vai alla firma
             timePopup.classList.remove("show");
             signPopup.classList.add("show");
+            
+            // INIZIALIZZA CANVAS quando il popup si apre
+            setTimeout(() => {
+                resizeCanvas();
+                // Forza il focus sul canvas per catturare subito gli eventi
+                canvas.focus();
+            }, 50);
         };
+
 
 
 
@@ -776,29 +784,94 @@ async function verificaCodice() {
 
 
 
-        /* DISEGNO */
+        /* DISEGNO - VERSIONE ROBUSTA */
         const canvas = document.getElementById("signatureCanvas");
         const ctx = canvas.getContext("2d");
+        
+        // Imposta proprietà del contesto
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#000";
+        
         function resizeCanvas(){
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            // Reimposta le proprietà dopo il resize
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#000";
         }
-        resizeCanvas();
+        
+        // Resize iniziale con delay per assicurare che il DOM sia pronto
+        setTimeout(resizeCanvas, 100);
         window.addEventListener("resize", resizeCanvas);
 
         let drawing = false;
-        canvas.addEventListener("pointerdown", e=>{
+        let lastX = 0;
+        let lastY = 0;
+
+        // Funzione per ottenere coordinate corrette
+        function getCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+            const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // Inizio disegno
+        function startDrawing(e) {
+            e.preventDefault();
+            e.stopPropagation();
             drawing = true;
+            const coords = getCoords(e);
+            lastX = coords.x;
+            lastY = coords.y;
             ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
-        });
-        canvas.addEventListener("pointermove", e=>{
+            ctx.moveTo(lastX, lastY);
+        }
+
+        // Disegno in corso
+        function draw(e) {
             if(!drawing) return;
-            ctx.lineTo(e.offsetX, e.offsetY);
+            e.preventDefault();
+            e.stopPropagation();
+            const coords = getCoords(e);
+            ctx.lineTo(coords.x, coords.y);
             ctx.stroke();
-        });
-        canvas.addEventListener("pointerup", ()=> drawing=false);
-        canvas.addEventListener("pointerleave", ()=> drawing=false);
+            lastX = coords.x;
+            lastY = coords.y;
+        }
+
+        // Fine disegno
+        function stopDrawing(e) {
+            drawing = false;
+            ctx.beginPath(); // Resetta il path
+        }
+
+        // Eventi mouse
+        canvas.addEventListener("mousedown", startDrawing, {passive: false});
+        canvas.addEventListener("mousemove", draw, {passive: false});
+        canvas.addEventListener("mouseup", stopDrawing);
+        canvas.addEventListener("mouseout", stopDrawing);
+
+        // Eventi touch
+        canvas.addEventListener("touchstart", startDrawing, {passive: false});
+        canvas.addEventListener("touchmove", draw, {passive: false});
+        canvas.addEventListener("touchend", stopDrawing);
+        canvas.addEventListener("touchcancel", stopDrawing);
+
+        // Eventi pointer (fallback)
+        canvas.addEventListener("pointerdown", startDrawing, {passive: false});
+        canvas.addEventListener("pointermove", draw, {passive: false});
+        canvas.addEventListener("pointerup", stopDrawing);
+        canvas.addEventListener("pointerleave", stopDrawing);
+
 
         /* PULISCI */
         document.getElementById("clearSign").onclick = ()=>{
