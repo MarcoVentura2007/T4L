@@ -1,4 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../../data/php_errors.log');
+
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 header("Cache-Control: no-cache");
@@ -179,10 +184,17 @@ if ($fotografia !== null) {
     );
 }
 
-if($stmt->execute()){
-    echo json_encode(['success' => true, 'message' => 'Utente aggiornato']);
-}else{
-    echo json_encode(['success' => false, 'message' => 'Errore: ' . $stmt->error]);
+try {
+    if($stmt->execute()){
+        echo json_encode(['success' => true, 'message' => 'Utente aggiornato']);
+    } else {
+        $errorMsg = 'Errore: ' . $stmt->error;
+        error_log("api_aggiorna_utente error: " . $errorMsg);
+        echo json_encode(['success' => false, 'message' => $errorMsg]);
+    }
+} catch (Exception $e) {
+    error_log("api_aggiorna_utente exception: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Errore: ' . $e->getMessage()]);
 }
 
 $stmt->close();
