@@ -14,24 +14,37 @@ list($anno, $mese) = explode('-', $data['mese']);
 
 $conn = new mysqli("localhost","root","","time4all");
 
-// 1️⃣ prendo tutte le presenze già avvenute
-$sql = "
+// 1️⃣ prendo tutte le presenze già avvenute con prepared statement
+$stmt = $conn->prepare("
 SELECT *
 FROM presenza
-WHERE ID_Iscritto = $idIscritto
-AND MONTH(Ingresso) = $mese
-AND YEAR(Ingresso) = $anno
+WHERE ID_Iscritto = ?
+AND MONTH(Ingresso) = ?
+AND YEAR(Ingresso) = ?
 AND Ingresso <= NOW()
 ORDER BY Ingresso
-";
-$res = $conn->query($sql);
+");
+if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+    exit;
+}
+$stmt->bind_param("iii", $idIscritto, $mese, $anno);
+$stmt->execute();
+$res = $stmt->get_result();
 $presenze = [];
 $days = [];
 
-// costo orario del ragazzo
-$sqlPrezzo = "SELECT Prezzo_Orario FROM iscritto WHERE id = $idIscritto";
-$resPrezzo = $conn->query($sqlPrezzo);
+// costo orario del ragazzo con prepared statement
+$stmtPrezzo = $conn->prepare("SELECT Prezzo_Orario FROM iscritto WHERE id = ?");
+if (!$stmtPrezzo) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+    exit;
+}
+$stmtPrezzo->bind_param("i", $idIscritto);
+$stmtPrezzo->execute();
+$resPrezzo = $stmtPrezzo->get_result();
 $prezzo = $resPrezzo->fetch_assoc()['Prezzo_Orario'];
+
 
 while($p = $res->fetch_assoc()){
     // Handle both uppercase and lowercase column names
@@ -66,14 +79,20 @@ foreach($presenze as $giorno => $pres_list){
     $days[$giorno]['ore'] = round($ore_tot, 2);
     $days[$giorno]['costo'] = round($ore_tot * $prezzo, 2);
 
-    // 2️⃣ prendo le attività per la giornata
-    $sqlAtt = "
+    // 2️⃣ prendo le attività per la giornata con prepared statement
+    $stmtAtt = $conn->prepare("
     SELECT p.ID_Attivita, a.Nome, p.Ora_Inizio, p.Ora_Fine, p.ID_Educatore
     FROM partecipa p
     JOIN attivita a ON a.id = p.ID_Attivita
-    WHERE p.ID_Ragazzo = $idIscritto AND p.Data = '$giorno'
-    ";
-    $resAtt = $conn->query($sqlAtt);
+    WHERE p.ID_Ragazzo = ? AND p.Data = ?
+    ");
+    if (!$stmtAtt) {
+        continue;
+    }
+    $stmtAtt->bind_param("is", $idIscritto, $giorno);
+    $stmtAtt->execute();
+    $resAtt = $stmtAtt->get_result();
+
     $attivita_data = [];
     while($a = $resAtt->fetch_assoc()){
         $id_att = $a['ID_Attivita'];
@@ -134,5 +153,11 @@ foreach($days as $giorno => $data){
 }
 
 echo json_encode(['success'=>true,'data'=>$rows]);
+$stmt->close();
+$stmtPrezzo->close();
+if (isset($stmtAtt)) {
+    $stmtAtt->close();
+}
 $conn->close();
+
 ?>

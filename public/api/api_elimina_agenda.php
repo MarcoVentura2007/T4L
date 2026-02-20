@@ -44,18 +44,26 @@ if ($conn->connect_error) {
     die(json_encode(['success'=>false,'message'=>'Connessione fallita']));
 }
 
-$dataDel = $conn->real_escape_string($parts[1]);
-$oraInizioDel = $conn->real_escape_string($parts[2]) . ':00';
-$oraFineDel = $conn->real_escape_string($parts[3]) . ':00';
+$dataDel = $parts[1];
+$oraInizioDel = $parts[2] . ':00';
+$oraFineDel = $parts[3] . ':00';
 
-// Delete
-$sql = "DELETE FROM partecipa WHERE ID_Attivita = $attivitaId AND Data = '$dataDel' AND Ora_Inizio = '$oraInizioDel' AND Ora_Fine = '$oraFineDel'";
-
-if($conn->query($sql)){
-    echo json_encode(['success'=>true,'message'=>'Agenda eliminata con successo']);
-}else{
-    echo json_encode(['success'=>false,'message'=>'Errore: '.$conn->error]);
+// Delete con prepared statement
+$stmt = $conn->prepare("DELETE FROM partecipa WHERE ID_Attivita = ? AND Data = ? AND Ora_Inizio = ? AND Ora_Fine = ?");
+if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+    exit;
 }
 
+$stmt->bind_param("isss", $attivitaId, $dataDel, $oraInizioDel, $oraFineDel);
+
+if($stmt->execute()){
+    echo json_encode(['success'=>true,'message'=>'Agenda eliminata con successo']);
+}else{
+    echo json_encode(['success'=>false,'message'=>'Errore: '.$stmt->error]);
+}
+
+$stmt->close();
 $conn->close();
+
 ?>

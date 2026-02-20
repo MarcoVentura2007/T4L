@@ -8,9 +8,15 @@ $id = $data['id'] ?? 0; if(!$id){ echo json_encode(['success'=>false,'message'=>
 $host="localhost"; $user="root"; $pass=""; $db="time4allergo";
 $conn = new mysqli($host,$user,$pass,$db); if($conn->connect_error){ echo json_encode(['success'=>false,'message'=>$conn->connect_error]); exit; }
 
-// Prima recupera il nome della fotografia
-$sqlSelect = "SELECT fotografia FROM iscritto WHERE id = $id";
-$resultSelect = $conn->query($sqlSelect);
+// Prima recupera il nome della fotografia con prepared statement
+$stmtSelect = $conn->prepare("SELECT fotografia FROM iscritto WHERE id = ?");
+if (!$stmtSelect) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+    exit;
+}
+$stmtSelect->bind_param("i", $id);
+$stmtSelect->execute();
+$resultSelect = $stmtSelect->get_result();
 $fotografia = null;
 if ($resultSelect && $resultSelect->num_rows > 0) {
     $row = $resultSelect->fetch_assoc();
@@ -18,6 +24,7 @@ if ($resultSelect && $resultSelect->num_rows > 0) {
 }
 
 $stmt = $conn->prepare("DELETE FROM iscritto WHERE id=?");
+
 
 $stmt->bind_param("i",$id);
 if($stmt->execute()) {
@@ -40,4 +47,6 @@ if($stmt->execute()) {
 }
 else echo json_encode(['success'=>false,'message'=>$stmt->error]);
 
-$stmt->close(); $conn->close();
+$stmt->close();
+$stmtSelect->close();
+$conn->close();

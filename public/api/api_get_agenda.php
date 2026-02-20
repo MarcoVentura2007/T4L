@@ -36,8 +36,8 @@ $friday->modify('Friday this week');
 $mondayStr = $monday->format('Y-m-d');
 $fridayStr = $friday->format('Y-m-d');
 
-// --- Query attività + educatori ---
-$sql = "SELECT 
+// --- Query attività + educatori con prepared statement ---
+$stmt = $conn->prepare("SELECT 
             p.id AS partecipa_id,
             p.Data,
             p.Ora_Inizio,
@@ -51,15 +51,24 @@ $sql = "SELECT
         FROM partecipa p
         INNER JOIN attivita a ON p.ID_Attivita = a.id
         INNER JOIN educatore e ON p.ID_Educatore = e.id
-        WHERE p.Data BETWEEN '$mondayStr' AND '$fridayStr'
-        ORDER BY p.Data ASC, p.Ora_Inizio ASC";
+        WHERE p.Data BETWEEN ? AND ?
+        ORDER BY p.Data ASC, p.Ora_Inizio ASC");
 
-$result = $conn->query($sql);
+if (!$stmt) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Prepare fallito: ' . $conn->error]);
+    exit;
+}
+
+$stmt->bind_param("ss", $mondayStr, $fridayStr);
+$stmt->execute();
+$result = $stmt->get_result();
 if (!$result) {
     http_response_code(500);
     echo json_encode(['error' => 'Query attività fallita: ' . $conn->error]);
     exit;
 }
+
 
 // Organizza attività ed educatori
 $attivita_map = [];
@@ -93,8 +102,8 @@ while ($row = $result->fetch_assoc()) {
     }
 }
 
-// --- Query ragazzi ---
-$sql_ragazzi = "SELECT
+// --- Query ragazzi con prepared statement ---
+$stmt_ragazzi = $conn->prepare("SELECT
                     p.ID_Attivita,
                     p.Data,
                     p.Ora_Inizio,
@@ -106,10 +115,19 @@ $sql_ragazzi = "SELECT
                     p.presenza_effettiva AS effettiva_presenza
                 FROM partecipa p
                 INNER JOIN iscritto i ON p.ID_Ragazzo = i.id
-                WHERE p.Data BETWEEN '$mondayStr' AND '$fridayStr'
-                ORDER BY p.Data ASC, p.Ora_Inizio ASC";
+                WHERE p.Data BETWEEN ? AND ?
+                ORDER BY p.Data ASC, p.Ora_Inizio ASC");
 
-$result_ragazzi = $conn->query($sql_ragazzi);
+if (!$stmt_ragazzi) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Prepare fallito: ' . $conn->error]);
+    exit;
+}
+
+$stmt_ragazzi->bind_param("ss", $mondayStr, $fridayStr);
+$stmt_ragazzi->execute();
+$result_ragazzi = $stmt_ragazzi->get_result();
+
 $ragazzi_per_attivita = [];
 
 if ($result_ragazzi) {
@@ -151,5 +169,7 @@ echo json_encode([
     'friday' => $fridayStr
 ]);
 
+$stmt->close();
+$stmt_ragazzi->close();
 $conn->close();
 ?>
