@@ -42,18 +42,22 @@ if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]));
 }
 
-// Escape dati
-$nome = $conn->real_escape_string($nome);
-$descrizione = $conn->real_escape_string($descrizione);
-
-// Aggiornamento
-$sql = "UPDATE attivita SET Nome='$nome', Descrizione='$descrizione' WHERE id=$id";
-
-if ($conn->query($sql) === TRUE) {
-    echo json_encode(['success'=>true, 'message'=>'Attività modificata con successo']);
-} else {
-    echo json_encode(['success'=>false, 'message'=>'Errore: ' . $conn->error]);
+// Aggiornamento con prepared statement
+$stmt = $conn->prepare("UPDATE attivita SET Nome = ?, Descrizione = ? WHERE id = ?");
+if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+    exit;
 }
 
+$stmt->bind_param("ssi", $nome, $descrizione, $id);
+
+if ($stmt->execute()) {
+    echo json_encode(['success'=>true, 'message'=>'Attività modificata con successo']);
+} else {
+    echo json_encode(['success'=>false, 'message'=>'Errore: ' . $stmt->error]);
+}
+
+$stmt->close();
 $conn->close();
+
 ?>

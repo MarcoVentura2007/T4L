@@ -101,44 +101,90 @@ if(empty($id)){
     exit;
 }
 
-// Costruzione query SQL
+// Costruzione query SQL con prepared statement
 if ($fotografia !== null) {
     // Aggiorna anche la fotografia
     $sql = "UPDATE iscritto SET 
-            nome='$nome',
-            cognome='$cognome',
-            data_nascita='$data_nascita',
-            codice_fiscale='$codice_fiscale',
-            email='$email',
-            telefono='$telefono',
-            disabilita='$disabilita',
-            allergie_intolleranze='$intolleranze',
-            prezzo_orario='$prezzo_orario',
-            note='$note',
-            fotografia='$fotografia'
-            WHERE id=$id";
+            nome = ?,
+            cognome = ?,
+            data_nascita = ?,
+            codice_fiscale = ?,
+            email = ?,
+            telefono = ?,
+            disabilita = ?,
+            allergie_intolleranze = ?,
+            prezzo_orario = ?,
+            note = ?,
+            fotografia = ?
+            WHERE id = ?";
+    
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Errore nella preparazione della query: ' . $conn->error]);
+        exit;
+    }
+    
+    // bind_param: s=string, d=double, i=integer
+    // 11 parametri: 10 stringhe + 1 intero per l'ID
+    $stmt->bind_param(
+        "ssssssssdssi",
+        $nome,
+        $cognome,
+        $data_nascita,
+        $codice_fiscale,
+        $email,
+        $telefono,
+        $disabilita,
+        $intolleranze,
+        $prezzo_orario,
+        $note,
+        $fotografia,
+        $id
+    );
 } else {
     // Non aggiornare la fotografia
     $sql = "UPDATE iscritto SET 
-            nome='$nome',
-            cognome='$cognome',
-            data_nascita='$data_nascita',
-            codice_fiscale='$codice_fiscale',
-            email='$email',
-            telefono='$telefono',
-            disabilita='$disabilita',
-            allergie_intolleranze='$intolleranze',
-            prezzo_orario='$prezzo_orario',
-            note='$note'
-            WHERE id=$id";
+            nome = ?,
+            cognome = ?,
+            data_nascita = ?,
+            codice_fiscale = ?,
+            email = ?,
+            telefono = ?,
+            disabilita = ?,
+            allergie_intolleranze = ?,
+            prezzo_orario = ?,
+            note = ?
+            WHERE id = ?";
+    
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Errore nella preparazione della query: ' . $conn->error]);
+        exit;
+    }
+    
+    // 10 stringhe + 1 intero per l'ID
+    $stmt->bind_param(
+        "ssssssssdssi",
+        $nome,
+        $cognome,
+        $data_nascita,
+        $codice_fiscale,
+        $email,
+        $telefono,
+        $disabilita,
+        $intolleranze,
+        $prezzo_orario,
+        $note,
+        $id
+    );
 }
 
-
-if($conn->query($sql) === TRUE){
+if($stmt->execute()){
     echo json_encode(['success' => true, 'message' => 'Utente aggiornato']);
 }else{
-    echo json_encode(['success' => false, 'message' => 'Errore: ' . $conn->error]);
+    echo json_encode(['success' => false, 'message' => 'Errore: ' . $stmt->error]);
 }
 
+$stmt->close();
 $conn->close();
 ?>

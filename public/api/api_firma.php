@@ -42,18 +42,25 @@
     $ingresso = $oggi . ' ' . $timeIn . ':00';
     $uscita   = $oggi . ' ' . $timeOut . ':00';
 
-    // --- QUERY (IDENTICA ALLA TUA) ---
-    $sql = "INSERT INTO Presenza (Ingresso, Uscita, Check_firma, ID_Iscritto) 
-            VALUES ('$ingresso', '$uscita', $check_firma, $id_iscritto)";
+    // --- QUERY CON PREPARED STATEMENT ---
+    $stmt = $conn->prepare("INSERT INTO Presenza (Ingresso, Uscita, Check_firma, ID_Iscritto) VALUES (?, ?, ?, ?)");
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+        exit;
+    }
+    
+    $stmt->bind_param("ssii", $ingresso, $uscita, $check_firma, $id_iscritto);
 
-    if ($conn->query($sql) === TRUE) {
+    if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode([
             'success' => false,
-            'message' => $conn->error
+            'message' => $stmt->error
         ]);
     }
 
+    $stmt->close();
     $conn->close();
+
 ?>

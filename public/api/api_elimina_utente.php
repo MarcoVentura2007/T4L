@@ -32,9 +32,16 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Prima recupera il nome della fotografia
-$sqlSelect = "SELECT fotografia FROM iscritto WHERE id = $id_iscritto";
-$resultSelect = $conn->query($sqlSelect);
+// Prima recupera il nome della fotografia con prepared statement
+$stmtSelect = $conn->prepare("SELECT fotografia FROM iscritto WHERE id = ?");
+if (!$stmtSelect) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+    exit;
+}
+$stmtSelect->bind_param("i", $id_iscritto);
+$stmtSelect->execute();
+$resultSelect = $stmtSelect->get_result();
+
 
 if ($resultSelect && $resultSelect->num_rows > 0) {
     $row = $resultSelect->fetch_assoc();
@@ -57,14 +64,23 @@ if ($resultSelect && $resultSelect->num_rows > 0) {
     }
 }
 
-// Ora elimina il record dal database
-$sql = "DELETE FROM iscritto WHERE id = $id_iscritto";
+// Ora elimina il record dal database con prepared statement
+$stmt = $conn->prepare("DELETE FROM iscritto WHERE id = ?");
+if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+    $stmtSelect->close();
+    exit;
+}
+$stmt->bind_param("i", $id_iscritto);
 
-if ($conn->query($sql) === TRUE) {
+if ($stmt->execute()) {
     echo json_encode(['success' => true]);
 } else {
-    echo json_encode(['success' => false, 'message' => $conn->error]);
+    echo json_encode(['success' => false, 'message' => $stmt->error]);
 }
 
+$stmt->close();
+$stmtSelect->close();
 $conn->close();
+
 ?>

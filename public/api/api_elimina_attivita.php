@@ -38,14 +38,22 @@ if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]));
 }
 
-// Eliminazione
-$sql = "DELETE FROM attivita WHERE id=$id";
-
-if ($conn->query($sql) === TRUE) {
-    echo json_encode(['success'=>true, 'message'=>'Attività eliminata con successo']);
-} else {
-    echo json_encode(['success'=>false, 'message'=>'Errore: ' . $conn->error]);
+// Eliminazione con prepared statement
+$stmt = $conn->prepare("DELETE FROM attivita WHERE id = ?");
+if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
+    exit;
 }
 
+$stmt->bind_param("i", $id);
+
+if ($stmt->execute()) {
+    echo json_encode(['success'=>true, 'message'=>'Attività eliminata con successo']);
+} else {
+    echo json_encode(['success'=>false, 'message'=>'Errore: ' . $stmt->error]);
+}
+
+$stmt->close();
 $conn->close();
+
 ?>
