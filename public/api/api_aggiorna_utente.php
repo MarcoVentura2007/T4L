@@ -130,9 +130,9 @@ if ($fotografia !== null) {
     }
     
     // bind_param: s=string, d=double, i=integer
-    // 11 parametri: 10 stringhe + 1 intero per l'ID
+    // 12 parametri: 10 stringhe + 1 double + 1 intero per l'ID
     $stmt->bind_param(
-        "ssssssssdssi",
+        "sssssssssdssi",
         $nome,
         $cognome,
         $data_nascita,
@@ -146,6 +146,7 @@ if ($fotografia !== null) {
         $fotografia,
         $id
     );
+
 } else {
     // Non aggiornare la fotografia
     $sql = "UPDATE iscritto SET 
@@ -167,9 +168,9 @@ if ($fotografia !== null) {
         exit;
     }
     
-    // 10 stringhe + 1 intero per l'ID
+    // 10 parametri: 9 stringhe + 1 double + 1 intero per l'ID
     $stmt->bind_param(
-        "ssssssssdssi",
+        "ssssssssdsi",
         $nome,
         $cognome,
         $data_nascita,
@@ -182,6 +183,7 @@ if ($fotografia !== null) {
         $note,
         $id
     );
+
 }
 
 try {

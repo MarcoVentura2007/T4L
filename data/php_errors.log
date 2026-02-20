@@ -1,2 +1,12 @@
 [14-Feb-2026 11:30:07 Europe/Berlin] api_aggiungi_utente_ergo error: Duplicate entry 'ALEDOWN' for key 'Codice_fiscale'
 [14-Feb-2026 12:33:58 Europe/Berlin] api_aggiungi_utente_ergo error: Duplicate entry 'LUCYLAIN' for key 'Codice_fiscale'
+[20-Feb-2026 11:15:15 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:171
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(171): mysqli_stmt->bind_param('ssssssssdssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', '9.00', 'Ne'gro', 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 171
+[20-Feb-2026 11:15:19 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:171
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(171): mysqli_stmt->bind_param('ssssssssdssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', '9.00', 'j', 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 171
