@@ -122,7 +122,6 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="style_mobile_agenda.css">
-<link rel="stylesheet" href="stylr_mobile_no_zoom.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -2735,55 +2734,52 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
         // Submit form
-        formAggiungiUtente.onsubmit = function(e) {
-            e.preventDefault();
+            formAggiungiUtente.onsubmit = async function(e) {
+        e.preventDefault();
 
-            const formData = new FormData();
-            formData.append("nome", document.getElementById("utenteNome").value.trim());
-            formData.append("cognome", document.getElementById("utenteCognome").value.trim());
-            formData.append("data_nascita", document.getElementById("utenteData").value);
-            formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-            formData.append("email", document.getElementById("utenteEmail").value.trim());
-            formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
+        const formData = new FormData();
+        formData.append("nome", document.getElementById("utenteNome").value.trim());
+        formData.append("cognome", document.getElementById("utenteCognome").value.trim());
+        formData.append("data_nascita", document.getElementById("utenteData").value);
+        formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
+        formData.append("email", document.getElementById("utenteEmail").value.trim());
+        formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
+        formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
+        formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
+        formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value));
+        formData.append("note", document.getElementById("utenteNote").value.trim());
 
-            formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
-            formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
-            formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value));
-            formData.append("note", document.getElementById("utenteNote").value.trim());
+        const fotoInput = document.getElementById("utenteFoto");
+        if(fotoInput.files.length > 0){
+            formData.append("foto", fotoInput.files[0]); 
+        }
 
-            const fotoInput = document.getElementById("utenteFoto");
-            if(fotoInput.files.length > 0){
-                formData.append("foto", fotoInput.files[0]); 
-            }
+        const res = await fetch("api/api_aggiungi_utente.php", {
+            method: "POST",
+            body: formData
+        });
 
-            fetch("api/api_aggiungi_utente.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){       
-                    modalAggiungiUtente.classList.remove("show");
-                    successText.innerText = "Utente Aggiunto!!";
-                    showSuccess(successPopup, Overlay);
-                    
+        const data = await res.json();
+
+        if(data.success){
 
 
-                        setTimeout(() => {
-                        hideSuccess(successPopup, Overlay);
-                        if(Overlay) Overlay.classList.remove("show");
-                        location.reload();
-                    },1800); 
+            await uploadAllegati(data.id);
 
-                } else {
-                    alert("Errore: " + data.message);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Errore nel caricamento!");
-            });
-        };
+            modalAggiungiUtente.classList.remove("show");
+            successText.innerText = "Utente Aggiunto!!";
+            showSuccess(successPopup, Overlay);
+
+            setTimeout(() => {
+                hideSuccess(successPopup, Overlay);
+                if(Overlay) Overlay.classList.remove("show");
+                location.reload();
+            },1800);
+
+        } else {
+            alert("Errore: " + data.message);
+        }
+    };
 
 
         const utenteFoto = document.getElementById("utenteFoto");

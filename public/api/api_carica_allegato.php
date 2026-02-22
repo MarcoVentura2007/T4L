@@ -92,21 +92,22 @@ if ($conn->connect_error) {
 }
 
 // Inserisci nel database
-$stmt = $conn->prepare("INSERT INTO allegati (id_iscritto, percorso, nome_file, data_upload) VALUES (?, ?, ?, NOW())");
+$stmt = $conn->prepare("INSERT INTO allegati (percorso_file, ID_Iscritto, data_upload, nome_file) VALUES (?, ?, NOW(), ?)");
 if (!$stmt) {
     unlink($targetPath);
     echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
     exit;
 }
 
-$stmt->bind_param("iss", $id_iscritto, $percorsoDb, $file['name']);
+$stmt->bind_param("sis", $percorsoDb, $id_iscritto, $file['name']);
 
 if ($stmt->execute()) {
-    echo json_encode([
+        echo json_encode([
         'success' => true, 
         'message' => 'Allegato caricato con successo',
         'id' => $stmt->insert_id,
-        'percorso' => $percorsoDb,
+        'percorso_file' => $percorsoDb,
+        'ID_Iscritto' => $id_iscritto,
         'nome_file' => $file['name']
     ]);
 } else {
