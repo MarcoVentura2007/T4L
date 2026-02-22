@@ -138,13 +138,15 @@ $resultResoconti = $conn->query($sqlResoconti);
             display: none;
         }
     }
+
 </style>
+
 
 
 </head>
 <body>
+<!--
 
-<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
 <div id="page-loader" class="show">
 <div class="logo-pulse-loader">
     <div class="logo-pulse-ring"></div>
@@ -155,7 +157,7 @@ $resultResoconti = $conn->query($sqlResoconti);
     <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
 </div>
 
- 
+-->
 
  <script src="js/loader.js"></script>
 
@@ -443,9 +445,9 @@ $resultResoconti = $conn->query($sqlResoconti);
                             </div>
                         </div>
 
-
                         <div class="edit-field">
                             <label>Disabilità</label>
+
                             <input type="text" id="utenteDisabilita">
                         </div>
                         <div class="edit-field">
@@ -461,10 +463,38 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <textarea id="utenteNote"></textarea>
                         </div>
 
+                        <!-- SEZIONE ALLEGATI -->
+                        <div class="edit-field">
+                            <label>Allegati</label>
+                            <div class="allegati-upload-container" id="allegatiContainer">
+                                <input type="file" id="utenteAllegati" multiple 
+                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xls,.xlsx" hidden>
+                                
+                                <div class="allegati-drop-zone" id="allegatiDropZone">
+                                    <div class="allegati-icon"><img src="immagini/paperclip.png" alt="Graffetta"></div>
+                                    <p class="allegati-text">Trascina i file qui o clicca per selezionare</p>
+                                    <p class="allegati-hint">PDF, DOC, DOCX, JPG, PNG, GIF, TXT, XLS, XLSX (max 10MB)</p>
+                                    <button type="button" class="file-btn-minimal" 
+                                        onclick="document.getElementById('utenteAllegati').click()">
+                                        Seleziona file
+                                    </button>
+                                </div>
+
+                                <div class="allegati-list" id="allegatiList" style="display:none;">
+                                    <div class="allegati-list-header">
+                                        <span>File selezionati</span>
+                                        <button type="button" class="allegati-clear-all" id="clearAllAllegati">Rimuovi tutti</button>
+                                    </div>
+                                    <ul id="allegatiItems"></ul>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="modal-actions">
                             <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
                             <button type="submit" class="btn-primary">Salva</button>
                         </div>
+
                     </form>
                 </div>
                 <div class="header-mobile">
@@ -555,9 +585,22 @@ $resultResoconti = $conn->query($sqlResoconti);
                             </div>
                         </div>
                         <div class="profile-grid" id="viewContent"></div>
+                        
+                        <!-- SEZIONE ALLEGATI -->
+                        <div class="allegati-section" id="viewAllegatiSection" style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 15px;">
+                            <h4 style="margin-bottom: 15px; color: #2b2b2b; display: flex; align-items: center; gap: 8px;">
+                                <img src="immagini/paperclip.png" alt="Allegati" style="width: 20px; height: 20px;">
+                                Allegati
+                            </h4>
+                            <div id="viewAllegatiList" class="allegati-list-view">
+                                <p style="color: #888; font-style: italic;">Caricamento allegati...</p>
+                            </div>
+                        </div>
+                        
                         <div class="modal-actions">
                             <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
                         </div>
+
 
                         <!-- Presenze form (hidden by default) -->
                         <div id="presenzeFormBox" style="display:none;">
@@ -1809,7 +1852,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
     // Popup view
     document.querySelectorAll(".view-btn").forEach(btn=>{
-        btn.onclick = e=>{
+        btn.onclick = async e=>{
             const row = e.target.closest("tr");
 
             const avatar = row.querySelector("img").src;
@@ -1821,6 +1864,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             const email = row.dataset.email;
             const telefono = row.dataset.telefono;
             const disabilita = row.dataset.disabilita;
+            const idIscritto = row.dataset.id;
 
             const intolleranze = row.dataset.intolleranze;
             const prezzo = row.dataset.prezzo;
@@ -1843,9 +1887,69 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
             `;
 
+            // Carica allegati
+            await caricaAllegatiUtente(idIscritto);
+
             openModal(viewModal);
         }
     });
+
+    // Funzione per caricare gli allegati di un utente
+    async function caricaAllegatiUtente(idIscritto) {
+        const allegatiListDiv = document.getElementById("viewAllegatiList");
+        allegatiListDiv.innerHTML = '<p style="color: #888; font-style: italic;">Caricamento allegati...</p>';
+        
+        try {
+            const response = await fetch(`api/api_get_allegati.php?id_iscritto=${idIscritto}`);
+            const data = await response.json();
+            
+            if (!data.success || !data.allegati || data.allegati.length === 0) {
+                allegatiListDiv.innerHTML = '<p style="color: #888; font-style: italic;">Nessun allegato presente</p>';
+                return;
+            }
+            
+            let html = '<div class="allegati-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">';
+            
+            data.allegati.forEach(allegato => {
+                const icon = getAllegatoIcon(allegato.tipo);
+                const dataFormattata = new Date(allegato.data_upload).toLocaleDateString('it-IT');
+                
+                html += `
+                    <div class="allegato-card" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; background: #f9f9f9;">
+                        <div class="allegato-icon-big" style="font-size: 32px;">${icon}</div>
+                        <div class="allegato-info" style="flex: 1; min-width: 0;">
+                            <div class="allegato-name" style="font-weight: 500; color: #2b2b2b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${allegato.nome_file}">${allegato.nome_file}</div>
+                            <div class="allegato-date" style="font-size: 12px; color: #888;">${dataFormattata}</div>
+                        </div>
+                        <a href="${allegato.percorso}" target="_blank" class="allegato-download" style="color: #640a35; text-decoration: none; font-size: 20px;" title="Scarica">⬇️</a>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            allegatiListDiv.innerHTML = html;
+            
+        } catch (error) {
+            console.error("Errore caricamento allegati:", error);
+            allegatiListDiv.innerHTML = '<p style="color: #d32f2f; font-style: italic;">Errore nel caricamento degli allegati</p>';
+        }
+    }
+    
+    // Funzione per ottenere l'icona in base al tipo di file
+    function getAllegatoIcon(tipo) {
+        const icons = {
+            'pdf': '📄',
+            'doc': '📝',
+            'docx': '📝',
+            'image': '🖼️',
+            'xls': '📊',
+            'xlsx': '📊',
+            'txt': '📃',
+            'file': '📎'
+        };
+        return icons[tipo] || icons['file'];
+    }
+
     if(Overlay) Overlay.onclick = closeModal;
 
     // Presenze: edit/delete handlers
@@ -2379,6 +2483,212 @@ $resultResoconti = $conn->query($sqlResoconti);
         const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
         const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
+
+        // ===== GESTIONE ALLEGATI =====
+        const allegatiInput = document.getElementById("utenteAllegati");
+        const allegatiDropZone = document.getElementById("allegatiDropZone");
+        const allegatiList = document.getElementById("allegatiList");
+        const allegatiItems = document.getElementById("allegatiItems");
+        const clearAllAllegati = document.getElementById("clearAllAllegati");
+        
+        let selectedAllegati = [];
+
+        // Formatta dimensione file
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Ottieni icona per tipo file
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': '📄',
+                'doc': '📝', 'docx': '📝',
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️',
+                'txt': '📃',
+                'xls': '📊', 'xlsx': '📊'
+            };
+            return icons[ext] || '📎';
+        }
+
+        // Aggiorna lista allegati
+        function updateAllegatiList() {
+            if (selectedAllegati.length === 0) {
+                allegatiList.style.display = 'none';
+                return;
+            }
+
+            allegatiList.style.display = 'block';
+            allegatiItems.innerHTML = '';
+
+            selectedAllegati.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'allegato-item';
+                li.innerHTML = `
+                    <div class="allegato-info">
+                        <span class="allegato-icon">${getFileIcon(file.name)}</span>
+                        <div class="allegato-details">
+                            <span class="allegato-name" title="${file.name}">${file.name}</span>
+                            <span class="allegato-size">${formatFileSize(file.size)}</span>
+                            <div class="allegato-progress" id="progress-${index}" style="display:none;">
+                                <div class="allegato-progress-bar" id="progress-bar-${index}"></div>
+                            </div>
+                            <div class="allegato-status" id="status-${index}"></div>
+                        </div>
+                    </div>
+                    <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>
+                `;
+                allegatiItems.appendChild(li);
+            });
+
+            // Aggiungi event listener per rimuovere
+            document.querySelectorAll('.allegato-remove').forEach(btn => {
+                btn.onclick = function() {
+                    const idx = parseInt(this.dataset.index);
+                    selectedAllegati.splice(idx, 1);
+                    updateAllegatiList();
+                };
+            });
+        }
+
+        // Gestione selezione file
+        if (allegatiInput) {
+            allegatiInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    // Validazione dimensione (max 10MB)
+                    const maxSize = 10 * 1024 * 1024;
+                    const validFiles = Array.from(this.files).filter(file => {
+                        if (file.size > maxSize) {
+                            alert(`File "${file.name}" troppo grande (max 10MB)`);
+                            return false;
+                        }
+                        return true;
+                    });
+                    
+                    selectedAllegati = [...selectedAllegati, ...validFiles];
+                    updateAllegatiList();
+                }
+            });
+        }
+
+        // Drag and drop
+        if (allegatiDropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                allegatiDropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                allegatiDropZone.addEventListener(eventName, () => {
+                    allegatiDropZone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                allegatiDropZone.addEventListener(eventName, () => {
+                    allegatiDropZone.classList.remove('dragover');
+                }, false);
+            });
+
+            allegatiDropZone.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                const maxSize = 10 * 1024 * 1024;
+                const validFiles = Array.from(files).filter(file => {
+                    if (file.size > maxSize) {
+                        alert(`File "${file.name}" troppo grande (max 10MB)`);
+                        return false;
+                    }
+                    return true;
+                });
+                
+                selectedAllegati = [...selectedAllegati, ...validFiles];
+                updateAllegatiList();
+            });
+
+            allegatiDropZone.addEventListener('click', function(e) {
+                if (e.target !== allegatiInput) {
+                    allegatiInput.click();
+                }
+            });
+        }
+
+        // Rimuovi tutti gli allegati
+        if (clearAllAllegati) {
+            clearAllAllegati.onclick = function() {
+                selectedAllegati = [];
+                updateAllegatiList();
+            };
+        }
+
+        // Upload allegati per un utente
+        async function uploadAllegati(idIscritto) {
+            if (selectedAllegati.length === 0) return { success: true };
+
+            const results = [];
+            
+            for (let i = 0; i < selectedAllegati.length; i++) {
+                const file = selectedAllegati[i];
+                const progressBar = document.getElementById(`progress-bar-${i}`);
+                const progressContainer = document.getElementById(`progress-${i}`);
+                const statusDiv = document.getElementById(`status-${i}`);
+
+                if (progressContainer) progressContainer.style.display = 'block';
+                if (statusDiv) statusDiv.textContent = 'Caricamento...';
+
+                const formData = new FormData();
+                formData.append('id_iscritto', idIscritto);
+                formData.append('allegato', file);
+
+                try {
+                    const response = await fetch('api/api_carica_allegato.php', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        if (progressBar) {
+                            progressBar.style.width = '100%';
+                            progressBar.classList.add('complete');
+                        }
+                        if (statusDiv) {
+                            statusDiv.textContent = '✓ Caricato';
+                            statusDiv.classList.add('complete');
+                        }
+                        results.push({ success: true, file: file.name });
+                    } else {
+                        if (progressBar) progressBar.classList.add('error');
+                        if (statusDiv) {
+                            statusDiv.textContent = '✗ Errore: ' + data.message;
+                            statusDiv.classList.add('error');
+                        }
+                        results.push({ success: false, file: file.name, error: data.message });
+                    }
+                } catch (error) {
+                    if (progressBar) progressBar.classList.add('error');
+                    if (statusDiv) {
+                        statusDiv.textContent = '✗ Errore di rete';
+                        statusDiv.classList.add('error');
+                    }
+                    results.push({ success: false, file: file.name, error: error.message });
+                }
+            }
+
+            return results;
+        }
+
         const aggiungiAgendaBtnMobile = document.getElementById("aggiungi-agenda-btn-mobile");
         const aggiungiAttivitaBtnMobile = document.getElementById("aggiungi-attivita-btn-mobile");
         const aggiungiEducatoreBtnMobile = document.getElementById("aggiungi-educatore-btn-mobile");
@@ -3791,6 +4101,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 <script src="js/mobile-calendar.js"></script>
 
+</script>
 
 </body>
 

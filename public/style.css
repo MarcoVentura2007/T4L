@@ -1,4 +1,4 @@
-::selection{
+ ::selection{
     background: rgba(67, 3, 43, 0.4);
     color: rgb(255, 255, 255);
     text-shadow: 0 0 0.1rem black;
@@ -5066,6 +5066,340 @@ section h3 {
 
 .header-agenda{
     display: flex;
+    width: 95%;
+    margin: 0 auto;
+    height: auto;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+/* ================================
+   ALLEGATI STYLES (Attachments)
+================================ */
+
+/* Allegati Upload Container */
+.allegati-upload-container {
+    margin-top: 8px;
+}
+
+/* Drop Zone */
+.allegati-drop-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background-color: #f9fafb;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.allegati-drop-zone:hover,
+.allegati-drop-zone.dragover {
+    border-color: #640a35;
+    background-color: #fefefe;
+}
+
+.allegati-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.allegati-icon img {
+    width: 40px;
+    height: 40px;
+    opacity: 0.6;
+}
+
+.allegati-text {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 500;
+    margin: 10px 0;
+}
+
+.allegati-hint {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 15px;
+}
+
+/* Allegati List */
+.allegati-list {
+    margin-top: 16px;
+}
+
+.allegati-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 10px;
+}
+
+.allegati-list-header span {
+    font-weight: 600;
+    color: #374151;
+}
+
+.allegati-clear-all {
+    background: transparent;
+    border: none;
+    color: #640a35;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.allegati-clear-all:hover {
+    background: rgba(100, 10, 53, 0.1);
+    text-decoration: underline;
+}
+
+/* Allegato Item */
+#allegatiItems {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.allegato-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.allegato-item:last-child {
+    margin-bottom: 0;
+}
+
+.allegato-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.allegato-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.allegato-icon {
+    font-size: 24px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.allegato-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.allegato-name {
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.allegato-size {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* Progress Bar */
+.allegato-progress {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #e5e7eb;
+    margin-top: 6px;
+    display: none;
+    overflow: hidden;
+}
+
+.allegato-progress.show {
+    display: block;
+}
+
+.allegato-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #640a35, #af145f);
+    transition: width 0.3s ease;
+    border-radius: 3px;
+    width: 0%;
+}
+
+.allegato-progress-bar.complete {
+    width: 100%;
+}
+
+.allegato-progress-bar.error {
+    background: #dc2626 !important;
+}
+
+/* Status */
+.allegato-status {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 4px;
+    transition: all 0.2s ease;
+}
+
+.allegato-status.complete {
+    color: #059669;
+}
+
+.allegato-status.error {
+    color: #dc2626;
+}
+
+/* Remove Button */
+.allegato-remove {
+    background: transparent;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 18px;
+    line-height: 1;
+    color: #9ca3af;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.allegato-remove:hover {
+    color: #dc2626;
+    border-color: #dc2626;
+    background: rgba(220, 38, 38, 0.05);
+}
+
+/* ================================
+   ALLEGATI VIEW STYLES (Display)
+================================ */
+
+.allegati-section {
+    margin-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+}
+
+.allegati-section h4 {
+    margin-bottom: 15px;
+    color: #2b2b2b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.allegati-section h4 img {
+    width: 20px;
+    height: 20px;
+}
+
+.allegati-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.allegato-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
+}
+
+.allegato-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.allegato-icon-big {
+    font-size: 32px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.allegato-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.allegato-name {
+    font-weight: 500;
+    color: #2b2b2b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+}
+
+.allegato-date {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.allegato-download {
+    color: #640a35;
+    text-decoration: none;
+    font-size: 20px;
+    transition: all 0.2s ease;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.allegato-download:hover {
+    background: rgba(100, 10, 53, 0.1);
+    transform: scale(1.1);
+}
+
+.allegati-list-view {
+    margin-top: 10px;
+}
+
+.allegati-list-view p {
+    color: #888;
+    font-style: italic;
     width: 95%;
     margin: 0 auto;
     height: auto;
