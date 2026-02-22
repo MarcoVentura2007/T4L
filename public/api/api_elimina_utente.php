@@ -32,6 +32,39 @@ if ($conn->connect_error) {
     exit;
 }
 
+// Recupera gli allegati associati all'utente
+$stmtAllegati = $conn->prepare("SELECT percorso_file FROM allegati WHERE ID_Iscritto = ?");
+if (!$stmtAllegati) {
+    echo json_encode(['success' => false, 'message' => 'Errore prepare allegati: ' . $conn->error]);
+    exit;
+}
+$stmtAllegati->bind_param("i", $id_iscritto);
+$stmtAllegati->execute();
+$resultAllegati = $stmtAllegati->get_result();
+
+// Elimina i file fisici degli allegati
+if ($resultAllegati && $resultAllegati->num_rows > 0) {
+    while ($rowAllegato = $resultAllegati->fetch_assoc()) {
+        $percorsoFile = $rowAllegato['percorso_file'];
+        if ($percorsoFile && !empty($percorsoFile)) {
+            $filePath = __DIR__ . '/../' . $percorsoFile;
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+    }
+}
+
+// Elimina i record degli allegati dal database
+$stmtDeleteAllegati = $conn->prepare("DELETE FROM allegati WHERE ID_Iscritto = ?");
+if ($stmtDeleteAllegati) {
+    $stmtDeleteAllegati->bind_param("i", $id_iscritto);
+    $stmtDeleteAllegati->execute();
+    $stmtDeleteAllegati->close();
+}
+
+$stmtAllegati->close();
+
 // Prima recupera il nome della fotografia con prepared statement
 $stmtSelect = $conn->prepare("SELECT fotografia FROM iscritto WHERE id = ?");
 if (!$stmtSelect) {
@@ -41,6 +74,9 @@ if (!$stmtSelect) {
 $stmtSelect->bind_param("i", $id_iscritto);
 $stmtSelect->execute();
 $resultSelect = $stmtSelect->get_result();
+
+
+
 
 
 if ($resultSelect && $resultSelect->num_rows > 0) {

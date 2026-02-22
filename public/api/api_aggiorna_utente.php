@@ -94,7 +94,6 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
     $telefono = $data['telefono'] ?? '';
     $disabilita = $data['disabilita'] ?? '';
     $intolleranze = $data['intolleranze'] ?? '';
-
     $prezzo_orario = $data['prezzo_orario'] ?? '';
     $note = $data['note'] ?? '';
     $fotografia = null;

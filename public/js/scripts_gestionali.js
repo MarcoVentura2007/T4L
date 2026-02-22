@@ -497,6 +497,7 @@ function initGestionali() {
     }
 }
 
+
 // Esporta le funzioni per l'uso globale
 window.Gestionali = Gestionali;
 window.openModal = openModal;
@@ -513,3 +514,5 @@ window.getLocalDateString = getLocalDateString;
 window.initGestionali = initGestionali;
 window.initFotoPreview = initFotoPreview;
 window.apiCall = apiCall;
+window.getAllegatoIcon = getAllegatoIcon;
+window.getFileIcon = getFileIcon;
