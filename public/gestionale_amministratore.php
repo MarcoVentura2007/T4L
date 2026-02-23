@@ -2256,10 +2256,15 @@ $resultResoconti = $conn->query($sqlResoconti);
             });
 
             allegatiEditDropZone.addEventListener('click', function(e) {
-                if (e.target !== editAllegatiInput) {
-                    editAllegatiInput.click();
+                // Non aprire il file dialog se il click è sul bottone "Seleziona file"
+                // (il bottone ha già il suo onclick che apre il dialog)
+                if (e.target.closest('.file-btn-minimal')) {
+                    return;
                 }
+                allegatiEditInput.click();
             });
+
+            
         }
 
         // Rimuovi tutti gli allegati edit
