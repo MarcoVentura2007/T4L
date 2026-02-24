@@ -2123,6 +2123,151 @@ $resultResoconti = $conn->query($sqlResoconti);
             return icons[ext] || '<img src="immagini/paperclip.png" alt="File" style="width: 20px; height: 20px;">';
         }
 
+        // Variabili per il modal di eliminazione allegato
+        let allegatoToDelete = null;
+        let iscrittoAllegatoToDelete = null;
+        let allegatoNomeToDelete = null;
+
+        // Funzione per creare l'overlay dedicato all'eliminazione allegato
+        function getAllegatoOverlay() {
+            let overlay = document.getElementById('allegatoOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'allegatoOverlay';
+                overlay.className = 'modal-overlay';
+                overlay.style.zIndex = '10001'; // Sopra tutti gli altri elementi (sopra modal edit z-index 10000)
+
+                document.body.appendChild(overlay);
+                
+                // Chiudi il modal quando si clicca sull'overlay
+                overlay.addEventListener('click', closeDeleteAllegatoModal);
+            }
+            return overlay;
+        }
+
+        // Funzione per mostrare il modal di conferma eliminazione allegato
+        function showDeleteAllegatoModal(idAllegato, idIscritto, nomeFile) {
+            allegatoToDelete = idAllegato;
+            iscrittoAllegatoToDelete = idIscritto;
+            allegatoNomeToDelete = nomeFile;
+            
+            // Crea il modal se non esiste
+            let modal = document.getElementById('modalDeleteAllegato');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalDeleteAllegato';
+                modal.className = 'modal-box danger';
+                modal.style.zIndex = '10002'; // Sopra l'overlay dedicato
+
+                document.body.appendChild(modal);
+            }
+            
+            // Ottieni l'icona in base all'estensione del file
+            const fileIcon = getFileIcon(nomeFile);
+            
+            // Aggiorna il contenuto del modal con il nome del file
+            modal.innerHTML = `
+                <h3>Elimina allegato</h3>
+                <div style="display: flex; align-items: center; gap: 12px; margin: 15px 0; padding: 12px; background: #f5f5f5; border-radius: 8px; border: 1px solid #e0e0e0;">
+                    <div style="font-size: 24px;">${fileIcon}</div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 500; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${nomeFile}">${nomeFile}</div>
+                        <div style="font-size: 12px; color: #888; margin-top: 2px;">Verrà eliminato definitivamente</div>
+                    </div>
+                </div>
+                <p style="color: #d32f2f; font-size: 14px; margin-bottom: 15px;">
+                    <strong>Attenzione:</strong> Questa azione non può essere annullata.
+                </p>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeDeleteAllegatoModal()">Annulla</button>
+                    <button class="btn-danger" id="confirmDeleteAllegatoBtn">Elimina</button>
+                </div>
+            `;
+            
+            // Aggiungi event listener al bottone di conferma
+            document.getElementById('confirmDeleteAllegatoBtn').addEventListener('click', confirmDeleteAllegato);
+            
+            const allegatoOverlay = getAllegatoOverlay();
+            allegatoOverlay.classList.add('show');
+            modal.classList.add('show');
+            
+            // Aggiungi listener per chiusura con tasto ESC
+            document.addEventListener('keydown', handleEscKey);
+        }
+
+        // Gestione tasto ESC per chiudere il modal
+        function handleEscKey(e) {
+            if (e.key === 'Escape') {
+                closeDeleteAllegatoModal();
+            }
+        }
+
+        // Funzione per chiudere il modal
+        function closeDeleteAllegatoModal() {
+            const modal = document.getElementById('modalDeleteAllegato');
+            const allegatoOverlay = document.getElementById('allegatoOverlay');
+            if (modal) modal.classList.remove('show');
+            if (allegatoOverlay) allegatoOverlay.classList.remove('show');
+            allegatoToDelete = null;
+            iscrittoAllegatoToDelete = null;
+            allegatoNomeToDelete = null;
+            
+            // Rimuovi listener per tasto ESC
+            document.removeEventListener('keydown', handleEscKey);
+        }
+
+        // Funzione per confermare l'eliminazione
+        async function confirmDeleteAllegato() {
+            if (!allegatoToDelete || !iscrittoAllegatoToDelete) return;
+            
+            // Disabilita il bottone durante l'eliminazione
+            const btn = document.getElementById('confirmDeleteAllegatoBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Eliminazione...';
+            }
+            
+            try {
+                const response = await fetch('api/api_elimina_allegato.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                body: JSON.stringify({ id: allegatoToDelete })
+
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeDeleteAllegatoModal();
+                    // Ricarica la lista degli allegati
+                    await caricaAllegatiEsistenti(iscrittoAllegatoToDelete);
+                } else {
+                    alert('Errore: ' + (data.message || 'Impossibile eliminare l\'allegato'));
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = 'Elimina';
+                    }
+                }
+            } catch (error) {
+                console.error("Errore eliminazione allegato:", error);
+                alert('Errore di rete durante l\'eliminazione');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Elimina';
+                }
+            }
+        }
+
+        // Funzione per eliminare un allegato (mostra il modal)
+        function eliminaAllegato(idAllegato, idIscritto, nomeFile) {
+            showDeleteAllegatoModal(idAllegato, idIscritto, nomeFile);
+        }
+
+
+
         // Carica allegati esistenti per l'utente in modifica
         async function caricaAllegatiEsistenti(idIscritto) {
             allegatiEsistentiList.innerHTML = '<p style="color: #888; font-style: italic; width: 100%;">Caricamento...</p>';
@@ -2139,18 +2284,22 @@ $resultResoconti = $conn->query($sqlResoconti);
                 let html = '';
                 data.allegati.forEach(allegato => {
                     const icon = getAllegatoIcon(allegato.tipo);
+                    // Escapa il nome del file per l'uso in onclick
+                    const nomeFileEscaped = allegato.nome_file.replace(/'/g, "\\'").replace(/"/g, '"');
                     html += `
                         <div class="allegato-esistente" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; background: #f9f9f9; font-size: 13px;">
                             ${icon}
                             <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" title="${allegato.nome_file}">${allegato.nome_file}</span>
-                            <a href="${allegato.percorso}" target="_blank" title="Scarica" style="color: #640a35;">
+                            <button type="button" onclick="eliminaAllegato(${allegato.id}, ${idIscritto}, '${nomeFileEscaped}')" title="Elimina allegato" style="color: #d32f2f; background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#ffebee'" onmouseout="this.style.background='none'">
+
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 5v14M5 12h14"/>
+                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                                 </svg>
-                            </a>
+                            </button>
                         </div>
                     `;
                 });
+
                 
                 allegatiEsistentiList.innerHTML = html;
                 
@@ -2159,6 +2308,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 allegatiEsistentiList.innerHTML = '<p style="color: #d32f2f; font-style: italic; width: 100%;">Errore nel caricamento</p>';
             }
         }
+
 
         // Aggiorna lista allegati edit
         function updateAllegatiEditList() {
@@ -3866,9 +4016,10 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     ragazzi: ragazzi
                 };
                 console.log("Payload:", payload);
-
+                
                 fetch("api/api_aggiungi_agenda.php", {
                     method: "POST",
+
                     headers: {
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest"
@@ -4436,8 +4587,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 <script src="js/mobile-calendar.js"></script>
 
-</script>
-
 </body>
+
 
 </html>

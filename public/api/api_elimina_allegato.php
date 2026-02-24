@@ -16,9 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Recupera dati JSON
 $data = json_decode(file_get_contents('php://input'), true);
-$id_allegato = isset($data['id_allegato']) ? intval($data['id_allegato']) : 0;
+$id = isset($data['id']) ? intval($data['id']) : 0;
 
-if ($id_allegato <= 0) {
+if ($id <= 0) {
+
     echo json_encode(['success' => false, 'message' => 'ID allegato non valido']);
     exit;
 }
@@ -37,7 +38,7 @@ if ($conn->connect_error) {
 
 // Recupera percorso file prima di eliminare
 $stmt = $conn->prepare("SELECT percorso FROM allegati WHERE id = ?");
-$stmt->bind_param("i", $id_allegato);
+$stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -54,7 +55,7 @@ $stmt->close();
 
 // Elimina dal database
 $stmt = $conn->prepare("DELETE FROM allegati WHERE id = ?");
-$stmt->bind_param("i", $id_allegato);
+$stmt->bind_param("i", $id);
 
 if ($stmt->execute()) {
     // Elimina file fisico
