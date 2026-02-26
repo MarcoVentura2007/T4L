@@ -137,7 +137,12 @@ function showSuccess(popup, overlay) {
  */
 function hideSuccess(popup, overlay) {
     if (popup) popup.classList.remove('show');
-    if (overlay) overlay.classList.remove('show');
+    if (overlay) {
+        const anyVisible = document.querySelector(
+            '.modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .popup-overlay.show, .logout-overlay.show'
+        );
+        if (!anyVisible) overlay.classList.remove('show');
+    }
 }
 
 // ==========================================

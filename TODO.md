@@ -80,6 +80,10 @@ formAggiungiUtente.onsubmit = async function(e) {
 ### Fase 4: Verifica Directory ✅ COMPLETATO
 - [x] La cartella `public/allegati/` esiste e viene creata automaticamente se mancante
 
+## Fase 5: Correzioni aggiuntive ✅ COMPLETATO
+- [x] Risolto il bug che impediva l'aggiornamento della lista dopo l'eliminazione (modal chiudeva prima di ricaricare)
+- [x] Aggiunta piena gestione allegati anche nella pagina `gestionale_contabile.php` (visualizzazione, upload, eliminazione)
+
 
 ## Query SQL necessarie:
 ```sql

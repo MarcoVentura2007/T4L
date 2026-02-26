@@ -437,6 +437,33 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <textarea id="utenteNote"></textarea>
                         </div>
 
+                        <!-- SEZIONE ALLEGATI -->
+                        <div class="edit-field">
+                            <label>Allegati</label>
+                            <div class="allegati-upload-container" id="allegatiContainer">
+                                <input type="file" id="utenteAllegati" multiple 
+                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xls,.xlsx" hidden>
+                                
+                                <div class="allegati-drop-zone" id="allegatiDropZone">
+                                    <div class="allegati-icon"><img src="immagini/paperclip.png" alt="Graffetta"></div>
+                                    <p class="allegati-text">Trascina i file qui o clicca per selezionare</p>
+                                    <p class="allegati-hint">PDF, DOC, DOCX, JPG, PNG, GIF, TXT, XLS, XLSX (max 10MB)</p>
+                                    <button type="button" class="file-btn-minimal" 
+                                        onclick="document.getElementById('utenteAllegati').click()">
+                                        Seleziona file
+                                    </button>
+                                </div>
+
+                                <div class="allegati-list" id="allegatiList" style="display:none;">
+                                    <div class="allegati-list-header">
+                                        <span>File selezionati</span>
+                                        <button type="button" class="allegati-clear-all" id="clearAllAllegati">Rimuovi tutti</button>
+                                    </div>
+                                    <ul id="allegatiItems"></ul>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="modal-actions">
                             <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
                             <button type="submit" class="btn-primary">Salva</button>
@@ -521,6 +548,118 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </tbody>
                     </table>
 
+                    <!-- EDIT MODAL -->
+                    <div class="modal-box large" id="editModal">
+                        <h3 class="modal-title" id="modalEditTitle">Modifica utente</h3>
+
+                        <div class="profile-header" id="profileHeader" style="display: none;">
+                            <img id="viewAvatar-mod" class="profile-avatar">
+                            <div class="profile-main">
+                                <h3 id="viewFullname-mod"></h3>
+                                <span id="viewBirth-mod"></span>
+                            </div>
+                        </div>
+
+                        <div class="edit-grid" id="editContent">
+                            <div class="edit-field" id="fieldNome">
+                                <label>Nome</label>
+                                <input type="text" id="editNome" placeholder="Nome">
+                            </div>
+                            <div class="edit-field" id="fieldCognome">
+                                <label>Cognome</label>
+                                <input type="text" id="editCognome" placeholder="Cognome">
+                            </div>
+                            <div class="edit-field" id="fieldData">
+                                <label>Data di nascita</label>
+                                <input type="date" id="editData">
+                            </div>
+                            <div class="edit-field" id="fieldCF">
+                                <label>Codice Fiscale</label>
+                                <input type="text" id="editCF" placeholder="Codice Fiscale">
+                            </div>
+                            <div class="edit-field" id="fieldEmail">
+                                <label>Email</label>
+                                <input type="email" id="editEmail" placeholder="Email">
+                            </div>
+                            <div class="edit-field" id="fieldTelefono">
+                                <label>Telefono</label>
+                                <input type="tel" id="editTelefono" placeholder="Telefono">
+                            </div>
+
+                            <div class="edit-field" id="fieldDisabilita">
+                                <label>Disabilità</label>
+                                <input type="text" id="editDisabilita" placeholder="Disabilità">
+                            </div>
+                            <div class="edit-field" id="fieldIntolleranze">
+                                <label>Intolleranze</label>
+                                <input type="text" id="editIntolleranze" placeholder="Intolleranze">
+                            </div>
+                            <div class="edit-field" id="fieldPrezzo">
+                                <label>Prezzo orario</label>
+                                <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
+                            </div>
+                            <div class="edit-field" id="fieldNote">
+                                <label>Note</label>
+                                <textarea id="editNote" placeholder="Note"></textarea>
+                            </div>
+                            <div class="edit-field" id="fieldFotografia">
+                                <label>Fotografia</label>
+                                <div class="file-inline" id="editFileContainer">
+                                    <input type="file" id="editFoto" accept="image/*" hidden>
+                                    <button type="button" class="file-btn-minimal" onclick="document.getElementById('editFoto').click()">
+                                        Scegli file
+                                    </button>
+                                    <div class="file-preview-container">
+                                        <img id="editPreviewFotoMini" class="preview-mini" style="display:none;">
+                                        <button type="button" id="editClearFileBtn" class="clear-file-btn" title="Rimuovi file" style="display:none;">&times;</button>
+                                    </div>
+                                    <span class="file-name" id="editNomeFileFoto">Nessun file</span>
+                                </div>
+                            </div>
+
+                            <!-- SEZIONE ALLEGATI EDIT -->
+                            <div class="edit-field" id="fieldAllegatiEdit">
+                                <label>Allegati</label>
+                                
+                                <!-- Allegati esistenti -->
+                                <div id="allegatiEsistentiContainer" style="margin-bottom: 15px;">                                    <div id="allegatiEsistentiList" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        <!-- Popolato da JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Upload nuovi allegati -->
+                                <div class="allegati-upload-container" id="allegatiEditContainer">
+                                    <input type="file" id="editAllegati" multiple 
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xls,.xlsx" hidden>
+                                    
+                                    <div class="allegati-drop-zone" id="allegatiEditDropZone" style="padding: 15px;">
+                                        <div class="allegati-icon"><img src="immagini/paperclip.png" alt="Graffetta" style="width: 24px; height: 24px;"></div>
+                                        <p class="allegati-text" style="font-size: 13px;">Trascina i file qui o clicca per selezionare</p>
+                                        <p class="allegati-hint" style="font-size: 11px;">PDF, DOC, DOCX, JPG, PNG, GIF, TXT, XLS, XLSX (max 10MB)</p>
+                                        <button type="button" class="file-btn-minimal" 
+                                            onclick="document.getElementById('editAllegati').click()">
+                                            Seleziona file
+                                        </button>
+                                    </div>
+
+                                    <div class="allegati-list" id="allegatiEditList" style="display:none;">
+                                        <div class="allegati-list-header">
+                                            <span>Nuovi file selezionati</span>
+                                            <button type="button" class="allegati-clear-all" id="clearAllEditAllegati">Rimuovi tutti</button>
+                                        </div>
+                                        <ul id="allegatiEditItems"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="edit-field" id="fieldIngresso" style="display: none;">
+
+                                <label>Ingresso (ora)</label>
+                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="saveEdit">Salva</button>
+                        </div>
+                    </div>
+
                     <div class="modal-box large" id="viewModal">
                         <div class="profile-header">
                             <img id="viewAvatar" class="profile-avatar">
@@ -530,6 +669,18 @@ $resultResoconti = $conn->query($sqlResoconti);
                             </div>
                         </div>
                         <div class="profile-grid" id="viewContent"></div>
+                        
+                        <!-- SEZIONE ALLEGATI -->
+                        <div class="allegati-section" id="viewAllegatiSection" style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 15px;">
+                            <h4 style="margin-bottom: 15px; color: #2b2b2b; display: flex; align-items: center; gap: 8px;">
+                                <img src="immagini/paperclip.png" alt="Allegati" style="width: 20px; height: 20px;">
+                                Allegati
+                            </h4>
+                            <div id="viewAllegatiList" class="allegati-list-view">
+                                <p style="color: #888; font-style: italic;">Caricamento allegati...</p>
+                            </div>
+                        </div>
+                        
                         <div class="modal-actions">
                             <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
                         </div>
@@ -1195,70 +1346,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </div>
                 </div>
 
-                <!-- EDIT MODAL -->
-                <div class="modal-box large" id="editModal" style="overflow: scroll;">
-                        <h3 class="modal-title">Modifica utente</h3>
-
-                        <div class="profile-header">
-                            <img id="viewAvatar-mod" class="profile-avatar">
-                            <div class="profile-main">
-                                <h3 id="viewFullname-mod"></h3>
-                                <span id="viewBirth-mod"></span>
-                            </div>
-                        </div>
-
-                        <div class="edit-grid" id="editContent">
-                            <!-- Riempito da JS -->
-                            <div class="edit-field">
-                                <label>Nome</label>
-                                <input type="text" id="editNome" placeholder="Nome">
-                            </div>
-                            <div class="edit-field">
-                                <label>Cognome</label>
-                                <input type="text" id="editCognome" placeholder="Cognome">
-                            </div>
-                            <div class="edit-field">
-                                <label>Data di nascita</label>
-                                <input type="date" id="editData">
-                            </div>
-                            <div class="edit-field">
-                                <label>Codice Fiscale</label>
-                                <input type="text" id="editCF" placeholder="Codice Fiscale">
-                            </div>
-                            <div class="edit-field">
-                            <label>Email</label>
-                            <input type="email" id="editEmail" placeholder="Email">
-                        </div>
-                        <div class="edit-field">
-                            <label>Telefono</label>
-                            <input type="tel" id="editTelefono" placeholder="Telefono">
-
-                            </div>
-                            <div class="edit-field">
-                                <label>Disabilità</label>
-                                <input type="text" id="editDisabilita" placeholder="Disabilità">
-                            </div>
-                            <div class="edit-field">
-                                <label>Intolleranze</label>
-                                <input type="text" id="editIntolleranze" placeholder="Intolleranze">
-                            </div>
-                            <div class="edit-field">
-                                <label>Prezzo orario</label>
-                                <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
-                            </div>
-                            <div class="edit-field">
-                                <label>Note</label>
-                                <textarea id="editNote" placeholder="Note"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button class="btn-primary" id="saveEdit">Salva</button>
-                        </div>
-                    
-                </div>
-
 
                 <!-- DELETE USER -->
                 <div class="modal-box danger" id="deleteModal">
@@ -1467,13 +1554,20 @@ $resultResoconti = $conn->query($sqlResoconti);
     }
     function hideSuccess(popup, overlay = modalOverlay) {
         if (popup) popup.classList.remove("show");
-        if (overlay) overlay.classList.remove("show");
+    if (overlay) {
+        // only hide the overlay when no other modal/popup is visible
+        const anyVisible = document.querySelector(
+            ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .popup-overlay.show, .logout-overlay.show"
+        );
+        if (!anyVisible) {
+            overlay.classList.remove("show");
+        }
     }
-
     // Popup view
     document.querySelectorAll(".view-btn").forEach(btn=>{
-        btn.onclick = e=>{
+        btn.onclick = async e=>{
             const row = e.target.closest("tr");
+            const idIscritto = row.dataset.id;
 
             const avatar = row.querySelector("img").src;
             const nome = row.dataset.nome;
@@ -1506,9 +1600,71 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
             `;
 
+            // Carica gli allegati per l'utente visualizzato
+            await caricaAllegatiUtente(idIscritto);
+
             openModal(viewModal);
         }
     });
+
+    // Funzione per caricare gli allegati di un utente nella vista
+    async function caricaAllegatiUtente(idIscritto) {
+        const allegatiListDiv = document.getElementById("viewAllegatiList");
+        allegatiListDiv.innerHTML = '<p style="color: #888; font-style: italic;">Caricamento allegati...</p>';
+        try {
+            const response = await fetch(`api/api_get_allegati.php?id_iscritto=${idIscritto}`);
+            const data = await response.json();
+            if (!data.success || !data.allegati || data.allegati.length === 0) {
+                allegatiListDiv.innerHTML = '<p style="color: #888; font-style: italic;">Nessun allegato presente</p>';
+                return;
+            }
+            let html = '<div class="allegati-grid">';
+            data.allegati.forEach(allegato => {
+                const icon = getAllegatoIcon(allegato.tipo);
+                const dataFormattata = new Date(allegato.data_upload).toLocaleDateString('it-IT');
+                html += `
+                    <div class="allegato-card" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; background: #f9f9f9;">
+                        <div class="allegato-icon-big" style="font-size: 26px;">${icon}</div>
+                        <div class="allegato-info" style="flex: 1; min-width: 0;">
+                            <div class="allegato-name" style="font-weight: 500; color: #2b2b2b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${allegato.nome_file}">${allegato.nome_file}</div>
+                            <div class="allegato-date" style="font-size: 12px; color: #888;">${dataFormattata}</div>
+                        </div>
+                        <a href="${allegato.percorso}" target="_blank" class="allegato-download" style="color: #640a35; text-decoration: none; font-size: 20px;" title="Scarica">
+                            <div class="group relative">
+                                <button
+                                    class="bg-white w-6 h-6 flex justify-center items-center rounded 
+                                        text-black border border-black
+                                        hover:bg-black hover:text-white hover:translate-y-0.5
+                                        transition-all duration-200"
+                                >
+                                    <svg
+                                        class="w-4 h-4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                                            stroke-linejoin="round"
+                                            stroke-linecap="round"
+                                        ></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            allegatiListDiv.innerHTML = html;
+        } catch (error) {
+            console.error("Errore caricamento allegati:", error);
+            allegatiListDiv.innerHTML = '<p style="color: #d32f2f; font-style: italic;">Errore nel caricamento degli allegati</p>';
+        }
+    }
+
     if (modalOverlay) {
         modalOverlay.onclick = closeModal;
     }
@@ -1548,7 +1704,7 @@ $resultResoconti = $conn->query($sqlResoconti);
         }
 
         document.querySelectorAll(".edit-btn").forEach(btn=>{
-            btn.onclick = e=>{
+            btn.onclick = async e=>{
                 const row = e.target.closest("tr");
 
                 const avatar = row.querySelector("img").src;
@@ -1558,7 +1714,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 const idIscritto = row.dataset.id;
 
                 editModal.dataset.userId = idIscritto;
-
 
                 document.getElementById("viewAvatar-mod").src = avatar;
                 document.getElementById("viewFullname-mod").innerText = nome + " " + cognome;
@@ -1581,6 +1736,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                 if(editPreview) editPreview.style.display = "none";
                 if(editFileNameSpan) editFileNameSpan.innerText = "Nessun file";
                 if(editClearBtn) editClearBtn.style.display = "none";
+
+                // reset attachments edit arrays
+                selectedAllegatiEdit = [];
+                if(allegatiEditList) allegatiEditList.style.display = 'none';
+
+                // carica eventuali allegati esistenti
+                await caricaAllegatiEsistenti(idIscritto);
 
                 openModal(editModal);
             }
@@ -1631,11 +1793,14 @@ $resultResoconti = $conn->query($sqlResoconti);
         const modalBoxEdit = document.getElementById("editModal");
         
         document.getElementById("saveEdit").onclick = () => {
-            const id = editModal.dataset.userId; // <-- ID dell'iscritto
+            const id = editModal.dataset.userId;
             const fotoInput = document.getElementById("editFoto");
+            
+            console.log("SaveEdit clicked - ID:", id, "FotoInput:", fotoInput, "Files:", fotoInput ? fotoInput.files.length : 0);
 
             // Se c'è un file selezionato, usa FormData
             if(fotoInput && fotoInput.files.length > 0) {
+                console.log("File found, sending FormData");
                 const formData = new FormData();
                 formData.append("id", id);
                 formData.append("nome", document.getElementById("editNome").value);
@@ -1644,7 +1809,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 formData.append("codice_fiscale", document.getElementById("editCF").value);
                 formData.append("email", document.getElementById("editEmail").value);
                 formData.append("telefono", document.getElementById("editTelefono").value);
-
                 formData.append("disabilita", document.getElementById("editDisabilita").value);
                 formData.append("intolleranze", document.getElementById("editIntolleranze").value);
                 formData.append("prezzo_orario", document.getElementById("editPrezzo").value);
@@ -1656,8 +1820,12 @@ $resultResoconti = $conn->query($sqlResoconti);
                     body: formData
                 })
                 .then(res => res.json())
-                .then(data => {
+                .then(async data => {
+                    console.log("API response:", data);
                     if(data.success){
+                        if(selectedAllegatiEdit && selectedAllegatiEdit.length > 0) {
+                            await uploadAllegatiEdit(id);
+                        }
                         modalBoxEdit.classList.remove("show");
                         successText.innerText = "Utente modificato!!";
                         showSuccess(successPopup);
@@ -1669,8 +1837,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                     } else {
                         alert("Errore: " + data.message);
                     }
+                })
+                .catch(err => {
+                    console.error("Fetch error:", err);
+                    alert("Errore nella comunicazione");
                 });
             } else {
+                console.log("No file, sending JSON");
                 // Nessun file, usa JSON come prima
                 const payload = {
                     id: id,
@@ -1681,7 +1854,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                     email: document.getElementById("editEmail").value,
                     telefono: document.getElementById("editTelefono").value,
                     disabilita: document.getElementById("editDisabilita").value,
-
                     intolleranze: document.getElementById("editIntolleranze").value,
                     prezzo_orario: document.getElementById("editPrezzo").value,
                     note: document.getElementById("editNote").value
@@ -1696,12 +1868,15 @@ $resultResoconti = $conn->query($sqlResoconti);
                     body: JSON.stringify(payload)
                 })
                 .then(res => res.json())
-                .then(data => {
+                .then(async data => {
+                    console.log("API response:", data);
                     if(data.success){
+                        if(selectedAllegatiEdit && selectedAllegatiEdit.length > 0) {
+                            await uploadAllegatiEdit(id);
+                        }
                         modalBoxEdit.classList.remove("show");
                         successText.innerText = "Utente modificato!!";
                         showSuccess(successPopup);
-                        
 
                         setTimeout(()=>{
                             hideSuccess(successPopup);
@@ -1710,6 +1885,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                     } else {
                         alert("Errore: " + data.message);
                     }
+                })
+                .catch(err => {
+                    console.error("Fetch error:", err);
+                    alert("Errore nella comunicazione");
                 });
             }
         };
@@ -1935,8 +2114,365 @@ clearBtn.addEventListener("click", function () {
 
 
 
+// ===== GESTIONE ALLEGATI =====
+const allegatiEsistentiList = document.getElementById("allegatiEsistentiList");
+// helpers
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const icons = {
+        'pdf': '<img src="immagini/pdf.png" alt="PDF" style="width: 20px; height: 20px;">',
+        'doc': '<img src="immagini/docx.png" alt="DOC" style="width: 20px; height: 20px;">',
+        'docx': '<img src="immagini/docx.png" alt="DOCX" style="width: 20px; height: 20px;">',
+        'jpg': '<img src="immagini/img.png" alt="JPG" style="width: 20px; height: 20px;">',
+        'jpeg': '<img src="immagini/img.png" alt="JPEG" style="width: 20px; height: 20px;">',
+        'png': '<img src="immagini/img.png" alt="PNG" style="width: 20px; height: 20px;">',
+        'gif': '<img src="immagini/img.png" alt="GIF" style="width: 20px; height: 20px;">',
+        'txt': '<img src="immagini/txt.png" alt="TXT" style="width: 20px; height: 20px;">',
+        'xls': '<img src="immagini/xls.png" alt="XLS" style="width: 20px; height: 20px;">',
+        'xlsx': '<img src="immagini/xls.png" alt="XLSX" style="width: 20px; height: 20px;">'
+    };
+    return icons[ext] || '<img src="immagini/paperclip.png" alt="File" style="width: 20px; height: 20px;">';
+}
+
+function getAllegatoIcon(tipo) {
+    const icons = {
+        'pdf': '<img src="immagini/pdf.png" alt="PDF" style="width: 26px; height: 26px;">',
+        'doc': '<img src="immagini/docx.png" alt="DOC" style="width: 26px; height: 26px;">',
+        'docx': '<img src="immagini/docx.png" alt="DOCX" style="width: 26px; height: 26px;">',
+        'image': '<img src="immagini/img.png" alt="Immagine" style="width: 26px; height: 26px;">',
+        'xls': '<img src="immagini/xls.png" alt="XLS" style="width: 26px; height: 26px;">',
+        'xlsx': '<img src="immagini/xls.png" alt="XLSX" style="width: 26px; height: 26px;">',
+        'txt': '<img src="immagini/txt.png" alt="TXT" style="width: 26px; height: 26px;">',
+        'file': '<img src="immagini/paperclip.png" alt="File" style="width: 26px; height: 26px;">'
+    };
+    return icons[tipo] || icons['file'];
+}
+
+// variabili modali
+let allegatoToDelete = null;
+let iscrittoAllegatoToDelete = null;
+let allegatoNomeToDelete = null;
+
+function getAllegatoOverlay() {
+    let overlay = document.getElementById('allegatoOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'allegatoOverlay';
+        overlay.className = 'modal-overlay';
+        overlay.style.zIndex = '10001';
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', closeDeleteAllegatoModal);
+    }
+    return overlay;
+}
+
+function showDeleteAllegatoModal(idAllegato, idIscritto, nomeFile) {
+    allegatoToDelete = idAllegato;
+    iscrittoAllegatoToDelete = idIscritto;
+    allegatoNomeToDelete = nomeFile;
+
+    let modal = document.getElementById('modalDeleteAllegato');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modalDeleteAllegato';
+        modal.className = 'modal-box danger';
+        modal.style.zIndex = '10002';
+        document.body.appendChild(modal);
+    }
+
+    const fileIcon = getFileIcon(nomeFile);
+    modal.innerHTML = `
+        <h3>Elimina allegato</h3>
+        <div style="display: flex; align-items: center; gap: 12px; margin: 15px 0; padding: 12px; background: #f5f5f5; border-radius: 8px; border: 1px solid #e0e0e0;">
+            <div style="font-size: 24px;">${fileIcon}</div>
+            <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${nomeFile}">${nomeFile}</div>
+                <div style="font-size: 12px; color: #888; margin-top: 2px;">Verrà eliminato definitivamente</div>
+            </div>
+        </div>
+        <p style="color: #d32f2f; font-size: 14px; margin-bottom: 15px;">
+            <strong>Attenzione:</strong> Questa azione non può essere annullata.
+        </p>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeDeleteAllegatoModal()">Annulla</button>
+            <button class="btn-danger" id="confirmDeleteAllegatoBtn">Elimina</button>
+        </div>
+    `;
+    document.getElementById('confirmDeleteAllegatoBtn').addEventListener('click', confirmDeleteAllegato);
+    const allegatoOverlay = getAllegatoOverlay();
+    allegatoOverlay.classList.add('show');
+    modal.classList.add('show');
+    document.addEventListener('keydown', handleEscKey);
+}
+
+function handleEscKey(e) {
+    if (e.key === 'Escape') {
+        closeDeleteAllegatoModal();
+    }
+}
+
+function closeDeleteAllegatoModal() {
+    const modal = document.getElementById('modalDeleteAllegato');
+    const allegatoOverlay = document.getElementById('allegatoOverlay');
+    if (modal) modal.classList.remove('show');
+    if (allegatoOverlay) allegatoOverlay.classList.remove('show');
+    allegatoToDelete = null;
+    iscrittoAllegatoToDelete = null;
+    allegatoNomeToDelete = null;
+    document.removeEventListener('keydown', handleEscKey);
+}
+
+async function confirmDeleteAllegato() {
+    if (!allegatoToDelete || !iscrittoAllegatoToDelete) return;
+    const btn = document.getElementById('confirmDeleteAllegatoBtn');
+    if (btn) { btn.disabled = true; btn.innerText = 'Eliminazione...'; }
+    try {
+        const response = await fetch('api/api_elimina_allegato.php', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify({ id: allegatoToDelete })
+        });
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (parseErr) {
+            throw new Error('Risposta non valida dal server: ' + text);
+        }
+        if (response.ok && data.success) {
+            const reloadId = iscrittoAllegatoToDelete;
+            closeDeleteAllegatoModal();
+            await caricaAllegatiEsistenti(reloadId);
+            // mostra popup di successo
+            successText.innerText = "Allegato eliminato!!";
+            showSuccess(successPopup);
+            setTimeout(()=>{
+                hideSuccess(successPopup);
+            }, 1600);
+        } else {
+            const msg = data.message || text || 'Impossibile eliminare l\'allegato';
+            alert('Errore: ' + msg);
+            if (btn) { btn.disabled = false; btn.innerText = 'Elimina'; }
+        }
+    } catch (error) {
+        console.error("Errore eliminazione allegato:", error);
+        alert('Errore durante l\'eliminazione: ' + error.message);
+        if (btn) { btn.disabled = false; btn.innerText = 'Elimina'; }
+    }
+}
+
+function eliminaAllegato(idAllegato, idIscritto, nomeFile) {
+    showDeleteAllegatoModal(idAllegato, idIscritto, nomeFile);
+}
+
+async function caricaAllegatiEsistenti(idIscritto) {
+    allegatiEsistentiList.innerHTML = '<p style="color: #888; font-style: italic; width: 100%;">Caricamento...</p>';
+    try {
+        const response = await fetch(`api/api_get_allegati.php?id_iscritto=${idIscritto}`);
+        const data = await response.json();
+        if (!data.success || !data.allegati || data.allegati.length === 0) {
+            allegatiEsistentiList.innerHTML = '<p style="color: #888; font-style: italic; width: 100%;">Nessun allegato presente</p>';
+            return;
+        }
+        let html = '';
+        data.allegati.forEach(allegato => {
+            const icon = getAllegatoIcon(allegato.tipo);
+            const nomeFileEscaped = allegato.nome_file.replace(/'/g, "\\'").replace(/"/g, '"');
+            html += `
+                <div class="allegato-esistente" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; background: #f9f9f9; font-size: 13px;">
+                    ${icon}
+                    <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" title="${allegato.nome_file}">${allegato.nome_file}</span>
+                    <button type="button" onclick="eliminaAllegato(${allegato.id}, ${idIscritto}, '${nomeFileEscaped}')" title="Elimina allegato" style="color: #d32f2f; background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#ffebee'" onmouseout="this.style.background='none'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        });
+        allegatiEsistentiList.innerHTML = html;
+    } catch (error) {
+        console.error("Errore caricamento allegati esistenti:", error);
+        allegatiEsistentiList.innerHTML = '<p style="color: #d32f2f; font-style: italic; width: 100%;">Errore nel caricamento</p>';
+    }
+}
+
+// gestione lettura e upload nuovi allegati
+const allegatiInput = document.getElementById("utenteAllegati");
+const allegatiDropZone = document.getElementById("allegatiDropZone");
+const allegatiList = document.getElementById("allegatiList");
+const allegatiItems = document.getElementById("allegatiItems");
+const clearAllAllegati = document.getElementById("clearAllAllegati");
+let selectedAllegati = [];
+
+function updateAllegatiList() {
+    if (selectedAllegati.length === 0) {
+        allegatiList.style.display = 'none';
+        return;
+    }
+    allegatiList.style.display = 'block';
+    allegatiItems.innerHTML = '';
+    selectedAllegati.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.className = 'allegato-item';
+        li.innerHTML = `
+            <div class="allegato-info">
+                <span class="allegato-icon">${getFileIcon(file.name)}</span>
+                <div class="allegato-details">
+                    <span class="allegato-name" title="${file.name}">${file.name}</span>
+                    <span class="allegato-size">${formatFileSize(file.size)}</span>
+                    <div class="allegato-progress" id="progress-${index}" style="display:none;"><div class="allegato-progress-bar" id="progress-bar-${index}"></div></div>
+                    <div class="allegato-status" id="status-${index}"></div>
+                </div>
+            </div>
+            <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>
+        `;
+        allegatiItems.appendChild(li);
+    });
+    document.querySelectorAll('.allegato-remove').forEach(btn => {
+        btn.onclick = function() {
+            const idx = parseInt(this.dataset.index);
+            selectedAllegati.splice(idx, 1);
+            updateAllegatiList();
+        };
+    });
+}
+
+if (allegatiInput) {
+    allegatiInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            const maxSize = 10 * 1024 * 1024;
+            const validFiles = Array.from(this.files).filter(file => {
+                if (file.size > maxSize) { alert(`File "${file.name}" troppo grande (max 10MB)`); return false; }
+                return true;
+            });
+            selectedAllegati = [...selectedAllegati, ...validFiles];
+            updateAllegatiList();
+        }
+    });
+}
+
+if (allegatiDropZone) {
+    ['dragenter','dragover','dragleave','drop'].forEach(evt => allegatiDropZone.addEventListener(evt, preventDefaults, false));
+    function preventDefaults(e){e.preventDefault();e.stopPropagation();}
+    ['dragenter','dragover'].forEach(evt => allegatiDropZone.addEventListener(evt, ()=>allegatiDropZone.classList.add('dragover'), false));
+    ['dragleave','drop'].forEach(evt => allegatiDropZone.addEventListener(evt, ()=>allegatiDropZone.classList.remove('dragover'), false));
+    allegatiDropZone.addEventListener('drop', function(e){
+        const dt = e.dataTransfer; const files = dt.files;
+        const maxSize = 10 * 1024 * 1024;
+        const validFiles = Array.from(files).filter(file=>{
+            if(file.size>maxSize){alert(`File "${file.name}" troppo grande (max 10MB)`);return false;}
+            return true;
+        });
+        selectedAllegati=[...selectedAllegati,...validFiles];
+        updateAllegatiList();
+    });
+    allegatiDropZone.addEventListener('click', function(e){
+        if(e.target.closest('.file-btn-minimal')) return;
+        allegatiInput.click();
+    });
+}
+
+if (clearAllAllegati) {
+    clearAllAllegati.onclick = function(){ selectedAllegati=[]; updateAllegatiList(); };
+}
+
+async function uploadAllegati(idIscritto){
+    if(selectedAllegati.length===0) return {success:true};
+    const results=[];
+    for(let i=0;i<selectedAllegati.length;i++){
+        const file=selectedAllegati[i];
+        const progressBar=document.getElementById(`progress-bar-${i}`);
+        const progressContainer=document.getElementById(`progress-${i}`);
+        const statusDiv=document.getElementById(`status-${i}`);
+        if(progressContainer) progressContainer.style.display='block';
+        if(statusDiv) statusDiv.textContent='Caricamento...';
+        const formData=new FormData();
+        formData.append('id_iscritto',idIscritto);
+        formData.append('allegato',file);
+        try{
+            const response=await fetch('api/api_carica_allegato.php',{method:'POST',body:formData,credentials:'include'});
+            const data=await response.json();
+            if(data.success){ if(progressBar){progressBar.style.width='100%';progressBar.classList.add('complete');} if(statusDiv){statusDiv.textContent='✓ Caricato';statusDiv.classList.add('complete');} results.push({success:true,file:file.name}); }
+            else{ if(progressBar) progressBar.classList.add('error'); if(statusDiv){statusDiv.textContent='✗ Errore: '+data.message;statusDiv.classList.add('error');} results.push({success:false,file:file.name,error:data.message}); }
+        }catch(error){ if(progressBar) progressBar.classList.add('error'); if(statusDiv){statusDiv.textContent='✗ Errore di rete';statusDiv.classList.add('error');} results.push({success:false,file:file.name,error:error.message}); }
+    }
+    return results;
+}
+
+// edit attachments
+let selectedAllegatiEdit=[];
+function updateAllegatiEditList(){
+    if(selectedAllegatiEdit.length===0){allegatiEditList.style.display='none';return;}
+    allegatiEditList.style.display='block';allegatiEditItems.innerHTML='';
+    selectedAllegatiEdit.forEach((file,index)=>{
+        const li=document.createElement('li');li.className='allegato-item';
+        li.innerHTML=`
+            <div class="allegato-info">
+                <span class="allegato-icon">${getFileIcon(file.name)}</span>
+                <div class="allegato-details">
+                    <span class="allegato-name" title="${file.name}">${file.name}</span>
+                    <span class="allegato-size">${formatFileSize(file.size)}</span>
+                </div>
+            </div>
+            <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>
+        `;
+        allegatiEditItems.appendChild(li);
+    });
+    document.querySelectorAll('#allegatiEditItems .allegato-remove').forEach(btn=>{btn.onclick=function(){const idx=parseInt(this.dataset.index);selectedAllegatiEdit.splice(idx,1);updateAllegatiEditList();};});
+}
+
+const allegatiEditInput=document.getElementById("editAllegati");
+const allegatiEditDropZone=document.getElementById("allegatiEditDropZone");
+const allegatiEditList=document.getElementById("allegatiEditList");
+const allegatiEditItems=document.getElementById("allegatiEditItems");
+const clearAllEditAllegati=document.getElementById("clearAllEditAllegati");
+
+if(allegatiEditInput){
+    allegatiEditInput.addEventListener('change',function(){
+        if(this.files.length>0){
+            const maxSize=10*1024*1024;
+            const validFiles=Array.from(this.files).filter(file=>{if(file.size>maxSize){alert(`File "${file.name}" troppo grande (max 10MB)`);return false;}return true;});
+            selectedAllegatiEdit=[...selectedAllegatiEdit,...validFiles];
+            updateAllegatiEditList();
+        }
+    });
+}
+
+// drag/drop for edit
+if(allegatiEditDropZone){['dragenter','dragover','dragleave','drop'].forEach(evt=>allegatiEditDropZone.addEventListener(evt,preventDefaults,false));
+function preventDefaults(e){e.preventDefault();e.stopPropagation();}
+['dragenter','dragover'].forEach(evt=>allegatiEditDropZone.addEventListener(evt,()=>allegatiEditDropZone.classList.add('dragover'),false));
+['dragleave','drop'].forEach(evt=>allegatiEditDropZone.addEventListener(evt,()=>allegatiEditDropZone.classList.remove('dragover'),false));
+allegatiEditDropZone.addEventListener('drop',function(e){const dt=e.dataTransfer;const files=dt.files;const maxSize=10*1024*1024;const validFiles=Array.from(files).filter(file=>{if(file.size>maxSize){alert(`File "${file.name}" troppo grande (max 10MB)`);return false;}return true;});selectedAllegatiEdit=[...selectedAllegatiEdit,...validFiles];updateAllegatiEditList();});
+allegatiEditDropZone.addEventListener('click',function(e){if(e.target.closest('.file-btn-minimal'))return;allegatiEditInput.click();});}
+
+if(clearAllEditAllegati){clearAllEditAllegati.onclick=function(){selectedAllegatiEdit=[];updateAllegatiEditList();};}
+
+async function uploadAllegatiEdit(idIscritto){
+    if(selectedAllegatiEdit.length===0) return {success:true};
+    const results=[];
+    for(let i=0;i<selectedAllegatiEdit.length;i++){
+        const file=selectedAllegatiEdit[i];
+        const formData=new FormData();
+        formData.append('id_iscritto',idIscritto);
+        formData.append('allegato',file);
+        try{const response=await fetch('api/api_carica_allegato.php',{method:'POST',body:formData,credentials:'include'});const data=await response.json();results.push({success:data.success,file:file.name,error:data.message});}catch(error){results.push({success:false,file:file.name,error:error.message});}
+    }
+    return results;
+}
+
 // --- INVIO FORM ---
-formAggiungiUtente.addEventListener("submit", function (e) {
+formAggiungiUtente.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const formData = new FormData();
@@ -1944,8 +2480,8 @@ formAggiungiUtente.addEventListener("submit", function (e) {
     formData.append("cognome", document.getElementById("utenteCognome").value.trim());
     formData.append("data_nascita", document.getElementById("utenteData").value);
     formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-            formData.append("email", document.getElementById("utenteEmail").value.trim());
-            formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
+    formData.append("email", document.getElementById("utenteEmail").value.trim());
+    formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
 
     formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
     formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
@@ -1956,13 +2492,19 @@ formAggiungiUtente.addEventListener("submit", function (e) {
         formData.append("foto", utenteFoto.files[0]);
     }
 
-    fetch("api/api_aggiungi_utente.php", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
+    try {
+        const res = await fetch("api/api_aggiungi_utente.php", {
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json();
+
         if (data.success) {
+            // upload eventuali allegati
+            if (selectedAllegati && selectedAllegati.length > 0) {
+                await uploadAllegati(data.id);
+            }
+
             closeModal();
             successText.innerText = "Utente aggiunto!!";
             showSuccess(successPopup);
@@ -1973,11 +2515,10 @@ formAggiungiUtente.addEventListener("submit", function (e) {
         } else {
             alert("Errore: " + (data.message || "Errore sconosciuto"));
         }
-    })
-    .catch(err => {
+    } catch (err) {
         console.error("Errore:", err);
         alert("Errore di comunicazione con il server");
-    });
+    }
 });
 
 

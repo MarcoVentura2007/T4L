@@ -1881,7 +1881,14 @@ $resultResoconti = $conn->query($sqlResoconti);
     }
     function hideSuccess(popup, overlay) {
         if (popup) popup.classList.remove("show");
-        if (overlay) overlay.classList.remove("show");
+        if (overlay) {
+            const anyVisible = document.querySelector(
+                ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .popup-overlay.show, .logout-overlay.show"
+            );
+            if (!anyVisible) {
+                overlay.classList.remove("show");
+            }
+        }
     }
 
 
@@ -2230,6 +2237,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             try {
                 const response = await fetch('api/api_elimina_allegato.php', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -2237,15 +2245,27 @@ $resultResoconti = $conn->query($sqlResoconti);
                 body: JSON.stringify({ id: allegatoToDelete })
 
                 });
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseErr) {
+                    throw new Error('Risposta non valida dal server: ' + text);
+                }
                 
-                const data = await response.json();
-                
-                if (data.success) {
+                if (response.ok && data.success) {
+                    // conserva l'id dell'iscritto prima di resettare le variabili
+                    const reloadId = iscrittoAllegatoToDelete;
                     closeDeleteAllegatoModal();
-                    // Ricarica la lista degli allegati
-                    await caricaAllegatiEsistenti(iscrittoAllegatoToDelete);
+                    // Ricarica la lista degli allegati usando l'id memorizzato
+                    await caricaAllegatiEsistenti(reloadId);
+                    // popup successo
+                    successText.innerText = "Allegato eliminato!!";
+                    showSuccess(successPopup, Overlay);
+                    setTimeout(()=>{ hideSuccess(successPopup, Overlay); }, 1600);
                 } else {
-                    alert('Errore: ' + (data.message || 'Impossibile eliminare l\'allegato'));
+                    const msg = data.message || text || 'Impossibile eliminare l\'allegato';
+                    alert('Errore: ' + msg);
                     if (btn) {
                         btn.disabled = false;
                         btn.innerText = 'Elimina';
@@ -2253,7 +2273,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 }
             } catch (error) {
                 console.error("Errore eliminazione allegato:", error);
-                alert('Errore di rete durante l\'eliminazione');
+                alert('Errore durante l\'eliminazione: ' + error.message);
                 if (btn) {
                     btn.disabled = false;
                     btn.innerText = 'Elimina';
@@ -2650,6 +2670,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                 // Se c'è un file selezionato o allegati, usa FormData
                 if(fotoInput && fotoInput.files.length > 0) {
+                    console.log("File found, sending FormData with photo");
                     const formData = new FormData();
                     formData.append("id", id);
                     formData.append("nome", document.getElementById("editNome").value);
@@ -2671,6 +2692,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     })
                     .then(res => res.json())
                     .then(async data => {
+                        console.log("API response:", data);
                         if(data.success){
                             // Upload allegati se presenti
                             if(selectedAllegatiEdit.length > 0) {
@@ -2689,8 +2711,12 @@ $resultResoconti = $conn->query($sqlResoconti);
                         } else {
                             alert("Errore: " + data.message);
                         }
+                    })
+                    .catch(err => {
+                        console.error("Fetch error:", err);
                     });
                 } else {
+                    console.log("No file, sending JSON update");
                     // Nessun file foto, ma potrebbero esserci allegati
                     const payload = {
                         id: id,
@@ -2717,6 +2743,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     })
                     .then(res => res.json())
                     .then(async data => {
+                        console.log("API response:", data);
                         if(data.success){
                             // Upload allegati se presenti
                             if(selectedAllegatiEdit.length > 0) {
