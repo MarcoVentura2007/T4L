@@ -1,7 +1,12 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../../data/php_errors.log');
+
 session_start();
 header('Content-Type: application/json; charset=utf-8');
-header("Cache-Control: no chache");
+header("Cache-Control: no-cache");
 // --- BLOCCO ACCESSO DIRETTO ---
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
     empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
@@ -32,38 +37,40 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Recupera gli allegati associati all'utente
-$stmtAllegati = $conn->prepare("SELECT percorso_file FROM allegati WHERE ID_Iscritto = ?");
-if (!$stmtAllegati) {
-    echo json_encode(['success' => false, 'message' => 'Errore prepare allegati: ' . $conn->error]);
-    exit;
-}
-$stmtAllegati->bind_param("i", $id_iscritto);
-$stmtAllegati->execute();
-$resultAllegati = $stmtAllegati->get_result();
+// Recupera gli allegati associati all'utente (se la tabella esiste)
+try {
+    $stmtAllegati = $conn->prepare("SELECT file FROM allegati WHERE ID_Iscritto = ?");
+    if ($stmtAllegati) {
+        $stmtAllegati->bind_param("i", $id_iscritto);
+        $stmtAllegati->execute();
+        $resultAllegati = $stmtAllegati->get_result();
 
-// Elimina i file fisici degli allegati
-if ($resultAllegati && $resultAllegati->num_rows > 0) {
-    while ($rowAllegato = $resultAllegati->fetch_assoc()) {
-        $percorsoFile = $rowAllegato['percorso_file'];
-        if ($percorsoFile && !empty($percorsoFile)) {
-            $filePath = __DIR__ . '/../' . $percorsoFile;
-            if (file_exists($filePath)) {
-                unlink($filePath);
+        // Elimina i file fisici degli allegati
+        if ($resultAllegati && $resultAllegati->num_rows > 0) {
+            while ($rowAllegato = $resultAllegati->fetch_assoc()) {
+                $percorsoFile = $rowAllegato['file'];
+                if ($percorsoFile && !empty($percorsoFile)) {
+                    $filePath = __DIR__ . '/../' . $percorsoFile;
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
             }
         }
+        $stmtAllegati->close();
+
+        // Elimina i record degli allegati dal database
+        $stmtDeleteAllegati = $conn->prepare("DELETE FROM allegati WHERE ID_Iscritto = ?");
+        if ($stmtDeleteAllegati) {
+            $stmtDeleteAllegati->bind_param("i", $id_iscritto);
+            $stmtDeleteAllegati->execute();
+            $stmtDeleteAllegati->close();
+        }
     }
+} catch (Exception $e) {
+    error_log("Avviso: Impossibile accedere alla tabella allegati: " . $e->getMessage());
+    // Continua comunque con l'eliminazione dell'utente
 }
-
-// Elimina i record degli allegati dal database
-$stmtDeleteAllegati = $conn->prepare("DELETE FROM allegati WHERE ID_Iscritto = ?");
-if ($stmtDeleteAllegati) {
-    $stmtDeleteAllegati->bind_param("i", $id_iscritto);
-    $stmtDeleteAllegati->execute();
-    $stmtDeleteAllegati->close();
-}
-
-$stmtAllegati->close();
 
 // Prima recupera il nome della fotografia con prepared statement
 $stmtSelect = $conn->prepare("SELECT fotografia FROM iscritto WHERE id = ?");

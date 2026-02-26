@@ -1,4 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../../data/php_errors.log');
+
 session_start();
 header('Content-Type: application/json');
 
@@ -42,7 +47,31 @@ $allowedTypes = [
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx'
 ];
 
-$fileType = mime_content_type($file['tmp_name']);
+// Ottieni MIME type usando finfo_file
+$fileType = 'application/octet-stream';
+if (function_exists('finfo_file')) {
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    if ($finfo !== false) {
+        $fileType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+    }
+} else {
+    // Fallback: usa l'estensione del file
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $extToMime = [
+        'pdf' => 'application/pdf',
+        'doc' => 'application/msword',
+        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'txt' => 'text/plain',
+        'xls' => 'application/vnd.ms-excel',
+        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    $fileType = $extToMime[$ext] ?? 'application/octet-stream';
+}
 if (!array_key_exists($fileType, $allowedTypes)) {
     echo json_encode(['success' => false, 'message' => 'Tipo di file non consentito. Tipi supportati: PDF, DOC, DOCX, JPG, PNG, GIF, TXT, XLS, XLSX']);
     exit;
@@ -92,23 +121,22 @@ if ($conn->connect_error) {
 }
 
 // Inserisci nel database
-$stmt = $conn->prepare("INSERT INTO allegati (percorso_file, ID_Iscritto, data_upload, nome_file) VALUES (?, ?, NOW(), ?)");
+$stmt = $conn->prepare("INSERT INTO allegati (file, ID_Iscritto) VALUES (?, ?)");
 if (!$stmt) {
     unlink($targetPath);
     echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
     exit;
 }
 
-$stmt->bind_param("sis", $percorsoDb, $id_iscritto, $file['name']);
+$stmt->bind_param("si", $percorsoDb, $id_iscritto);
 
 if ($stmt->execute()) {
-        echo json_encode([
+    echo json_encode([
         'success' => true, 
         'message' => 'Allegato caricato con successo',
         'id' => $stmt->insert_id,
-        'percorso_file' => $percorsoDb,
-        'ID_Iscritto' => $id_iscritto,
-        'nome_file' => $file['name']
+        'file' => $percorsoDb,
+        'ID_Iscritto' => $id_iscritto
     ]);
 } else {
     unlink($targetPath);

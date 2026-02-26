@@ -48,9 +48,8 @@ $rows = [];
 while($r = $res->fetch_assoc()){
     $r['ore_totali'] = round($r['ore_totali'],2);
     $r['costo'] = round($r['ore_totali'] * $r['Prezzo_Orario'],2);
-    if($r['ore_totali'] > 0){
-        $rows[] = $r;
-    }
+    // include every user, even if they have zero hours this month
+    $rows[] = $r;
 }
 
 echo json_encode(['success'=>true,'data'=>$rows]);

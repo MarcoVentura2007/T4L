@@ -37,7 +37,7 @@ if ($conn->connect_error) {
 }
 
 // Recupera percorso file prima di eliminare
-$stmt = $conn->prepare("SELECT percorso_file FROM allegati WHERE id = ?");
+$stmt = $conn->prepare("SELECT file FROM allegati WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -50,7 +50,7 @@ if ($result->num_rows === 0) {
 }
 
 $row = $result->fetch_assoc();
-$percorso = $row['percorso_file'];
+$percorso = $row['file'];
 $stmt->close();
 
 // Elimina dal database

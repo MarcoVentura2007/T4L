@@ -125,3 +125,11 @@ Stack trace:
 #0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(132): mysqli_stmt->bind_param('sssssssssdssi', 'Davide', 'Nicu', '2001-09-15', '- - - -', '-', '', '-', '-', 9.0, '-', 'immagini/177209...', 50)
 #1 {main}
   thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 132
+[26-Feb-2026 19:21:39 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'percorso_file' in 'field list' in C:\xampp\htdocs\T4L\public\api\api_elimina_utente.php:41
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_elimina_utente.php(41): mysqli->prepare('SELECT percorso...')
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_elimina_utente.php on line 41
+[26-Feb-2026 19:24:16 Europe/Berlin] Avviso: Impossibile accedere alla tabella allegati: Unknown column 'percorso_file' in 'field list'
+[26-Feb-2026 19:24:54 Europe/Berlin] Avviso: Impossibile accedere alla tabella allegati: Unknown column 'percorso_file' in 'field list'
+[26-Feb-2026 20:43:19 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=1
