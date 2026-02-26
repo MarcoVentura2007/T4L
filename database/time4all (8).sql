@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Feb 19, 2026 alle 12:43
+-- Creato il: Feb 26, 2026 alle 08:18
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -52,9 +52,20 @@ INSERT INTO `account` (`id`, `nome_utente`, `password`, `codice_univoco`, `class
 
 CREATE TABLE `allegati` (
   `id` int(11) NOT NULL,
-  `file` varchar(255) NOT NULL,
-  `ID_Iscritto` int(11) NOT NULL
+  `percorso_file` varchar(255) NOT NULL,
+  `ID_Iscritto` int(11) NOT NULL,
+  `data_upload` datetime NOT NULL,
+  `nome_file` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dump dei dati per la tabella `allegati`
+--
+
+INSERT INTO `allegati` (`id`, `percorso_file`, `ID_Iscritto`, `data_upload`, `nome_file`) VALUES
+(2, 'allegati/1771797086_Agenda_over.pdf', 28, '2026-02-22 22:51:26', 'Agenda over.pdf'),
+(4, 'allegati/1771832634_sql-basics-cheat-sheet-a4.pdf', 28, '2026-02-23 08:43:54', 'sql-basics-cheat-sheet-a4.pdf'),
+(5, 'allegati/1771832666_VERIFICA_DOPOGUERRA_29_FASCISMO.pdf', 28, '2026-02-23 08:44:26', 'VERIFICA_DOPOGUERRA_29_FASCISMO.pdf');
 
 -- --------------------------------------------------------
 
@@ -75,8 +86,7 @@ CREATE TABLE `attivita` (
 INSERT INTO `attivita` (`id`, `Nome`, `Descrizione`) VALUES
 (29, 'Maia & Tas', 'Apparecchiare e pulire'),
 (30, 'Bowling', 'Attività ricreativa stimolante'),
-(32, 'Rifiutando', 'Raccolta rifiuti'),
-(33, 'Zoo', '/');
+(32, 'Rifiutando', 'Raccolta rifiuti');
 
 -- --------------------------------------------------------
 
@@ -128,10 +138,10 @@ CREATE TABLE `iscritto` (
 --
 
 INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale`, `Email`, `Telefono`, `Disabilita`, `Allergie_Intolleranze`, `Note`, `Prezzo_Orario`, `Fotografia`) VALUES
-(28, 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', '-', 9.00, 'immagini/1771404276_1.jpeg'),
+(28, 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', '', 9.00, 'immagini/1771404276_1.jpeg'),
 (36, 'Cristian', 'Moretti', '2000-01-01', '---', '---', '', '-', '-', '-', 10.00, 'immagini/5.jpeg'),
 (38, 'Luca', 'Verzeri', '2000-02-01', '-----', '-----', '', '-', '-', '-', 15.00, 'immagini/4.jpeg'),
-(45, 'Giorgia', 'Guerini Rocco', '2000-01-01', '------', '-----—', '', '------', '------', '-', 12.00, 'immagini/3.jpeg'),
+(45, 'Giorgia', 'Guerini Rocco', '2000-01-01', '------', '-----—', '', '-', '------', '-', 12.00, 'immagini/3.jpeg'),
 (49, 'Gabriele', 'Corona', '2000-10-10', '------------', '231', '', '-', '-', '-', 8.00, 'immagini/6.jpeg'),
 (50, 'Davide', 'Nicu', '2001-09-15', '- - - -', '-', '', '-', '-', '-', 9.00, 'immagini/2.jpeg');
 
@@ -198,10 +208,6 @@ INSERT INTO `partecipa` (`id`, `Data`, `Ora_Inizio`, `Ora_Fine`, `ID_Presenza`, 
 (450, '2026-02-18', '15:00:00', '17:30:00', NULL, 32, 1, 0, 28),
 (451, '2026-02-18', '15:00:00', '17:30:00', NULL, 32, 1, 0, 45),
 (452, '2026-02-18', '15:00:00', '17:30:00', 83, 32, 1, 0, 36),
-(453, '2026-02-18', '17:00:00', '18:00:00', NULL, 33, 3, 0, 49),
-(454, '2026-02-18', '17:00:00', '18:00:00', NULL, 33, 3, 0, 45),
-(455, '2026-02-18', '17:00:00', '18:00:00', 83, 33, 3, 0, 36),
-(456, '2026-02-18', '17:00:00', '18:00:00', NULL, 33, 3, 0, 50),
 (460, '2026-02-18', '09:11:00', '10:05:00', NULL, 30, 1, 0, 45),
 (461, '2026-02-18', '09:11:00', '10:05:00', 83, 30, 1, 0, 36),
 (462, '2026-02-18', '09:11:00', '10:05:00', NULL, 30, 3, 0, 45),
@@ -214,14 +220,26 @@ INSERT INTO `partecipa` (`id`, `Data`, `Ora_Inizio`, `Ora_Fine`, `ID_Presenza`, 
 (469, '2026-02-20', '10:00:00', '14:00:00', NULL, 29, 3, 0, 49),
 (470, '2026-02-20', '10:00:00', '14:00:00', NULL, 29, 3, 0, 45),
 (471, '2026-02-20', '10:00:00', '14:00:00', NULL, 29, 3, 0, 36),
-(472, '2026-02-20', '16:00:00', '18:00:00', NULL, 33, 3, 0, 28),
-(473, '2026-02-20', '16:00:00', '18:00:00', NULL, 33, 3, 0, 49),
-(474, '2026-02-20', '16:00:00', '18:00:00', NULL, 33, 3, 0, 45),
-(475, '2026-02-20', '16:00:00', '18:00:00', NULL, 33, 3, 0, 36),
-(476, '2026-02-20', '16:00:00', '18:00:00', NULL, 33, 3, 0, 50),
 (477, '2026-02-20', '11:30:00', '14:30:00', NULL, 32, 1, 0, 49),
 (478, '2026-02-20', '11:30:00', '14:30:00', NULL, 32, 1, 0, 45),
-(479, '2026-02-20', '11:30:00', '14:30:00', NULL, 32, 1, 0, 36);
+(479, '2026-02-20', '11:30:00', '14:30:00', NULL, 32, 1, 0, 36),
+(480, '2026-02-20', '12:30:00', '15:00:00', NULL, 30, 1, 0, 49),
+(481, '2026-02-20', '12:30:00', '15:00:00', NULL, 30, 1, 0, 45),
+(482, '2026-02-20', '12:30:00', '15:00:00', 90, 30, 1, 0, 36),
+(483, '2026-02-20', '12:30:00', '15:00:00', 91, 30, 1, 0, 50),
+(484, '2026-02-20', '12:30:00', '15:00:00', NULL, 30, 1, 0, 38),
+(485, '2026-02-16', '19:00:00', '22:00:00', NULL, 29, 1, 0, 49),
+(486, '2026-02-16', '19:00:00', '22:00:00', NULL, 29, 1, 0, 45),
+(487, '2026-02-16', '19:00:00', '22:00:00', NULL, 29, 1, 0, 36),
+(489, '2026-02-23', '13:00:00', '14:30:00', NULL, 32, 3, 0, 28),
+(490, '2026-02-23', '13:00:00', '14:30:00', NULL, 32, 3, 0, 49),
+(491, '2026-02-23', '13:00:00', '14:30:00', NULL, 32, 3, 0, 45),
+(492, '2026-02-23', '13:00:00', '14:30:00', 95, 32, 3, 0, 36),
+(493, '2026-02-23', '13:00:00', '14:30:00', NULL, 32, 3, 0, 50),
+(494, '2026-02-23', '13:00:00', '14:30:00', NULL, 32, 3, 0, 38),
+(495, '2026-02-23', '15:00:00', '18:00:00', NULL, 30, 3, 0, 49),
+(496, '2026-02-23', '15:00:00', '18:00:00', NULL, 30, 3, 0, 45),
+(497, '2026-02-23', '15:00:00', '18:00:00', NULL, 30, 3, 0, 36);
 
 -- --------------------------------------------------------
 
@@ -264,7 +282,19 @@ INSERT INTO `presenza` (`id`, `Ingresso`, `Uscita`, `Check_firma`, `ID_Iscritto`
 (80, '2026-02-17 07:00:00', '2026-02-17 18:00:00', 1, 49),
 (81, '2026-02-17 08:00:00', '2026-02-17 17:00:00', 1, 36),
 (82, '2026-02-17 10:00:00', '2026-02-17 16:00:00', 1, 28),
-(83, '2026-02-18 08:00:00', '2026-02-18 20:00:00', 1, 36);
+(83, '2026-02-18 08:00:00', '2026-02-18 20:00:00', 1, 36),
+(84, '2026-02-19 07:00:00', '2026-02-19 17:00:00', 1, 36),
+(85, '2026-02-19 07:00:00', '2026-02-19 17:00:00', 1, 49),
+(86, '2026-02-19 08:00:00', '2026-02-19 16:00:00', 1, 28),
+(87, '2026-02-19 09:00:00', '2026-02-19 16:00:00', 1, 50),
+(89, '2026-02-19 08:00:00', '2026-02-19 16:00:00', 1, 38),
+(90, '2026-02-20 08:00:00', '2026-02-20 16:00:00', 1, 36),
+(91, '2026-02-20 09:00:00', '2026-02-20 15:00:00', 1, 50),
+(92, '2026-02-20 10:00:00', '2026-02-20 14:30:00', 1, 49),
+(93, '2026-02-20 10:00:00', '2026-02-20 16:00:00', 1, 28),
+(94, '2026-02-20 09:00:00', '2026-02-20 15:00:00', 1, 45),
+(95, '2026-02-23 10:00:00', '2026-02-23 16:00:00', 1, 36),
+(96, '2026-02-24 08:00:00', '2026-02-24 14:00:00', 1, 36);
 
 --
 -- Indici per le tabelle scaricate
@@ -333,7 +363,7 @@ ALTER TABLE `account`
 -- AUTO_INCREMENT per la tabella `allegati`
 --
 ALTER TABLE `allegati`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT per la tabella `attivita`
@@ -351,19 +381,19 @@ ALTER TABLE `educatore`
 -- AUTO_INCREMENT per la tabella `iscritto`
 --
 ALTER TABLE `iscritto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
 -- AUTO_INCREMENT per la tabella `partecipa`
 --
 ALTER TABLE `partecipa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=480;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=498;
 
 --
 -- AUTO_INCREMENT per la tabella `presenza`
 --
 ALTER TABLE `presenza`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
 -- Limiti per le tabelle scaricate
