@@ -65,6 +65,7 @@ while ($row = $result->fetch_assoc()) {
     
     $allegati[] = [
         'id' => $row['id'],
+        'percorso' => $row['percorso_file'], // legacy key used by frontend
         'percorso_file' => $row['percorso_file'],
         'nome_file' => $row['nome_file'],
         'data_upload' => $row['data_upload'],

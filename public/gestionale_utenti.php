@@ -1144,7 +1144,75 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 
 
-    </script>
+        const editModal = document.getElementById("editModal");
+        const modalOverlay = document.getElementById("modalOverlay");
+        const viewModal = document.getElementById("viewModal");
+        const successPopup = document.getElementById("successPopup");
+        const successText = document.getElementById("success-text");
+        
+        function openModal(modal, overlay = modalOverlay) {
+            if (modal) modal.classList.add("show");
+            if (overlay) overlay.classList.add("show");
+        }
+
+        function closeModal() {
+            if (modalOverlay) modalOverlay.classList.remove("show");
+            document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
+        }
+
+        function showSuccess(popup, overlay = modalOverlay) {
+            if (popup) popup.classList.add("show");
+            if (overlay) overlay.classList.add("show");
+        }
+        
+        function hideSuccess(popup, overlay = modalOverlay) {
+            if (popup) popup.classList.remove("show");
+            if (overlay) overlay.classList.remove("show");
+        }
+
+        // View button handlers
+        document.querySelectorAll(".view-btn").forEach(btn=>{
+            btn.onclick = e=>{
+                const row = e.target.closest("tr");
+
+                const avatar = row.querySelector("img").src;
+                const nome = row.dataset.nome;
+                const cognome = row.dataset.cognome;
+                const data = row.dataset.nascita;
+                const note = row.dataset.note;
+                const cf = row.dataset.cf;
+                const email = row.dataset.email;
+                const telefono = row.dataset.telefono;
+                const disabilita = row.dataset.disabilita;
+                const intolleranze = row.dataset.intolleranze;
+                const prezzo = row.dataset.prezzo;
+
+                document.getElementById("viewAvatar").src = avatar;
+                document.getElementById("viewFullname").innerText = nome + " " + cognome;
+                document.getElementById("viewBirth").innerText = "Nato il " + data;
+
+                document.getElementById("viewContent").innerHTML = `
+                    <div class="profile-field"><label>Nome</label><span>${nome}</span></div>
+                    <div class="profile-field"><label>Cognome</label><span>${cognome}</span></div>
+                    <div class="profile-field"><label>Data di nascita</label><span>${data}</span></div>
+                    <div class="profile-field"><label>Codice Fiscale</label><span>${cf || "—"}</span></div>
+                    <div class="profile-field"><label>Email</label><span>${email || "—"}</span></div>
+                    <div class="profile-field"><label>Telefono</label><span>${telefono || "—"}</span></div>
+                    <div class="profile-field"><label>Disabilità</label><span>${disabilita || "—"}</span></div>
+                    <div class="profile-field"><label style="font-weight: bold;">Intolleranze ⚠️</label><span style="font-weight: bold;">${intolleranze || "—"}</span></div>
+                    <div class="profile-field"><label>Prezzo orario</label><span>${prezzo || "—"} €</span></div>
+                    <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
+                `;
+
+                openModal(viewModal);
+            }
+        });
+
+        if (modalOverlay) {
+            modalOverlay.onclick = closeModal;
+        }
+
+        
 
 
 </body>

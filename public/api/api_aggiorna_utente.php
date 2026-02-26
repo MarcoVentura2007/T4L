@@ -46,8 +46,7 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
     $telefono = $_POST['telefono'] ?? '';
     $disabilita = $_POST['disabilita'] ?? '';
     $intolleranze = $_POST['intolleranze'] ?? '';
-
-    $prezzo_orario = $_POST['prezzo_orario'] ?? '';
+    $prezzo_orario = floatval($_POST['prezzo_orario'] ?? 0);
     $note = $_POST['note'] ?? '';
     
     // Gestione upload file
@@ -94,7 +93,7 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
     $telefono = $data['telefono'] ?? '';
     $disabilita = $data['disabilita'] ?? '';
     $intolleranze = $data['intolleranze'] ?? '';
-    $prezzo_orario = $data['prezzo_orario'] ?? '';
+    $prezzo_orario = floatval($data['prezzo_orario'] ?? 0);
     $note = $data['note'] ?? '';
     $fotografia = null;
 }

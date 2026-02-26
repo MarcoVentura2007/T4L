@@ -10,3 +10,118 @@ Stack trace:
 #0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(171): mysqli_stmt->bind_param('ssssssssdssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', '9.00', 'j', 28)
 #1 {main}
   thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 171
+[26-Feb-2026 08:50:21 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'qwe', 'immagini/177209...', 89)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:50:22 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'qwe', 'immagini/177209...', 89)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:50:22 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'qwe', 'immagini/177209...', 89)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:50:22 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'qwe', 'immagini/177209...', 89)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:50:27 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'qwe', 'immagini/177209...', 89)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:58:16 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:58:17 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:58:17 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:58:18 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:58:18 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:58:18 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:58:38 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 08:58:50 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:03:48 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:03:49 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:03:49 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:03:50 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:03:51 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:03:51 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:03:54 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:03:54 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Alessandro', 'Simone', '1111-01-20', '123sa', 'simone.candelor...', '1234567890', '12345', '2345', '12.00', 'asd', 'immagini/177209...', 90)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:04:19 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:133
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(133): mysqli_stmt->bind_param('sssssssssdssi', 'Cristian', 'Moretti', '2000-01-01', '---', '---', '', '-', '-', '10.00', '-', 'immagini/177209...', 36)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 133
+[26-Feb-2026 09:05:57 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:132
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(132): mysqli_stmt->bind_param('sssssssssdssi', 'Davide', 'Nicu', '2001-09-15', '- - - -', '-', '', '-', '-', 9.0, '-', 'immagini/177209...', 50)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 132
