@@ -41,7 +41,7 @@ if(
 }
 
 // Preleva i profili dal DB
-$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, email, telefono, allergie_intolleranze, note 
+$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, email, telefono, allergie_intolleranze, note, Gruppo 
         FROM iscritto ORDER BY cognome ASC";
 
 $result = $conn->query($sql);
@@ -461,6 +461,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <label>Note</label>
                             <textarea id="utenteNote"></textarea>
                         </div>
+                        <div class="edit-field">
+                            <label>Tipo di lavoro</label>
+                            <select id="utenteGruppo">
+                                <option value="0">Individuale</option>
+                                <option value="1">Gruppo</option>
+                            </select>
+                        </div>
 
                         <!-- SEZIONE ALLEGATI -->
                         <div class="edit-field">
@@ -533,6 +540,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <th>Data di nascita</th>
                                 <th>Disabilità</th>
                                 <th>Note</th>
+                                <th>Tipo</th>
                                 <th>Azioni</th>
                             </tr>
                         </thead>
@@ -553,6 +561,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         data-disabilita="'.htmlspecialchars($row['disabilita']).'" 
                                         data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'" 
                                         data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
+                                        data-gruppo="'.htmlspecialchars($row['Gruppo']).'"
                                     >
 
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
@@ -561,6 +570,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         <td>'.htmlspecialchars($row['data_nascita']).'</td>
                                         <td>'.htmlspecialchars($row['disabilita']).'</td>
                                         <td>'.htmlspecialchars($row['note']).'</td>
+                                        <td>'.($row['Gruppo'] ? 'Gruppo' : 'Individuale').'</td>
                                         <td>
                                             <button class="view-btn"><img src="immagini/open-eye.png"></button>
                                             <button class="edit-btn"><img src="immagini/edit.png"></button>
@@ -867,6 +877,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         echo '<label class="checkbox-item">';
                                         echo '<input type="checkbox" class="ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
                                         echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '<select class="ragazzo-gruppo" style="margin-left:8px;">
+                                                <option value="0" selected>Ind</option>
+                                                <option value="1">Gruppo</option>
+                                            </select>';
                                         echo '</label>';
                                     }
                                 }
@@ -1595,6 +1609,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <label>Note</label>
                                 <textarea id="editNote" placeholder="Note"></textarea>
                             </div>
+                            <div class="edit-field" id="fieldGruppo">
+                                <label>Tipo di lavoro</label>
+                                <select id="editGruppo">
+                                    <option value="0">Individuale</option>
+                                    <option value="1">Gruppo</option>
+                                </select>
+                            </div>
                             <div class="edit-field" id="fieldFotografia">
                                 <label>Fotografia</label>
                                 <div class="file-inline" id="editFileContainer">
@@ -2019,8 +2040,12 @@ $resultResoconti = $conn->query($sqlResoconti);
             const uscita = row.dataset.uscita || '';
             const avatar = row.querySelector('img').src;
 
-            // Nascondi i campi utente e mostra quelli presenza
-            document.getElementById('profileHeader').style.display = 'none';
+            // mostra solo intestazione con foto/nome e i campi orari
+            const header = document.getElementById('profileHeader');
+            header.style.display = 'flex';
+            document.getElementById('viewAvatar-mod').src = avatar;
+            document.getElementById('viewFullname-mod').innerText = nome + ' ' + cognome;
+            document.getElementById('viewBirth-mod').innerText = '';
             document.getElementById('fieldNome').style.display = 'none';
             document.getElementById('fieldCognome').style.display = 'none';
             document.getElementById('fieldData').style.display = 'none';
@@ -2032,6 +2057,10 @@ $resultResoconti = $conn->query($sqlResoconti);
             document.getElementById('fieldIntolleranze').style.display = 'none';
             document.getElementById('fieldPrezzo').style.display = 'none';
             document.getElementById('fieldNote').style.display = 'none';
+            // hide photo/attachments and job-type when only editing presence
+            document.getElementById('fieldFotografia').style.display = 'none';
+            document.getElementById('fieldAllegatiEdit').style.display = 'none';
+            document.getElementById('fieldGruppo').style.display = 'none';
             document.getElementById('fieldIngresso').style.display = 'block';
             document.getElementById('fieldUscita').style.display = 'block';
 
@@ -2464,9 +2493,14 @@ $resultResoconti = $conn->query($sqlResoconti);
                         credentials: 'include'
                     });
 
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
                     const data = await response.json();
                     results.push({ success: data.success, file: file.name, error: data.message });
                 } catch (error) {
+                    console.error(`Errore upload file ${file.name}:`, error);
                     results.push({ success: false, file: file.name, error: error.message });
                 }
             }
@@ -2559,6 +2593,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("editIntolleranze").value = row.dataset.intolleranze;
                 document.getElementById("editPrezzo").value = row.dataset.prezzo;
                 document.getElementById("editNote").value = row.dataset.note;
+                document.getElementById("editGruppo").value = row.dataset.gruppo || 0;
 
                 // Reset file input
                 if(editFoto) editFoto.value = "";
@@ -2600,7 +2635,12 @@ $resultResoconti = $conn->query($sqlResoconti);
                         },
                         body: JSON.stringify({ id_iscritto: row.dataset.id })
                     })
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! status: ${res.status}`);
+                        }
+                        return res.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             deleteModal.classList.remove("show");
@@ -2613,9 +2653,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 row.remove();
                                 location.reload();
                             },1800); 
+                        } else {
+                            alert("Errore: " + (data.message || "Errore sconosciuto"));
                         }
-
-                    
+                    })
+                    .catch(err => {
+                        console.error("Errore eliminazione utente:", err);
+                        alert("Errore durante l'eliminazione: " + err.message);
                     });
                 };
             }
@@ -2684,6 +2728,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                     formData.append("intolleranze", document.getElementById("editIntolleranze").value);
                     formData.append("prezzo_orario", document.getElementById("editPrezzo").value);
                     formData.append("note", document.getElementById("editNote").value);
+                    // include gruppo flag so it actually gets saved
+                    formData.append("gruppo", document.getElementById("editGruppo").value);
                     formData.append("foto", fotoInput.files[0]);
 
                     fetch('api/api_aggiorna_utente.php', {
@@ -2730,7 +2776,9 @@ $resultResoconti = $conn->query($sqlResoconti);
                         disabilita: document.getElementById("editDisabilita").value,
                         intolleranze: document.getElementById("editIntolleranze").value,
                         prezzo_orario: document.getElementById("editPrezzo").value,
-                        note: document.getElementById("editNote").value
+                        note: document.getElementById("editNote").value,
+                        // make sure group setting is always included in JSON payload
+                        gruppo: document.getElementById("editGruppo").value
                     };
 
                     fetch('api/api_aggiorna_utente.php', {
@@ -3264,6 +3312,7 @@ function getFileIcon(filename) {
         formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
         formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value));
         formData.append("note", document.getElementById("utenteNote").value.trim());
+        formData.append("gruppo", document.getElementById("utenteGruppo").value);
 
         const fotoInput = document.getElementById("utenteFoto");
         if(fotoInput.files.length > 0){
@@ -4020,8 +4069,21 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     })
                     .filter(id => !isNaN(id) && id > 0);
 
+                const ragazzi_gruppo = {};
+                Array.from(ragazziCheckboxes).forEach(cb => {
+                    const id = parseInt(cb.value, 10);
+                    if(isNaN(id) || id <= 0) return;
+                    const sel = cb.closest('label').querySelector('.ragazzo-gruppo');
+                    if(sel){
+                        ragazzi_gruppo[id] = parseInt(sel.value, 10) === 1 ? 1 : 0;
+                    } else {
+                        ragazzi_gruppo[id] = 0;
+                    }
+                });
+
                 console.log("Educatori selezionati:", educatori);
                 console.log("Ragazzi selezionati:", ragazzi);
+                console.log("Gruppo map:", ragazzi_gruppo);
 
                 if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
                     alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
@@ -4040,7 +4102,8 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     ora_fine: ora_fine,
                     id_attivita: parseInt(id_attivita),
                     educatori: educatori,
-                    ragazzi: ragazzi
+                    ragazzi: ragazzi,
+                    ragazzi_gruppo: ragazzi_gruppo
                 };
                 console.log("Payload:", payload);
                 

@@ -29,7 +29,7 @@ if ($conn->connect_error) {
 }
 
 // Recupera allegati
-$stmt = $conn->prepare("SELECT id, percorso_file, nome_file, data_upload FROM allegati WHERE id_iscritto = ? ORDER BY data_upload DESC");
+$stmt = $conn->prepare("SELECT id, file, ID_Iscritto FROM allegati WHERE ID_Iscritto = ? ORDER BY id DESC");
 $stmt->bind_param("i", $id_iscritto);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -37,7 +37,7 @@ $result = $stmt->get_result();
 $allegati = [];
 while ($row = $result->fetch_assoc()) {
     // Determina tipo file per icona
-    $extension = pathinfo($row['percorso_file'], PATHINFO_EXTENSION);
+    $extension = pathinfo($row['file'], PATHINFO_EXTENSION);
     $tipo = 'file';
     
     switch (strtolower($extension)) {
@@ -65,10 +65,10 @@ while ($row = $result->fetch_assoc()) {
     
     $allegati[] = [
         'id' => $row['id'],
-        'percorso' => $row['percorso_file'], // legacy key used by frontend
-        'percorso_file' => $row['percorso_file'],
-        'nome_file' => $row['nome_file'],
-        'data_upload' => $row['data_upload'],
+        'percorso' => $row['file'], // legacy key used by frontend
+        'percorso_file' => $row['file'],
+        'nome_file' => pathinfo($row['file'], PATHINFO_BASENAME),
+        'data_upload' => date('Y-m-d H:i:s'), // placeholder, non disponibile nel DB
         'tipo' => $tipo
     ];
 }

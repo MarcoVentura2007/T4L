@@ -35,6 +35,15 @@ if ($conn->connect_error) {
 // Determina se è una richiesta con file o JSON
 $contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
 
+// inizializziamo tutte le variabili comuni
+$id = 0;
+$nome = $cognome = $data_nascita = $codice_fiscale = $email = $telefono = $disabilita = '';
+$intolleranze = '';
+$prezzo_orario = 0;
+$note = '';
+$gruppo = null; // null indica che il client non ha fornito il campo
+$fotografia = null;
+
 if (strpos($contentType, 'multipart/form-data') !== false) {
     // Richiesta con file upload
     $id = intval($_POST['id'] ?? 0);
@@ -48,9 +57,15 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
     $intolleranze = $_POST['intolleranze'] ?? '';
     $prezzo_orario = floatval($_POST['prezzo_orario'] ?? 0);
     $note = $_POST['note'] ?? '';
-    
+    // normalizza il valore di gruppo se inviato
+    if (isset($_POST['gruppo'])) {
+        $gruppo = intval($_POST['gruppo']) === 1 ? 1 : 0;
+    }
+
+    // log per debug
+    error_log("api_aggiorna_utente received gruppo (multipart)=" . var_export($gruppo, true));
+
     // Gestione upload file
-    $fotografia = null;
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = '../immagini/';
         
@@ -65,7 +80,27 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
         
         // Verifica che sia un'immagine
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        $fileType = mime_content_type($_FILES['foto']['tmp_name']);
+        
+        // Ottieni MIME type usando finfo_file
+        $fileType = 'application/octet-stream';
+        if (function_exists('finfo_file')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            if ($finfo !== false) {
+                $fileType = finfo_file($finfo, $_FILES['foto']['tmp_name']);
+                finfo_close($finfo);
+            }
+        } else {
+            // Fallback: usa l'estensione del file
+            $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            $extToMime = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp'
+            ];
+            $fileType = $extToMime[$ext] ?? 'application/octet-stream';
+        }
         
         if (!in_array($fileType, $allowedTypes)) {
             echo json_encode(['success' => false, 'message' => 'Tipo di file non valido. Solo immagini sono permesse.']);
@@ -95,6 +130,9 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
     $intolleranze = $data['intolleranze'] ?? '';
     $prezzo_orario = floatval($data['prezzo_orario'] ?? 0);
     $note = $data['note'] ?? '';
+    if (isset($data['gruppo'])) {
+        $gruppo = intval($data['gruppo']) === 1 ? 1 : 0;
+    }
     $fotografia = null;
 }
 
@@ -104,33 +142,51 @@ if(empty($id)){
     exit;
 }
 
+// se non è stato inviato il campo gruppo, recupero il valore corrente dal DB
+if ($gruppo === null) {
+    $stmtTmp = $conn->prepare("SELECT Gruppo FROM iscritto WHERE id = ?");
+    if ($stmtTmp) {
+        $stmtTmp->bind_param("i", $id);
+        $stmtTmp->execute();
+        $stmtTmp->bind_result($existingGroup);
+        if ($stmtTmp->fetch()) {
+            $gruppo = intval($existingGroup) === 1 ? 1 : 0;
+        } else {
+            $gruppo = 0;
+        }
+        $stmtTmp->close();
+    } else {
+        // se la query fallisce, default a 0 per sicurezza
+        $gruppo = 0;
+    }
+    error_log("api_aggiorna_utente gruppo non fornito, usato valore DB={$gruppo}");
+}
+
 // Costruzione query SQL con prepared statement
 if ($fotografia !== null) {
-    // Aggiorna anche la fotografia
+    // Aggiorna anche la fotografia sempre (e Gruppo)
     $sql = "UPDATE iscritto SET 
-            nome = ?,
-            cognome = ?,
-            data_nascita = ?,
-            codice_fiscale = ?,
-            email = ?,
-            telefono = ?,
-            disabilita = ?,
-            allergie_intolleranze = ?,
-            prezzo_orario = ?,
-            note = ?,
-            fotografia = ?
+            Nome = ?,
+            Cognome = ?,
+            Data_nascita = ?,
+            Codice_fiscale = ?,
+            Email = ?,
+            Telefono = ?,
+            Disabilita = ?,
+            Allergie_Intolleranze = ?,
+            Prezzo_Orario = ?,
+            Note = ?,
+            Fotografia = ?,
+            Gruppo = ?
             WHERE id = ?";
-    
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         echo json_encode(['success' => false, 'message' => 'Errore nella preparazione della query: ' . $conn->error]);
         exit;
     }
-    
-    // bind_param: s=string, d=double, i=integer
-    // 12 parametri: 10 stringhe + 1 double + 1 intero per l'ID
+    // 13 parameters: 8 strings, 1 double, 1 string, 2 integers (gruppo,id)
     $stmt->bind_param(
-        "sssssssssdssi",
+        "ssssssssdssii",
         $nome,
         $cognome,
         $data_nascita,
@@ -142,33 +198,31 @@ if ($fotografia !== null) {
         $prezzo_orario,
         $note,
         $fotografia,
+        $gruppo,
         $id
     );
-
 } else {
-    // Non aggiornare la fotografia
+    // Non aggiornare la fotografia, ma includo sempre gruppo
     $sql = "UPDATE iscritto SET 
-            nome = ?,
-            cognome = ?,
-            data_nascita = ?,
-            codice_fiscale = ?,
-            email = ?,
-            telefono = ?,
-            disabilita = ?,
-            allergie_intolleranze = ?,
-            prezzo_orario = ?,
-            note = ?
+            Nome = ?,
+            Cognome = ?,
+            Data_nascita = ?,
+            Codice_fiscale = ?,
+            Email = ?,
+            Telefono = ?,
+            Disabilita = ?,
+            Allergie_Intolleranze = ?,
+            Prezzo_Orario = ?,
+            Note = ?,
+            Gruppo = ?
             WHERE id = ?";
-    
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         echo json_encode(['success' => false, 'message' => 'Errore nella preparazione della query: ' . $conn->error]);
         exit;
     }
-    
-    // 10 parametri: 9 stringhe + 1 double + 1 intero per l'ID
     $stmt->bind_param(
-        "ssssssssdsi",
+        "ssssssssdsii",
         $nome,
         $cognome,
         $data_nascita,
@@ -179,9 +233,9 @@ if ($fotografia !== null) {
         $intolleranze,
         $prezzo_orario,
         $note,
+        $gruppo,
         $id
     );
-
 }
 
 try {

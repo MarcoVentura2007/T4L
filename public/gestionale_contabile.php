@@ -41,7 +41,7 @@ if(
 }
 
 // Preleva i profili dal DB
-$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, email, telefono, allergie_intolleranze, note 
+$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, email, telefono, allergie_intolleranze, note, Gruppo 
         FROM iscritto ORDER BY cognome ASC";
 
 $result = $conn->query($sql);
@@ -425,6 +425,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <input type="text" id="utenteDisabilita">
                         </div>
                         <div class="edit-field">
+                            <label>Gruppo</label>
+                            <select id="utenteGruppo">
+                                <option value="0" selected>Individuale</option>
+                                <option value="1">Gruppo</option>
+                            </select>
+                        </div>
+                        <div class="edit-field">
                             <label>Intolleranze / Allergie</label>
                             <input type="text" id="utenteIntolleranze">
                         </div>
@@ -507,6 +514,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <th>Data di nascita</th>
                                 <th>Disabilità</th>
                                 <th>Note</th>
+                                <th>Tipo</th>
                                 <th>Azioni</th>
                             </tr>
                         </thead>
@@ -527,6 +535,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         data-disabilita="'.htmlspecialchars($row['disabilita']).'" 
                                         data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'" 
                                         data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
+                                        data-gruppo="'.htmlspecialchars($row['Gruppo']).'" 
                                     >
 
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
@@ -535,6 +544,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         <td>'.htmlspecialchars($row['data_nascita']).'</td>
                                         <td>'.htmlspecialchars($row['disabilita']).'</td>
                                         <td>'.htmlspecialchars($row['note']).'</td>
+                                        <td>'.($row['Gruppo'] ? 'Gruppo' : 'Individuale').'</td>
                                         <td>
                                             <button class="view-btn"><img src="immagini/open-eye.png"></button>
                                             <button class="edit-btn"><img src="immagini/edit.png"></button>
@@ -589,6 +599,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="edit-field" id="fieldDisabilita">
                                 <label>Disabilità</label>
                                 <input type="text" id="editDisabilita" placeholder="Disabilità">
+                            </div>
+                            <div class="edit-field" id="fieldGruppo">
+                                <label>Gruppo</label>
+                                <select id="editGruppo">
+                                    <option value="0">Individuale</option>
+                                    <option value="1">Gruppo</option>
+                                </select>
                             </div>
                             <div class="edit-field" id="fieldIntolleranze">
                                 <label>Intolleranze</label>
@@ -754,6 +771,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </table>
                     <div class="modal-box large" id="modalPresenze">
                         <h3 id="presenzeModalTitle">Presenze</h3>
+                        <!-- profile header shown when editing a presenza -->
+                        <div class="profile-header" id="presenzeProfile" style="display:none;">
+                            <img id="presenzeAvatar" class="profile-avatar">
+                            <div class="profile-main">
+                                <h3 id="presenzeFullname"></h3>
+                            </div>
+                        </div>
                         <form id="formModificaPresenza">
                             <div class="edit-field">
                                 <label>Ingresso (ora)</label>
@@ -955,6 +979,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         echo '<label class="checkbox-item">';
                                         echo '<input type="checkbox" class="ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
                                         echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '<select class="ragazzo-gruppo" style="margin-left:8px;">
+                                                <option value="0" selected>Ind</option>
+                                                <option value="1">Gruppo</option>
+                                            </select>';
                                         echo '</label>';
                                     }
                                 }
@@ -1044,6 +1072,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         echo '<label class="checkbox-item">';
                                         echo '<input type="checkbox" class="modifica-ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
                                         echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
+                                        echo '<select class="modifica-ragazzo-gruppo" style="margin-left:8px;">
+                                                <option value="0" selected>Ind</option>
+                                                <option value="1">Gruppo</option>
+                                            </select>';
                                         echo '</label>';
                                     }
                                 }
@@ -1726,6 +1758,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("editEmail").value = row.dataset.email;
                 document.getElementById("editTelefono").value = row.dataset.telefono;
                 document.getElementById("editDisabilita").value = row.dataset.disabilita;
+                document.getElementById("editGruppo").value = row.dataset.gruppo || 0;
 
                 document.getElementById("editIntolleranze").value = row.dataset.intolleranze;
                 document.getElementById("editPrezzo").value = row.dataset.prezzo;
@@ -1768,7 +1801,12 @@ $resultResoconti = $conn->query($sqlResoconti);
                         },
                         body: JSON.stringify({ id_iscritto: row.dataset.id })
                     })
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! status: ${res.status}`);
+                        }
+                        return res.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             deleteModal.classList.remove("show");
@@ -1781,9 +1819,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 row.remove();
                                 location.reload();
                             },1800); 
+                        } else {
+                            alert("Errore: " + (data.message || "Errore sconosciuto"));
                         }
-
-                    
+                    })
+                    .catch(err => {
+                        console.error("Errore eliminazione utente:", err);
+                        alert("Errore durante l'eliminazione: " + err.message);
                     });
                 };
             }
@@ -1813,6 +1855,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 formData.append("intolleranze", document.getElementById("editIntolleranze").value);
                 formData.append("prezzo_orario", document.getElementById("editPrezzo").value);
                 formData.append("note", document.getElementById("editNote").value);
+                formData.append("gruppo", document.getElementById("editGruppo").value);
                 formData.append("foto", fotoInput.files[0]);
 
                 fetch('api/api_aggiorna_utente.php', {
@@ -1854,6 +1897,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     email: document.getElementById("editEmail").value,
                     telefono: document.getElementById("editTelefono").value,
                     disabilita: document.getElementById("editDisabilita").value,
+                    gruppo: document.getElementById("editGruppo").value,
                     intolleranze: document.getElementById("editIntolleranze").value,
                     prezzo_orario: document.getElementById("editPrezzo").value,
                     note: document.getElementById("editNote").value
@@ -2401,6 +2445,9 @@ async function uploadAllegati(idIscritto){
         formData.append('allegato',file);
         try{
             const response=await fetch('api/api_carica_allegato.php',{method:'POST',body:formData,credentials:'include'});
+            if(!response.ok){
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
             const data=await response.json();
             if(data.success){ if(progressBar){progressBar.style.width='100%';progressBar.classList.add('complete');} if(statusDiv){statusDiv.textContent='✓ Caricato';statusDiv.classList.add('complete');} results.push({success:true,file:file.name}); }
             else{ if(progressBar) progressBar.classList.add('error'); if(statusDiv){statusDiv.textContent='✗ Errore: '+data.message;statusDiv.classList.add('error');} results.push({success:false,file:file.name,error:data.message}); }
@@ -2466,7 +2513,17 @@ async function uploadAllegatiEdit(idIscritto){
         const formData=new FormData();
         formData.append('id_iscritto',idIscritto);
         formData.append('allegato',file);
-        try{const response=await fetch('api/api_carica_allegato.php',{method:'POST',body:formData,credentials:'include'});const data=await response.json();results.push({success:data.success,file:file.name,error:data.message});}catch(error){results.push({success:false,file:file.name,error:error.message});}
+        try{
+            const response=await fetch('api/api_carica_allegato.php',{method:'POST',body:formData,credentials:'include'});
+            if(!response.ok){
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const data=await response.json();
+            results.push({success:data.success,file:file.name,error:data.message});
+        }catch(error){
+            console.error(`Errore upload file ${file.name}:`,error);
+            results.push({success:false,file:file.name,error:error.message});
+        }
     }
     return results;
 }
@@ -2484,6 +2541,7 @@ formAggiungiUtente.addEventListener("submit", async function (e) {
     formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
 
     formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
+    formData.append("gruppo", document.getElementById("utenteGruppo").value);
     formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
     formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value) || 0);
     formData.append("note", document.getElementById("utenteNote").value.trim());
@@ -2530,16 +2588,24 @@ formAggiungiUtente.addEventListener("submit", async function (e) {
         let currentPresenzeId = null;
         let isDeleteMode = false;
 
-        function openPresenzeModal(isDelete = false){
+        function openPresenzeModal(isDelete = false, nome = '', cognome = '', avatar = ''){
             isDeleteMode = isDelete;
             if(isDelete){
                 formPresenze.style.display = "none";
                 deletePresenzaBox.style.display = "block";
-                document.getElementById("presenzeModalTitle").innerText = "Elimina presenza";
+                document.getElementById("presenzeModalTitle").innerText = "Elimina presenza" + (nome || cognome ? ` - ${nome} ${cognome}` : '');
+                // hide header when deleting
+                document.getElementById('presenzeProfile').style.display = 'none';
             } else {
                 formPresenze.style.display = "block";
                 deletePresenzaBox.style.display = "none";
-                document.getElementById("presenzeModalTitle").innerText = "Modifica presenza";
+                document.getElementById("presenzeModalTitle").innerText = "Modifica presenza" + (nome || cognome ? ` - ${nome} ${cognome}` : '');
+                if(nome || cognome){
+                    const header = document.getElementById('presenzeProfile');
+                    header.style.display = 'flex';
+                    document.getElementById('presenzeAvatar').src = avatar || '';
+                    document.getElementById('presenzeFullname').innerText = (nome + ' ' + cognome).trim();
+                }
             }
             openModal(modalPresenze);
         }
@@ -2603,6 +2669,9 @@ formAggiungiUtente.addEventListener("submit", async function (e) {
                 currentPresenzeId = editBtn.dataset.id;
                 const ingresso = tr.dataset.ingresso || '';  
                 const uscita = tr.dataset.uscita || '';      
+                const nome = tr.dataset.nome || '';
+                const cognome = tr.dataset.cognome || '';
+                const avatar = tr.querySelector('img') ? tr.querySelector('img').src : '';
                 
                 // Estrarre solo l'ora (HH:MM)
                 const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
@@ -2610,14 +2679,18 @@ formAggiungiUtente.addEventListener("submit", async function (e) {
                 
                 document.getElementById("presenzeIngresso").value = ingressoTime;
                 document.getElementById("presenzeUscita").value = uscitaTime;
-                openPresenzeModal(false);
+                openPresenzeModal(false, nome, cognome, avatar);
                 return;
             }
 
             const delBtn = e.target.closest('.delete-presenza-btn');
             if(delBtn){
+                const tr = delBtn.closest('tr');
                 currentPresenzeId = delBtn.dataset.id;
-                openPresenzeModal(true);
+                const nome = tr.dataset.nome || '';
+                const cognome = tr.dataset.cognome || '';
+                const avatar = tr.querySelector('img') ? tr.querySelector('img').src : '';
+                openPresenzeModal(true, nome, cognome, avatar);
                 return;
             }
         });
@@ -2968,8 +3041,22 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     })
                     .filter(id => !isNaN(id) && id > 0);
 
+                // costruisci mappa gruppo per ogni ragazzo selezionato
+                const ragazzi_gruppo = {};
+                Array.from(ragazziCheckboxes).forEach(cb => {
+                    const id = parseInt(cb.value, 10);
+                    if(isNaN(id) || id <= 0) return;
+                    const sel = cb.closest('label').querySelector('.ragazzo-gruppo');
+                    if(sel) {
+                        ragazzi_gruppo[id] = parseInt(sel.value, 10) === 1 ? 1 : 0;
+                    } else {
+                        ragazzi_gruppo[id] = 0;
+                    }
+                });
+
                 console.log("Educatori selezionati:", educatori);
                 console.log("Ragazzi selezionati:", ragazzi);
+                console.log("Gruppo map:", ragazzi_gruppo);
 
                 if (!data || !ora_inizio || !ora_fine || !id_attivita || educatori.length === 0) {
                     alert("Completa i campi obbligatori:\n- Data\n- Orari\n- Attivita\n- Educatori (almeno 1)\n\nEducatori selezionati: " + educatori.length);
@@ -2988,7 +3075,8 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     ora_fine: ora_fine,
                     id_attivita: parseInt(id_attivita),
                     educatori: educatori,
-                    ragazzi: ragazzi
+                    ragazzi: ragazzi,
+                    ragazzi_gruppo: ragazzi_gruppo
                 };
                 console.log("Payload:", payload);
 

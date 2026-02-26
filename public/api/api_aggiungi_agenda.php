@@ -45,7 +45,7 @@ if (!$data) {
         'json_error' => json_last_error_msg(),
         'content_type' => $_SERVER['CONTENT_TYPE'] ?? null
     ]);
-}
+}  
 
 $data_agenda = $data['data'] ?? null;
 $ora_inizio  = $data['ora_inizio'] ?? null;
@@ -53,9 +53,19 @@ $ora_fine    = $data['ora_fine'] ?? null;
 $id_attivita = intval($data['id_attivita'] ?? 0);
 $educatori   = $data['educatori'] ?? [];
 $ragazzi     = $data['ragazzi'] ?? [];
+$ragazzi_gruppo = $data['ragazzi_gruppo'] ?? []; // Array: ragazzo_id => gruppo (opzionale)
 
 if (!is_array($educatori)) $educatori = [];
 if (!is_array($ragazzi)) $ragazzi = [];
+if (!is_array($ragazzi_gruppo)) $ragazzi_gruppo = [];
+
+// costruisci una mappa con chiavi numeriche trattate correttamente
+$gruppo_map = [];
+foreach ($ragazzi_gruppo as $key => $val) {
+    $k = intval($key);
+    if ($k <= 0) continue;
+    $gruppo_map[$k] = (intval($val) === 1) ? 1 : 0;
+}
 
 if (!$data_agenda || !$ora_inizio || !$ora_fine || !$id_attivita) {
     fail('Campi obbligatori mancanti');
@@ -126,13 +136,14 @@ try {
 
         foreach ($presenze_map as $id_ragazzo => $id_presenza) {
             $id_presenza_sql = is_null($id_presenza) ? "NULL" : intval($id_presenza);
+            $id_gruppo = $gruppo_map[$id_ragazzo] ?? 0;
 
             $sql = "
                 INSERT INTO partecipa
-                (Data, Ora_Inizio, Ora_Fine, ID_Attivita, ID_Educatore, ID_Presenza, presenza_effettiva, ID_Ragazzo)
+                (Data, Ora_Inizio, Ora_Fine, ID_Attivita, ID_Educatore, ID_Presenza, presenza_effettiva, ID_Ragazzo, Gruppo)
                 VALUES
                 ('$data_agenda', '$ora_inizio:00', '$ora_fine:00',
-                 $id_attivita, $id_educatore, $id_presenza_sql, 0, $id_ragazzo)
+                 $id_attivita, $id_educatore, $id_presenza_sql, 0, $id_ragazzo, $id_gruppo)
             ";
             if (!$conn->query($sql)) {
                 throw new Exception($conn->error);

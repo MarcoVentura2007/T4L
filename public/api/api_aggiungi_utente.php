@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Recupera i dati dal POST
-$requiredFields = ['nome', 'cognome', 'data_nascita', 'codice_fiscale', 'email', 'telefono', 'disabilita', 'intolleranze', 'prezzo_orario', 'note'];
+$requiredFields = ['nome', 'cognome', 'data_nascita', 'codice_fiscale', 'email', 'telefono', 'disabilita', 'intolleranze', 'prezzo_orario', 'note', 'gruppo'];
 
 
 foreach ($requiredFields as $field) {
@@ -37,6 +37,7 @@ $disabilita = $_POST['disabilita'];
 $intolleranze = $_POST['intolleranze'];
 $prezzo_orario = $_POST['prezzo_orario'];
 $note = $_POST['note'];
+$gruppo = intval($_POST['gruppo']) === 1 ? 1 : 0;
 
 // Gestione foto
 $fotografia = "immagini/default-user.png"; // default
@@ -71,7 +72,7 @@ if ($conn->connect_error) {
 }
 
 // Inserimento utente
-$stmt = $conn->prepare("INSERT INTO iscritto (nome, cognome, data_nascita, codice_fiscale, email, telefono, disabilita, allergie_intolleranze, prezzo_orario, note, fotografia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO iscritto (Nome, Cognome, Data_nascita, Codice_fiscale, Email, Telefono, Disabilita, Allergie_Intolleranze, Prezzo_Orario, Note, Fotografia, Gruppo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 if (!$stmt) {
     echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
@@ -79,7 +80,7 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "ssssssssdss",
+    "ssssssssdssi",
     $nome,
     $cognome,
     $data_nascita,
@@ -90,7 +91,8 @@ $stmt->bind_param(
     $intolleranze,
     $prezzo_orario,
     $note,
-    $fotografia
+    $fotografia,
+    $gruppo
 );
 
 
