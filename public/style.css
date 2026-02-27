@@ -5437,6 +5437,7 @@ section h3 {
     align-items: center;
     justify-content: center;
     transition: opacity 0.4s ease, visibility 0.4s ease;
+    pointer-events: auto;
 }
 
 #page-loader.show {
@@ -5448,8 +5449,10 @@ section h3 {
 #page-loader.hidden {
     opacity: 0;
     visibility: hidden;
-    pointer-events: none;
+    pointer-events: none !important;
+    display: none !important;
 }
+
 
 /* ================================
    SOFT PROFESSIONAL LOADER

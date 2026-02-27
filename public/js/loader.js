@@ -38,15 +38,20 @@
             loader.style.display = 'none';
             loader.style.visibility = 'hidden';
             loader.style.opacity = '0';
+            loader.style.pointerEvents = 'none';
         } else {
             // Se il loader è visibile, usiamo la transizione di uscita
             loader.classList.remove('show');
             loader.classList.add('hidden');
+            loader.style.pointerEvents = 'none';
             setTimeout(function() {
                 loader.style.display = 'none';
+                loader.style.visibility = 'hidden';
+                loader.style.pointerEvents = 'none';
             }, 400);
         }
     }
+
     
     // Verifica se tutte le immagini sono caricate
     function checkImagesLoaded() {
@@ -194,12 +199,27 @@
     // Avvia il controllo delle risorse
     checkAllResources();
     
-    // Fallback di sicurezza: nascondi dopo 15 secondi (per pagine molto pesanti)
+    // Fallback di sicurezza: nascondi dopo 8 secondi (per pagine molto pesanti)
     setTimeout(function() {
         if (!resourcesLoaded) {
+            console.log('Loader fallback: forcing hide after timeout');
             resourcesLoaded = true;
             hideLoader();
         }
-    }, 15000);
+    }, 8000);
+    
+    // Emergency fallback: force hide after 12 seconds no matter what
+    setTimeout(function() {
+        console.log('Loader emergency fallback: forcing hide');
+        if (loader) {
+            loader.classList.remove('show');
+            loader.classList.add('hidden');
+            loader.style.display = 'none';
+            loader.style.visibility = 'hidden';
+            loader.style.opacity = '0';
+            loader.style.pointerEvents = 'none';
+        }
+    }, 12000);
+
     
 })();
