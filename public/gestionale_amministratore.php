@@ -540,7 +540,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <th>Data di nascita</th>
                                 <th>Disabilità</th>
                                 <th>Note</th>
-                                <th>Tipo</th>
                                 <th>Azioni</th>
                             </tr>
                         </thead>
@@ -570,7 +569,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         <td>'.htmlspecialchars($row['data_nascita']).'</td>
                                         <td>'.htmlspecialchars($row['disabilita']).'</td>
                                         <td>'.htmlspecialchars($row['note']).'</td>
-                                        <td>'.($row['Gruppo'] ? 'Gruppo' : 'Individuale').'</td>
                                         <td>
                                             <button class="view-btn"><img src="immagini/open-eye.png"></button>
                                             <button class="edit-btn"><img src="immagini/edit.png"></button>
@@ -1110,7 +1108,9 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                 <div class="modal-box large modal-resoconto" id="modalResocontoGiorni">
 
-                    <h3 class="modal-title" id="resocontoNome"></h3>
+                    <div style="display: flex; justify-content: flex-start; align-items: center;">
+                        <h3 class="modal-title" id="resocontoNome"></h3>
+                    </div>
 
                     <!-- RIEPILOGO TOTALI -->
 
@@ -1170,8 +1170,64 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
                     <div class="modal-actions">
+                        <button class="print-btn" id="stampaResocontoBtn" style="margin-right: auto;">
+                            <span class="printer-wrapper">
+                                <span class="printer-container">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 92 75">
+                                        <path stroke-width="5" stroke="black" d="M12 37.5H80C85.2467 37.5 89.5 41.7533 89.5 47V69C89.5 70.933 87.933 72.5 86 72.5H6C4.067 72.5 2.5 70.933 2.5 69V47C2.5 41.7533 6.75329 37.5 12 37.5Z"></path>
+                                        <mask fill="white" id="path-2-inside-1_30_7">
+                                            <path d="M12 12C12 5.37258 17.3726 0 24 0H57C70.2548 0 81 10.7452 81 24V29H12V12Z"></path>
+                                        </mask>
+                                        <path mask="url(#path-2-inside-1_30_7)" fill="black" d="M7 12C7 2.61116 14.6112 -5 24 -5H57C73.0163 -5 86 7.98374 86 24H76C76 13.5066 67.4934 5 57 5H24C20.134 5 17 8.13401 17 12H7ZM81 29H12H81ZM7 29V12C7 2.61116 14.6112 -5 24 -5V5C20.134 5 17 8.13401 17 12V29H7ZM57 -5C73.0163 -5 86 7.98374 86 24V29H76V24C76 13.5066 67.4934 5 57 5V-5Z"></path>
+                                        <circle fill="black" r="3" cy="49" cx="78"></circle>
+                                    </svg>
+                                </span>
+                                <span class="printer-page-wrapper">
+                                    <span class="printer-page"></span>
+                                </span>
+                            </span>
+                            Stampa
+                        </button>
                         <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
                     </div>
+                </div>
+
+                <!-- OVERLAY PER MODAL PREVIEW -->
+                <div id="overlayAnteprimaResoconto" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); z-index: 9999;"></div>
+
+                <!-- MODAL PREVIEW STAMPA RESOCONTO -->
+                <div class="modal-box large" id="modalAnteprimaResoconto" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; max-width: 1000px; width: 90%; max-height: 90vh; overflow-y: auto; pointer-events: auto; background: #f9fafb; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, #f4f6f9 0%, #ffffff 100%); border-bottom: 2px solid #e5e7eb; border-radius: 8px 8px 0 0;">
+                        <h3 class="modal-title" style="margin: 0; color: #111827;">Anteprima Resoconto</h3>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #4b5563;">
+                                Salva come:
+                                <select id="formatoDownload" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; background-color: white; cursor: pointer; color: #111827; font-weight: 500;">
+                                    <option value="pdf">PDF</option>
+                                    <option value="csv">CSV</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- AREA PREVIEW -->
+                    <div id="anteprimaContenuto" style="border: 1px solid #e5e7eb; padding: 30px; background: white; max-height: 600px; overflow-y: auto; margin: 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"></div>
+
+                    <!-- PULSANTI AZIONI -->
+                    <div class="modal-actions" style="gap: 15px; padding: 20px; margin-top: 0; background: #f9fafb; border-top: 1px solid #e5e7eb;">
+                        <button class="print-btn" id="scaricaResocontoBtn" style="flex: 1; padding: 12px 20px; background: #ffffff; color: #111827; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;" onmouseover="this.style.background='#f3f4f6'; this.style.borderColor='#d1d5db'" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'">
+                            <span class="printer-wrapper download-icon-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+                                </svg>
+                            </span>
+                            Scarica
+                        </button>
+
+                        <button class="btn-secondary" id="chiudiAnteprimaBtn" style="padding: 12px 20px; background: #e5e7eb; color: #111827; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Chiudi</button>
+                    </div>
+
+                </div>
                 </div>
 
             </div>
@@ -1931,6 +1987,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
             const intolleranze = row.dataset.intolleranze;
             const prezzo = row.dataset.prezzo;
+            const gruppo = row.dataset.gruppo;
 
             document.getElementById("viewAvatar").src = avatar;
             document.getElementById("viewFullname").innerText = nome + " " + cognome;
@@ -1947,6 +2004,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                 <div class="profile-field"><label style="font-weight: bold;">Intolleranze ⚠️</label><span style="font-weight: bold;">${intolleranze || "—"}</span></div>
                 <div class="profile-field"><label>Prezzo orario</label><span>${prezzo || "—"} €</span></div>
+                <div class="profile-field"><label>Tipo di lavoro</label><span>${gruppo === 'on' || gruppo === '1' ? 'Gruppo' : 'Individuale'}</span></div>
                 <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
             `;
 
@@ -4210,18 +4268,28 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     <html>
                     <head>
                         <title>Stampa Agenda Settimanale</title>
-                        <style>
-                            @page { size: A4 landscape; }
-                            body { font-family: Arial, sans-serif; margin: 3px; width: 297mm; }
-                            table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
-                            th, td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: top; width: 20%; max-width: 20%; word-wrap: break-word; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            th { background: #f0f0f0; font-weight: bold; }
-                            .activity { margin-bottom: 6px; page-break-inside: avoid; }
-                            .participants { font-size: 12px; }
-                            .ragazzi-photos { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
-                            .ragazzo-photo { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc; }
-                            @media print { body { margin: 0; } table { width: 100%; } }
-                        </style>
+<style>
+     @media (max-width: 768px){
+        .footer-bar{
+            display: none;
+        }
+    }
+
+    /* Download button bounce animation */
+    @keyframes bounce-download {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-4px);
+        }
+    }
+
+    #scaricaResocontoBtn:hover .download-icon-wrapper svg {
+        animation: bounce-download 0.6s ease-in-out infinite;
+    }
+</style>
+
                     </head>
                     <body>
                         <h2 style="text-align: center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2>
@@ -4278,6 +4346,16 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
     let currentIscritto = null;
     let mobileCalendarInstance = null;
+    let resocontoCurrentData = {
+        nome: '',
+        cognome: '',
+        mese: '',
+        giorniData: [],
+        attivitaMensili: [],
+        totalOre: 0,
+        totalCosto: 0,
+        giorniPresenza: 0
+    };
 
 
     // CARICAMENTO INIZIALE MENSILE
@@ -4287,6 +4365,10 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
     if(resocontiMeseFiltro) {
         resocontiMeseFiltro.addEventListener("change", () => {
             caricaResocontiMensili(resocontiMeseFiltro.value);
+            // se il modal è aperto, aggiorna anche la vista giornaliera
+            if(modalResoconto && modalResoconto.classList.contains('open')) {
+                caricaResocontoGiorni();
+            }
         });
     }
 
@@ -4298,6 +4380,10 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         currentIscritto = btn.dataset.id;
         const nome = btn.dataset.nome || "";
         const cognome = btn.dataset.cognome || "";
+
+        // Salva dati per il CSV
+        resocontoCurrentData.nome = nome;
+        resocontoCurrentData.cognome = cognome;
 
         if(!titoloResoconto) return;
         titoloResoconto.textContent = "Resoconto - " + (cognome + " " + nome).trim();
@@ -4401,8 +4487,15 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 if(summaryCosto) summaryCosto.textContent = '0.00 €';
                 if(summaryGiorni) summaryGiorni.textContent = '0';
                 
-                // Aggiorna calendario esistente con dati vuoti
+                // Aggiorna calendario esistente con dati vuoti (sincronizza mese)
                 if(mobileCalendarInstance) {
+                    const [anno, mese] = meseDaUsare.split('-');
+                    const newDate = new Date(parseInt(anno), parseInt(mese) - 1, 1);
+                    const currentYear = mobileCalendarInstance.currentDate.getFullYear();
+                    const currentMonth = mobileCalendarInstance.currentDate.getMonth();
+                    if (currentYear !== newDate.getFullYear() || currentMonth !== newDate.getMonth()) {
+                        mobileCalendarInstance.setDate(newDate);
+                    }
                     mobileCalendarInstance.setActivitiesData({});
                 } else {
                     // Inizializza calendario vuoto solo se non esiste
@@ -4516,13 +4609,29 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             if(summaryCosto) summaryCosto.textContent = totalCosto.toFixed(2) + ' €';
             if(summaryGiorni) summaryGiorni.textContent = giorniPresenza;
 
+            // Salva dati per il CSV
+            resocontoCurrentData.mese = meseDaUsare;
+            resocontoCurrentData.giorniData = json.data;
+            resocontoCurrentData.attivitaMensili = Array.from(attivitaMap.entries());
+            resocontoCurrentData.totalOre = totalOre;
+            resocontoCurrentData.totalCosto = totalCosto;
+            resocontoCurrentData.giorniPresenza = giorniPresenza;
+
             // Aggiorna o crea il calendario mobile
             const calendarContainer = document.getElementById("mobileCalendarContainer");
             if(calendarContainer && window.MobileCalendar) {
                 const [anno, mese] = meseDaUsare.split('-');
                 
                 if(mobileCalendarInstance) {
-                    // Aggiorna calendario esistente
+                    // Aggiorna calendario esistente (e sincronizza mese)
+                    const newDate = new Date(parseInt(anno), parseInt(mese) - 1, 1);
+                    if (mobileCalendarInstance) {
+                        const currentYear = mobileCalendarInstance.currentDate.getFullYear();
+                        const currentMonth = mobileCalendarInstance.currentDate.getMonth();
+                        if (currentYear !== newDate.getFullYear() || currentMonth !== newDate.getMonth()) {
+                            mobileCalendarInstance.setDate(newDate);
+                        }
+                    }
                     mobileCalendarInstance.setActivitiesData(activitiesData);
                 } else {
                     // Crea nuovo calendario
@@ -4531,7 +4640,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                         activitiesData: activitiesData,
                         activitiesPanel: '#mc-activities-panel',
                         onDayClick: function(dateStr, activities) {
-                            console.log('Giorno selezionato:', dateStr, activities);
+                            console.log('Giorno selezionato:', dateStr, attività);
                         },
                         onMonthChange: function(nuovaData) {
                             const nuovoAnno = nuovaData.getFullYear();
@@ -4551,6 +4660,291 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         });
     }
 
+    // FUNZIONE PER GENERARE TESTO ANTEPRIMA
+    function generaTestoAnteprima() {
+        if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
+            return 'Nessun dato disponibile';
+        }
+
+        let testo = 'RESOCONTO MENSILE\n';
+        testo += '═══════════════════════════════════════\n\n';
+        testo += `Nome: ${resocontoCurrentData.cognome} ${resocontoCurrentData.nome}\n`;
+        testo += `Mese: ${resocontoCurrentData.mese}\n`;
+        testo += `Data Stampa: ${new Date().toLocaleString('it-IT')}\n\n`;
+        
+        testo += 'DETTAGLIO GIORNALIERO\n';
+        testo += '───────────────────────────────────────\n';
+        
+        resocontoCurrentData.giorniData.forEach(r => {
+            const giorno = new Date(r.giorno).toLocaleDateString('it-IT');
+            testo += `\n${giorno}:\n`;
+            if (r.attivita && r.attivita.length > 0) {
+                r.attivita.forEach(a => {
+                    testo += `  • ${a.Nome}: ${a.ore.toFixed(2)}h - ${a.costo.toFixed(2)}€\n`;
+                });
+            } else {
+                testo += `  • Presenza: ${r.ore.toFixed(2)}h - ${r.costo.toFixed(2)}€\n`;
+            }
+        });
+        
+        testo += '\n\nRIEPILOGO ATTIVITÀ MENSILE\n';
+        testo += '───────────────────────────────────────\n';
+        resocontoCurrentData.attivitaMensili.forEach(([nome, ore]) => {
+            testo += `${nome}: ${ore.toFixed(2)}h\n`;
+        });
+        
+        testo += '\n\nTOTALI\n';
+        testo += '───────────────────────────────────────\n';
+        testo += `Ore Totali: ${resocontoCurrentData.totalOre.toFixed(2)}\n`;
+        testo += `Costo Totale: ${resocontoCurrentData.totalCosto.toFixed(2)}€\n`;
+        testo += `Giorni di Presenza: ${resocontoCurrentData.giorniPresenza}\n`;
+        
+        return testo;
+    }
+
+    // PULSANTE STAMPA PRINCIPALE (PICCOLO IN ALTO)
+    const stampaResocontoBtn = document.getElementById('stampaResocontoBtn');
+    if (stampaResocontoBtn) {
+        stampaResocontoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('formatoDownload').value = 'pdf';
+            document.getElementById('anteprimaContenuto').innerHTML = generaAnteprimaPDF();
+            document.getElementById('modalAnteprimaResoconto').style.display = 'block';
+            document.getElementById('overlayAnteprimaResoconto').style.display = 'block';
+        });
+    }
+
+    // FUNZIONE PER CHIUDERE IL MODAL ANTEPRIMA
+    window.chiudiModalAnteprima = function() {
+        document.getElementById('modalAnteprimaResoconto').style.display = 'none';
+        document.getElementById('overlayAnteprimaResoconto').style.display = 'none';
+    }
+
+    // BOTTONE CHIUDI ANTEPRIMA
+    const chiudiAnteprimaBtn = document.getElementById('chiudiAnteprimaBtn');
+    if (chiudiAnteprimaBtn) {
+        chiudiAnteprimaBtn.addEventListener('click', () => {
+            window.chiudiModalAnteprima();
+        });
+    }
+
+    // FUNZIONE ANTEPRIMA PDF (HTML FORMATTATO)
+    function generaAnteprimaPDF() {
+        let html = '<div style="font-family: Arial, sans-serif; padding: 20px; background: white; color: #333; line-height: 1.6;">';
+        html += '<h2 style="text-align: center; margin-bottom: 10px; border-bottom: 2px solid #333; padding-bottom: 10px;">RESOCONTO MENSILE</h2>';
+        html += '<p style="text-align: center; margin: 5px 0; font-size: 14px;"><strong>' + resocontoCurrentData.cognome + ' ' + resocontoCurrentData.nome + '</strong></p>';
+        html += '<p style="text-align: center; margin: 5px 0; font-size: 13px;">Mese: ' + resocontoCurrentData.mese + '</p>';
+        html += '<p style="text-align: center; margin: 5px 0; font-size: 12px; color: #666;">Data Stampa: ' + new Date().toLocaleString('it-IT') + '</p>';
+        
+        html += '<h3 style="margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; font-size: 14px;">DETTAGLIO GIORNALIERO</h3>';
+        html += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">';
+        html += '<tr style="background: #f0f0f0; border: 1px solid #ddd;"><th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Giorno</th><th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Attività</th><th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Ore</th><th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Costo</th></tr>';
+        
+        resocontoCurrentData.giorniData.forEach(r => {
+            const giorno = new Date(r.giorno).toLocaleDateString('it-IT');
+            if (r.attivita && r.attivita.length > 0) {
+                r.attivita.forEach((a, idx) => {
+                    html += '<tr style="border: 1px solid #ddd;">';
+                    if (idx === 0) html += '<td style="padding: 8px; border: 1px solid #ddd;">' + giorno + '</td>';
+                    else html += '<td style="padding: 8px; border: 1px solid #ddd;"></td>';
+                    html += '<td style="padding: 8px; border: 1px solid #ddd;">' + a.Nome + '</td>';
+                    html += '<td style="padding: 8px; text-align: center; border: 1px solid #ddd;">' + a.ore.toFixed(2) + 'h</td>';
+                    html += '<td style="padding: 8px; text-align: right; border: 1px solid #ddd;">' + a.costo.toFixed(2) + '€</td>';
+                    html += '</tr>';
+                });
+            } else {
+                html += '<tr style="border: 1px solid #ddd;">';
+                html += '<td style="padding: 8px; border: 1px solid #ddd;">' + giorno + '</td>';
+                html += '<td style="padding: 8px; border: 1px solid #ddd;">Presenza</td>';
+                html += '<td style="padding: 8px; text-align: center; border: 1px solid #ddd;">' + r.ore.toFixed(2) + 'h</td>';
+                html += '<td style="padding: 8px; text-align: right; border: 1px solid #ddd;">' + r.costo.toFixed(2) + '€</td>';
+                html += '</tr>';
+            }
+        });
+        html += '</table>';
+        
+        html += '<h3 style="margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; font-size: 14px;">RIEPILOGO ATTIVITÀ</h3>';
+        html += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">';
+        resocontoCurrentData.attivitaMensili.forEach(([nome, ore]) => {
+            html += '<tr style="border: 1px solid #ddd;"><td style="padding: 8px; border: 1px solid #ddd;">' + nome + '</td><td style="padding: 8px; text-align: right; border: 1px solid #ddd;">' + ore.toFixed(2) + 'h</td></tr>';
+        });
+        html += '</table>';
+        
+        html += '<h3 style="margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; font-size: 14px;">TOTALI</h3>';
+        html += '<div style="font-size: 13px; margin-bottom: 20px;">';
+        html += '<p style="margin: 5px 0;"><strong>Ore Totali:</strong> ' + resocontoCurrentData.totalOre.toFixed(2) + 'h</p>';
+        html += '<p style="margin: 5px 0;"><strong>Costo Totale:</strong> ' + resocontoCurrentData.totalCosto.toFixed(2) + '€</p>';
+        html += '<p style="margin: 5px 0;"><strong>Giorni di Presenza:</strong> ' + resocontoCurrentData.giorniPresenza + '</p>';
+        html += '</div>';
+        
+        html += '<div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 15px;">';
+        html += '<p style="margin: 10px 0 0 0; font-size: 12px;">Firma: ___________________________</p>';
+        html += '<p style="margin: 20px 0 0 0; font-size: 12px; color: #999;">Data: ' + new Date().toLocaleDateString('it-IT') + '</p>';
+        html += '</div>';
+        html += '</div>';
+        
+        return html;
+    }
+
+    // FUNZIONE ANTEPRIMA CSV (TABELLA SEMPLICE)
+    function generaAnteprimaCSV() {
+        let html = '<div style="font-family: monospace; font-size: 12px; padding: 10px; background: white;">';
+        html += '<table style="border-collapse: collapse; width: 100%;">';
+        html += '<tr style="background: #f0f0f0;"><td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">Giorno</td><td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">Attività</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Ore</td><td style="padding: 8px; border: 1px solid #ccc; text-align: right; font-weight: bold;">Costo</td></tr>';
+        
+        resocontoCurrentData.giorniData.forEach(r => {
+            const giorno = new Date(r.giorno).toLocaleDateString('it-IT');
+            if (r.attivita && r.attivita.length > 0) {
+                r.attivita.forEach(a => {
+                    html += '<tr><td style="padding: 6px; border: 1px solid #ddd;">' + giorno + '</td><td style="padding: 6px; border: 1px solid #ddd;">' + a.Nome + '</td><td style="padding: 6px; border: 1px solid #ddd; text-align: center;">' + a.ore.toFixed(2) + '</td><td style="padding: 6px; border: 1px solid #ddd; text-align: right;">' + a.costo.toFixed(2) + '</td></tr>';
+                });
+            } else {
+                html += '<tr><td style="padding: 6px; border: 1px solid #ddd;">' + giorno + '</td><td style="padding: 6px; border: 1px solid #ddd;">Presenza</td><td style="padding: 6px; border: 1px solid #ddd; text-align: center;">' + r.ore.toFixed(2) + '</td><td style="padding: 6px; border: 1px solid #ddd; text-align: right;">' + r.costo.toFixed(2) + '</td></tr>';
+            }
+        });
+        html += '</table>';
+        
+        html += '<div style="margin-top: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd;">';
+        html += '<p style="margin: 5px 0; font-weight: bold;">TOTALI</p>';
+        html += '<p style="margin: 3px 0;">Ore: ' + resocontoCurrentData.totalOre.toFixed(2) + '</p>';
+        html += '<p style="margin: 3px 0;">Costo: ' + resocontoCurrentData.totalCosto.toFixed(2) + '</p>';
+        html += '<p style="margin: 3px 0;">Giorni: ' + resocontoCurrentData.giorniPresenza + '</p>';
+        html += '</div>';
+        html += '</div>';
+        
+        return html;
+    }
+
+    // AGGIORNAMENTO ANTEPRIMA AL CAMBIO FORMATO
+    const formatoDownload = document.getElementById('formatoDownload');
+    if (formatoDownload) {
+        formatoDownload.addEventListener('change', () => {
+            const formato = formatoDownload.value;
+            const anteprimaElement = document.getElementById('anteprimaContenuto');
+            
+            if (formato === 'pdf') {
+                anteprimaElement.innerHTML = generaAnteprimaPDF();
+            } else if (formato === 'csv') {
+                anteprimaElement.innerHTML = generaAnteprimaCSV();
+            }
+        });
+    }
+
+    // CHIUDI MODAL ANTEPRIMA CON ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('modalAnteprimaResoconto').style.display === 'block') {
+            window.chiudiModalAnteprima();
+        }
+    });
+
+    // OVERLAY CLICK HANDLER
+    const overlayAnteprimaResoconto = document.getElementById('overlayAnteprimaResoconto');
+    if (overlayAnteprimaResoconto) {
+        overlayAnteprimaResoconto.addEventListener('click', () => {
+            window.chiudiModalAnteprima();
+        });
+    }
+
+    // DOWNLOAD CSV RESOCONTO
+    function generaResocontoCSV() {
+        if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
+            alert('Nessun dato da scaricare');
+            return;
+        }
+
+        let csv = 'Giorno,Attività,Ore,Costo\n';
+        
+        resocontoCurrentData.giorniData.forEach(r => {
+            const giorno = new Date(r.giorno).toLocaleDateString('it-IT');
+            if (r.attivita && r.attivita.length > 0) {
+                r.attivita.forEach(a => {
+                    csv += `${giorno},${a.Nome},${a.ore.toFixed(2)},${a.costo.toFixed(2)}\n`;
+                });
+            } else {
+                csv += `${giorno},Presenza,${r.ore.toFixed(2)},${r.costo.toFixed(2)}\n`;
+            }
+        });
+        
+        csv += '\n\nRiepilogo Attività,Ore Totali\n';
+        resocontoCurrentData.attivitaMensili.forEach(([nome, ore]) => {
+            csv += `${nome},${ore.toFixed(2)}\n`;
+        });
+        
+        csv += '\n\nTOTALI\n';
+        csv += `Ore Totali,${resocontoCurrentData.totalOre.toFixed(2)}\n`;
+        csv += `Costo Totale,${resocontoCurrentData.totalCosto.toFixed(2)}\n`;
+        csv += `Giorni di Presenza,${resocontoCurrentData.giorniPresenza}\n`;
+        
+        // Crea il blob e scarica il file
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `resoconto_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // DOWNLOAD PDF RESOCONTO
+    function generaResoconsoPDF() {
+        if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
+            alert('Nessun dato da scaricare');
+            return;
+        }
+
+        // Carica le librerie da CDN se non esistono
+        if (typeof jsPDF === 'undefined' || typeof html2pdf === 'undefined') {
+            // Carica jsPDF
+            if (typeof jsPDF === 'undefined') {
+                const scriptJsPDF = document.createElement('script');
+                scriptJsPDF.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                document.head.appendChild(scriptJsPDF);
+            }
+            // Carica html2pdf
+            if (typeof html2pdf === 'undefined') {
+                const scriptHtml2pdf = document.createElement('script');
+                scriptHtml2pdf.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                scriptHtml2pdf.onload = () => generaResoconsoPDFInternal();
+                document.head.appendChild(scriptHtml2pdf);
+            } else {
+                generaResoconsoPDFInternal();
+            }
+        } else {
+            generaResoconsoPDFInternal();
+        }
+    }
+
+    function generaResoconsoPDFInternal() {
+        // Crea un elemento temporaneo con l'HTML dell'anteprima
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = generaAnteprimaPDF();
+        tempDiv.style.padding = '20px';
+        
+        const opt = {
+            margin: 10,
+            filename: `resoconto_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        };
+        
+        html2pdf().set(opt).from(tempDiv).save();
+    }
+
+    // PULSANTE SCARICA (NEL MODAL DI PREVIEW)
+    const scaricaResocontoBtn = document.getElementById('scaricaResocontoBtn');
+    if (scaricaResocontoBtn) {
+        scaricaResocontoBtn.addEventListener('click', () => {
+            const formato = document.getElementById('formatoDownload').value;
+            if (formato === 'csv') {
+                generaResocontoCSV();
+            } else if (formato === 'pdf') {
+                generaResoconsoPDF();
+            }
+        });
+    }
 
 });
 

@@ -133,3 +133,8 @@ Stack trace:
 [26-Feb-2026 19:24:16 Europe/Berlin] Avviso: Impossibile accedere alla tabella allegati: Unknown column 'percorso_file' in 'field list'
 [26-Feb-2026 19:24:54 Europe/Berlin] Avviso: Impossibile accedere alla tabella allegati: Unknown column 'percorso_file' in 'field list'
 [26-Feb-2026 20:43:19 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=1
+[27-Feb-2026 14:24:55 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
+[27-Feb-2026 14:24:55 Europe/Berlin] PHP Warning:  Undefined variable $oldFotografia in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 115
+[27-Feb-2026 14:27:17 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
+[27-Feb-2026 14:27:17 Europe/Berlin] PHP Warning:  Undefined variable $oldFotografia in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 115
+[27-Feb-2026 14:28:43 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
