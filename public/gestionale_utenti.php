@@ -41,7 +41,7 @@ if(
 }
 
 // Preleva i profili dal DB
-$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, email, telefono, allergie_intolleranze, note 
+$sql = "SELECT id, nome, cognome, fotografia, data_nascita, disabilita, prezzo_orario, codice_fiscale, email, telefono, allergie_intolleranze, note, Gruppo 
         FROM iscritto ORDER BY cognome ASC";
 
 $result = $conn->query($sql);
@@ -292,17 +292,18 @@ if($classe !== 'Educatore'){
                                 echo '
                                     <tr
                                         data-id="'.htmlspecialchars($row['id']).'"
-                                        data-nome="'.htmlspecialchars($row['nome']).'" 
-                                        data-cognome="'.htmlspecialchars($row['cognome']).'" 
-                                        data-nascita="'.htmlspecialchars($row['data_nascita']).'" 
-                                        data-note="'.htmlspecialchars($row['note']).'" 
-                                        data-cf="'.htmlspecialchars($row['codice_fiscale']).'" 
-                                        data-email="'.htmlspecialchars($row['email']).'" 
-                                        data-telefono="'.htmlspecialchars($row['telefono']).'" 
-                                        data-disabilita="'.htmlspecialchars($row['disabilita']).'" 
+                                        data-nome="'.htmlspecialchars($row['nome']).'"
+                                        data-cognome="'.htmlspecialchars($row['cognome']).'"
+                                        data-nascita="'.htmlspecialchars($row['data_nascita']).'"
+                                        data-note="'.htmlspecialchars($row['note']).'"
+                                        data-cf="'.htmlspecialchars($row['codice_fiscale']).'"
+                                        data-email="'.htmlspecialchars($row['email']).'"
+                                        data-telefono="'.htmlspecialchars($row['telefono']).'"
+                                        data-disabilita="'.htmlspecialchars($row['disabilita']).'"
 
-                                        data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'" 
-                                        data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
+                                        data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'"
+                                        data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'"
+                                        data-gruppo="'.htmlspecialchars($row['Gruppo']).'"
                                     >
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
                                         <td>'.htmlspecialchars($row['nome']).'</td>
@@ -1186,6 +1187,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 const disabilita = row.dataset.disabilita;
                 const intolleranze = row.dataset.intolleranze;
                 const prezzo = row.dataset.prezzo;
+                const gruppo = row.dataset.gruppo;
 
                 document.getElementById("viewAvatar").src = avatar;
                 document.getElementById("viewFullname").innerText = nome + " " + cognome;
@@ -1201,6 +1203,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     <div class="profile-field"><label>Disabilità</label><span>${disabilita || "—"}</span></div>
                     <div class="profile-field"><label style="font-weight: bold;">Intolleranze ⚠️</label><span style="font-weight: bold;">${intolleranze || "—"}</span></div>
                     <div class="profile-field"><label>Prezzo orario</label><span>${prezzo || "—"} €</span></div>
+                    <div class="profile-field"><label>Tipo di lavoro</label><span>${gruppo === 'on' || gruppo === '1' ? 'Gruppo' : 'Individuale'}</span></div>
                     <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
                 `;
 

@@ -287,6 +287,16 @@ class MobileCalendar {
     }
 
     /**
+     * Change displayed month/year (useful when external code needs to jump to a different month)
+     */
+    setDate(date) {
+        this.currentDate = new Date(date);
+        this.selectedDay = null;
+        this.render();
+        this.attachEvents();
+    }
+
+    /**
      * Format date as YYYY-MM-DD
      */
     formatDate(date) {

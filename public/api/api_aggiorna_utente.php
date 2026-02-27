@@ -43,6 +43,7 @@ $prezzo_orario = 0;
 $note = '';
 $gruppo = null; // null indica che il client non ha fornito il campo
 $fotografia = null;
+$oldFotografia = null;
 
 if (strpos($contentType, 'multipart/form-data') !== false) {
     // Richiesta con file upload
@@ -64,6 +65,18 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
 
     // log per debug
     error_log("api_aggiorna_utente received gruppo (multipart)=" . var_export($gruppo, true));
+
+    // Recupera la fotografia precedente prima di caricarne una nuova
+    if (!empty($id)) {
+        $stmtOldFoto = $conn->prepare("SELECT Fotografia FROM iscritto WHERE id = ?");
+        if ($stmtOldFoto) {
+            $stmtOldFoto->bind_param("i", $id);
+            $stmtOldFoto->execute();
+            $stmtOldFoto->bind_result($oldFotografia);
+            $stmtOldFoto->fetch();
+            $stmtOldFoto->close();
+        }
+    }
 
     // Gestione upload file
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
@@ -110,6 +123,14 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
         // Sposta il file
         if (move_uploaded_file($_FILES['foto']['tmp_name'], $targetPath)) {
             $fotografia = 'immagini/' . $fileName;
+            
+            // Elimina la fotografia precedente se esiste
+            if ($oldFotografia && !empty($oldFotografia) && $oldFotografia !== "immagini/default-user.png" && $oldFotografia !== "default-user.png") {
+                $oldFotoPath = __DIR__ . '/../' . $oldFotografia;
+                if (file_exists($oldFotoPath)) {
+                    unlink($oldFotoPath);
+                }
+            }
         } else {
             echo json_encode(['success' => false, 'message' => 'Errore nel caricamento del file']);
             exit;
