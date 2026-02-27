@@ -1395,26 +1395,18 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                     <!-- PULSANTI AZIONI -->
                     <div class="modal-actions" style="gap: 15px; padding: 20px; margin-top: 0; background: #f9fafb; border-top: 1px solid #e5e7eb;">
-                        <button class="print-btn" id="scaricaResocontoBtn" style="flex: 1; padding: 12px 20px; background: linear-gradient(135deg, #0b516c 0%, #063d52 100%); color: white; border: none; border-radius: 6px; cursor: pointer;">
-                            <span class="printer-wrapper">
-                                <span class="printer-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 92 75">
-                                        <path stroke-width="5" stroke="white" d="M12 37.5H80C85.2467 37.5 89.5 41.7533 89.5 47V69C89.5 70.933 87.933 72.5 86 72.5H6C4.067 72.5 2.5 70.933 2.5 69V47C2.5 41.7533 6.75329 37.5 12 37.5Z"></path>
-                                        <mask fill="white" id="path-2-inside-1_30_7">
-                                            <path d="M12 12C12 5.37258 17.3726 0 24 0H57C70.2548 0 81 10.7452 81 24V29H12V12Z"></path>
-                                        </mask>
-                                        <path mask="url(#path-2-inside-1_30_7)" fill="white" d="M7 12C7 2.61116 14.6112 -5 24 -5H57C73.0163 -5 86 7.98374 86 24H76C76 13.5066 67.4934 5 57 5H24C20.134 5 17 8.13401 17 12H7ZM81 29H12H81ZM7 29V12C7 2.61116 14.6112 -5 24 -5V5C20.134 5 17 8.13401 17 12V29H7ZM57 -5C73.0163 -5 86 7.98374 86 24V29H76V24C76 13.5066 67.4934 5 57 5V-5Z"></path>
-                                        <circle fill="white" r="3" cy="49" cx="78"></circle>
-                                    </svg>
-                                </span>
-                                <span class="printer-page-wrapper">
-                                    <span class="printer-page"></span>
-                                </span>
+                        <button class="print-btn" id="scaricaResocontoBtn" style="flex: 1; padding: 12px 20px; background: #ffffff; color: #111827; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;" onmouseover="this.style.background='#f3f4f6'; this.style.borderColor='#d1d5db'" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e5e7eb'">
+                            <span class="printer-wrapper download-icon-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+                                </svg>
                             </span>
                             Scarica
                         </button>
+
                         <button class="btn-secondary" id="chiudiAnteprimaBtn" style="padding: 12px 20px; background: #e5e7eb; color: #111827; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Chiudi</button>
                     </div>
+
                 </div>
 
             </div>
@@ -3247,18 +3239,28 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     <html>
                     <head>
                         <title>Stampa Agenda Settimanale</title>
-                        <style>
-                            @page { size: A4 landscape; }
-                            body { font-family: Arial, sans-serif; margin: 3px; width: 297mm; }
-                            table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
-                            th, td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: top; width: 20%; max-width: 20%; word-wrap: break-word; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            th { background: #f0f0f0; font-weight: bold; }
-                            .activity { margin-bottom: 6px; page-break-inside: avoid; }
-                            .participants { font-size: 12px; }
-                            .ragazzi-photos { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
-                            .ragazzo-photo { width: 20px; height: 20px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc; }
-                            @media print { body { margin: 0; } table { width: 100%; } }
-                        </style>
+<style>
+     @media (max-width: 768px){
+        .footer-bar{
+            display: none;
+        }
+    }
+
+    /* Download button bounce animation */
+    @keyframes bounce-download {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-4px);
+        }
+    }
+
+    #scaricaResocontoBtn:hover .download-icon-wrapper svg {
+        animation: bounce-download 0.6s ease-in-out infinite;
+    }
+</style>
+
                     </head>
                     <body>
                         <h2 style="text-align: center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2>
