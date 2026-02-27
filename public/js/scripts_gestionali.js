@@ -183,30 +183,30 @@ function switchTab(tabId, navItem) {
  */
 function initTabSync() {
     const savedTab = localStorage.getItem('activeTab');
-    if (savedTab) {
-        // Aggiorna mobile nav
-        const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
-        if (mobileNavItem) {
-            document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
-            mobileNavItem.classList.add('active');
-        }
+    const tabToShow = savedTab || 'tab-utenti'; // Default al primo tab se niente è salvato
+    
+    // Aggiorna mobile nav
+    const mobileNavItem = document.querySelector(`.mobile-nav-item[data-tab="${tabToShow}"]`);
+    if (mobileNavItem) {
+        document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+        mobileNavItem.classList.add('active');
+    }
 
-        // Aggiorna desktop sidebar
-        document.querySelectorAll('.tab-link').forEach(link => {
-            link.classList.remove('active');
-            if (link.dataset.tab === savedTab) {
-                link.classList.add('active');
-            }
-        });
-
-        // Mostra il tab salvato
-        document.querySelectorAll('.page-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        const savedTabContent = document.getElementById(savedTab);
-        if (savedTabContent) {
-            savedTabContent.classList.add('active');
+    // Aggiorna desktop sidebar
+    document.querySelectorAll('.tab-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.tab === tabToShow) {
+            link.classList.add('active');
         }
+    });
+
+    // Mostra il tab
+    document.querySelectorAll('.page-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    const tabContent = document.getElementById(tabToShow);
+    if (tabContent) {
+        tabContent.classList.add('active');
     }
 }
 
