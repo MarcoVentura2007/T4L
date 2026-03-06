@@ -13,6 +13,45 @@ if (!isset($_SESSION['username'])) {
     exit;
 }
 
+// Connessione database per controllo ruolo
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "time4all";
+
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'message' => 'Errore connessione database']);
+    exit;
+}
+
+// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono caricare allegati ---
+$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+if ($stmtClasse) {
+    $stmtClasse->bind_param("s", $_SESSION['username']);
+    $stmtClasse->execute();
+    $stmtClasse->bind_result($userClasse);
+    if ($stmtClasse->fetch()) {
+        if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
+            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono caricare allegati.']);
+            $stmtClasse->close();
+            $conn->close();
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+        $stmtClasse->close();
+        $conn->close();
+        exit;
+    }
+    $stmtClasse->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $conn->close();
+    exit;
+}
+// --- FINE CONTROLLO RUOLO ---
+
 // Verifica metodo POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Metodo non valido']);
@@ -106,23 +145,12 @@ if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
 // Percorso relativo per il database
 $percorsoDb = 'allegati/' . $uniqueName;
 
-// Connessione database
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "time4all";
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    // Elimina il file se la connessione fallisce
-    unlink($targetPath);
-    echo json_encode(['success' => false, 'message' => 'Errore connessione database']);
-    exit;
-}
+// Reuse existing connection ($conn already established)
 
 // Inserisci nel database
 $stmt = $conn->prepare("INSERT INTO allegati (file, ID_Iscritto) VALUES (?, ?)");
 if (!$stmt) {
+    // Elimina il file se la prepare fallisce
     unlink($targetPath);
     echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
     exit;

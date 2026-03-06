@@ -28,6 +28,33 @@ if($conn->connect_error){
     exit;
 }
 
+// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono modificare utente ergo ---
+$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+if ($stmtClasse) {
+    $stmtClasse->bind_param("s", $_SESSION['username']);
+    $stmtClasse->execute();
+    $stmtClasse->bind_result($userClasse);
+    if ($stmtClasse->fetch()) {
+        if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
+            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono modificare utenti ergo.']);
+            $stmtClasse->close();
+            $conn->close();
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+        $stmtClasse->close();
+        $conn->close();
+        exit;
+    }
+    $stmtClasse->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $conn->close();
+    exit;
+}
+// --- FINE CONTROLLO RUOLO ---
+
 $id = intval($input['id']);
 
 // Campi validi per la tabella iscritto (senza intolleranze che non esiste nel DB)

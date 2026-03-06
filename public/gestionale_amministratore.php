@@ -1457,7 +1457,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                         <div class="modal-actions">
                             <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <bu pe="submit" class="btn-primary">Salva</button>
+                            <button type="submit" class="btn-primary">Salva</button>
                         </div>
                     </form>
                 </div>

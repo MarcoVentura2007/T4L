@@ -2,6 +2,21 @@
 session_start();
 header('Content-Type: application/json');
 
+// Database connection
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "time4all";
+
+$conn = new mysqli($host, $user, $pass, $db);
+if($conn->connect_error){
+    echo json_encode([
+        "success" => false,
+        "message" => "Errore connessione database"
+    ]);
+    exit;
+}
+
 // Verifica autenticazione
 if (!isset($_SESSION['username'])) {
     echo json_encode(['success' => false, 'message' => 'Non autorizzato']);
@@ -14,25 +29,39 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono eliminare allegati ---
+$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+if ($stmtClasse) {
+    $stmtClasse->bind_param("s", $_SESSION['username']);
+    $stmtClasse->execute();
+    $stmtClasse->bind_result($userClasse);
+    if ($stmtClasse->fetch()) {
+        if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
+            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono eliminare allegati.']);
+            $stmtClasse->close();
+            $conn->close();
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+        $stmtClasse->close();
+        $conn->close();
+        exit;
+    }
+    $stmtClasse->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $conn->close();
+    exit;
+}
+// --- FINE CONTROLLO RUOLO ---
+
 // Recupera dati JSON
 $data = json_decode(file_get_contents('php://input'), true);
 $id = isset($data['id']) ? intval($data['id']) : 0;
 
 if ($id <= 0) {
-
     echo json_encode(['success' => false, 'message' => 'ID allegato non valido']);
-    exit;
-}
-
-// Connessione database
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "time4all";
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'Errore connessione database']);
     exit;
 }
 

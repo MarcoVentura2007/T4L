@@ -17,6 +17,44 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
 }
 // --- FINE BLOCCO ---
 
+// Connessione al DB per controllo ruolo
+$host = "localhost";    
+$user = "root";         
+$pass = "";             
+$db   = "time4all"; 
+
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    die(json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]));
+}
+
+// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono modificare attività ---
+$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+if ($stmtClasse) {
+    $stmtClasse->bind_param("s", $_SESSION['username']);
+    $stmtClasse->execute();
+    $stmtClasse->bind_result($userClasse);
+    if ($stmtClasse->fetch()) {
+        if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
+            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono modificare attività.']);
+            $stmtClasse->close();
+            $conn->close();
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+        $stmtClasse->close();
+        $conn->close();
+        exit;
+    }
+    $stmtClasse->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $conn->close();
+    exit;
+}
+// --- FINE CONTROLLO RUOLO ---
+
 // Legge il JSON inviato dal fetch
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -31,16 +69,7 @@ if(!$id || $nome === '' || $descrizione === ''){
     exit;
 }
 
-// Connessione al DB
-$host = "localhost";    
-$user = "root";         
-$pass = "";             
-$db   = "time4all"; 
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die(json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]));
-}
+// Reuse existing connection ($conn already established)
 
 // Aggiornamento con prepared statement
 $stmt = $conn->prepare("UPDATE attivita SET Nome = ?, Descrizione = ? WHERE id = ?");

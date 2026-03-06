@@ -20,6 +20,34 @@ if($conn->connect_error){
     exit;
 }
 
+
+// --- CONTROLLO RUOLO: solo Amministratore possono accedere ---
+$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+if ($stmtClasse) {
+    $stmtClasse->bind_param("s", $_SESSION['username']);
+    $stmtClasse->execute();
+    $stmtClasse->bind_result($userClasse);
+    if ($stmtClasse->fetch()) {
+        if ($userClasse !== 'Amministratore') {
+            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Amministratore possono aggiornare gli utenti.']);
+            $stmtClasse->close();
+            $conn->close();
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+        $stmtClasse->close();
+        $conn->close();
+        exit;
+    }
+    $stmtClasse->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $conn->close();
+    exit;
+}
+// --- FINE CONTROLLO RUOLO ---
+
  $data = json_decode(file_get_contents("php://input"), true);
 
  $nome = isset($data['nome']) ? trim($data['nome']) : '';

@@ -15,16 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
     exit;
 }
 
-// Recupera JSON inviato
-$data = json_decode(file_get_contents('php://input'), true);
-
-if (!isset($data['id_iscritto'])) {
-    echo json_encode(['success' => false, 'message' => 'ID mancante']);
-    exit;
-}
-
-$id_iscritto = intval($data['id_iscritto']);
-
 // Connessione al DB
 $host = "localhost";
 $user = "root";
@@ -37,7 +27,46 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Recupera gli allegati associati all'utente (se la tabella esiste)
+// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono eliminare utenti ---
+$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+if ($stmtClasse) {
+    $stmtClasse->bind_param("s", $_SESSION['username']);
+    $stmtClasse->execute();
+    $stmtClasse->bind_result($userClasse);
+    if ($stmtClasse->fetch()) {
+        if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
+            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono eliminare utenti.']);
+            $stmtClasse->close();
+            $conn->close();
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+        $stmtClasse->close();
+        $conn->close();
+        exit;
+    }
+    $stmtClasse->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $conn->close();
+    exit;
+}
+// --- FINE CONTROLLO RUOLO ---
+
+// Recupera JSON inviato
+$data = json_decode(file_get_contents('php://input'), true);
+
+if (!isset($data['id_iscritto'])) {
+    echo json_encode(['success' => false, 'message' => 'ID mancante']);
+    exit;
+}
+
+$id_iscritto = intval($data['id_iscritto']);
+
+// Reuse existing connection ($conn already established)
+
+// Recupera gli allegati associati all'utente
 try {
     $stmtAllegati = $conn->prepare("SELECT file FROM allegati WHERE ID_Iscritto = ?");
     if ($stmtAllegati) {

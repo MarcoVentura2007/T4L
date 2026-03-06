@@ -17,6 +17,44 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
 }
 // --- FINE BLOCCO ---
 
+// Connessione DB per controllo ruolo
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "time4all";
+
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    die(json_encode(['success'=>false,'message'=>'Connessione fallita']));
+}
+
+// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono eliminare agenda ---
+$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+if ($stmtClasse) {
+    $stmtClasse->bind_param("s", $_SESSION['username']);
+    $stmtClasse->execute();
+    $stmtClasse->bind_result($userClasse);
+    if ($stmtClasse->fetch()) {
+        if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
+            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono eliminare agenda.']);
+            $stmtClasse->close();
+            $conn->close();
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+        $stmtClasse->close();
+        $conn->close();
+        exit;
+    }
+    $stmtClasse->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $conn->close();
+    exit;
+}
+// --- FINE CONTROLLO RUOLO ---
+
 $data = json_decode(file_get_contents('php://input'), true);
 
 $id = $data['id'] ?? '';
@@ -33,16 +71,7 @@ if(count($parts) != 4){
 }
 $attivitaId = intval($parts[0]);
 
-// Connessione DB
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "time4all";
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die(json_encode(['success'=>false,'message'=>'Connessione fallita']));
-}
+// Reuse existing connection ($conn already established)
 
 $dataDel = $parts[1];
 $oraInizioDel = $parts[2] . ':00';
