@@ -56,7 +56,7 @@ $sqlPresenze = "SELECT i.fotografia, p.id, i.nome, i.cognome, p.ingresso, p.usci
                 ORDER BY p.ingresso ASC";
 $resultPresenze = $conn->query($sqlPresenze);
 
-//se la classe non è Amministratore, redirect a index.php
+//se la classe non è Contabile, redirect a index.php
 if($classe !== 'Contabile'){
     header("Location: index.php");
     exit;
@@ -112,7 +112,8 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 ?>
 
-<!DOCTYPE h
+<!DOCTYPE html>
+
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -120,15 +121,15 @@ $resultResoconti = $conn->query($sqlResoconti);
 <title>T4L | Gestionale utenti</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style_mobile_agenda.css">
 <link rel="icon" href="immagini/Icona.ico">
 <script src="https://cdn.tailwindcss.com"></script>
+
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="style_mobile_agenda.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
-<script src="js/mobile-calendar.js"></script>
-
 
 <style>
      @media (max-width: 768px){
@@ -136,12 +137,15 @@ $resultResoconti = $conn->query($sqlResoconti);
             display: none;
         }
     }
+
 </style>
+
+
 
 </head>
 <body>
+<!--
 
-<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
 <div id="page-loader" class="show">
 <div class="logo-pulse-loader">
     <div class="logo-pulse-ring"></div>
@@ -152,10 +156,12 @@ $resultResoconti = $conn->query($sqlResoconti);
     <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
 </div>
 
- 
+-->
 
  <script src="js/loader.js"></script>
 
+
+<script src="js/loader.js"></script>
     <!-- NAVBAR -->
     <header class="navbar">
 
@@ -172,6 +178,8 @@ $resultResoconti = $conn->query($sqlResoconti);
         </div>
 
         <div class="logout-overlay" id="logoutOverlay"></div>
+
+        
 
         <div class="logout-modal" id="logoutModal">
             <h3>Conferma logout</h3>
@@ -217,7 +225,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         } elseif($classe === 'Amministratore') {
                             $gestionalePage = "gestionale_amministratore.php";
                         } else {
-                            $gestionalePage = "#"; 
+                            $gestionalePage = "#"; // default se classe sconosciuta
                         }
                     ?>
                 <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
@@ -335,6 +343,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </li>
 
 
+                        
+
                     </ul>
 
                 </section>
@@ -363,22 +373,18 @@ $resultResoconti = $conn->query($sqlResoconti);
                             stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
                     </svg>
                 </button>
-
                 
-
-
-
                 <!-- Modal Aggiungi Utente -->
                 <div class="modal-box large" id="modalAggiungiUtente">
                     <h3>Aggiungi nuovo utente</h3>
                     <form id="formAggiungiUtente">
                         <div class="edit-field">
                             <label>Nome</label>
-                            <input type="text" id="utenteNome" required>
+                            <input type="text" id="utenteNome" placeholder="Nome" required>
                         </div>
                         <div class="edit-field">
                             <label>Cognome</label>
-                            <input type="text" id="utenteCognome" required>
+                            <input type="text" id="utenteCognome" placeholder="Cognome" required>
                         </div>
                         <div class="edit-field">
                             <label>Data di nascita</label>
@@ -386,7 +392,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                         <div class="edit-field">
                             <label>Codice Fiscale</label>
-                            <input type="text" id="utenteCF" required>
+                            <input type="text" id="utenteCF" placeholder="Codice Fiscale" required>
                         </div>
                         <div class="edit-field">
                             <label>Email</label>
@@ -419,17 +425,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                             </div>
                         </div>
 
-
                         <div class="edit-field">
                             <label>Disabilità</label>
+
                             <input type="text" id="utenteDisabilita">
-                        </div>
-                        <div class="edit-field">
-                            <label>Gruppo</label>
-                            <select id="utenteGruppo">
-                                <option value="0" selected>Individuale</option>
-                                <option value="1">Gruppo</option>
-                            </select>
                         </div>
                         <div class="edit-field">
                             <label>Intolleranze / Allergie</label>
@@ -437,11 +436,18 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                         <div class="edit-field">
                             <label>Prezzo orario (€)</label>
-                            <input type="number" id="utentePrezzo" step="0.01">
+                            <input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.01">
                         </div>
                         <div class="edit-field">
                             <label>Note</label>
                             <textarea id="utenteNote"></textarea>
+                        </div>
+                        <div class="edit-field">
+                            <label>Tipo di lavoro</label>
+                            <select id="utenteGruppo">
+                                <option value="0">Individuale</option>
+                                <option value="1">Gruppo</option>
+                            </select>
                         </div>
 
                         <!-- SEZIONE ALLEGATI -->
@@ -475,6 +481,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
                             <button type="submit" class="btn-primary">Salva</button>
                         </div>
+
                     </form>
                 </div>
                 <div class="header-mobile">
@@ -534,7 +541,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         data-disabilita="'.htmlspecialchars($row['disabilita']).'" 
                                         data-intolleranze="'.htmlspecialchars($row['allergie_intolleranze']).'" 
                                         data-prezzo="'.htmlspecialchars($row['prezzo_orario']).'" 
-                                        data-gruppo="'.htmlspecialchars($row['Gruppo']).'" 
+                                        data-gruppo="'.htmlspecialchars($row['Gruppo']).'"
                                     >
 
                                         <td><img class="user-avatar" src="'.$row['fotografia'].'"></td>
@@ -556,125 +563,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </tbody>
                     </table>
 
-                    <!-- EDIT MODAL -->
-                    <div class="modal-box large" id="editModal">
-                        <h3 class="modal-title" id="modalEditTitle">Modifica utente</h3>
-
-                        <div class="profile-header" id="profileHeader" style="display: none;">
-                            <img id="viewAvatar-mod" class="profile-avatar">
-                            <div class="profile-main">
-                                <h3 id="viewFullname-mod"></h3>
-                                <span id="viewBirth-mod"></span>
-                            </div>
-                        </div>
-
-                        <div class="edit-grid" id="editContent">
-                            <div class="edit-field" id="fieldNome">
-                                <label>Nome</label>
-                                <input type="text" id="editNome" placeholder="Nome">
-                            </div>
-                            <div class="edit-field" id="fieldCognome">
-                                <label>Cognome</label>
-                                <input type="text" id="editCognome" placeholder="Cognome">
-                            </div>
-                            <div class="edit-field" id="fieldData">
-                                <label>Data di nascita</label>
-                                <input type="date" id="editData">
-                            </div>
-                            <div class="edit-field" id="fieldCF">
-                                <label>Codice Fiscale</label>
-                                <input type="text" id="editCF" placeholder="Codice Fiscale">
-                            </div>
-                            <div class="edit-field" id="fieldEmail">
-                                <label>Email</label>
-                                <input type="email" id="editEmail" placeholder="Email">
-                            </div>
-                            <div class="edit-field" id="fieldTelefono">
-                                <label>Telefono</label>
-                                <input type="tel" id="editTelefono" placeholder="Telefono">
-                            </div>
-
-                            <div class="edit-field" id="fieldDisabilita">
-                                <label>Disabilità</label>
-                                <input type="text" id="editDisabilita" placeholder="Disabilità">
-                            </div>
-                            <div class="edit-field" id="fieldGruppo">
-                                <label>Gruppo</label>
-                                <select id="editGruppo">
-                                    <option value="0">Individuale</option>
-                                    <option value="1">Gruppo</option>
-                                </select>
-                            </div>
-                            <div class="edit-field" id="fieldIntolleranze">
-                                <label>Intolleranze</label>
-                                <input type="text" id="editIntolleranze" placeholder="Intolleranze">
-                            </div>
-                            <div class="edit-field" id="fieldPrezzo">
-                                <label>Prezzo orario</label>
-                                <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
-                            </div>
-                            <div class="edit-field" id="fieldNote">
-                                <label>Note</label>
-                                <textarea id="editNote" placeholder="Note"></textarea>
-                            </div>
-                            <div class="edit-field" id="fieldFotografia">
-                                <label>Fotografia</label>
-                                <div class="file-inline" id="editFileContainer">
-                                    <input type="file" id="editFoto" accept="image/*" hidden>
-                                    <button type="button" class="file-btn-minimal" onclick="document.getElementById('editFoto').click()">
-                                        Scegli file
-                                    </button>
-                                    <div class="file-preview-container">
-                                        <img id="editPreviewFotoMini" class="preview-mini" style="display:none;">
-                                        <button type="button" id="editClearFileBtn" class="clear-file-btn" title="Rimuovi file" style="display:none;">&times;</button>
-                                    </div>
-                                    <span class="file-name" id="editNomeFileFoto">Nessun file</span>
-                                </div>
-                            </div>
-
-                            <!-- SEZIONE ALLEGATI EDIT -->
-                            <div class="edit-field" id="fieldAllegatiEdit">
-                                <label>Allegati</label>
-                                
-                                <!-- Allegati esistenti -->
-                                <div id="allegatiEsistentiContainer" style="margin-bottom: 15px;">                                    <div id="allegatiEsistentiList" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                        <!-- Popolato da JS -->
-                                    </div>
-                                </div>
-
-                                <!-- Upload nuovi allegati -->
-                                <div class="allegati-upload-container" id="allegatiEditContainer">
-                                    <input type="file" id="editAllegati" multiple 
-                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xls,.xlsx" hidden>
-                                    
-                                    <div class="allegati-drop-zone" id="allegatiEditDropZone" style="padding: 15px;">
-                                        <div class="allegati-icon"><img src="immagini/paperclip.png" alt="Graffetta" style="width: 24px; height: 24px;"></div>
-                                        <p class="allegati-text" style="font-size: 13px;">Trascina i file qui o clicca per selezionare</p>
-                                        <p class="allegati-hint" style="font-size: 11px;">PDF, DOC, DOCX, JPG, PNG, GIF, TXT, XLS, XLSX (max 10MB)</p>
-                                        <button type="button" class="file-btn-minimal" 
-                                            onclick="document.getElementById('editAllegati').click()">
-                                            Seleziona file
-                                        </button>
-                                    </div>
-
-                                    <div class="allegati-list" id="allegatiEditList" style="display:none;">
-                                        <div class="allegati-list-header">
-                                            <span>Nuovi file selezionati</span>
-                                            <button type="button" class="allegati-clear-all" id="clearAllEditAllegati">Rimuovi tutti</button>
-                                        </div>
-                                        <ul id="allegatiEditItems"></ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="edit-field" id="fieldIngresso" style="display: none;">
-
-                                <label>Ingresso (ora)</label>
-                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button class="btn-primary" id="saveEdit">Salva</button>
-                        </div>
-                    </div>
-
+                
                     <div class="modal-box large" id="viewModal">
                         <div class="profile-header">
                             <img id="viewAvatar" class="profile-avatar">
@@ -699,20 +588,42 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <div class="modal-actions">
                             <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
                         </div>
+
+
+                        <!-- Presenze form (hidden by default) -->
+                        <div id="presenzeFormBox" style="display:none;">
+                            <form id="formModificaPresenza">
+                                <div class="edit-field">
+                                    <label>Ingresso (YYYY-MM-DD HH:MM:SS)</label>
+                                    <input type="text" id="presenzeIngresso" required>
+                                </div>
+                                <div class="edit-field">
+                                    <label>Uscita (YYYY-MM-DD HH:MM:SS)</label>
+                                    <input type="text" id="presenzeUscita" required>
+                                </div>
+                                <div class="modal-actions">
+                                    <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                                    <button type="submit" class="btn-primary">Salva</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Presenze delete box (hidden by default) -->
+                        <div id="deletePresenzaBox" style="display:none;">
+                            <p>Questa azione è definitiva. Vuoi continuare?</p>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
+                                <button class="btn-danger" id="confirmDeletePresenza">Elimina</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
 
-
-
-
-                
+                 
             </div>
 
-                
-
             <!-- TAB PRESENZE -->
-
             <div class="page-tab" id="tab-presenze">
                 <div class="page-header">
                     <h1>Presenze</h1>
@@ -722,8 +633,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="presenze-controls">
                     
                 </div>
-
-                
 
                 <div class="users-table-box">
                     <table class="users-table" id="presenzeTable">
@@ -767,38 +676,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                         ?>
                         </tbody>
                     </table>
-                    <div class="modal-box large" id="modalPresenze">
-                        <h3 id="presenzeModalTitle">Presenze</h3>
-                        <!-- profile header shown when editing a presenza -->
-                        <div class="profile-header" id="presenzeProfile" style="display:none;">
-                            <img id="presenzeAvatar" class="profile-avatar">
-                            <div class="profile-main">
-                                <h3 id="presenzeFullname"></h3>
-                            </div>
-                        </div>
-                        <form id="formModificaPresenza">
-                            <div class="edit-field">
-                                <label>Ingresso (ora)</label>
-                                <input type="time" id="presenzeIngresso" required>
-                            </div>
-                            <div class="edit-field">
-                                <label>Uscita (ora)</label>
-                                <input type="time" id="presenzeUscita" required>
-                            </div>
-                            <div class="modal-actions">
-                                <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                                <button type="submit" class="btn-primary">Salva</button>
-                            </div>
-                        </form>
-
-                        <div id="deletePresenzaBox" style="display:none;">
-                            <p>Questa azione è definitiva. Vuoi continuare?</p>
-                            <div class="modal-actions">
-                                <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
-                                <button class="btn-danger" id="confirmDeletePresenza">Elimina</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -806,7 +683,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
-           <!-- TAB AGENDA -->
+            <!-- TAB AGENDA -->
             <div class="page-tab" id="tab-agenda">
                 <div class="header-mobile">
                     <div class="page-header">
@@ -836,7 +713,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 </div>
 
                 <button class="animated-button" id="creaAgendaBtn">
-
                     <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
                         <path d="M12 5v14M5 12h14"
                             stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
@@ -850,6 +726,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                             stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
                     </svg>
                 </button>
+
+                
 
                 <div class="agenda-container" style="margin: 0 auto;">
                     <div class="header-agenda">
@@ -875,6 +753,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <span class="day-date" id="date-friday"></span>
                         </button>
                     </div>
+
 
                     <button class="print-btn" id="stampaAgendaBtn">
                     <span class="printer-wrapper">
@@ -908,14 +787,13 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                     </div>
 
-                    
-
-                    <div class="agenda-content" id="agendaContent">
+                    <div class="agenda-content" id="agendaContent" style="touch-action: pan-y;">
                         <div class="loading">Caricamento attività...</div>
                     </div>
+
                 </div>
 
-                <!-- MODAL CREA AGENDA -->
+                <!-- MODAL CREA AGENDA -->  
                 <div class="modal-box large" id="modalCreaAgenda">
                     <h3 class="modal-title">Crea nuova Agenda</h3>
 
@@ -935,7 +813,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                         <div class="edit-field">
                             <label>Ora fine</label>
-                            <input type="time" id="agendaOraFine" required>
+                            <input type="time"  id="agendaOraFine" required>
                         </div>
 
                         <div class="edit-field">
@@ -954,6 +832,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                         <div class="edit-field">
                             <label>Educatori</label>
+
                             <div class="checkbox-group" id="educatoriCheckboxes">
                                 <?php
                                 if($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0){
@@ -1008,85 +887,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </div>
                 </div>
 
-                <!-- MODAL MODIFICA AGENDA -->
-                <div class="modal-box large" id="modalModificaAgenda">
-                    <h3 class="modal-title">Modifica Agenda</h3>
-
-                    <form id="formModificaAgenda">
-                        <input type="hidden" id="modificaAgendaId">
-                        <div class="edit-field">
-                            <label>Data</label>
-                            <select id="modificaAgendaData" required>
-                                <option value="">-- Seleziona data --</option>
-                            </select>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Ora inizio</label>
-                            <input type="time" id="modificaAgendaOraInizio" required>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Ora fine</label>
-                            <input type="time" id="modificaAgendaOraFine" required>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Attività</label>
-                            <select id="modificaAgendaAttivita" required>
-                                <option value="">-- Seleziona attività --</option>
-                                <?php
-                                if($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0){
-                                    while($row = $resultAttivitaCombo->fetch_assoc()){
-                                        echo '<option value="'.htmlspecialchars($row['id']).'">'.htmlspecialchars($row['Nome']).'</option>';
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Educatori</label>
-                            <div class="checkbox-group" id="modificaEducatoriCheckboxes">
-                                <?php
-                                if($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0){
-                                    while($row = $resultEducatoriAgenda->fetch_assoc()){
-                                        echo '<label class="checkbox-item">';
-                                        echo '<input type="checkbox" class="modifica-educatore-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
-                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
-                                        echo '</label>';
-                                    }
-                                }
-                                ?>
-                            </div>
-                        </div>
-
-                        <div class="edit-field">
-                            <label>Ragazzi partecipanti</label>
-                            <div class="checkbox-group" id="modificaRagazziCheckboxes">
-                                <?php
-                                if($resultRagazzi && $resultRagazzi->num_rows > 0){
-                                    while($row = $resultRagazzi->fetch_assoc()){
-                                        echo '<label class="checkbox-item">';
-                                        echo '<input type="checkbox" class="modifica-ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
-                                        echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
-                                        echo '<select class="modifica-ragazzo-gruppo" style="margin-left:8px;">
-                                                <option value="0" selected>Ind</option>
-                                                <option value="1">Gruppo</option>
-                                            </select>';
-                                        echo '</label>';
-                                    }
-                                }
-                                ?>
-                            </div>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button type="submit" class="btn-primary">Salva</button>
-                        </div>
-                    </form>
-                </div>
 
                 <div class="modal-box danger" id="modalDeleteAgenda">
                     <h3>Elimina Agenda</h3>
@@ -1098,8 +898,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </div>
                 </div>
             </div>
-
-
 
 
 
@@ -1180,9 +978,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </tbody>
                     </table>
                 </div>
-
-                <div class="logout-overlay" id="attivitaOverlay"></div>
-
                 <!-- MODAL AGGIUNGI ATTIVITA -->
                 <div class="modal-box large" id="modalAggiungiAttivita">
                     <h3 class="modal-title">Aggiungi nuova attività</h3>
@@ -1252,6 +1047,12 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
+            
+
+
+            
+
+
             <!-- TAB RESOCONTI -->
             <div class="page-tab" id="tab-resoconti">
 
@@ -1292,9 +1093,9 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <h3 class="modal-title" id="resocontoNome"></h3>
                     </div>
 
-
-
                     <!-- RIEPILOGO TOTALI -->
+
+
                     <div class="resoconto-summary" id="resocontoSummary">
                         <div class="summary-card">
                             <div class="summary-label">Ore Totali</div>
@@ -1395,26 +1196,12 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                     <!-- PULSANTI AZIONI -->
                     <div class="modal-actions" style="gap: 15px; padding: 20px; margin-top: 0; background: #f9fafb; border-top: 1px solid #e5e7eb;">
-                        <button class="print-btn" id="scaricaResocontoBtn" style="flex: 1; padding: 12px 20px; background: linear-gradient(135deg, #0b516c 0%, #063d52 100%); color: white; border: none; border-radius: 6px; cursor: pointer;">
-                            <span class="printer-wrapper">
-                                <span class="printer-container">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 92 75">
-                                        <path stroke-width="5" stroke="white" d="M12 37.5H80C85.2467 37.5 89.5 41.7533 89.5 47V69C89.5 70.933 87.933 72.5 86 72.5H6C4.067 72.5 2.5 70.933 2.5 69V47C2.5 41.7533 6.75329 37.5 12 37.5Z"></path>
-                                        <mask fill="white" id="path-2-inside-1_30_7">
-                                            <path d="M12 12C12 5.37258 17.3726 0 24 0H57C70.2548 0 81 10.7452 81 24V29H12V12Z"></path>
-                                        </mask>
-                                        <path mask="url(#path-2-inside-1_30_7)" fill="white" d="M7 12C7 2.61116 14.6112 -5 24 -5H57C73.0163 -5 86 7.98374 86 24H76C76 13.5066 67.4934 5 57 5H24C20.134 5 17 8.13401 17 12H7ZM81 29H12H81ZM7 29V12C7 2.61116 14.6112 -5 24 -5V5C20.134 5 17 8.13401 17 12V29H7ZM57 -5C73.0163 -5 86 7.98374 86 24V29H76V24C76 13.5066 67.4934 5 57 5V-5Z"></path>
-                                        <circle fill="white" r="3" cy="49" cx="78"></circle>
-                                    </svg>
-                                </span>
-                                <span class="printer-page-wrapper">
-                                    <span class="printer-page"></span>
-                                </span>
-                            </span>
+                        <button class="print-btn" id="scaricaResocontoBtn" style="flex: 1; padding: 12px 20px; background: white; color: #333; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-weight: 500;">
                             Scarica
                         </button>
                         <button class="btn-secondary" id="chiudiAnteprimaBtn" style="padding: 12px 20px; background: #e5e7eb; color: #111827; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Chiudi</button>
                     </div>
+                </div>
                 </div>
 
             </div>
@@ -1422,11 +1209,367 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
 
+
+
+
+
+
+
+            <!-- TAB EDUCATORI -->
+            <div class="page-tab" id="tab-educatori">
+                <button class="animated-button" id="aggiungi-educatore-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Aggiungi Educatore</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <!-- Modal Aggiungi Educatore -->
+                <div class="modal-box large" id="modalAggiungiEducatore">
+                    <h3>Aggiungi nuovo educatore</h3>
+                    <form id="formAggiungiEducatore">
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="educatoreNome" placeholder="Nome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Cognome</label>
+                            <input type="text" id="educatoreCognome" placeholder="Cognome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Data di nascita</label>
+                            <input type="date" id="educatoreData" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Fiscale</label>
+                            <input type="text" id="educatoreCF" placeholder="Codice Fiscale" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="text" id="educatoreTelefono" placeholder="Telefono">
+                        </div>
+                        <div class="edit-field">
+                            <label>Email</label>
+                            <input type="email" id="educatoreMail" placeholder="Email">
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button type="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="header-mobile">
+                    <div class="page-header">
+                        <h1>Educatori</h1>
+                        <p>Personale educativo</p>
+                    </div>
+
+                    <button
+                        title="Add New" id="aggiungi-educatore-btn-mobile"
+                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
+                        >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50px"
+                            height="50px"
+                            viewBox="0 0 24 24"
+                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
+                        >
+                            <path
+                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                            stroke-width="1"
+                            ></path>
+                            <path d="M8 12H16" stroke-width="1"></path>
+                            <path d="M12 16V8" stroke-width="1"></path>
+                        </svg>
+                    </button>
+                </div>
+
+
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Data di nascita</th>
+                                <th>Codice Fiscale</th>
+                                <th>Telefono</th>
+                                <th>Email</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if($resultEducatori && $resultEducatori->num_rows > 0){
+                            while($row = $resultEducatori->fetch_assoc()){
+                                echo '<tr '
+                                    . 'data-id="'.htmlspecialchars($row['id']).'" '
+                                    . 'data-nome="'.htmlspecialchars($row['nome']).'" '
+                                    . 'data-cognome="'.htmlspecialchars($row['cognome']).'" '
+                                    . 'data-nascita="'.htmlspecialchars($row['data_nascita']).'" '
+                                    . 'data-cf="'.htmlspecialchars($row['codice_fiscale']).'" '
+                                    . 'data-telefono="'.htmlspecialchars($row['telefono']).'" '
+                                    . 'data-mail="'.htmlspecialchars($row['mail']).'">'
+                                    . '<td>'.htmlspecialchars($row['nome']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['cognome']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['data_nascita']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['codice_fiscale']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['telefono']).'</td>'
+                                    . '<td>'.htmlspecialchars($row['mail']).'</td>'
+                                    . '<td>'
+                                        . '<button class="edit-educatore-btn"><img src="immagini/edit.png" alt="Modifica"></button>'
+                                        . '<button class="delete-educatore-btn"><img src="immagini/delete.png" alt="Elimina"></button>'
+                                    . '</td>'
+                                . '</tr>';
+                            }
+                        } else {
+                            echo '<tr><td colspan="7">Nessun educatore registrato.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- MODAL MODIFICA EDUCATORI -->
+                <div class="modal-box large" id="modalModificaEducatore">
+                    <h3 class="modal-title">Modifica educatore</h3>
+
+                    <form id="formModificaEducatore">
+                        <input type="hidden" id="editEducatoreId">
+
+                        <div class="edit-field">
+                            <label>Nome</label>
+                            <input type="text" id="editEducatoreNome" placeholder="Nome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Cognome</label>
+                            <input type="text" id="editEducatoreCognome" placeholder="Cognome" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Data di nascita</label>
+                            <input type="date" id="editEducatoreData" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Fiscale</label>
+                            <input type="text" id="editEducatoreCF" placeholder="Codice Fiscale" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="text" id="editEducatoreTelefono" placeholder="Telefono">
+                        </div>
+                        <div class="edit-field">
+                            <label>Email</label>
+                            <input type="email" id="editEducatoreMail" placeholder="Email">
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaModificaEducatore">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-box danger" id="modalDeleteEducatore">
+                    <h3>Elimina educatore</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteEducatore">Elimina</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- TAB ACCOUNT -->
+            <div class="page-tab" id="tab-account">
+                <button class="animated-button" id="aggiungi-account-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+
+                    <span class="text">Aggiungi Account</span>
+                    <span class="circle"></span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="M12 5v14M5 12h14"
+                            stroke="black" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <!-- Modal Aggiungi Account -->
+                <div class="modal-box large" id="modalAggiungiAccount">
+                    <h3>Aggiungi nuovo account</h3>
+                    <form id="formAggiungiAccount">
+                        <div class="edit-field">
+                            <label>Nome Utente</label>
+                            <input type="text" id="accountNomeUtente" placeholder="Nome utente" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Password</label>
+                            <input type="password" id="accountPassword" placeholder="Password" autocomplete="off" autocapitalize="off" autocorrect="off" required>
+
+
+                        </div>
+                        <div class="edit-field">
+                            <label>Classe</label>
+                            <select id="accountClasse" required>
+                                <option value="">Seleziona una classe</option>
+                                <option value="Educatore">Educatore</option>
+                                <option value="Contabile">Contabile</option>
+                                <option value="Amministratore">Amministratore</option>
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Univoco</label>
+                            <input type="text" id="accountCodice" placeholder="Codice univoco" required>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <bu pe="submit" class="btn-primary">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="header-mobile">
+                    <div class="page-header">
+                        <h1>Account</h1>
+                        <p>Gestione account Overlimits</p>
+                    </div>
+
+                    <button
+                        title="Add New" id="aggiungi-account-btn-mobile"
+                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
+                        >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50px"
+                            height="50px"
+                            viewBox="0 0 24 24"
+                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
+                        >
+                            <path
+                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                            stroke-width="1"
+                            ></path>
+                            <path d="M8 12H16" stroke-width="1"></path>
+                            <path d="M12 16V8" stroke-width="1"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="users-table-box">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Nome Utente</th>
+                                <th>Password</th>
+                                <th>Codice Univoco</th>
+                                <th>Classe</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if($resultAccount && $resultAccount->num_rows > 0){
+                            while($row = $resultAccount->fetch_assoc()){
+                                echo '
+                                    <tr
+                                        data-nome_utente="'.htmlspecialchars($row['nome_utente']).'" 
+                                        data-codice="'.htmlspecialchars($row['codice_univoco']).'" 
+                                        data-classe="'.htmlspecialchars($row['classe']).'"
+                                    >
+                                        <td>'.htmlspecialchars($row['nome_utente']).'</td>
+                                        <td>••••••••</td>
+                                        <td>'.htmlspecialchars($row['codice_univoco']).'</td>
+                                        <td>'.htmlspecialchars($row['classe']).'</td>
+                                        <td>
+                                            <button class="edit-account-btn"><img src="immagini/edit.png" alt="Modifica"></button>
+                                            <button class="delete-account-btn"><img src="immagini/delete.png" alt="Elimina"></button>
+                                        </td>
+                                    </tr>
+                                ';
+                            }
+                        } else {
+                            echo '<tr><td colspan="5">Nessun account registrato.</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- MODAL MODIFICA ACCOUNT -->
+                <div class="modal-box large" id="modalModificaAccount">
+                    <h3 class="modal-title">Modifica account</h3>
+
+                    <form id="formModificaAccount">
+                        <input type="hidden" id="editAccountNomeUtente">
+
+                        <div class="edit-field">
+                            <label>Nome Utente</label>
+                            <input type="text" id="editAccountNomeUtenteDisplay" placeholder="Nome utente" disabled>
+                        </div>
+                        <div class="edit-field">
+                            <label>Password (lascia vuoto per non modificare)</label>
+                            <input type="password" id="editAccountPassword" placeholder="Password" autocomplete="off" autocapitalize="off" autocorrect="off">
+
+
+                        </div>
+                        <div class="edit-field">
+                            <label>Classe</label>
+                            <select id="editAccountClasse" required>
+                                <option value="">Seleziona una classe</option>
+                                <option value="Educatore">Educatore</option>
+                                <option value="Contabile">Contabile</option>
+                                <option value="Amministratore">Amministratore</option>
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label>Codice Univoco</label>
+                            <input type="text" id="editAccountCodice" placeholder="Codice univoco" required>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaModificaAccount">Salva</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-box danger" id="modalDeleteAccount">
+                    <h3>Elimina account</h3>
+                    <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button class="btn-danger" id="confirmDeleteAccount">Elimina</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+            
+
+
+
+
+
+
             </div>
         </main>
     </div>
-
-    <div class="modal-overlay" id="modalOverlay"></div>
     
             <!-- POPUP CONFERMA FIRMA -->
                 <div class="popup success-popup" id="successPopup">
@@ -1439,6 +1582,136 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                         <p class="success-text" id="success-text">Utente modificato!!</p>
                     </div>
+                </div>
+
+                <!-- EDIT MODAL -->
+                <div class="modal-box large" id="editModal">
+                        <h3 class="modal-title" id="modalEditTitle">Modifica utente</h3>
+
+                        <div class="profile-header" id="profileHeader" style="display: none;">
+                            <img id="viewAvatar-mod" class="profile-avatar">
+                            <div class="profile-main">
+                                <h3 id="viewFullname-mod"></h3>
+                                <span id="viewBirth-mod"></span>
+                            </div>
+                        </div>
+
+                        <div class="edit-grid" id="editContent">
+                            <!-- Riempito da JS -->
+                            <div class="edit-field" id="fieldNome">
+                                <label>Nome</label>
+                                <input type="text" id="editNome" placeholder="Nome">
+                            </div>
+                            <div class="edit-field" id="fieldCognome">
+                                <label>Cognome</label>
+                                <input type="text" id="editCognome" placeholder="Cognome">
+                            </div>
+                            <div class="edit-field" id="fieldData">
+                                <label>Data di nascita</label>
+                                <input type="date" id="editData">
+                            </div>
+                            <div class="edit-field" id="fieldCF">
+                                <label>Codice Fiscale</label>
+                                <input type="text" id="editCF" placeholder="Codice Fiscale">
+                            </div>
+                            <div class="edit-field" id="fieldEmail">
+                                <label>Email</label>
+                                <input type="email" id="editEmail" placeholder="Email">
+                            </div>
+                            <div class="edit-field" id="fieldTelefono">
+                                <label>Telefono</label>
+                                <input type="tel" id="editTelefono" placeholder="Telefono">
+                            </div>
+
+                            <div class="edit-field" id="fieldDisabilita">
+                                <label>Disabilità</label>
+                                <input type="text" id="editDisabilita" placeholder="Disabilità">
+                            </div>
+                            <div class="edit-field" id="fieldIntolleranze">
+                                <label>Intolleranze</label>
+                                <input type="text" id="editIntolleranze" placeholder="Intolleranze">
+                            </div>
+                            <div class="edit-field" id="fieldPrezzo">
+                                <label>Prezzo orario</label>
+                                <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
+                            </div>
+                            <div class="edit-field" id="fieldNote">
+                                <label>Note</label>
+                                <textarea id="editNote" placeholder="Note"></textarea>
+                            </div>
+                            <div class="edit-field" id="fieldGruppo">
+                                <label>Tipo di lavoro</label>
+                                <select id="editGruppo">
+                                    <option value="0">Individuale</option>
+                                    <option value="1">Gruppo</option>
+                                </select>
+                            </div>
+                            <div class="edit-field" id="fieldFotografia">
+                                <label>Fotografia</label>
+                                <div class="file-inline" id="editFileContainer">
+                                    <input type="file" id="editFoto" accept="image/*" hidden>
+                                    <button type="button" class="file-btn-minimal" onclick="document.getElementById('editFoto').click()">
+                                        Scegli file
+                                    </button>
+                                    <div class="file-preview-container">
+                                        <img id="editPreviewFotoMini" class="preview-mini" style="display:none;">
+                                        <button type="button" id="editClearFileBtn" class="clear-file-btn" title="Rimuovi file" style="display:none;">&times;</button>
+                                    </div>
+                                    <span class="file-name" id="editNomeFileFoto">Nessun file</span>
+                                </div>
+                            </div>
+
+                            <!-- SEZIONE ALLEGATI EDIT -->
+                            <div class="edit-field" id="fieldAllegatiEdit">
+                                <label>Allegati</label>
+                                
+                                <!-- Allegati esistenti -->
+                                <div id="allegatiEsistentiContainer" style="margin-bottom: 15px;">                                    <div id="allegatiEsistentiList" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        <!-- Popolato da JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Upload nuovi allegati -->
+                                <div class="allegati-upload-container" id="allegatiEditContainer">
+                                    <input type="file" id="editAllegati" multiple 
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xls,.xlsx" hidden>
+                                    
+                                    <div class="allegati-drop-zone" id="allegatiEditDropZone" style="padding: 15px;">
+                                        <div class="allegati-icon"><img src="immagini/paperclip.png" alt="Graffetta" style="width: 24px; height: 24px;"></div>
+                                        <p class="allegati-text" style="font-size: 13px;">Trascina i file qui o clicca per selezionare</p>
+                                        <p class="allegati-hint" style="font-size: 11px;">PDF, DOC, DOCX, JPG, PNG, GIF, TXT, XLS, XLSX (max 10MB)</p>
+                                        <button type="button" class="file-btn-minimal" 
+                                            onclick="document.getElementById('editAllegati').click()">
+                                            Seleziona file
+                                        </button>
+                                    </div>
+
+                                    <div class="allegati-list" id="allegatiEditList" style="display:none;">
+                                        <div class="allegati-list-header">
+                                            <span>Nuovi file selezionati</span>
+                                            <button type="button" class="allegati-clear-all" id="clearAllEditAllegati">Rimuovi tutti</button>
+                                        </div>
+                                        <ul id="allegatiEditItems"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="edit-field" id="fieldIngresso" style="display: none;">
+
+                                <label>Ingresso (ora)</label>
+                                <input type="time" id="editIngresso" placeholder="Ingresso">
+                            </div>
+                            <div class="edit-field" id="fieldUscita" style="display: none;">
+                                <label>Uscita (ora)</label>
+                                <input type="time" id="editUscita" placeholder="Uscita">
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="saveEdit">Salva</button>
+                        </div>
+                    
                 </div>
 
 
@@ -1454,61 +1727,76 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </div>
                 </div>
 
-            
+           
+            </div>
 
         </main>
-    </div>
+        
+ <footer class="footer-bar" style="bottom: auto;">
+                <div class="footer-left" >© Time4All • 2026</div>
+                <div class="footer-top">
+                    <a href="#top" class="footer-image"></a>
+                </div>
+                <div class="footer-right">
+                    <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
+                </div>
+            </footer>
 
-    <footer class="footer-bar" style="bottom: auto;">
-        <div class="footer-left">© Time4All • 2026</div>
-         <div class="footer-top">
-            <a href="#top" class="footer-image"></a>
-        </div>
-        <div class="footer-right">
-            <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
-        </div>
-    </footer>
+            <!-- MOBILE BOTTOM NAVIGATION -->
+        <nav class="mobile-bottom-nav">
+            <a href="#" class="mobile-nav-item active" data-tab="tab-utenti" onclick="switchTab('tab-utenti', this); return false;">
+                <div class="mobile-nav-icon">
+                    <img src="immagini/group.png" alt="Utenti">
+                </div>
+                <span class="mobile-nav-label">Utenti</span>
+            </a>
+            <a href="#" class="mobile-nav-item" data-tab="tab-presenze" onclick="switchTab('tab-presenze', this); return false;">
+                <div class="mobile-nav-icon">
+                    <img src="immagini/attendance.png" alt="Presenze">
+                </div>
+                <span class="mobile-nav-label">Presenze</span>
+            </a>
+            <a href="#" class="mobile-nav-item" data-tab="tab-agenda" onclick="switchTab('tab-agenda', this); return false;">
+                <div class="mobile-nav-icon">
+                    <img src="immagini/book.png" alt="Agenda">
+                </div>
+                <span class="mobile-nav-label">Agenda</span>
+            </a>
 
+            <a href="#" class="mobile-nav-item" data-tab="tab-attivita" onclick="switchTab('tab-attivita', this); return false;">
+                <div class="mobile-nav-icon">
+                    <img src="immagini/attivita.png" alt="attivita">
+                </div>
+                <span class="mobile-nav-label">Attività</span>
+            </a>
 
-    <!-- MOBILE BOTTOM NAVIGATION -->
-    <nav class="mobile-bottom-nav">
-        <a href="#" class="mobile-nav-item active" data-tab="tab-utenti" onclick="switchTab('tab-utenti', this); return false;">
-            <div class="mobile-nav-icon">
-                <img src="immagini/group.png" alt="Utenti">
-            </div>
-            <span class="mobile-nav-label">Utenti</span>
-        </a>
-        <a href="#" class="mobile-nav-item" data-tab="tab-presenze" onclick="switchTab('tab-presenze', this); return false;">
-            <div class="mobile-nav-icon">
-                <img src="immagini/attendance.png" alt="Presenze">
-            </div>
-            <span class="mobile-nav-label">Presenze</span>
-        </a>
-        <a href="#" class="mobile-nav-item" data-tab="tab-agenda" onclick="switchTab('tab-agenda', this); return false;">
-            <div class="mobile-nav-icon">
-                <img src="immagini/book.png" alt="Agenda">
-            </div>
-            <span class="mobile-nav-label">Agenda</span>
-        </a>
+            <a href="#" class="mobile-nav-item" data-tab="tab-resoconti" onclick="switchTab('tab-resoconti', this); return false;">
+                <div class="mobile-nav-icon">
+                    <img src="immagini/resoconti.png" alt="resoconti">
+                </div>
+                <span class="mobile-nav-label">Resoconti</span>
+            </a>
 
-        <a href="#" class="mobile-nav-item" data-tab="tab-attivita" onclick="switchTab('tab-attivita', this); return false;">
-            <div class="mobile-nav-icon">
-                <img src="immagini/attivita.png" alt="attivita">
-            </div>
-            <span class="mobile-nav-label">Attività</span>
-        </a>
+            <a href="#" class="mobile-nav-item" data-tab="tab-educatori" onclick="switchTab('tab-educatori', this); return false;">
+                <div class="mobile-nav-icon">
+                    <img src="immagini/educatore.png" alt="educatori">
+                </div>
+                <span class="mobile-nav-label">Educatori</span>
+            </a>
 
-        <a href="#" class="mobile-nav-item" data-tab="tab-resoconti" onclick="switchTab('tab-resoconti', this); return false;">
-            <div class="mobile-nav-icon">
-                <img src="immagini/resoconti.png" alt="resoconti">
-            </div>
-            <span class="mobile-nav-label">Resoconti</span>
-        </a>
-    </nav>
+            <a href="#" class="mobile-nav-item" data-tab="tab-account" onclick="switchTab('tab-account', this); return false;">
+                <div class="mobile-nav-icon">
+                    <img src="immagini/account.png" alt="account">
+                </div>
+                <span class="mobile-nav-label">Account</span>
+            </a>
+        </nav>
 
     <!-- OVERLAY PRINCIPALE PER MODALI -->
-<script>
-    const Overlay = document.getElementById("modalOverlay");
+    <div class="modal-overlay" id="Overlay"></div>
+    
+
+    <script>
     document.querySelectorAll(".tab-link").forEach(link => {
         link.addEventListener("click", e => {
             e.preventDefault();
@@ -1557,12 +1845,13 @@ $resultResoconti = $conn->query($sqlResoconti);
             document.querySelectorAll(".submenu").forEach(menu => {
                 if(menu !== targetMenu){
                     menu.classList.remove("open");
-                    menu.previousElementSibling.classList.remove("open"); 
+                    menu.previousElementSibling.classList.remove("open");
                 }
             });
 
+            // toggle quello cliccato
             targetMenu.classList.toggle("open");
-            main.classList.toggle("open"); 
+            main.classList.toggle("open");
         });
 
     });
@@ -1616,53 +1905,48 @@ $resultResoconti = $conn->query($sqlResoconti);
             window.location.href = "logout.php";
         };
 
-    // Modal
-    // ========== SISTEMA MODALI E OVERLAY ==========
-    const modalOverlay = document.getElementById("modalOverlay");
+    // Modal (use the global `Overlay` element for modal backdrop)
+    const Overlay = document.getElementById("Overlay") || document.getElementById("modalOverlay");
     const viewModal = document.getElementById("viewModal");
     const editModal = document.getElementById("editModal");
     const deleteModal = document.getElementById("deleteModal");
-    const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
-    const modalPresenze = document.getElementById("modalPresenze");
     const modalAggiungiAttivita = document.getElementById("modalAggiungiAttivita");
-    const modalModificaAttivita = document.getElementById("modalModificaAttivita");
-    const modalDeleteAttivita = document.getElementById("modalDeleteAttivita");
-    const modalCreaAgenda = document.getElementById("modalCreaAgenda");
-    const modalModificaAgenda = document.getElementById("modalModificaAgenda");
-    const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
-    const successPopup = document.getElementById("successPopup");
     const successText = document.getElementById("success-text");
 
-    function openModal(modal, overlay = modalOverlay) {
-        if (modal) modal.classList.add("show");
-        if (overlay) overlay.classList.add("show");
+    function openModal(modal){
+        modal.classList.add("show");
+        if(Overlay) Overlay.classList.add("show");
     }
-
-    function closeModal() {
-        if (modalOverlay) modalOverlay.classList.remove("show");
+    function closeModal(){
+        if(Overlay) Overlay.classList.remove("show");
         document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
+        const attivitaOverlay = document.getElementById("attivitaOverlay");
+        if(attivitaOverlay) attivitaOverlay.classList.remove("show");
+        const agendaOverlay = document.getElementById("agendaOverlay");
+        if(agendaOverlay) agendaOverlay.classList.remove("show");
     }
 
-    function showSuccess(popup, overlay = modalOverlay) {
+    function showSuccess(popup, overlay) {
         if (popup) popup.classList.add("show");
         if (overlay) overlay.classList.add("show");
     }
-    function hideSuccess(popup, overlay = modalOverlay) {
+    function hideSuccess(popup, overlay) {
         if (popup) popup.classList.remove("show");
-    if (overlay) {
-        // only hide the overlay when no other modal/popup is visible
-        const anyVisible = document.querySelector(
-            ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .popup-overlay.show, .logout-overlay.show"
-        );
-        if (!anyVisible) {
-            overlay.classList.remove("show");
+        if (overlay) {
+            const anyVisible = document.querySelector(
+                ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .popup-overlay.show, .logout-overlay.show"
+            );
+            if (!anyVisible) {
+                overlay.classList.remove("show");
+            }
         }
     }
+
+
     // Popup view
     document.querySelectorAll(".view-btn").forEach(btn=>{
         btn.onclick = async e=>{
             const row = e.target.closest("tr");
-            const idIscritto = row.dataset.id;
 
             const avatar = row.querySelector("img").src;
             const nome = row.dataset.nome;
@@ -1673,6 +1957,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             const email = row.dataset.email;
             const telefono = row.dataset.telefono;
             const disabilita = row.dataset.disabilita;
+            const idIscritto = row.dataset.id;
 
             const intolleranze = row.dataset.intolleranze;
             const prezzo = row.dataset.prezzo;
@@ -1697,28 +1982,33 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="profile-field" style="grid-column:1 / -1;"><label>Note</label><span>${note || "—"}</span></div>
             `;
 
-            // Carica gli allegati per l'utente visualizzato
+            // Carica allegati
             await caricaAllegatiUtente(idIscritto);
 
             openModal(viewModal);
         }
     });
 
-    // Funzione per caricare gli allegati di un utente nella vista
+    // Funzione per caricare gli allegati di un utente
     async function caricaAllegatiUtente(idIscritto) {
         const allegatiListDiv = document.getElementById("viewAllegatiList");
         allegatiListDiv.innerHTML = '<p style="color: #888; font-style: italic;">Caricamento allegati...</p>';
+        
         try {
             const response = await fetch(`api/api_get_allegati.php?id_iscritto=${idIscritto}`);
             const data = await response.json();
+            
             if (!data.success || !data.allegati || data.allegati.length === 0) {
                 allegatiListDiv.innerHTML = '<p style="color: #888; font-style: italic;">Nessun allegato presente</p>';
                 return;
             }
+            
             let html = '<div class="allegati-grid">';
+            
             data.allegati.forEach(allegato => {
                 const icon = getAllegatoIcon(allegato.tipo);
                 const dataFormattata = new Date(allegato.data_upload).toLocaleDateString('it-IT');
+                
                 html += `
                     <div class="allegato-card" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; background: #f9f9f9;">
                         <div class="allegato-icon-big" style="font-size: 26px;">${icon}</div>
@@ -1754,17 +2044,501 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </div>
                 `;
             });
+            
             html += '</div>';
             allegatiListDiv.innerHTML = html;
+            
         } catch (error) {
             console.error("Errore caricamento allegati:", error);
             allegatiListDiv.innerHTML = '<p style="color: #d32f2f; font-style: italic;">Errore nel caricamento degli allegati</p>';
         }
     }
+    
 
-    if (modalOverlay) {
-        modalOverlay.onclick = closeModal;
-    }
+
+
+    if(Overlay) Overlay.onclick = closeModal;
+
+    // Presenze: edit/delete handlers
+    document.addEventListener('click', function(e){
+        // Edit presenza
+        if(e.target.closest && e.target.closest('.edit-presenza-btn')){
+            const btn = e.target.closest('.edit-presenza-btn');
+            const row = btn.closest('tr');
+            const id = row.dataset.id;
+            const nome = row.dataset.nome;
+            const cognome = row.dataset.cognome;
+            const ingresso = row.dataset.ingresso || '';
+            const uscita = row.dataset.uscita || '';
+            const avatar = row.querySelector('img').src;
+
+            // mostra solo intestazione con foto/nome e i campi orari
+            const header = document.getElementById('profileHeader');
+            header.style.display = 'flex';
+            document.getElementById('viewAvatar-mod').src = avatar;
+            document.getElementById('viewFullname-mod').innerText = nome + ' ' + cognome;
+            document.getElementById('viewBirth-mod').innerText = '';
+            document.getElementById('fieldNome').style.display = 'none';
+            document.getElementById('fieldCognome').style.display = 'none';
+            document.getElementById('fieldData').style.display = 'none';
+            document.getElementById('fieldCF').style.display = 'none';
+            document.getElementById('fieldEmail').style.display = 'none';
+            document.getElementById('fieldTelefono').style.display = 'none';
+
+            document.getElementById('fieldDisabilita').style.display = 'none';
+            document.getElementById('fieldIntolleranze').style.display = 'none';
+            document.getElementById('fieldPrezzo').style.display = 'none';
+            document.getElementById('fieldNote').style.display = 'none';
+            // hide photo/attachments and job-type when only editing presence
+            document.getElementById('fieldFotografia').style.display = 'none';
+            document.getElementById('fieldAllegatiEdit').style.display = 'none';
+            document.getElementById('fieldGruppo').style.display = 'none';
+            document.getElementById('fieldIngresso').style.display = 'block';
+            document.getElementById('fieldUscita').style.display = 'block';
+
+            // Set modal title
+            document.getElementById('modalEditTitle').innerText = 'Modifica Presenza - ' + nome + ' ' + cognome;
+
+            // Set modal data
+            editModal.dataset.editType = 'presenza';
+            editModal.dataset.presenzeId = id;
+
+            // Estrai solo l'ora dal formato DB (YYYY-MM-DD HH:MM:SS)
+            const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
+            const uscitaTime = uscita.split(' ')[1]?.slice(0, 5) || '';
+
+            document.getElementById('editIngresso').value = ingressoTime;
+            document.getElementById('editUscita').value = uscitaTime;
+
+            
+
+            openModal(editModal);
+        }
+
+        // Delete presenza
+        if(e.target.closest && e.target.closest('.delete-presenza-btn')){
+            const btn = e.target.closest('.delete-presenza-btn');
+            const row = btn.closest('tr');
+            const id = row.dataset.id;
+            const nome = row.dataset.nome;
+            const cognome = row.dataset.cognome;
+
+            document.getElementById('deleteModal').querySelector('h3').innerText = 'Eliminazione Presenza - ' + nome + ' ' + cognome;
+            deleteModal.dataset.deleteType = 'presenza';
+            deleteModal.dataset.presenzeId = id;
+            openModal(deleteModal);
+
+            // Imposta il listener sul bottone "Elimina" nella modale
+            const confirmDelete = deleteModal.querySelector('.btn-danger');
+            confirmDelete.onclick = () => {
+                fetch('api/api_elimina_presenza.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify({ id: id })
+                }).then(r => r.json()).then(data => {
+                    if(data.success){
+                        deleteModal.classList.remove('show');
+                        successText.innerText = 'Presenza Eliminata!!';
+                        showSuccess(successPopup, Overlay);
+                        setTimeout(()=>{
+                            closeModal();
+                            hideSuccess(successPopup, Overlay);
+                            location.reload();
+                        }, 1800);
+                    } else {
+                        alert('Errore: ' + data.message);
+                    }
+                }).catch(err => { console.error(err); alert('Errore richiesta'); });
+            };
+        }
+    });
+
+        // ===== GESTIONE ALLEGATI EDIT =====
+        const editAllegatiInput = document.getElementById("editAllegati");
+        const allegatiEditDropZone = document.getElementById("allegatiEditDropZone");
+        const allegatiEditList = document.getElementById("allegatiEditList");
+        const allegatiEditItems = document.getElementById("allegatiEditItems");
+        const clearAllEditAllegati = document.getElementById("clearAllEditAllegati");
+        const allegatiEsistentiList = document.getElementById("allegatiEsistentiList");
+        
+        let selectedAllegatiEdit = [];
+        let currentEditUserId = null;
+
+        // Formatta dimensione file
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Ottieni icona per tipo file
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': '<img src="immagini/pdf.png" alt="PDF" style="width: 20px; height: 20px;">',
+                'doc': '<img src="immagini/docx.png" alt="DOC" style="width: 20px; height: 20px;">',
+                'docx': '<img src="immagini/docx.png" alt="DOCX" style="width: 20px; height: 20px;">',
+                'jpg': '<img src="immagini/img.png" alt="JPG" style="width: 20px; height: 20px;">',
+                'jpeg': '<img src="immagini/img.png" alt="JPEG" style="width: 20px; height: 20px;">',
+                'png': '<img src="immagini/img.png" alt="PNG" style="width: 20px; height: 20px;">',
+                'gif': '<img src="immagini/img.png" alt="GIF" style="width: 20px; height: 20px;">',
+                'txt': '<img src="immagini/txt.png" alt="TXT" style="width: 20px; height: 20px;">',
+                'xls': '<img src="immagini/xls.png" alt="XLS" style="width: 20px; height: 20px;">',
+                'xlsx': '<img src="immagini/xls.png" alt="XLSX" style="width: 20px; height: 20px;">'
+            };
+            return icons[ext] || '<img src="immagini/paperclip.png" alt="File" style="width: 20px; height: 20px;">';
+        }
+
+        // Variabili per il modal di eliminazione allegato
+        let allegatoToDelete = null;
+        let iscrittoAllegatoToDelete = null;
+        let allegatoNomeToDelete = null;
+
+        // Funzione per creare l'overlay dedicato all'eliminazione allegato
+        function getAllegatoOverlay() {
+            let overlay = document.getElementById('allegatoOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'allegatoOverlay';
+                overlay.className = 'modal-overlay';
+                overlay.style.zIndex = '10001'; // Sopra tutti gli altri elementi (sopra modal edit z-index 10000)
+
+                document.body.appendChild(overlay);
+                
+                // Chiudi il modal quando si clicca sull'overlay
+                overlay.addEventListener('click', closeDeleteAllegatoModal);
+            }
+            return overlay;
+        }
+
+        // Funzione per mostrare il modal di conferma eliminazione allegato
+        function showDeleteAllegatoModal(idAllegato, idIscritto, nomeFile) {
+            allegatoToDelete = idAllegato;
+            iscrittoAllegatoToDelete = idIscritto;
+            allegatoNomeToDelete = nomeFile;
+            
+            // Crea il modal se non esiste
+            let modal = document.getElementById('modalDeleteAllegato');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalDeleteAllegato';
+                modal.className = 'modal-box danger';
+                modal.style.zIndex = '10002'; // Sopra l'overlay dedicato
+
+                document.body.appendChild(modal);
+            }
+            
+            // Ottieni l'icona in base all'estensione del file
+            const fileIcon = getFileIcon(nomeFile);
+            
+            // Aggiorna il contenuto del modal con il nome del file
+            modal.innerHTML = `
+                <h3>Elimina allegato</h3>
+                <div style="display: flex; align-items: center; gap: 12px; margin: 15px 0; padding: 12px; background: #f5f5f5; border-radius: 8px; border: 1px solid #e0e0e0;">
+                    <div style="font-size: 24px;">${fileIcon}</div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 500; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${nomeFile}">${nomeFile}</div>
+                        <div style="font-size: 12px; color: #888; margin-top: 2px;">Verrà eliminato definitivamente</div>
+                    </div>
+                </div>
+                <p style="color: #d32f2f; font-size: 14px; margin-bottom: 15px;">
+                    <strong>Attenzione:</strong> Questa azione non può essere annullata.
+                </p>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeDeleteAllegatoModal()">Annulla</button>
+                    <button class="btn-danger" id="confirmDeleteAllegatoBtn">Elimina</button>
+                </div>
+            `;
+            
+            // Aggiungi event listener al bottone di conferma
+            document.getElementById('confirmDeleteAllegatoBtn').addEventListener('click', confirmDeleteAllegato);
+            
+            const allegatoOverlay = getAllegatoOverlay();
+            allegatoOverlay.classList.add('show');
+            modal.classList.add('show');
+            
+            // Aggiungi listener per chiusura con tasto ESC
+            document.addEventListener('keydown', handleEscKey);
+        }
+
+        // Gestione tasto ESC per chiudere il modal
+        function handleEscKey(e) {
+            if (e.key === 'Escape') {
+                closeDeleteAllegatoModal();
+            }
+        }
+
+        // Funzione per chiudere il modal
+        function closeDeleteAllegatoModal() {
+            const modal = document.getElementById('modalDeleteAllegato');
+            const allegatoOverlay = document.getElementById('allegatoOverlay');
+            if (modal) modal.classList.remove('show');
+            if (allegatoOverlay) allegatoOverlay.classList.remove('show');
+            allegatoToDelete = null;
+            iscrittoAllegatoToDelete = null;
+            allegatoNomeToDelete = null;
+            
+            // Rimuovi listener per tasto ESC
+            document.removeEventListener('keydown', handleEscKey);
+        }
+
+        // Funzione per confermare l'eliminazione
+        async function confirmDeleteAllegato() {
+            if (!allegatoToDelete || !iscrittoAllegatoToDelete) return;
+            
+            // Disabilita il bottone durante l'eliminazione
+            const btn = document.getElementById('confirmDeleteAllegatoBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Eliminazione...';
+            }
+            
+            try {
+                const response = await fetch('api/api_elimina_allegato.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                body: JSON.stringify({ id: allegatoToDelete })
+
+                });
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseErr) {
+                    throw new Error('Risposta non valida dal server: ' + text);
+                }
+                
+                if (response.ok && data.success) {
+                    // conserva l'id dell'iscritto prima di resettare le variabili
+                    const reloadId = iscrittoAllegatoToDelete;
+                    closeDeleteAllegatoModal();
+                    // Ricarica la lista degli allegati usando l'id memorizzato
+                    await caricaAllegatiEsistenti(reloadId);
+                    // popup successo
+                    successText.innerText = "Allegato eliminato!!";
+                    showSuccess(successPopup, Overlay);
+                    setTimeout(()=>{ hideSuccess(successPopup, Overlay); }, 1600);
+                } else {
+                    const msg = data.message || text || 'Impossibile eliminare l\'allegato';
+                    alert('Errore: ' + msg);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = 'Elimina';
+                    }
+                }
+            } catch (error) {
+                console.error("Errore eliminazione allegato:", error);
+                alert('Errore durante l\'eliminazione: ' + error.message);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Elimina';
+                }
+            }
+        }
+
+        // Funzione per eliminare un allegato (mostra il modal)
+        function eliminaAllegato(idAllegato, idIscritto, nomeFile) {
+            showDeleteAllegatoModal(idAllegato, idIscritto, nomeFile);
+        }
+
+
+
+        // Carica allegati esistenti per l'utente in modifica
+        async function caricaAllegatiEsistenti(idIscritto) {
+            allegatiEsistentiList.innerHTML = '<p style="color: #888; font-style: italic; width: 100%;">Caricamento...</p>';
+            
+            try {
+                const response = await fetch(`api/api_get_allegati.php?id_iscritto=${idIscritto}`);
+                const data = await response.json();
+                
+                if (!data.success || !data.allegati || data.allegati.length === 0) {
+                    allegatiEsistentiList.innerHTML = '<p style="color: #888; font-style: italic; width: 100%;">Nessun allegato presente</p>';
+                    return;
+                }
+                
+                let html = '';
+                data.allegati.forEach(allegato => {
+                    const icon = getAllegatoIcon(allegato.tipo);
+                    // Escapa il nome del file per l'uso in onclick
+                    const nomeFileEscaped = allegato.nome_file.replace(/'/g, "\\'").replace(/"/g, '"');
+                    html += `
+                        <div class="allegato-esistente" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; background: #f9f9f9; font-size: 13px;">
+                            ${icon}
+                            <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" title="${allegato.nome_file}">${allegato.nome_file}</span>
+                            <button type="button" onclick="eliminaAllegato(${allegato.id}, ${idIscritto}, '${nomeFileEscaped}')" title="Elimina allegato" style="color: #d32f2f; background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#ffebee'" onmouseout="this.style.background='none'">
+
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                });
+
+                
+                allegatiEsistentiList.innerHTML = html;
+                
+            } catch (error) {
+                console.error("Errore caricamento allegati esistenti:", error);
+                allegatiEsistentiList.innerHTML = '<p style="color: #d32f2f; font-style: italic; width: 100%;">Errore nel caricamento</p>';
+            }
+        }
+
+
+        // Aggiorna lista allegati edit
+        function updateAllegatiEditList() {
+            if (selectedAllegatiEdit.length === 0) {
+                allegatiEditList.style.display = 'none';
+                return;
+            }
+
+            allegatiEditList.style.display = 'block';
+            allegatiEditItems.innerHTML = '';
+
+            selectedAllegatiEdit.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'allegato-item';
+                li.innerHTML = `
+                    <div class="allegato-info">
+                        <span class="allegato-icon">${getFileIcon(file.name)}</span>
+                        <div class="allegato-details">
+                            <span class="allegato-name" title="${file.name}">${file.name}</span>
+                            <span class="allegato-size">${formatFileSize(file.size)}</span>
+                        </div>
+                    </div>
+                    <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>
+                `;
+                allegatiEditItems.appendChild(li);
+            });
+
+            // Event listener per rimuovere
+            document.querySelectorAll('#allegatiEditItems .allegato-remove').forEach(btn => {
+                btn.onclick = function() {
+                    const idx = parseInt(this.dataset.index);
+                    selectedAllegatiEdit.splice(idx, 1);
+                    updateAllegatiEditList();
+                };
+            });
+        }
+
+        // Gestione selezione file edit
+        if (editAllegatiInput) {
+            editAllegatiInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const maxSize = 10 * 1024 * 1024;
+                    const validFiles = Array.from(this.files).filter(file => {
+                        if (file.size > maxSize) {
+                            alert(`File "${file.name}" troppo grande (max 10MB)`);
+                            return false;
+                        }
+                        return true;
+                    });
+                    
+                    selectedAllegatiEdit = [...selectedAllegatiEdit, ...validFiles];
+                    updateAllegatiEditList();
+                }
+            });
+        }
+
+        // Drag and drop edit
+        if (allegatiEditDropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                allegatiEditDropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                allegatiEditDropZone.addEventListener(eventName, () => {
+                    allegatiEditDropZone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                allegatiEditDropZone.addEventListener(eventName, () => {
+                    allegatiEditDropZone.classList.remove('dragover');
+                }, false);
+            });
+
+            allegatiEditDropZone.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                const maxSize = 10 * 1024 * 1024;
+                const validFiles = Array.from(files).filter(file => {
+                    if (file.size > maxSize) {
+                        alert(`File "${file.name}" troppo grande (max 10MB)`);
+                        return false;
+                    }
+                    return true;
+                });
+                
+                selectedAllegatiEdit = [...selectedAllegatiEdit, ...validFiles];
+                updateAllegatiEditList();
+            });
+
+            allegatiEditDropZone.addEventListener('click', function(e) {
+                // Non aprire il file dialog se il click è sul bottone "Seleziona file"
+                // (il bottone ha già il suo onclick che apre il dialog)
+                if (e.target.closest('.file-btn-minimal')) {
+                    return;
+                }
+                allegatiEditInput.click();
+            });
+
+            
+        }
+
+        // Rimuovi tutti gli allegati edit
+        if (clearAllEditAllegati) {
+            clearAllEditAllegati.onclick = function() {
+                selectedAllegatiEdit = [];
+                updateAllegatiEditList();
+            };
+        }
+
+        // Upload allegati per utente in modifica
+        async function uploadAllegatiEdit(idIscritto) {
+            if (selectedAllegatiEdit.length === 0) return { success: true };
+
+            const results = [];
+            
+            for (let i = 0; i < selectedAllegatiEdit.length; i++) {
+                const file = selectedAllegatiEdit[i];
+                const formData = new FormData();
+                formData.append('id_iscritto', idIscritto);
+                formData.append('allegato', file);
+
+                try {
+                    const response = await fetch('api/api_carica_allegato.php', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    results.push({ success: data.success, file: file.name, error: data.message });
+                } catch (error) {
+                    console.error(`Errore upload file ${file.name}:`, error);
+                    results.push({ success: false, file: file.name, error: error.message });
+                }
+            }
+
+            return results;
+        }
 
         // File input handlers for edit modal
         const editFoto = document.getElementById("editFoto");
@@ -1773,6 +2547,7 @@ $resultResoconti = $conn->query($sqlResoconti);
         const editClearBtn = document.getElementById("editClearFileBtn");
 
         if(editFoto) {
+
             editFoto.addEventListener("change", function(){
                 if(!this.files.length){
                     editPreview.style.display = "none";
@@ -1811,6 +2586,29 @@ $resultResoconti = $conn->query($sqlResoconti);
                 const idIscritto = row.dataset.id;
 
                 editModal.dataset.userId = idIscritto;
+                editModal.dataset.editType = 'utente';
+                currentEditUserId = idIscritto;
+
+                // Mostra i campi utente e nascondi quelli presenza
+                document.getElementById('profileHeader').style.display = 'block';
+                document.getElementById('fieldNome').style.display = 'block';
+                document.getElementById('fieldCognome').style.display = 'block';
+                document.getElementById('fieldData').style.display = 'block';
+                document.getElementById('fieldCF').style.display = 'block';
+                document.getElementById('fieldEmail').style.display = 'block';
+                document.getElementById('fieldTelefono').style.display = 'block';
+
+                document.getElementById('fieldDisabilita').style.display = 'block';
+                document.getElementById('fieldIntolleranze').style.display = 'block';
+                document.getElementById('fieldPrezzo').style.display = 'block';
+                document.getElementById('fieldNote').style.display = 'block';
+                document.getElementById('fieldFotografia').style.display = 'block';
+                document.getElementById('fieldAllegatiEdit').style.display = 'block';
+                document.getElementById('fieldIngresso').style.display = 'none';
+                document.getElementById('fieldUscita').style.display = 'none';
+
+                // Set modal title
+                document.getElementById('modalEditTitle').innerText = 'Modifica utente';
 
                 document.getElementById("viewAvatar-mod").src = avatar;
                 document.getElementById("viewFullname-mod").innerText = nome + " " + cognome;
@@ -1822,12 +2620,12 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("editCF").value = row.dataset.cf;
                 document.getElementById("editEmail").value = row.dataset.email;
                 document.getElementById("editTelefono").value = row.dataset.telefono;
-                document.getElementById("editDisabilita").value = row.dataset.disabilita;
-                document.getElementById("editGruppo").value = row.dataset.gruppo || 0;
 
+                document.getElementById("editDisabilita").value = row.dataset.disabilita;
                 document.getElementById("editIntolleranze").value = row.dataset.intolleranze;
                 document.getElementById("editPrezzo").value = row.dataset.prezzo;
                 document.getElementById("editNote").value = row.dataset.note;
+                document.getElementById("editGruppo").value = row.dataset.gruppo || 0;
 
                 // Reset file input
                 if(editFoto) editFoto.value = "";
@@ -1835,16 +2633,17 @@ $resultResoconti = $conn->query($sqlResoconti);
                 if(editFileNameSpan) editFileNameSpan.innerText = "Nessun file";
                 if(editClearBtn) editClearBtn.style.display = "none";
 
-                // reset attachments edit arrays
+                // Reset allegati edit
                 selectedAllegatiEdit = [];
-                if(allegatiEditList) allegatiEditList.style.display = 'none';
-
-                // carica eventuali allegati esistenti
+                updateAllegatiEditList();
+                
+                // Carica allegati esistenti
                 await caricaAllegatiEsistenti(idIscritto);
 
                 openModal(editModal);
             }
         });
+
 
         succesPopupDelete = document.getElementById("successPopupDelete");
 
@@ -1854,6 +2653,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                 const nomeCompleto = row.dataset.nome + " " + row.dataset.cognome;
 
                 document.getElementById("deleteModal").querySelector("h3").innerText = "Eliminazione " + btn.closest("tr").dataset.nome + " " + btn.closest("tr").dataset.cognome;
+                deleteModal.dataset.deleteType = 'utente';
+                deleteModal.dataset.userId = row.dataset.id;
                 openModal(deleteModal);
 
                 const confirmDelete = deleteModal.querySelector(".btn-danger");
@@ -1876,11 +2677,11 @@ $resultResoconti = $conn->query($sqlResoconti);
                         if (data.success) {
                             deleteModal.classList.remove("show");
                             successText.innerText = "Utente Eliminato!! ";
-                            showSuccess(successPopup);
+                            showSuccess(successPopup, Overlay);
 
                             setTimeout(()=>{
                                 closeModal();
-                                hideSuccess(successPopup);
+                                hideSuccess(successPopup, Overlay);
                                 row.remove();
                                 location.reload();
                             },1800); 
@@ -1900,120 +2701,213 @@ $resultResoconti = $conn->query($sqlResoconti);
         const modalBoxEdit = document.getElementById("editModal");
         
         document.getElementById("saveEdit").onclick = () => {
-            const id = editModal.dataset.userId;
-            const fotoInput = document.getElementById("editFoto");
-            
-            console.log("SaveEdit clicked - ID:", id, "FotoInput:", fotoInput, "Files:", fotoInput ? fotoInput.files.length : 0);
+            const editType = editModal.dataset.editType || 'utente';
 
-            // Se c'è un file selezionato, usa FormData
-            if(fotoInput && fotoInput.files.length > 0) {
-                console.log("File found, sending FormData");
-                const formData = new FormData();
-                formData.append("id", id);
-                formData.append("nome", document.getElementById("editNome").value);
-                formData.append("cognome", document.getElementById("editCognome").value);
-                formData.append("data_nascita", document.getElementById("editData").value);
-                formData.append("codice_fiscale", document.getElementById("editCF").value);
-                formData.append("email", document.getElementById("editEmail").value);
-                formData.append("telefono", document.getElementById("editTelefono").value);
-                formData.append("disabilita", document.getElementById("editDisabilita").value);
-                formData.append("intolleranze", document.getElementById("editIntolleranze").value);
-                formData.append("prezzo_orario", document.getElementById("editPrezzo").value);
-                formData.append("note", document.getElementById("editNote").value);
-                formData.append("gruppo", document.getElementById("editGruppo").value);
-                formData.append("foto", fotoInput.files[0]);
+            if(editType === 'presenza'){
+                const id = editModal.dataset.presenzeId;
+                const ingresso = document.getElementById("editIngresso").value;  
+                const uscita = document.getElementById("editUscita").value;      
 
-                fetch('api/api_aggiorna_utente.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(async data => {
-                    console.log("API response:", data);
-                    if(data.success){
-                        if(selectedAllegatiEdit && selectedAllegatiEdit.length > 0) {
-                            await uploadAllegatiEdit(id);
-                        }
-                        modalBoxEdit.classList.remove("show");
-                        successText.innerText = "Utente modificato!!";
-                        showSuccess(successPopup);
+                // Ottenere la data di oggi in formato YYYY-MM-DD
+                const today = new Date().toISOString().split('T')[0];
 
-                        setTimeout(()=>{
-                            hideSuccess(successPopup);
-                            location.reload();
-                        },1800); 
-                    } else {
-                        alert("Errore: " + data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error("Fetch error:", err);
-                    alert("Errore nella comunicazione");
-                });
-            } else {
-                console.log("No file, sending JSON");
-                // Nessun file, usa JSON come prima
-                const payload = {
-                    id: id,
-                    nome: document.getElementById("editNome").value,
-                    cognome: document.getElementById("editCognome").value,
-                    data_nascita: document.getElementById("editData").value,
-                    codice_fiscale: document.getElementById("editCF").value,
-                    email: document.getElementById("editEmail").value,
-                    telefono: document.getElementById("editTelefono").value,
-                    disabilita: document.getElementById("editDisabilita").value,
-                    gruppo: document.getElementById("editGruppo").value,
-                    intolleranze: document.getElementById("editIntolleranze").value,
-                    prezzo_orario: document.getElementById("editPrezzo").value,
-                    note: document.getElementById("editNote").value
-                };
+                // Combinare data e ora nel formato DB (YYYY-MM-DD HH:MM:SS)
+                const ingressoDb = today + ' ' + ingresso + ':00';
+                const uscitaDb = today + ' ' + uscita + ':00';
 
-                fetch('api/api_aggiorna_utente.php', {
+                fetch('api/api_modifica_presenza.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ id: id, ingresso: ingressoDb, uscita: uscitaDb })
                 })
                 .then(res => res.json())
-                .then(async data => {
-                    console.log("API response:", data);
+                .then(data => {
                     if(data.success){
-                        if(selectedAllegatiEdit && selectedAllegatiEdit.length > 0) {
-                            await uploadAllegatiEdit(id);
-                        }
-                        modalBoxEdit.classList.remove("show");
-                        successText.innerText = "Utente modificato!!";
-                        showSuccess(successPopup);
+                        editModal.classList.remove("show");
+                        if(Overlay) Overlay.classList.remove("show");
+                        successText.innerText = "Presenza modificata!!";
+                        showSuccess(successPopup, Overlay);
 
                         setTimeout(()=>{
-                            hideSuccess(successPopup);
+                            hideSuccess(successPopup, Overlay);
                             location.reload();
-                        },1800); 
+                        }, 1800);
                     } else {
                         alert("Errore: " + data.message);
                     }
-                })
-                .catch(err => {
-                    console.error("Fetch error:", err);
-                    alert("Errore nella comunicazione");
                 });
+            } else {
+                // Salva un utente
+                const id = editModal.dataset.userId;
+                const fotoInput = document.getElementById("editFoto");
+
+                // Se c'è un file selezionato o allegati, usa FormData
+                if(fotoInput && fotoInput.files.length > 0) {
+                    console.log("File found, sending FormData with photo");
+                    const formData = new FormData();
+                    formData.append("id", id);
+                    formData.append("nome", document.getElementById("editNome").value);
+                    formData.append("cognome", document.getElementById("editCognome").value);
+                    formData.append("data_nascita", document.getElementById("editData").value);
+                    formData.append("codice_fiscale", document.getElementById("editCF").value);
+                    formData.append("email", document.getElementById("editEmail").value);
+                    formData.append("telefono", document.getElementById("editTelefono").value);
+
+                    formData.append("disabilita", document.getElementById("editDisabilita").value);
+                    formData.append("intolleranze", document.getElementById("editIntolleranze").value);
+                    formData.append("prezzo_orario", document.getElementById("editPrezzo").value);
+                    formData.append("note", document.getElementById("editNote").value);
+                    // include gruppo flag so it actually gets saved
+                    formData.append("gruppo", document.getElementById("editGruppo").value);
+                    formData.append("foto", fotoInput.files[0]);
+
+                    fetch('api/api_aggiorna_utente.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(async data => {
+                        console.log("API response:", data);
+                        if(data.success){
+                            // Upload allegati se presenti
+                            if(selectedAllegatiEdit.length > 0) {
+                                await uploadAllegatiEdit(id);
+                            }
+                            
+                            editModal.classList.remove("show");
+                            if(Overlay) Overlay.classList.remove("show");
+                            successText.innerText = "Utente modificato!!";
+                            showSuccess(successPopup, Overlay);
+
+                            setTimeout(()=>{
+                                hideSuccess(successPopup, Overlay);
+                                location.reload();
+                            }, 1800);
+                        } else {
+                            alert("Errore: " + data.message);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Fetch error:", err);
+                    });
+                } else {
+                    console.log("No file, sending JSON update");
+                    // Nessun file foto, ma potrebbero esserci allegati
+                    const payload = {
+                        id: id,
+                        nome: document.getElementById("editNome").value,
+                        cognome: document.getElementById("editCognome").value,
+                        data_nascita: document.getElementById("editData").value,
+                        codice_fiscale: document.getElementById("editCF").value,
+                        email: document.getElementById("editEmail").value,
+                        telefono: document.getElementById("editTelefono").value,
+
+                        disabilita: document.getElementById("editDisabilita").value,
+                        intolleranze: document.getElementById("editIntolleranze").value,
+                        prezzo_orario: document.getElementById("editPrezzo").value,
+                        note: document.getElementById("editNote").value,
+                        // make sure group setting is always included in JSON payload
+                        gruppo: document.getElementById("editGruppo").value
+                    };
+
+                    fetch('api/api_aggiorna_utente.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(async data => {
+                        console.log("API response:", data);
+                        if(data.success){
+                            // Upload allegati se presenti
+                            if(selectedAllegatiEdit.length > 0) {
+                                await uploadAllegatiEdit(id);
+                            }
+                            
+                            editModal.classList.remove("show");
+                            if(Overlay) Overlay.classList.remove("show");
+                            successText.innerText = "Utente modificato!!";
+                            showSuccess(successPopup, Overlay);
+
+                            setTimeout(()=>{
+                                hideSuccess(successPopup, Overlay);
+                                location.reload();
+                            }, 1800);
+                        } else {
+                            alert("Errore: " + data.message);
+                        }
+                    });
+                }
+
             }
+
         };
 
 
 
+// ==========================================
+// GESTIONE ICONE FILE/ALLEGATI
+// ==========================================
+
+/**
+ * Ottiene l'icona PNG in base al tipo di file (per allegati salvati)
+ */
+function getAllegatoIcon(tipo) {
+    const icons = {
+        'pdf': '<img src="immagini/pdf.png" alt="PDF" style="width: 26px; height: 26px;">',
+        'doc': '<img src="immagini/docx.png" alt="DOC" style="width: 26px; height: 26px;">',
+        'docx': '<img src="immagini/docx.png" alt="DOCX" style="width: 26px; height: 26px;">',
+        'image': '<img src="immagini/img.png" alt="Immagine" style="width: 26px; height: 26px;">',
+        'xls': '<img src="immagini/xls.png" alt="XLS" style="width: 26px; height: 26px;">',
+        'xlsx': '<img src="immagini/xls.png" alt="XLSX" style="width: 26px; height: 26px;">',
+        'txt': '<img src="immagini/txt.png" alt="TXT" style="width: 26px; height: 26px;">',
+        'file': '<img src="immagini/paperclip.png" alt="File" style="width: 26px; height: 26px;">'
+    };
+    return icons[tipo] || icons['file'];
+}
+
+/**
+ * Ottiene l'icona PNG in base all'estensione del filename (per upload)
+ */
+function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const icons = {
+        'pdf': '<img src="immagini/pdf.png" alt="PDF" style="width: 20px; height: 20px;">',
+        'doc': '<img src="immagini/docx.png" alt="DOC" style="width: 20px; height: 20px;">',
+        'docx': '<img src="immagini/docx.png" alt="DOCX" style="width: 20px; height: 20px;">',
+        'jpg': '<img src="immagini/img.png" alt="JPG" style="width: 20px; height: 20px;">',
+        'jpeg': '<img src="immagini/img.png" alt="JPEG" style="width: 20px; height: 20px;">',
+        'png': '<img src="immagini/img.png" alt="PNG" style="width: 20px; height: 20px;">',
+        'gif': '<img src="immagini/img.png" alt="GIF" style="width: 20px; height: 20px;">',
+        'txt': '<img src="immagini/txt.png" alt="TXT" style="width: 20px; height: 20px;">',
+        'xls': '<img src="immagini/xls.png" alt="XLS" style="width: 20px; height: 20px;">',
+        'xlsx': '<img src="immagini/xls.png" alt="XLSX" style="width: 20px; height: 20px;">'
+    };
+    return icons[ext] || '<img src="immagini/paperclip.png" alt="File" style="width: 20px; height: 20px;">';
+}
 
 
 
 
+        // SEZIONE ATTIVITA !!!!!!!!!!!!!!!
 
-        // ========== SEZIONE ATTIVITA ==========
+        // MODAL AGGIUNGI ATTIVITA
         const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
+        // point attivita overlay to the single global overlay if present
+        const attivitaOverlay = document.getElementById("attivitaOverlay") || Overlay;
 
         aggiungiAttivitaBtn.onclick = () => {
             openModal(modalAggiungiAttivita);
+        } 
+
+        attivitaOverlay.onclick = () => {
+            closeModal();
         };
 
         const salvaAttivitaBtn = document.getElementById("salvaAttivita");
@@ -2036,13 +2930,14 @@ $resultResoconti = $conn->query($sqlResoconti);
             .then(res => res.json())
             .then(data => {
                 if(data.success){       
-                    closeModal();
+                    modalAggiungiAttivita.classList.remove("show");
                     successText.innerText = "Attività Aggiunta!!";
-                    showSuccess(successPopup);
+                    showSuccess(successPopup, Overlay);
                     
 
                     setTimeout(() => {
-                        hideSuccess(successPopup);
+                        hideSuccess(successPopup, Overlay);
+                        attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
 
@@ -2060,6 +2955,12 @@ $resultResoconti = $conn->query($sqlResoconti);
 
 
         // MODIFICA E ELIMINA ATTIVITA
+
+        const modalModificaAttivita = document.getElementById("modalModificaAttivita");
+        const deleteAttivitaModal = document.getElementById("modalDeleteAttivita");
+        const successPopupModificaAttivita = document.getElementById("successPopupModificaAttivita");
+
+        // MODIFICA
         document.querySelectorAll(".edit-attivita-btn").forEach(btn => {
             btn.onclick = e => {
                 const row = btn.closest("tr");
@@ -2072,6 +2973,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("editAttivitaDescrizione").value = descr;
 
                 openModal(modalModificaAttivita);
+                attivitaOverlay.classList.add("show");
             }
         });
 
@@ -2093,13 +2995,15 @@ $resultResoconti = $conn->query($sqlResoconti);
             .then(res => res.json())
             .then(data => {
                 if(data.success){       
-                    closeModal();
+                    modalModificaAttivita.classList.remove("show");
                     successText.innerText = "Attività Modificata!!";
-                    showSuccess(successPopup);
+                    showSuccess(successPopup, Overlay);
                     
 
+
                     setTimeout(() => {
-                        hideSuccess(successPopup);
+                        hideSuccess(successPopup, Overlay);
+                        attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
 
@@ -2114,7 +3018,8 @@ $resultResoconti = $conn->query($sqlResoconti);
         document.querySelectorAll(".delete-attivita-btn").forEach(btn => {
             btn.onclick = e => {
                 rowToDelete = btn.closest("tr");
-                openModal(modalDeleteAttivita);
+                openModal(deleteAttivitaModal);
+                attivitaOverlay.classList.add("show");
             }
         });
 
@@ -2133,13 +3038,15 @@ $resultResoconti = $conn->query($sqlResoconti);
             .then(res => res.json())
             .then(data => {
                 if(data.success){       
-                    closeModal();
+                    deleteAttivitaModal.classList.remove("show");
                     successText.innerText = "Attività Eliminata!!";
-                    showSuccess(successPopup);
+                    showSuccess(successPopup, Overlay);
                     
 
+
                     setTimeout(() => {
-                        hideSuccess(successPopup);
+                        hideSuccess(successPopup, Overlay);
+                        attivitaOverlay.classList.remove("show");
                         location.reload();
                     }, 1800);
 
@@ -2157,15 +3064,230 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         
 
-        // ========== SEZIONE UTENTI ==========
         const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
         const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
+        const modalAggiungiUtente = document.getElementById("modalAggiungiUtente");
         const formAggiungiUtente = document.getElementById("formAggiungiUtente");
-        const clearBtn = document.getElementById("clearFileBtn");
-        const utenteFoto = document.getElementById("utenteFoto");
-        const preview = document.getElementById("previewFotoMini");
-        const fileNameSpan = document.getElementById("nomeFileFoto");
+
+        // ===== GESTIONE ALLEGATI =====
+        const allegatiInput = document.getElementById("utenteAllegati");
+        const allegatiDropZone = document.getElementById("allegatiDropZone");
+        const allegatiList = document.getElementById("allegatiList");
+        const allegatiItems = document.getElementById("allegatiItems");
+        const clearAllAllegati = document.getElementById("clearAllAllegati");
+        
+        let selectedAllegati = [];
+
+        // Formatta dimensione file
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Ottieni icona per tipo file
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': '<img src="immagini/pdf.png" alt="PDF" style="width: 20px; height: 20px;">',
+                'doc': '<img src="immagini/docx.png" alt="DOC" style="width: 20px; height: 20px;">',
+                'docx': '<img src="immagini/docx.png" alt="DOCX" style="width: 20px; height: 20px;">',
+                'jpg': '<img src="immagini/img.png" alt="JPG" style="width: 20px; height: 20px;">',
+                'jpeg': '<img src="immagini/img.png" alt="JPEG" style="width: 20px; height: 20px;">',
+                'png': '<img src="immagini/img.png" alt="PNG" style="width: 20px; height: 20px;">',
+                'gif': '<img src="immagini/img.png" alt="GIF" style="width: 20px; height: 20px;">',
+                'txt': '<img src="immagini/txt.png" alt="TXT" style="width: 20px; height: 20px;">',
+                'xls': '<img src="immagini/xls.png" alt="XLS" style="width: 20px; height: 20px;">',
+                'xlsx': '<img src="immagini/xls.png" alt="XLSX" style="width: 20px; height: 20px;">'
+            };
+            return icons[ext] || '<img src="immagini/paperclip.png" alt="File" style="width: 20px; height: 20px;">';
+        }
+
+
+        // Aggiorna lista allegati
+        function updateAllegatiList() {
+            if (selectedAllegati.length === 0) {
+                allegatiList.style.display = 'none';
+                return;
+            }
+
+            allegatiList.style.display = 'block';
+            allegatiItems.innerHTML = '';
+
+            selectedAllegati.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'allegato-item';
+                li.innerHTML = `
+                    <div class="allegato-info">
+                        <span class="allegato-icon">${getFileIcon(file.name)}</span>
+                        <div class="allegato-details">
+                            <span class="allegato-name" title="${file.name}">${file.name}</span>
+                            <span class="allegato-size">${formatFileSize(file.size)}</span>
+                            <div class="allegato-progress" id="progress-${index}" style="display:none;">
+                                <div class="allegato-progress-bar" id="progress-bar-${index}"></div>
+                            </div>
+                            <div class="allegato-status" id="status-${index}"></div>
+                        </div>
+                    </div>
+                    <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>
+                `;
+                allegatiItems.appendChild(li);
+            });
+
+            // Aggiungi event listener per rimuovere
+            document.querySelectorAll('.allegato-remove').forEach(btn => {
+                btn.onclick = function() {
+                    const idx = parseInt(this.dataset.index);
+                    selectedAllegati.splice(idx, 1);
+                    updateAllegatiList();
+                };
+            });
+        }
+
+        // Gestione selezione file
+        if (allegatiInput) {
+            allegatiInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    // Validazione dimensione (max 10MB)
+                    const maxSize = 10 * 1024 * 1024;
+                    const validFiles = Array.from(this.files).filter(file => {
+                        if (file.size > maxSize) {
+                            alert(`File "${file.name}" troppo grande (max 10MB)`);
+                            return false;
+                        }
+                        return true;
+                    });
+                    
+                    selectedAllegati = [...selectedAllegati, ...validFiles];
+                    updateAllegatiList();
+                }
+            });
+        }
+
+        // Drag and drop
+        if (allegatiDropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                allegatiDropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                allegatiDropZone.addEventListener(eventName, () => {
+                    allegatiDropZone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                allegatiDropZone.addEventListener(eventName, () => {
+                    allegatiDropZone.classList.remove('dragover');
+                }, false);
+            });
+
+            allegatiDropZone.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                const maxSize = 10 * 1024 * 1024;
+                const validFiles = Array.from(files).filter(file => {
+                    if (file.size > maxSize) {
+                        alert(`File "${file.name}" troppo grande (max 10MB)`);
+                        return false;
+                    }
+                    return true;
+                });
+                
+                selectedAllegati = [...selectedAllegati, ...validFiles];
+                updateAllegatiList();
+            });
+
+            allegatiDropZone.addEventListener('click', function(e) {
+                // Non aprire il file dialog se il click è sul bottone "Seleziona file"
+                // (il bottone ha già il suo onclick che apre il dialog)
+                if (e.target.closest('.file-btn-minimal')) {
+                    return;
+                }
+                allegatiInput.click();
+            });
+
+        }
+
+        // Rimuovi tutti gli allegati
+        if (clearAllAllegati) {
+            clearAllAllegati.onclick = function() {
+                selectedAllegati = [];
+                updateAllegatiList();
+            };
+        }
+
+        // Upload allegati per un utente
+        async function uploadAllegati(idIscritto) {
+            if (selectedAllegati.length === 0) return { success: true };
+
+            const results = [];
+            
+            for (let i = 0; i < selectedAllegati.length; i++) {
+                const file = selectedAllegati[i];
+                const progressBar = document.getElementById(`progress-bar-${i}`);
+                const progressContainer = document.getElementById(`progress-${i}`);
+                const statusDiv = document.getElementById(`status-${i}`);
+
+                if (progressContainer) progressContainer.style.display = 'block';
+                if (statusDiv) statusDiv.textContent = 'Caricamento...';
+
+                const formData = new FormData();
+                formData.append('id_iscritto', idIscritto);
+                formData.append('allegato', file);
+
+                try {
+                    const response = await fetch('api/api_carica_allegato.php', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        if (progressBar) {
+                            progressBar.style.width = '100%';
+                            progressBar.classList.add('complete');
+                        }
+                        if (statusDiv) {
+                            statusDiv.textContent = '✓ Caricato';
+                            statusDiv.classList.add('complete');
+                        }
+                        results.push({ success: true, file: file.name });
+                    } else {
+                        if (progressBar) progressBar.classList.add('error');
+                        if (statusDiv) {
+                            statusDiv.textContent = '✗ Errore: ' + data.message;
+                            statusDiv.classList.add('error');
+                        }
+                        results.push({ success: false, file: file.name, error: data.message });
+                    }
+                } catch (error) {
+                    if (progressBar) progressBar.classList.add('error');
+                    if (statusDiv) {
+                        statusDiv.textContent = '✗ Errore di rete';
+                        statusDiv.classList.add('error');
+                    }
+                    results.push({ success: false, file: file.name, error: error.message });
+                }
+            }
+
+            return results;
+        }
+
+        const aggiungiAgendaBtnMobile = document.getElementById("aggiungi-agenda-btn-mobile");
         const aggiungiAttivitaBtnMobile = document.getElementById("aggiungi-attivita-btn-mobile");
+        const aggiungiEducatoreBtnMobile = document.getElementById("aggiungi-educatore-btn-mobile");
+        const aggiungiAccountBtnMobile = document.getElementById("aggiungi-account-btn-mobile");
 
 
         // Apri modal (desktop)
@@ -2182,585 +3304,467 @@ $resultResoconti = $conn->query($sqlResoconti);
             };
         }
 
+        if(aggiungiAgendaBtnMobile) {
+            aggiungiAgendaBtnMobile.onclick = () => {
+                openModal(modalCreaAgenda);
+            };
+        }
+
         if(aggiungiAttivitaBtnMobile) {
             aggiungiAttivitaBtnMobile.onclick = () => {
                 openModal(modalAggiungiAttivita);
             };
         }
 
-
-
-
-
-
-
-
-// --- GESTIONE CAMBIO FOTO ---
-utenteFoto.addEventListener("change", function () {
-    if (!this.files.length) {
-        preview.style.display = "none";
-        fileNameSpan.innerText = "Nessun file";
-        clearBtn.style.display = "none";
-        return;
-    }
-
-    const file = this.files[0];
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
-    fileNameSpan.innerText = file.name;
-    clearBtn.style.display = "block";
-});
-
-
-
-// --- PULIZIA FOTO ---
-clearBtn.addEventListener("click", function () {
-    utenteFoto.value = "";
-    preview.style.display = "none";
-    fileNameSpan.innerText = "Nessun file";
-    clearBtn.style.display = "none";
-});
-
-
-
-// ===== GESTIONE ALLEGATI =====
-const allegatiEsistentiList = document.getElementById("allegatiEsistentiList");
-// helpers
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-function getFileIcon(filename) {
-    const ext = filename.split('.').pop().toLowerCase();
-    const icons = {
-        'pdf': '<img src="immagini/pdf.png" alt="PDF" style="width: 20px; height: 20px;">',
-        'doc': '<img src="immagini/docx.png" alt="DOC" style="width: 20px; height: 20px;">',
-        'docx': '<img src="immagini/docx.png" alt="DOCX" style="width: 20px; height: 20px;">',
-        'jpg': '<img src="immagini/img.png" alt="JPG" style="width: 20px; height: 20px;">',
-        'jpeg': '<img src="immagini/img.png" alt="JPEG" style="width: 20px; height: 20px;">',
-        'png': '<img src="immagini/img.png" alt="PNG" style="width: 20px; height: 20px;">',
-        'gif': '<img src="immagini/img.png" alt="GIF" style="width: 20px; height: 20px;">',
-        'txt': '<img src="immagini/txt.png" alt="TXT" style="width: 20px; height: 20px;">',
-        'xls': '<img src="immagini/xls.png" alt="XLS" style="width: 20px; height: 20px;">',
-        'xlsx': '<img src="immagini/xls.png" alt="XLSX" style="width: 20px; height: 20px;">'
-    };
-    return icons[ext] || '<img src="immagini/paperclip.png" alt="File" style="width: 20px; height: 20px;">';
-}
-
-function getAllegatoIcon(tipo) {
-    const icons = {
-        'pdf': '<img src="immagini/pdf.png" alt="PDF" style="width: 26px; height: 26px;">',
-        'doc': '<img src="immagini/docx.png" alt="DOC" style="width: 26px; height: 26px;">',
-        'docx': '<img src="immagini/docx.png" alt="DOCX" style="width: 26px; height: 26px;">',
-        'image': '<img src="immagini/img.png" alt="Immagine" style="width: 26px; height: 26px;">',
-        'xls': '<img src="immagini/xls.png" alt="XLS" style="width: 26px; height: 26px;">',
-        'xlsx': '<img src="immagini/xls.png" alt="XLSX" style="width: 26px; height: 26px;">',
-        'txt': '<img src="immagini/txt.png" alt="TXT" style="width: 26px; height: 26px;">',
-        'file': '<img src="immagini/paperclip.png" alt="File" style="width: 26px; height: 26px;">'
-    };
-    return icons[tipo] || icons['file'];
-}
-
-// variabili modali
-let allegatoToDelete = null;
-let iscrittoAllegatoToDelete = null;
-let allegatoNomeToDelete = null;
-
-function getAllegatoOverlay() {
-    let overlay = document.getElementById('allegatoOverlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'allegatoOverlay';
-        overlay.className = 'modal-overlay';
-        overlay.style.zIndex = '10001';
-        document.body.appendChild(overlay);
-        overlay.addEventListener('click', closeDeleteAllegatoModal);
-    }
-    return overlay;
-}
-
-function showDeleteAllegatoModal(idAllegato, idIscritto, nomeFile) {
-    allegatoToDelete = idAllegato;
-    iscrittoAllegatoToDelete = idIscritto;
-    allegatoNomeToDelete = nomeFile;
-
-    let modal = document.getElementById('modalDeleteAllegato');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'modalDeleteAllegato';
-        modal.className = 'modal-box danger';
-        modal.style.zIndex = '10002';
-        document.body.appendChild(modal);
-    }
-
-    const fileIcon = getFileIcon(nomeFile);
-    modal.innerHTML = `
-        <h3>Elimina allegato</h3>
-        <div style="display: flex; align-items: center; gap: 12px; margin: 15px 0; padding: 12px; background: #f5f5f5; border-radius: 8px; border: 1px solid #e0e0e0;">
-            <div style="font-size: 24px;">${fileIcon}</div>
-            <div style="flex: 1; min-width: 0;">
-                <div style="font-weight: 500; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${nomeFile}">${nomeFile}</div>
-                <div style="font-size: 12px; color: #888; margin-top: 2px;">Verrà eliminato definitivamente</div>
-            </div>
-        </div>
-        <p style="color: #d32f2f; font-size: 14px; margin-bottom: 15px;">
-            <strong>Attenzione:</strong> Questa azione non può essere annullata.
-        </p>
-        <div class="modal-actions">
-            <button class="btn-secondary" onclick="closeDeleteAllegatoModal()">Annulla</button>
-            <button class="btn-danger" id="confirmDeleteAllegatoBtn">Elimina</button>
-        </div>
-    `;
-    document.getElementById('confirmDeleteAllegatoBtn').addEventListener('click', confirmDeleteAllegato);
-    const allegatoOverlay = getAllegatoOverlay();
-    allegatoOverlay.classList.add('show');
-    modal.classList.add('show');
-    document.addEventListener('keydown', handleEscKey);
-}
-
-function handleEscKey(e) {
-    if (e.key === 'Escape') {
-        closeDeleteAllegatoModal();
-    }
-}
-
-function closeDeleteAllegatoModal() {
-    const modal = document.getElementById('modalDeleteAllegato');
-    const allegatoOverlay = document.getElementById('allegatoOverlay');
-    if (modal) modal.classList.remove('show');
-    if (allegatoOverlay) allegatoOverlay.classList.remove('show');
-    allegatoToDelete = null;
-    iscrittoAllegatoToDelete = null;
-    allegatoNomeToDelete = null;
-    document.removeEventListener('keydown', handleEscKey);
-}
-
-async function confirmDeleteAllegato() {
-    if (!allegatoToDelete || !iscrittoAllegatoToDelete) return;
-    const btn = document.getElementById('confirmDeleteAllegatoBtn');
-    if (btn) { btn.disabled = true; btn.innerText = 'Eliminazione...'; }
-    try {
-        const response = await fetch('api/api_elimina_allegato.php', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-            body: JSON.stringify({ id: allegatoToDelete })
-        });
-        const text = await response.text();
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (parseErr) {
-            throw new Error('Risposta non valida dal server: ' + text);
+        if(aggiungiEducatoreBtnMobile) {
+            aggiungiEducatoreBtnMobile.onclick = () => {
+                openModal(modalAggiungiEducatore);
+            };
         }
-        if (response.ok && data.success) {
-            const reloadId = iscrittoAllegatoToDelete;
-            closeDeleteAllegatoModal();
-            await caricaAllegatiEsistenti(reloadId);
-            // mostra popup di successo
-            successText.innerText = "Allegato eliminato!!";
-            showSuccess(successPopup);
-            setTimeout(()=>{
-                hideSuccess(successPopup);
-            }, 1600);
-        } else {
-            const msg = data.message || text || 'Impossibile eliminare l\'allegato';
-            alert('Errore: ' + msg);
-            if (btn) { btn.disabled = false; btn.innerText = 'Elimina'; }
+
+        if(aggiungiAccountBtnMobile) {
+            aggiungiAccountBtnMobile.onclick = () => {
+                openModal(modalAggiungiAccount);
+            };
         }
-    } catch (error) {
-        console.error("Errore eliminazione allegato:", error);
-        alert('Errore durante l\'eliminazione: ' + error.message);
-        if (btn) { btn.disabled = false; btn.innerText = 'Elimina'; }
-    }
-}
 
-function eliminaAllegato(idAllegato, idIscritto, nomeFile) {
-    showDeleteAllegatoModal(idAllegato, idIscritto, nomeFile);
-}
 
-async function caricaAllegatiEsistenti(idIscritto) {
-    allegatiEsistentiList.innerHTML = '<p style="color: #888; font-style: italic; width: 100%;">Caricamento...</p>';
-    try {
-        const response = await fetch(`api/api_get_allegati.php?id_iscritto=${idIscritto}`);
-        const data = await response.json();
-        if (!data.success || !data.allegati || data.allegati.length === 0) {
-            allegatiEsistentiList.innerHTML = '<p style="color: #888; font-style: italic; width: 100%;">Nessun allegato presente</p>';
-            return;
+        // Submit form
+            formAggiungiUtente.onsubmit = async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("nome", document.getElementById("utenteNome").value.trim());
+        formData.append("cognome", document.getElementById("utenteCognome").value.trim());
+        formData.append("data_nascita", document.getElementById("utenteData").value);
+        formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
+        formData.append("email", document.getElementById("utenteEmail").value.trim());
+        formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
+        formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
+        formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
+        formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value));
+        formData.append("note", document.getElementById("utenteNote").value.trim());
+        formData.append("gruppo", document.getElementById("utenteGruppo").value);
+
+        const fotoInput = document.getElementById("utenteFoto");
+        if(fotoInput.files.length > 0){
+            formData.append("foto", fotoInput.files[0]); 
         }
-        let html = '';
-        data.allegati.forEach(allegato => {
-            const icon = getAllegatoIcon(allegato.tipo);
-            const nomeFileEscaped = allegato.nome_file.replace(/'/g, "\\'").replace(/"/g, '"');
-            html += `
-                <div class="allegato-esistente" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; background: #f9f9f9; font-size: 13px;">
-                    ${icon}
-                    <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" title="${allegato.nome_file}">${allegato.nome_file}</span>
-                    <button type="button" onclick="eliminaAllegato(${allegato.id}, ${idIscritto}, '${nomeFileEscaped}')" title="Elimina allegato" style="color: #d32f2f; background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#ffebee'" onmouseout="this.style.background='none'">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        </svg>
-                    </button>
-                </div>
-            `;
-        });
-        allegatiEsistentiList.innerHTML = html;
-    } catch (error) {
-        console.error("Errore caricamento allegati esistenti:", error);
-        allegatiEsistentiList.innerHTML = '<p style="color: #d32f2f; font-style: italic; width: 100%;">Errore nel caricamento</p>';
-    }
-}
 
-// gestione lettura e upload nuovi allegati
-const allegatiInput = document.getElementById("utenteAllegati");
-const allegatiDropZone = document.getElementById("allegatiDropZone");
-const allegatiList = document.getElementById("allegatiList");
-const allegatiItems = document.getElementById("allegatiItems");
-const clearAllAllegati = document.getElementById("clearAllAllegati");
-let selectedAllegati = [];
-
-function updateAllegatiList() {
-    if (selectedAllegati.length === 0) {
-        allegatiList.style.display = 'none';
-        return;
-    }
-    allegatiList.style.display = 'block';
-    allegatiItems.innerHTML = '';
-    selectedAllegati.forEach((file, index) => {
-        const li = document.createElement('li');
-        li.className = 'allegato-item';
-        li.innerHTML = `
-            <div class="allegato-info">
-                <span class="allegato-icon">${getFileIcon(file.name)}</span>
-                <div class="allegato-details">
-                    <span class="allegato-name" title="${file.name}">${file.name}</span>
-                    <span class="allegato-size">${formatFileSize(file.size)}</span>
-                    <div class="allegato-progress" id="progress-${index}" style="display:none;"><div class="allegato-progress-bar" id="progress-bar-${index}"></div></div>
-                    <div class="allegato-status" id="status-${index}"></div>
-                </div>
-            </div>
-            <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>
-        `;
-        allegatiItems.appendChild(li);
-    });
-    document.querySelectorAll('.allegato-remove').forEach(btn => {
-        btn.onclick = function() {
-            const idx = parseInt(this.dataset.index);
-            selectedAllegati.splice(idx, 1);
-            updateAllegatiList();
-        };
-    });
-}
-
-if (allegatiInput) {
-    allegatiInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            const maxSize = 10 * 1024 * 1024;
-            const validFiles = Array.from(this.files).filter(file => {
-                if (file.size > maxSize) { alert(`File "${file.name}" troppo grande (max 10MB)`); return false; }
-                return true;
-            });
-            selectedAllegati = [...selectedAllegati, ...validFiles];
-            updateAllegatiList();
-        }
-    });
-}
-
-if (allegatiDropZone) {
-    ['dragenter','dragover','dragleave','drop'].forEach(evt => allegatiDropZone.addEventListener(evt, preventDefaults, false));
-    function preventDefaults(e){e.preventDefault();e.stopPropagation();}
-    ['dragenter','dragover'].forEach(evt => allegatiDropZone.addEventListener(evt, ()=>allegatiDropZone.classList.add('dragover'), false));
-    ['dragleave','drop'].forEach(evt => allegatiDropZone.addEventListener(evt, ()=>allegatiDropZone.classList.remove('dragover'), false));
-    allegatiDropZone.addEventListener('drop', function(e){
-        const dt = e.dataTransfer; const files = dt.files;
-        const maxSize = 10 * 1024 * 1024;
-        const validFiles = Array.from(files).filter(file=>{
-            if(file.size>maxSize){alert(`File "${file.name}" troppo grande (max 10MB)`);return false;}
-            return true;
-        });
-        selectedAllegati=[...selectedAllegati,...validFiles];
-        updateAllegatiList();
-    });
-    allegatiDropZone.addEventListener('click', function(e){
-        if(e.target.closest('.file-btn-minimal')) return;
-        allegatiInput.click();
-    });
-}
-
-if (clearAllAllegati) {
-    clearAllAllegati.onclick = function(){ selectedAllegati=[]; updateAllegatiList(); };
-}
-
-async function uploadAllegati(idIscritto){
-    if(selectedAllegati.length===0) return {success:true};
-    const results=[];
-    for(let i=0;i<selectedAllegati.length;i++){
-        const file=selectedAllegati[i];
-        const progressBar=document.getElementById(`progress-bar-${i}`);
-        const progressContainer=document.getElementById(`progress-${i}`);
-        const statusDiv=document.getElementById(`status-${i}`);
-        if(progressContainer) progressContainer.style.display='block';
-        if(statusDiv) statusDiv.textContent='Caricamento...';
-        const formData=new FormData();
-        formData.append('id_iscritto',idIscritto);
-        formData.append('allegato',file);
-        try{
-            const response=await fetch('api/api_carica_allegato.php',{method:'POST',body:formData,credentials:'include'});
-            if(!response.ok){
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            const data=await response.json();
-            if(data.success){ if(progressBar){progressBar.style.width='100%';progressBar.classList.add('complete');} if(statusDiv){statusDiv.textContent='✓ Caricato';statusDiv.classList.add('complete');} results.push({success:true,file:file.name}); }
-            else{ if(progressBar) progressBar.classList.add('error'); if(statusDiv){statusDiv.textContent='✗ Errore: '+data.message;statusDiv.classList.add('error');} results.push({success:false,file:file.name,error:data.message}); }
-        }catch(error){ if(progressBar) progressBar.classList.add('error'); if(statusDiv){statusDiv.textContent='✗ Errore di rete';statusDiv.classList.add('error');} results.push({success:false,file:file.name,error:error.message}); }
-    }
-    return results;
-}
-
-// edit attachments
-let selectedAllegatiEdit=[];
-function updateAllegatiEditList(){
-    if(selectedAllegatiEdit.length===0){allegatiEditList.style.display='none';return;}
-    allegatiEditList.style.display='block';allegatiEditItems.innerHTML='';
-    selectedAllegatiEdit.forEach((file,index)=>{
-        const li=document.createElement('li');li.className='allegato-item';
-        li.innerHTML=`
-            <div class="allegato-info">
-                <span class="allegato-icon">${getFileIcon(file.name)}</span>
-                <div class="allegato-details">
-                    <span class="allegato-name" title="${file.name}">${file.name}</span>
-                    <span class="allegato-size">${formatFileSize(file.size)}</span>
-                </div>
-            </div>
-            <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>
-        `;
-        allegatiEditItems.appendChild(li);
-    });
-    document.querySelectorAll('#allegatiEditItems .allegato-remove').forEach(btn=>{btn.onclick=function(){const idx=parseInt(this.dataset.index);selectedAllegatiEdit.splice(idx,1);updateAllegatiEditList();};});
-}
-
-const allegatiEditInput=document.getElementById("editAllegati");
-const allegatiEditDropZone=document.getElementById("allegatiEditDropZone");
-const allegatiEditList=document.getElementById("allegatiEditList");
-const allegatiEditItems=document.getElementById("allegatiEditItems");
-const clearAllEditAllegati=document.getElementById("clearAllEditAllegati");
-
-if(allegatiEditInput){
-    allegatiEditInput.addEventListener('change',function(){
-        if(this.files.length>0){
-            const maxSize=10*1024*1024;
-            const validFiles=Array.from(this.files).filter(file=>{if(file.size>maxSize){alert(`File "${file.name}" troppo grande (max 10MB)`);return false;}return true;});
-            selectedAllegatiEdit=[...selectedAllegatiEdit,...validFiles];
-            updateAllegatiEditList();
-        }
-    });
-}
-
-// drag/drop for edit
-if(allegatiEditDropZone){['dragenter','dragover','dragleave','drop'].forEach(evt=>allegatiEditDropZone.addEventListener(evt,preventDefaults,false));
-function preventDefaults(e){e.preventDefault();e.stopPropagation();}
-['dragenter','dragover'].forEach(evt=>allegatiEditDropZone.addEventListener(evt,()=>allegatiEditDropZone.classList.add('dragover'),false));
-['dragleave','drop'].forEach(evt=>allegatiEditDropZone.addEventListener(evt,()=>allegatiEditDropZone.classList.remove('dragover'),false));
-allegatiEditDropZone.addEventListener('drop',function(e){const dt=e.dataTransfer;const files=dt.files;const maxSize=10*1024*1024;const validFiles=Array.from(files).filter(file=>{if(file.size>maxSize){alert(`File "${file.name}" troppo grande (max 10MB)`);return false;}return true;});selectedAllegatiEdit=[...selectedAllegatiEdit,...validFiles];updateAllegatiEditList();});
-allegatiEditDropZone.addEventListener('click',function(e){if(e.target.closest('.file-btn-minimal'))return;allegatiEditInput.click();});}
-
-if(clearAllEditAllegati){clearAllEditAllegati.onclick=function(){selectedAllegatiEdit=[];updateAllegatiEditList();};}
-
-async function uploadAllegatiEdit(idIscritto){
-    if(selectedAllegatiEdit.length===0) return {success:true};
-    const results=[];
-    for(let i=0;i<selectedAllegatiEdit.length;i++){
-        const file=selectedAllegatiEdit[i];
-        const formData=new FormData();
-        formData.append('id_iscritto',idIscritto);
-        formData.append('allegato',file);
-        try{
-            const response=await fetch('api/api_carica_allegato.php',{method:'POST',body:formData,credentials:'include'});
-            if(!response.ok){
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            const data=await response.json();
-            results.push({success:data.success,file:file.name,error:data.message});
-        }catch(error){
-            console.error(`Errore upload file ${file.name}:`,error);
-            results.push({success:false,file:file.name,error:error.message});
-        }
-    }
-    return results;
-}
-
-// --- INVIO FORM ---
-formAggiungiUtente.addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("nome", document.getElementById("utenteNome").value.trim());
-    formData.append("cognome", document.getElementById("utenteCognome").value.trim());
-    formData.append("data_nascita", document.getElementById("utenteData").value);
-    formData.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-    formData.append("email", document.getElementById("utenteEmail").value.trim());
-    formData.append("telefono", document.getElementById("utenteTelefono").value.trim());
-
-    formData.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
-    formData.append("gruppo", document.getElementById("utenteGruppo").value);
-    formData.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
-    formData.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value) || 0);
-    formData.append("note", document.getElementById("utenteNote").value.trim());
-    
-    if (utenteFoto.files.length > 0) {
-        formData.append("foto", utenteFoto.files[0]);
-    }
-
-    try {
         const res = await fetch("api/api_aggiungi_utente.php", {
             method: "POST",
             body: formData
         });
+
         const data = await res.json();
 
-        if (data.success) {
-            // upload eventuali allegati
-            if (selectedAllegati && selectedAllegati.length > 0) {
-                await uploadAllegati(data.id);
-            }
+        if(data.success){
 
-            closeModal();
-            successText.innerText = "Utente aggiunto!!";
-            showSuccess(successPopup);
+
+            await uploadAllegati(data.id);
+
+            modalAggiungiUtente.classList.remove("show");
+            successText.innerText = "Utente Aggiunto!!";
+            showSuccess(successPopup, Overlay);
+
             setTimeout(() => {
-                hideSuccess(successPopup);
+                hideSuccess(successPopup, Overlay);
+                if(Overlay) Overlay.classList.remove("show");
                 location.reload();
-            }, 1800);
+            },1800);
+
         } else {
-            alert("Errore: " + (data.message || "Errore sconosciuto"));
+            alert("Errore: " + data.message);
         }
-    } catch (err) {
-        console.error("Errore:", err);
-        alert("Errore di comunicazione con il server");
-    }
-});
+    };
 
 
+        const utenteFoto = document.getElementById("utenteFoto");
+        const preview = document.getElementById("previewFotoMini");
+        const fileNameSpan = document.getElementById("nomeFileFoto");
+        const clearBtn = document.getElementById("clearFileBtn");
 
+        utenteFoto.addEventListener("change", function(){
 
-        // ========== MODAL PRESENZE ==========
-        const deletePresenzaBox = document.getElementById("deletePresenzaBox");
-        const formPresenze = document.getElementById("formModificaPresenza");
-        let currentPresenzeId = null;
-        let isDeleteMode = false;
-
-        function openPresenzeModal(isDelete = false, nome = '', cognome = '', avatar = ''){
-            isDeleteMode = isDelete;
-            if(isDelete){
-                formPresenze.style.display = "none";
-                deletePresenzaBox.style.display = "block";
-                document.getElementById("presenzeModalTitle").innerText = "Elimina presenza" + (nome || cognome ? ` - ${nome} ${cognome}` : '');
-                // hide header when deleting
-                document.getElementById('presenzeProfile').style.display = 'none';
-            } else {
-                formPresenze.style.display = "block";
-                deletePresenzaBox.style.display = "none";
-                document.getElementById("presenzeModalTitle").innerText = "Modifica presenza" + (nome || cognome ? ` - ${nome} ${cognome}` : '');
-                if(nome || cognome){
-                    const header = document.getElementById('presenzeProfile');
-                    header.style.display = 'flex';
-                    document.getElementById('presenzeAvatar').src = avatar || '';
-                    document.getElementById('presenzeFullname').innerText = (nome + ' ' + cognome).trim();
-                }
+            if(!this.files.length){
+                preview.style.display = "none";
+                fileNameSpan.innerText = "Nessun file";
+                clearBtn.style.display = "none"; 
+                return;
             }
-            openModal(modalPresenze);
-        }
 
-        formPresenze.addEventListener("submit", (e) => {
+            const file = this.files[0];
+
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = "block";
+
+            fileNameSpan.innerText = file.name;
+
+            clearBtn.style.display = "block"; 
+        });
+
+        // rimuove file selezionato
+        clearBtn.addEventListener("click", function(){
+            utenteFoto.value = ""; // reset input
+            preview.style.display = "none";
+            fileNameSpan.innerText = "Nessun file";
+            clearBtn.style.display = "none"; 
+        });
+
+
+
+
+        // SEZIONE ACCOUNT !!!!!!!!!!!!!!!
+
+        const aggiungiAccountBtn = document.getElementById("aggiungi-account-btn");
+        const modalAggiungiAccount = document.getElementById("modalAggiungiAccount");
+        const formAggiungiAccount = document.getElementById("formAggiungiAccount");
+        const modalModificaAccount = document.getElementById("modalModificaAccount");
+        const modalDeleteAccount = document.getElementById("modalDeleteAccount");
+
+        // Apri modal
+        aggiungiAccountBtn.onclick = () => {
+            openModal(modalAggiungiAccount);
+        };
+
+        // Submit form
+        formAggiungiAccount.onsubmit = function(e) {
             e.preventDefault();
-            const newIngresso = document.getElementById("presenzeIngresso").value; 
-            const newUscita = document.getElementById("presenzeUscita").value;      
-            
-            // Ottenere la data di oggi in formato YYYY-MM-DD
-            const today = new Date().toISOString().split('T')[0];
-            
-            // Combinare data e ora nel formato DB (YYYY-MM-DD HH:MM:SS)
-            const ingressoDb = today + ' ' + newIngresso + ':00';
-            const uscitaDb = today + ' ' + newUscita + ':00';
-            
-            fetch('api/api_modifica_presenza.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest'},
-                body: JSON.stringify({id: currentPresenzeId, ingresso: ingressoDb, uscita: uscitaDb})
-            }).then(r => r.json()).then(data => {
+
+            const nomeUtente = document.getElementById("accountNomeUtente").value.trim();
+            const password = document.getElementById("accountPassword").value.trim();
+            const classe = document.getElementById("accountClasse").value;
+            const codice = document.getElementById("accountCodice").value.trim();
+
+            if(!nomeUtente || !password || !classe || !codice){
+                alert("Compila tutti i campi!");
+                return;
+            }
+
+            fetch("api/api_aggiungi_account.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ 
+                    nome_utente: nomeUtente, 
+                    password: password,
+                    classe: classe,
+                    codice_univoco: codice
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalAggiungiAccount.classList.remove("show");
+                    successText.innerText = "Account Aggiunto!!";
+                    showSuccess(successPopup, Overlay);
+
+                    setTimeout(() => {
+                        hideSuccess(successPopup, Overlay);
+                        if(Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Errore nel caricamento!");
+            });
+        };
+
+
+        // MODIFICA ACCOUNT
+        document.querySelectorAll(".edit-account-btn").forEach(btn => {
+            btn.onclick = e => {
+                const row = btn.closest("tr");
+                const nomeUtente = row.dataset.nome_utente;
+                const classe = row.dataset.classe;
+                const codice = row.dataset.codice;
+
+                document.getElementById("editAccountNomeUtente").value = nomeUtente;
+                document.getElementById("editAccountNomeUtenteDisplay").value = nomeUtente;
+                document.getElementById("editAccountClasse").value = classe;
+                document.getElementById("editAccountCodice").value = codice;
+                document.getElementById("editAccountPassword").value = "";
+
+                openModal(modalModificaAccount);
+            }
+        });
+
+        // Salva modifica account
+        document.getElementById("salvaModificaAccount").onclick = e => {
+            e.preventDefault();
+            const nomeUtente = document.getElementById("editAccountNomeUtente").value;
+            const password = document.getElementById("editAccountPassword").value.trim();
+            const classe = document.getElementById("editAccountClasse").value;
+            const codice = document.getElementById("editAccountCodice").value.trim();
+
+            if(!classe || !codice){
+                alert("Compila tutti i campi obbligatori!");
+                return;
+            }
+
+            fetch("api/api_modifica_account.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    nome_utente: nomeUtente,
+                    password: password,
+                    classe: classe,
+                    codice_univoco: codice
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalModificaAccount.classList.remove("show");
+                    successText.innerText = "Account Modificato!!";
+                    showSuccess(successPopup, Overlay);
+
+                    setTimeout(() => {
+                        hideSuccess(successPopup, Overlay);
+                        closeModal();
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+        // ELIMINA ACCOUNT
+        let rowToDeleteAccount = null;
+        document.querySelectorAll(".delete-account-btn").forEach(btn => {
+            btn.onclick = e => {
+                rowToDeleteAccount = btn.closest("tr");
+                const nomeUtente = rowToDeleteAccount.dataset.nome_utente;
+                
+                openModal(modalDeleteAccount);
+                
+                // Aggiorna il titolo del modal
+                document.querySelector("#modalDeleteAccount h3").innerText = "Elimina account: " + nomeUtente;
+            }
+        });
+
+        document.getElementById("confirmDeleteAccount").onclick = () => {
+            if(!rowToDeleteAccount) return;
+            const nomeUtente = rowToDeleteAccount.dataset.nome_utente;
+
+            fetch("api/api_elimina_account.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({nome_utente: nomeUtente})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){       
+                    modalDeleteAccount.classList.remove("show");
+                    successText.innerText = "Account Eliminato!!";
+                    showSuccess(successPopup, Overlay);
+
+                    setTimeout(() => {
+                        hideSuccess(successPopup, Overlay);
+                        if(Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+
+                } else {
+                    alert("Errore: " + data.message);
+                }
+            });
+        };
+
+
+        // ---------- SEZIONE EDUCATORI (JS handlers) ----------
+        const aggiungiEducatoreBtn = document.getElementById("aggiungi-educatore-btn");
+        const modalAggiungiEducatore = document.getElementById("modalAggiungiEducatore");
+        const formAggiungiEducatore = document.getElementById("formAggiungiEducatore");
+        const modalModificaEducatore = document.getElementById("modalModificaEducatore");
+        const modalDeleteEducatore = document.getElementById("modalDeleteEducatore");
+
+        if(aggiungiEducatoreBtn){
+            aggiungiEducatoreBtn.onclick = () => {
+                openModal(modalAggiungiEducatore);
+            };
+        }
+
+        if(formAggiungiEducatore){
+            formAggiungiEducatore.onsubmit = function(e){
+                e.preventDefault();
+
+                const nome = document.getElementById("educatoreNome").value.trim();
+                const cognome = document.getElementById("educatoreCognome").value.trim();
+                const data_nascita = document.getElementById("educatoreData").value;
+                const codice_fiscale = document.getElementById("educatoreCF").value.trim();
+                const telefono = document.getElementById("educatoreTelefono").value.trim();
+                const mail = document.getElementById("educatoreMail").value.trim();
+
+                if(!nome || !cognome){
+                    alert("Compila tutti i campi obbligatori!");
+                    return;
+                }
+
+                fetch("api/api_aggiungi_educatore.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ nome, cognome, data_nascita, codice_fiscale, telefono, mail })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        modalAggiungiEducatore.classList.remove("show");
+                        successText.innerText = "Educatore Aggiunto!!";
+                        showSuccess(successPopup, Overlay);
+
+                        setTimeout(() => {
+                            hideSuccess(successPopup, Overlay);
+                            if(Overlay) Overlay.classList.remove("show");
+                            location.reload();
+                        }, 1400);
+                    } else {
+                        alert("Errore: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Errore nel caricamento!");
+                });
+            };
+        }
+
+        // Edit Educatore
+        document.querySelectorAll(".edit-educatore-btn").forEach(btn => {
+            btn.onclick = e => {
+                const row = btn.closest("tr");
+                const id = row.dataset.id;
+                const nome = row.children[0].innerText;
+                const cognome = row.children[1].innerText;
+                const data_nascita = row.children[2] ? row.children[2].innerText : "";
+                const codice_fiscale = row.children[3] ? row.children[3].innerText : "";
+                const telefono = row.children[4] ? row.children[4].innerText : "";
+                const mail = row.children[5] ? row.children[5].innerText : "";
+
+                document.getElementById("editEducatoreId").value = id;
+                document.getElementById("editEducatoreNome").value = nome;
+                document.getElementById("editEducatoreCognome").value = cognome;
+                document.getElementById("editEducatoreData").value = data_nascita;
+                document.getElementById("editEducatoreCF").value = codice_fiscale;
+                document.getElementById("editEducatoreTelefono").value = telefono;
+                document.getElementById("editEducatoreMail").value = mail;
+
+                openModal(modalModificaEducatore);
+            };
+        });
+
+        // Save edit educatore
+        const salvaModificaEducatoreBtn = document.getElementById("salvaModificaEducatore");
+        if(salvaModificaEducatoreBtn){
+            salvaModificaEducatoreBtn.onclick = e => {
+                e.preventDefault();
+                const id = document.getElementById("editEducatoreId").value;
+                const nome = document.getElementById("editEducatoreNome").value.trim();
+                const cognome = document.getElementById("editEducatoreCognome").value.trim();
+                const data_nascita = document.getElementById("editEducatoreData").value;
+                const codice_fiscale = document.getElementById("editEducatoreCF").value.trim();
+                const telefono = document.getElementById("editEducatoreTelefono").value.trim();
+                const mail = document.getElementById("editEducatoreMail").value.trim();
+
+                if(!nome || !cognome){
+                    alert("Compila tutti i campi obbligatori!");
+                    return;
+                }
+
+                fetch("api/api_modifica_educatore.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ id, nome, cognome, data_nascita, codice_fiscale, telefono, mail })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        modalModificaEducatore.classList.remove("show");
+                        successText.innerText = "Educatore Modificato!!";
+                        showSuccess(successPopup, Overlay);
+
+                        setTimeout(() => {
+                            hideSuccess(successPopup, Overlay);
+                            if(Overlay) Overlay.classList.remove("show");
+                            location.reload();
+                        }, 1400);
+                    } else {
+                        alert("Errore: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Errore nella modifica!");
+                });
+            };
+        }
+
+        // Delete Educatore
+        let rowToDeleteEducatore = null;
+        document.querySelectorAll(".delete-educatore-btn").forEach(btn => {
+            btn.onclick = e => {
+                rowToDeleteEducatore = btn.closest("tr");
+                const nome = rowToDeleteEducatore.children[0].innerText;
+                document.querySelector("#modalDeleteEducatore h3").innerText = "Elimina educatore: " + nome;
+                modalDeleteEducatore.classList.add("show");
+                if(Overlay) Overlay.classList.add("show");
+            };
+        });
+
+        document.getElementById("confirmDeleteEducatore")?.addEventListener("click", () => {
+            if(!rowToDeleteEducatore) return;
+            const id = rowToDeleteEducatore.dataset.id;
+
+            fetch("api/api_elimina_educatore.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ id })
+            })
+            .then(res => res.json())
+            .then(data => {
                 if(data.success){
-                    closeModal();
-                    document.getElementById("success-text").innerText = "Presenza modificata!";
-                    showSuccess(document.getElementById("successPopup"));
-                    setTimeout(()=>{
-                        hideSuccess(document.getElementById("successPopup"));
+                    modalDeleteEducatore.classList.remove("show");
+                    successText.innerText = "Educatore Eliminato!!";
+                    showSuccess(successPopup, Overlay);
+
+                    setTimeout(() => {
+                        hideSuccess(successPopup, Overlay);
+                        if(Overlay) Overlay.classList.remove("show");
                         location.reload();
                     }, 1800);
                 } else {
-                    alert("Errore: " + (data.error || 'Noto'));
+                    alert("Errore: " + data.message);
                 }
             });
         });
 
-        document.getElementById("confirmDeletePresenza").addEventListener("click", () => {
-            fetch('api/api_elimina_presenza.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json','X-Requested-With':'XMLHttpRequest'},
-                body: JSON.stringify({id: currentPresenzeId})
-            }).then(r => r.json()).then(data => {
-                if(data.success){
-                    closeModal();
-                    document.getElementById("success-text").innerText = "Presenza eliminata!";
-                    showSuccess(document.getElementById("successPopup"));
-                    setTimeout(()=>{
-                        hideSuccess(document.getElementById("successPopup"));
-                        location.reload();
-                    }, 1800);
-                } else {
-                    alert("Errore: " + (data.error || 'Noto'));
-                }
-            });
-        });
-
-        // Presenze: click handler (delegation)
-        document.addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.edit-presenza-btn');
-            if(editBtn){
-                const tr = editBtn.closest('tr');
-                currentPresenzeId = editBtn.dataset.id;
-                const ingresso = tr.dataset.ingresso || '';  
-                const uscita = tr.dataset.uscita || '';      
-                const nome = tr.dataset.nome || '';
-                const cognome = tr.dataset.cognome || '';
-                const avatar = tr.querySelector('img') ? tr.querySelector('img').src : '';
-                
-                // Estrarre solo l'ora (HH:MM)
-                const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
-                const uscitaTime = uscita.split(' ')[1]?.slice(0, 5) || '';
-                
-                document.getElementById("presenzeIngresso").value = ingressoTime;
-                document.getElementById("presenzeUscita").value = uscitaTime;
-                openPresenzeModal(false, nome, cognome, avatar);
-                return;
-            }
-
-            const delBtn = e.target.closest('.delete-presenza-btn');
-            if(delBtn){
-                const tr = delBtn.closest('tr');
-                currentPresenzeId = delBtn.dataset.id;
-                const nome = tr.dataset.nome || '';
-                const cognome = tr.dataset.cognome || '';
-                const avatar = tr.querySelector('img') ? tr.querySelector('img').src : '';
-                openPresenzeModal(true, nome, cognome, avatar);
-                return;
-            }
-        });
-
-                // ================= AGENDA =================
+    
+        
+       // ================= AGENDA =================
 let agendaData = [];
 let agendaWeekStart = null;
 let selectedDayIndex = 0;
@@ -2955,6 +3959,9 @@ window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
 
 // ========== MODAL MODIFICA AGENDA ==========
 
+const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
+const modalModificaAgenda = document.getElementById("modalModificaAgenda");
+
 
 
 // Delete Agenda
@@ -3001,18 +4008,9 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 
 
-        // Event listeners per i tab dei giorni
-        document.querySelectorAll('.day-tab').forEach((tab, index) => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                displayAgenda(index);
-            });
-        });
 
         // ========== MODAL CREA AGENDA ==========
         const creaAgendaBtn = document.getElementById("creaAgendaBtn");
-        const aggiungiAgendaBtnMobile = document.getElementById("aggiungi-agenda-btn-mobile");
         const formCreaAgenda = document.getElementById("formCreaAgenda");
         // agendaOverlay should reuse single global overlay when available
         const agendaOverlay = document.getElementById("agendaOverlay") || Overlay;
@@ -3065,9 +4063,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
         }
 
 
-
-
-
         if(agendaOverlay) {
             agendaOverlay.onclick = () => {
                 closeModal();
@@ -3106,13 +4101,12 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     })
                     .filter(id => !isNaN(id) && id > 0);
 
-                // costruisci mappa gruppo per ogni ragazzo selezionato
                 const ragazzi_gruppo = {};
                 Array.from(ragazziCheckboxes).forEach(cb => {
                     const id = parseInt(cb.value, 10);
                     if(isNaN(id) || id <= 0) return;
                     const sel = cb.closest('label').querySelector('.ragazzo-gruppo');
-                    if(sel) {
+                    if(sel){
                         ragazzi_gruppo[id] = parseInt(sel.value, 10) === 1 ? 1 : 0;
                     } else {
                         ragazzi_gruppo[id] = 0;
@@ -3144,9 +4138,10 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                     ragazzi_gruppo: ragazzi_gruppo
                 };
                 console.log("Payload:", payload);
-
+                
                 fetch("api/api_aggiungi_agenda.php", {
                     method: "POST",
+
                     headers: {
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest"
@@ -3306,8 +4301,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 
 
-
- document.addEventListener("DOMContentLoaded", () => {
+   document.addEventListener("DOMContentLoaded", () => {
     const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
     const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
     const modalResoconto = document.getElementById("modalResocontoGiorni");
@@ -3316,6 +4310,16 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
     let currentIscritto = null;
     let mobileCalendarInstance = null;
+    let resocontoCurrentData = {
+        nome: '',
+        cognome: '',
+        mese: '',
+        giorniData: [],
+        attivitaMensili: [],
+        totalOre: 0,
+        totalCosto: 0,
+        giorniPresenza: 0
+    };
 
 
     // CARICAMENTO INIZIALE MENSILE
@@ -3404,16 +4408,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
     // Variabile per tracciare il mese corrente nel modal
     let currentModalMese = null;
-    let resocontoCurrentData = {
-        nome: '',
-        cognome: '',
-        mese: '',
-        giorniData: [],
-        attivitaMensili: [],
-        totalOre: 0,
-        totalCosto: 0,
-        giorniPresenza: 0
-    };
 
     // FUNZIONE CARICA RESOCONTO GIORNI CON ATTIVITÀ E CALENDARIO MOBILE
 
@@ -3593,7 +4587,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                 const [anno, mese] = meseDaUsare.split('-');
                 
                 if(mobileCalendarInstance) {
-                    // Aggiorna calendario esistente (e cambia mese se necessario)
+                    // Aggiorna calendario esistente (e sincronizza mese)
                     const newDate = new Date(parseInt(anno), parseInt(mese) - 1, 1);
                     if (mobileCalendarInstance) {
                         const currentYear = mobileCalendarInstance.currentDate.getFullYear();
@@ -3610,7 +4604,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
                         activitiesData: activitiesData,
                         activitiesPanel: '#mc-activities-panel',
                         onDayClick: function(dateStr, activities) {
-                            console.log('Giorno selezionato:', dateStr, activities);
+                            console.log('Giorno selezionato:', dateStr, attività);
                         },
                         onMonthChange: function(nuovaData) {
                             const nuovoAnno = nuovaData.getFullYear();
@@ -3919,7 +4913,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 });
 
 
-
         flatpickr("#resocontiMeseFiltro", {
             plugins: [
                 new monthSelectPlugin({ 
@@ -3932,17 +4925,7 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             altInput: true
         });
 
-        flatpickr("#resocontoMese", {
-            plugins: [
-                new monthSelectPlugin({ 
-                    shorthand: false,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y"
-                })
-            ],
-            defaultDate: new Date(),
-            altInput: true
-        });
+
 
         // Salva stato sidebar
         const checkboxInput = document.getElementById('checkbox-input');
@@ -3988,7 +4971,6 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
             const d = date.getDate().toString().padStart(2,'0');
             return `${y}-${m}-${d}`;
         }
-
 
          // Mobile tab switching function
         function switchTab(tabId, navItem) {
@@ -4048,9 +5030,12 @@ document.getElementById("confirmDeleteAgenda").onclick = () => {
 
 
 
+
     </script>
 
+<script src="js/mobile-calendar.js"></script>
 
 </body>
+
 
 </html>

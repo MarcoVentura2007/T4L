@@ -138,3 +138,7 @@ Stack trace:
 [27-Feb-2026 14:27:17 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
 [27-Feb-2026 14:27:17 Europe/Berlin] PHP Warning:  Undefined variable $oldFotografia in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 115
 [27-Feb-2026 14:28:43 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
+[06-Mar-2026 10:58:48 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
+[06-Mar-2026 11:05:04 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
+[06-Mar-2026 11:07:33 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
+[06-Mar-2026 11:08:21 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
