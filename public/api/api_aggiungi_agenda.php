@@ -28,7 +28,8 @@ if (!isset($_SESSION['username'])) {
 /* =========================
    DB
    ========================= */
-$conn = new mysqli("localhost", "root", "", "time4all");
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     fail('Connessione DB fallita', ['details' => $conn->connect_error]);
 }

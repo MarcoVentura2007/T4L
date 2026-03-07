@@ -18,8 +18,12 @@ if(!isset($_SESSION['username'])){
 }
 
 // Connessione al DB
-$host="localhost"; $user="root"; $pass=""; $db="time4allergo";
-$conn = new mysqli($host,$user,$pass,$db); if($conn->connect_error){ echo json_encode(['success'=>false,'message'=>$conn->connect_error]); exit; }
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4allergo');
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'message' => $conn->connect_error]);
+    exit;
+}
 
 // --- CONTROLLO RUOLO: solo Contabile o Amministratore possono eliminare utenti ---
 $stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");

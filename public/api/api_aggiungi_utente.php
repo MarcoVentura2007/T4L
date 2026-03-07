@@ -60,12 +60,8 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
 }
 
 // Connessione DB
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "time4all";
-
-$conn = new mysqli($host, $user, $pass, $db);
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connessione DB fallita: ' . $conn->connect_error]);
     exit;

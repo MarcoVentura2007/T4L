@@ -11,12 +11,8 @@ if (!isset($_SESSION['username'])) {
 }
 
 // Connessione DB
-$host = "localhost";    
-$user = "root";         
-$pass = "";             
-$db   = "time4all"; 
-
-$conn = new mysqli($host, $user, $pass, $db);
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     http_response_code(500);
     echo json_encode(['error' => 'Connessione fallita: ' . $conn->connect_error]);

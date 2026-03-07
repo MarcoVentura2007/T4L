@@ -21,12 +21,8 @@ $ingresso = $input['ingresso'];
 $uscita = $input['uscita'];
 
 // Connessione DB
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "time4all";
-
-$conn = new mysqli($host, $user, $pass, $db);
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connessione fallita: '.$conn->connect_error]);
     exit;

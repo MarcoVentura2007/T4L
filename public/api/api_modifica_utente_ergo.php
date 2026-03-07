@@ -17,13 +17,10 @@ if(!$input || !isset($input['id'])){
     exit;
 }
 
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "time4allergo";
-
-$conn = new mysqli($host, $user, $pass, $db);
-if($conn->connect_error){
+// Connessione al DB
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4allergo');
+if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connessione fallita']);
     exit;
 }

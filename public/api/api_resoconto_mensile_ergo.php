@@ -16,7 +16,9 @@ if(!isset($data['mese'])){
 
 list($anno, $mese) = explode('-', $data['mese']);
 
-$conn = new mysqli("localhost","root","","time4allergo");
+// Connessione al DB
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4allergo');
 if ($conn->connect_error) {
     echo json_encode(['success'=>false,'error'=>'Connessione DB fallita']);
     exit;

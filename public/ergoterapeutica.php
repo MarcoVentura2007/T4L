@@ -14,15 +14,8 @@ unset($_SESSION['codice_verificato']);
 unset($_SESSION['codice_verificato_time']);
 
 // Connessione al DB
-$host = "localhost";    
-$user = "root";         
-$pass = "";             
-$db   = "time4all"; 
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
-}
+require __DIR__ . '/../data/db_connection.php';
+$conn = getDbConnection('time4all');
 
 // Prendi la classe dell'utente loggato
 $resultClasse = $conn->query("SELECT classe FROM Account WHERE nome_utente = '$username'");

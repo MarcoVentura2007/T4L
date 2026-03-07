@@ -11,15 +11,8 @@ $username = $_SESSION['username'];
 // ===============================
 //  1️⃣ Connessione al DB Account (vecchio DB)
 // ===============================
-$hostAccount = "localhost";
-$userAccount = "root";
-$passAccount = "";
-$dbAccount   = "time4all"; // DB dove c'è Account
-
-$connAccount = new mysqli($hostAccount, $userAccount, $passAccount, $dbAccount);
-if($connAccount->connect_error){
-    die("Connessione DB Account fallita: " . $connAccount->connect_error);
-}
+require __DIR__ . '/../data/db_connection.php';
+$connAccount = getDbConnection('time4all');
 
 
 
@@ -38,10 +31,10 @@ if($resultClasse && $resultClasse->num_rows > 0){
 }
 
 $stmtClasse->close();
-$connAccount->close();
 
 // Se non amministratore → redirect
 if($classe !== 'Amministratore'){
+    $connAccount->close();
     header("Location: index.php");
     exit;
 }
@@ -49,21 +42,12 @@ if($classe !== 'Amministratore'){
 // ===============================
 //  2️⃣ Connessione al nuovo DB time4allergo
 // ===============================
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "time4allergo";
-
-$conn = new mysqli($host, $user, $pass, $db);
-if($conn->connect_error){
-    die("Connessione DB time4allergo fallita: " . $conn->connect_error);
-}
+$conn = getDbConnection('time4allergo');
 
 // Preleva gli account dal DB (per la sezione Account) - usa la connessione time4all
-$connAccount2 = new mysqli($hostAccount, $userAccount, $passAccount, $dbAccount);
 $sqlAccount = "SELECT nome_utente, codice_univoco, classe FROM Account ORDER BY nome_utente ASC";
-$resultAccount = $connAccount2->query($sqlAccount);
-$connAccount2->close();
+$resultAccount = $connAccount->query($sqlAccount);
+$connAccount->close();
 
 // Preleva iscritti
 $sql = "

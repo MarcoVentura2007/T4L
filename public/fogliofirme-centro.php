@@ -9,16 +9,9 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-// Connessione al DB XAMPP
-$host = "localhost";    // server
-$user = "root";         // utente XAMPP
-$pass = "";             // password di default
-$db   = "time4all"; // nome del database
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
-}
+// Connessione al DB
+require __DIR__ . '/../data/db_connection.php';
+$conn = getDbConnection('time4all');
 
 // Prendi la classe dell'utente loggato
 $resultClasse = $conn->query("SELECT classe, codice_univoco FROM Account WHERE nome_utente = '$username'");

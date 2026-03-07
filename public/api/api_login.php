@@ -39,12 +39,8 @@ if (file_exists(USER_FILE)) {
 */
 
 // Connessione al DB XAMPP
-$host = "localhost";    // server
-$user = "root";         // utente XAMPP
-$pass = "";             // password di default
-$db   = "time4all"; // nome del database
-
-$conn = new mysqli($host, $user, $pass, $db);
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);
 }

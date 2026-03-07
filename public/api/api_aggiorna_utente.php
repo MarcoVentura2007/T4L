@@ -22,12 +22,8 @@ if(!isset($_SESSION['username'])){
 // --- FINE BLOCCO ---
 
 // Connessione al DB
-$host = "localhost";    
-$user = "root";         
-$pass = "";             
-$db   = "time4all"; 
-
-$conn = new mysqli($host, $user, $pass, $db);
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]));
 }

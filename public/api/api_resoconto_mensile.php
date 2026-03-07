@@ -11,7 +11,9 @@ if(!isset($_SESSION['username'])){
 $data = json_decode(file_get_contents("php://input"), true);
 list($anno, $mese) = explode('-', $data['mese']);
 
-$conn = new mysqli("localhost","root","","time4all");
+// Connessione al DB
+require __DIR__ . '/../../data/db_connection.php';
+$conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     echo json_encode(['success'=>false,'error'=>'Connessione DB fallita']);
     exit;
