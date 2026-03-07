@@ -108,7 +108,9 @@ $stmt_ragazzi = $conn->prepare("SELECT
                     i.nome AS ragazzo_nome,
                     i.cognome AS ragazzo_cognome,
                     i.fotografia AS ragazzo_fotografia,
-                    p.presenza_effettiva AS effettiva_presenza
+                    i.Gruppo AS ragazzo_gruppo_default,
+                    p.presenza_effettiva AS effettiva_presenza,
+                    p.gruppo AS ragazzo_gruppo
                 FROM partecipa p
                 INNER JOIN iscritto i ON p.ID_Ragazzo = i.id
                 WHERE p.Data BETWEEN ? AND ?
@@ -131,12 +133,19 @@ if ($result_ragazzi) {
         $key = $row['ID_Attivita'] . '_' . $row['Data'] . '_' . substr($row['Ora_Inizio'], 0, 5) . '_' . substr($row['Ora_Fine'], 0, 5);
         if (!isset($ragazzi_per_attivita[$key])) $ragazzi_per_attivita[$key] = [];
 
+        // Use p.gruppo if set in agenda, otherwise fallback to default i.Gruppo
+        $gruppo_val = $row['ragazzo_gruppo'];
+        if ($gruppo_val === null || $gruppo_val === '') {
+            $gruppo_val = $row['ragazzo_gruppo_default'];
+        }
+
         $ragazzi_per_attivita[$key][] = [
             'id' => $row['ragazzo_id'],
             'nome' => $row['ragazzo_nome'],
             'cognome' => $row['ragazzo_cognome'],
             'fotografia' => $row['ragazzo_fotografia'],
-            'effettiva_presenza' => (bool)$row['effettiva_presenza']
+            'effettiva_presenza' => (bool)$row['effettiva_presenza'],
+            'gruppo' => $gruppo_val
         ];
     }
 }

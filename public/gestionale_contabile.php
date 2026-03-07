@@ -849,8 +849,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         echo '<label class="checkbox-item">';
                                         echo '<input type="checkbox" class="ragazzo-checkbox" value="'.htmlspecialchars($row['id']).'"> ';
                                         echo '<span>'.htmlspecialchars($row['nome'].' '.$row['cognome']).'</span>';
-                                        echo '<select class="ragazzo-gruppo" style="margin-left:8px;">
-                                                <option value="0" selected>Ind</option>
+                                        echo '<select class="ragazzo-gruppo" style="margin-left:8px; display:none;">
+                                                <option value="0" selected>Individuale</option>
                                                 <option value="1">Gruppo</option>
                                             </select>';
                                         echo '</label>';
@@ -3896,10 +3896,13 @@ function displayAgenda(dayIndex){
         // ragazzi unici
         const ragazziPhotos = Array.from(
             new Map(att.ragazzi.map(r=>[r.id,r])).values()
-               ).map(r=>`<div class="ragazzo-item">
+               ).map(r=>{
+                   const gruppoLabel = r.gruppo == 1 ? ' (Gruppo)' : ' (Individuale)';
+                   return `<div class="ragazzo-item">
             <img src="${r.fotografia}" alt="${r.nome} ${r.cognome}" class="ragazzo-avatar">
             <span class="ragazzo-cognome">${r.cognome}</span>
-</div>`).join('') || '—';
+            <span class="ragazzo-gruppo-label" style="display:block; font-size:0.85em; color:#666;">${gruppoLabel}</span>
+</div>`}).join('') || '—';
 
         html += `
         <div class="activity-card" data-id="${att.id}">
@@ -3949,6 +3952,16 @@ document.querySelectorAll('.day-tab').forEach((tab,index)=>{
 
 // carica agenda al load
 window.addEventListener('DOMContentLoaded',()=>{ loadAgenda(); });
+
+        // Show/hide ragazzo-gruppo dropdown based on checkbox state - runs on page load
+        document.querySelectorAll('.ragazzo-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const gruppoSelect = this.closest('label').querySelector('.ragazzo-gruppo');
+                if (gruppoSelect) {
+                    gruppoSelect.style.display = this.checked ? 'inline-block' : 'none';
+                }
+            });
+        });
 
 // ========== MODAL MODIFICA AGENDA ==========
 

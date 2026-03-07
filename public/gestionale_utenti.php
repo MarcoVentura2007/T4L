@@ -3850,10 +3850,14 @@ function displayAgenda(dayIndex){
         // ragazzi unici
         const ragazziPhotos = Array.from(
             new Map(att.ragazzi.map(r=>[r.id,r])).values()
-               ).map(r=>`<div class="ragazzo-item">
+               ).map(r=>{
+                   const gruppoLabel = r.gruppo == 1 ? ' (Gruppo)' : ' (Individuale)';
+                   return `<div class="ragazzo-item">
             <img src="${r.fotografia}" alt="${r.nome} ${r.cognome}" class="ragazzo-avatar">
             <span class="ragazzo-cognome">${r.cognome}</span>
-</div>`).join('') || '—';
+            <span class="ragazzo-gruppo-label" style="display:block; font-size:0.85em; color:#666;">${gruppoLabel}</span>
+</div>`;
+               }).join('') || '—';
 
         html += `
         <div class="activity-card" data-id="${att.id}">
