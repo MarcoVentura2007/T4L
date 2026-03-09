@@ -49,6 +49,10 @@ if ($result->num_rows > 0) {
 }
 
 $conn->close();
+
+$assetBase = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
+$styleHref = ($assetBase !== '' ? $assetBase : '') . '/style.css?v=20260309';
+$faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 ?>
 
 <script>
@@ -63,19 +67,31 @@ var userMap = <?php echo json_encode($userMap); ?>;
 
 <title>T4L | Selezione</title>
 
-<link rel="icon" href="immagini/Icona.ico">
-<link rel="stylesheet" href="style.css">
+<link rel="icon" href="<?php echo htmlspecialchars($faviconHref, ENT_QUOTES, 'UTF-8'); ?>">
+<link rel="stylesheet" href="<?php echo htmlspecialchars($styleHref, ENT_QUOTES, 'UTF-8'); ?>">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
+<style>
+/* Fallback: evita SVG gigantesche se il CSS principale non viene caricato */
+.faceid-header-icon svg,
+.faceid-capture-btn svg,
+.faceid-result-icon svg,
+.button .svgIcon {
+    width: 24px;
+    height: 24px;
+}
+</style>
+
 </head>
 
 <body>
 
-<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
+
+<!-- LOADER TIKTOK-STYLE - Time4All Branded 
 <div id="page-loader" class="show">
 <div class="logo-pulse-loader">
     <div class="logo-pulse-ring"></div>
@@ -86,6 +102,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
     <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
 </div>
 
+-->
  
 
  <script src="js/loader.js"></script>
@@ -205,19 +222,57 @@ var userMap = <?php echo json_encode($userMap); ?>;
     <!-- CONTENUTO PRINCIPALE -->
     <main class="carousel-dashboard">
 
-        <h1 class="carousel-title">
-            Riconoscimento Facciale per Presenze
-        </h1>
+        
 
-        <p class="carousel-subtitle">
-            Posizionati davanti alla webcam e scatta per verificare la tua identità
-        </p>
+        <!-- FACE ID MODERN CONTAINER -->
+        <div class="faceid-container">
+            <div class="faceid-header">
+                <div class="faceid-header-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1s-1-.45-1-1V11zm4 8c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2z"/>
+                    </svg>
+                </div>
+                <h2>Riconoscimento Facciale</h2>
+                <p>Posizionati davanti alla webcam e assicurati che il tuo volto sia ben visibile</p>
+            </div>
 
-        <div style="text-align: center; margin: 20px;">
-            <video id="video" width="320" height="240" autoplay style="border: 1px solid #ccc;"></video><br>
-            <button id="snap" style="margin-top: 10px; padding: 10px 20px; background-color: aqua; border: none; cursor: pointer;">Scatta e verifica</button>
+            <div class="faceid-video-wrapper">
+                <video id="video" width="320" height="240" autoplay></video>
+                
+                <!-- Scanning overlay -->
+                <div class="faceid-scan-overlay" id="scanOverlay">
+                    <div class="faceid-scan-line"></div>
+                    <div class="faceid-corners">
+                        <div class="faceid-corner top-left"></div>
+                        <div class="faceid-corner top-right"></div>
+                        <div class="faceid-corner bottom-left"></div>
+                        <div class="faceid-corner bottom-right"></div>
+                    </div>
+                </div>
+            </div>
+            
             <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
-            <pre id="output" style="margin-top: 10px; font-family: monospace;"></pre>
+            
+            <!-- Modern Capture Button -->
+            <button id="snap" class="faceid-capture-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7v-2z"/>
+                </svg>
+                <span>Scatta e verifica</span>
+            </button>
+
+            <!-- Result Display -->
+            <div id="faceidResult" class="faceid-result">
+                <div class="faceid-result-icon">
+                    <svg id="resultIcon" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                </div>
+                <div class="faceid-result-content">
+                    <div id="resultTitle" class="faceid-result-title"></div>
+                    <div id="resultMessage" class="faceid-result-message"></div>
+                </div>
+            </div>
         </div>
 
         <!-- POPUP OVERLAY -->
@@ -379,7 +434,13 @@ var userMap = <?php echo json_encode($userMap); ?>;
         const video = document.getElementById("video");
         const canvas = document.getElementById("canvas");        
         const snap = document.getElementById("snap");
-        const output = document.getElementById("output");
+        const scanOverlay = document.getElementById("scanOverlay");
+        
+        // Result elements
+        const faceidResult = document.getElementById("faceidResult");
+        const resultIcon = document.getElementById("resultIcon");
+        const resultTitle = document.getElementById("resultTitle");
+        const resultMessage = document.getElementById("resultMessage");
 
         // WEBCAM ACCESS
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -388,11 +449,45 @@ var userMap = <?php echo json_encode($userMap); ?>;
             })
             .catch(err => {
                 console.error("Errore accesso webcam:", err);
-                output.textContent = "Errore accesso webcam";
+                showFaceIDResult('error', 'Errore webcam', 'Impossibile accedere alla fotocamera. Verifica i permessi.');
             });
+
+        // Function to show Face ID results
+        function showFaceIDResult(type, title, message) {
+            // Remove old classes
+            faceidResult.classList.remove('success', 'error', 'info');
+            
+            // Add new class and show
+            faceidResult.classList.add(type);
+            faceidResult.classList.add('show');
+            
+            // Update content
+            resultTitle.textContent = title;
+            resultMessage.textContent = message;
+            
+            // Update icon based on type
+            if (type === 'success') {
+                resultIcon.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
+            } else if (type === 'error') {
+                resultIcon.innerHTML = '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>';
+            } else {
+                resultIcon.innerHTML = '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>';
+            }
+            
+            // Auto hide after 8 seconds for success
+            if (type === 'success') {
+                setTimeout(() => {
+                    faceidResult.classList.remove('show');
+                }, 8000);
+            }
+        }
 
         // SNAP AND VERIFY
         snap.addEventListener("click", () => {
+            // Show scanning animation
+            scanOverlay.classList.add('active');
+            snap.classList.add('capturing');
+            
             const ctx = canvas.getContext("2d");
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -407,12 +502,17 @@ var userMap = <?php echo json_encode($userMap); ?>;
                     })
                     .then(text => {
                         console.log("DEBUG: Response text:", text);
+                        
+                        // Hide scanning animation
+                        scanOverlay.classList.remove('active');
+                        snap.classList.remove('capturing');
+                        
                         try {
                             const data = JSON.parse(text);
                             console.log("DEBUG: Parsed data:", data);
 
                             if (data.result && data.result.error) {
-                                output.textContent = "Errore: " + data.result.error;
+                                showFaceIDResult('error', 'Errore', data.result.error || 'Si è verificato un errore durante il riconoscimento.');
                                 console.error("DEBUG: Error in result:", data.result);
                                 if (data.result.raw) {
                                     console.log("DEBUG: Raw Python output:", data.result.raw);
@@ -420,14 +520,13 @@ var userMap = <?php echo json_encode($userMap); ?>;
                                 return;
                             }
                             if (!data.result) {
-                                output.textContent = "Risposta non valida dal server";
+                                showFaceIDResult('error', 'Errore server', 'Risposta non valida dal server');
                                 console.error("DEBUG: No result in response:", data);
                                 return;
                             }
 
                             if (data.result.known) {
                                 const recognizedName = data.result.name;
-                                output.textContent = "VOLTO RICONOSCIUTO: " + recognizedName;
                                 console.log("DEBUG: Face recognized:", recognizedName);
 
                                 // Check if recognized name is in userMap
@@ -435,33 +534,43 @@ var userMap = <?php echo json_encode($userMap); ?>;
                                     const userId = userMap[recognizedName];
                                     console.log("DEBUG: User authorized, opening popup for ID:", userId);
 
-                                    // For now, set popup with name, and placeholder img
-                                    const imgSrc = "immagini/profile-picture.png"; // placeholder
-                                    img1.src = imgSrc;
-                                    name1.textContent = recognizedName;
-                                    img2.src = imgSrc;
-                                    name2.textContent = recognizedName;
-                                    selectedIdIscritto = userId;
+                                    // Show success result first
+                                    showFaceIDResult('success', 'Volto riconosciuto!', 'Ciao ' + recognizedName + ', attendi un momento...');
 
-                                    overlay.classList.add("show");
-                                    timePopup.classList.add("show");
-                                    document.body.classList.add("popup-open");
+                                    // Then open the time popup after a short delay
+                                    setTimeout(() => {
+                                        const imgSrc = "immagini/profile-picture.png";
+                                        img1.src = imgSrc;
+                                        name1.textContent = recognizedName;
+                                        img2.src = imgSrc;
+                                        name2.textContent = recognizedName;
+                                        selectedIdIscritto = userId;
+
+                                        overlay.classList.add("show");
+                                        timePopup.classList.add("show");
+                                        document.body.classList.add("popup-open");
+                                        
+                                        // Hide Face ID result when popup opens
+                                        faceidResult.classList.remove('show');
+                                    }, 1500);
                                 } else {
-                                    output.textContent = "Utente riconosciuto ma non autorizzato per oggi.";
+                                    showFaceIDResult('info', 'Attenzione', 'Utente riconosciuto (' + recognizedName + ') ma non autorizzato per oggi.');
                                     console.log("DEBUG: User recognized but not authorized today");
                                 }
                             } else {
-                                output.textContent = "VOLTO NON RICONOSCIUTO";
+                                showFaceIDResult('error', 'Volto non riconosciuto', 'Il volto non è stato riconosciuto. Riprova posizionandoti meglio davanti alla webcam.');
                                 console.log("DEBUG: Face not recognized");
                             }
                         } catch (e) {
                             console.error("DEBUG: JSON parse error:", e);
-                            output.textContent = "Errore parsing JSON";
+                            showFaceIDResult('error', 'Errore', 'Errore durante l\'elaborazione della risposta.');
                         }
                     })
                     .catch(err => {
                         console.error("DEBUG: Fetch error:", err);
-                        output.textContent = "Errore comunicazione server";
+                        scanOverlay.classList.remove('active');
+                        snap.classList.remove('capturing');
+                        showFaceIDResult('error', 'Errore di connessione', 'Impossibile comunicare con il server. Riprova.');
                     });
             }, "image/png");
         });

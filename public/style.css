@@ -5900,3 +5900,399 @@ section h3 {
         font-size: 0.9rem;
     }
 }
+
+/* ================================
+   FACE ID PRESENZE ERGO - NEW STYLES
+================================ */
+
+/* Face ID Container */
+.faceid-container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 40px 30px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 24px;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.15),
+        0 8px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.faceid-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.faceid-header-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #0b516c 0%, #1e90ff 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(11, 81, 108, 0.35);
+}
+
+.faceid-header-icon svg {
+    width: 36px;
+    height: 36px;
+    fill: white;
+}
+
+.faceid-header h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.faceid-header p {
+    font-size: 0.95rem;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+/* Video Wrapper */
+.faceid-video-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #111827;
+    box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.3),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.faceid-video-wrapper video {
+    width: 100%;
+    display: block;
+    transform: scaleX(-1);
+}
+
+/* Scanning Animation */
+.faceid-scan-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.faceid-scan-overlay.active {
+    opacity: 1;
+}
+
+.faceid-scan-line {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #00ff88, transparent);
+    box-shadow: 0 0 15px #00ff88, 0 0 30px #00ff88;
+    animation: scanMove 2s ease-in-out infinite;
+}
+
+.faceid-scan-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 15%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+}
+
+@keyframes scanMove {
+    0%, 100% { top: 20%; opacity: 0; }
+    10% { opacity: 1; }
+    50% { top: 70%; opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 80%; opacity: 0; }
+}
+
+/* Corner brackets */
+.faceid-corners {
+    position: absolute;
+    inset: 12%;
+    pointer-events: none;
+}
+
+.faceid-corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-color: #00ff88;
+    border-style: solid;
+    border-width: 0;
+}
+
+.faceid-corner.top-left {
+    top: 0;
+    left: 0;
+    border-top-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 8px;
+}
+
+.faceid-corner.top-right {
+    top: 0;
+    right: 0;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-top-right-radius: 8px;
+}
+
+.faceid-corner.bottom-left {
+    bottom: 0;
+    left: 0;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-bottom-left-radius: 8px;
+}
+
+.faceid-corner.bottom-right {
+    bottom: 0;
+    right: 0;
+    border-bottom-width: 3px;
+    border-right-width: 3px;
+    border-bottom-right-radius: 8px;
+}
+
+/* Capture Button */
+.faceid-capture-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    background: linear-gradient(135deg, #0b516c 0%, #0d6a8a 50%, #1e90ff 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 8px 25px rgba(11, 81, 108, 0.4),
+        0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.faceid-capture-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.faceid-capture-btn:hover::before {
+    transform: translateX(100%);
+}
+
+.faceid-capture-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 12px 35px rgba(11, 81, 108, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.faceid-capture-btn:active {
+    transform: translateY(-1px);
+}
+
+.faceid-capture-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.faceid-capture-btn.capturing {
+    background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+    pointer-events: none;
+}
+
+.faceid-capture-btn.capturing svg {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+/* Result Display */
+.faceid-result {
+    margin-top: 24px;
+    padding: 20px;
+    border-radius: 16px;
+    display: none;
+    align-items: center;
+    gap: 16px;
+    animation: resultSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faceid-result.show {
+    display: flex;
+}
+
+@keyframes resultSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.faceid-result.success {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #6ee7b7;
+}
+
+.faceid-result.error {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fca5a5;
+}
+
+.faceid-result.info {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #93c5fd;
+}
+
+.faceid-result-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.faceid-result.success .faceid-result-icon {
+    background: #10b981;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.faceid-result.error .faceid-result-icon {
+    background: #ef4444;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.faceid-result.info .faceid-result-icon {
+    background: #3b82f6;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.faceid-result-icon svg {
+    width: 26px;
+    height: 26px;
+    fill: white;
+}
+
+.faceid-result.success .faceid-result-icon svg {
+    animation: checkPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faceid-result.error .faceid-result-icon svg {
+    animation: xPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes checkPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+@keyframes xPop {
+    0% { transform: scale(0) rotate(-45deg); }
+    50% { transform: scale(1.3) rotate(0deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+.faceid-result-content {
+    flex: 1;
+}
+
+.faceid-result-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.faceid-result.success .faceid-result-title {
+    color: #065f46;
+}
+
+.faceid-result.error .faceid-result-title {
+    color: #991b1b;
+}
+
+.faceid-result.info .faceid-result-title {
+    color: #1e40af;
+}
+
+.faceid-result-message {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.4;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .faceid-container {
+        padding: 30px 20px;
+        border-radius: 20px;
+        margin: 0 16px;
+    }
+    
+    .faceid-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .faceid-header-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .faceid-header-icon svg {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .faceid-video-wrapper {
+        max-width: 300px;
+    }
+    
+    .faceid-capture-btn {
+        padding: 16px 28px;
+        font-size: 1rem;
+    }
+    
+    .faceid-result {
+        padding: 16px;
+    }
+    
+    .faceid-result-icon {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .faceid-result-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+}
