@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Feb 26, 2026 alle 19:35
+-- Creato il: Mar 09, 2026 alle 09:15
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -56,6 +56,13 @@ CREATE TABLE `allegati` (
   `ID_Iscritto` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dump dei dati per la tabella `allegati`
+--
+
+INSERT INTO `allegati` (`id`, `file`, `ID_Iscritto`) VALUES
+(5, 'allegati/1772870990_resoconto_Moretti_2026-02__3_.pdf', 49);
+
 -- --------------------------------------------------------
 
 --
@@ -76,7 +83,7 @@ INSERT INTO `attivita` (`id`, `Nome`, `Descrizione`) VALUES
 (29, 'Maia & Tas', 'Apparecchiare e pulire'),
 (30, 'Bowling', 'Attività ricreativa stimolante'),
 (32, 'Rifiutando', 'Raccolta rifiuti'),
-(33, 'Zoo', '/');
+(33, 'Zoo', '/.');
 
 -- --------------------------------------------------------
 
@@ -120,6 +127,7 @@ CREATE TABLE `iscritto` (
   `Allergie_Intolleranze` varchar(255) NOT NULL,
   `Note` varchar(500) NOT NULL,
   `Prezzo_Orario` decimal(10,2) NOT NULL,
+  `Prezzo_Orario_Gruppo` decimal(10,2) NOT NULL,
   `Fotografia` varchar(255) NOT NULL,
   `Gruppo` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -128,13 +136,13 @@ CREATE TABLE `iscritto` (
 -- Dump dei dati per la tabella `iscritto`
 --
 
-INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale`, `Email`, `Telefono`, `Disabilita`, `Allergie_Intolleranze`, `Note`, `Prezzo_Orario`, `Fotografia`, `Gruppo`) VALUES
-(28, 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', '---', 9.00, 'immagini/1771404276_1.jpeg', 0),
-(36, 'Cristian', 'Moretti', '2000-01-01', '---', '---', '', '-', '-', '-', 10.00, 'immagini/5.jpeg', 0),
-(38, 'Luca', 'Verzeri', '2000-02-01', '-----', '-----', '', '-', '-', '-', 15.00, 'immagini/4.jpeg', 0),
-(45, 'Giorgia', 'Guerini Rocco', '2000-01-01', '------', '-----—', '', '------', '------', '-', 12.00, 'immagini/3.jpeg', 0),
-(49, 'Gabriele', 'Corona', '2000-10-10', '------------', '231', '', '-', '-', '-', 8.00, 'immagini/6.jpeg', 0),
-(50, 'Davide', 'Nicu', '2001-09-15', '- - - -', '-', '', '-', '-', '-', 9.00, 'immagini/2.jpeg', 0);
+INSERT INTO `iscritto` (`id`, `Nome`, `Cognome`, `Data_nascita`, `Codice_fiscale`, `Email`, `Telefono`, `Disabilita`, `Allergie_Intolleranze`, `Note`, `Prezzo_Orario`, `Prezzo_Orario_Gruppo`, `Fotografia`, `Gruppo`) VALUES
+(28, 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', '---', 9.00, 0.00, 'immagini/1772870962_1.jpeg', 0),
+(36, 'Cristian', 'Moretti', '2000-01-01', '---', '---', '', '-', '-', '-', 10.00, 0.00, 'immagini/5.jpeg', 0),
+(38, 'Luca', 'Verzeri', '2000-02-01', '-----', '-----', '', '-', '-', '-', 15.00, 0.00, 'immagini/4.jpeg', 0),
+(45, 'Giorgia', 'Guerini Rocco', '2000-01-01', '------', '-----—', '', '------', '------', '-', 12.00, 0.00, 'immagini/3.jpeg', 0),
+(49, 'Gabriele', 'Corona', '2000-10-10', '------------', '231', '', '-', '-', '-', 8.00, 0.00, 'immagini/6.jpeg', 0),
+(50, 'Davide', 'Nicu', '2001-09-15', '- - - -', '-', '', '-', '-', '-', 9.00, 0.00, 'immagini/2.jpeg', 0);
 
 -- --------------------------------------------------------
 
@@ -223,7 +231,9 @@ INSERT INTO `partecipa` (`id`, `Data`, `Ora_Inizio`, `Ora_Fine`, `Gruppo`, `ID_P
 (476, '2026-02-20', '16:00:00', '18:00:00', 0, NULL, 33, 3, 0, 50),
 (477, '2026-02-20', '11:30:00', '14:30:00', 0, NULL, 32, 1, 0, 49),
 (478, '2026-02-20', '11:30:00', '14:30:00', 0, NULL, 32, 1, 0, 45),
-(479, '2026-02-20', '11:30:00', '14:30:00', 0, NULL, 32, 1, 0, 36);
+(479, '2026-02-20', '11:30:00', '14:30:00', 0, NULL, 32, 1, 0, 36),
+(493, '2026-03-06', '08:00:00', '13:00:00', 1, 85, 30, 1, 0, 28),
+(494, '2026-03-06', '08:00:00', '13:00:00', 1, 85, 30, 3, 0, 28);
 
 -- --------------------------------------------------------
 
@@ -266,7 +276,8 @@ INSERT INTO `presenza` (`id`, `Ingresso`, `Uscita`, `Check_firma`, `ID_Iscritto`
 (80, '2026-02-17 07:00:00', '2026-02-17 18:00:00', 1, 49),
 (81, '2026-02-17 08:00:00', '2026-02-17 17:00:00', 1, 36),
 (82, '2026-02-17 10:00:00', '2026-02-17 16:00:00', 1, 28),
-(83, '2026-02-18 08:00:00', '2026-02-18 20:00:00', 1, 36);
+(83, '2026-02-18 08:00:00', '2026-02-18 20:00:00', 1, 36),
+(85, '2026-03-06 08:00:00', '2026-03-06 13:00:00', 1, 28);
 
 --
 -- Indici per le tabelle scaricate
@@ -329,19 +340,19 @@ ALTER TABLE `presenza`
 -- AUTO_INCREMENT per la tabella `account`
 --
 ALTER TABLE `account`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT per la tabella `allegati`
 --
 ALTER TABLE `allegati`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT per la tabella `attivita`
 --
 ALTER TABLE `attivita`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT per la tabella `educatore`
@@ -359,13 +370,13 @@ ALTER TABLE `iscritto`
 -- AUTO_INCREMENT per la tabella `partecipa`
 --
 ALTER TABLE `partecipa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=480;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=495;
 
 --
 -- AUTO_INCREMENT per la tabella `presenza`
 --
 ALTER TABLE `presenza`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- Limiti per le tabelle scaricate
