@@ -452,25 +452,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <p>Elenco iscritti registrati</p>
                     </div>
 
-                    <button
-                        title="Add New" id="aggiungi-utente-btn-mobile"
-                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
-                        >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="50px"
-                            height="50px"
-                            viewBox="0 0 24 24"
-                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
-                        >
-                            <path
-                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                            stroke-width="1"
-                            ></path>
-                            <path d="M8 12H16" stroke-width="1"></path>
-                            <path d="M12 16V8" stroke-width="1"></path>
-                        </svg>
-                    </button>
+                    
                 </div>
 
                 <div class="users-table-box">
@@ -652,25 +634,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <p>Attività della settimana</p>
                     </div>
 
-                    <button
-                        title="Add New" id="aggiungi-agenda-btn-mobile"
-                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
-                        >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="50px"
-                            height="50px"
-                            viewBox="0 0 24 24"
-                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
-                        >
-                            <path
-                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                            stroke-width="1"
-                            ></path>
-                            <path d="M8 12H16" stroke-width="1"></path>
-                            <path d="M12 16V8" stroke-width="1"></path>
-                        </svg>
-                    </button>
+                    
                 </div>
 
                 
@@ -858,25 +822,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <p>Gestione delle attività</p>
                     </div>
 
-                    <button
-                        title="Add New" id="aggiungi-attivita-btn-mobile"
-                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
-                        >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="50px"
-                            height="50px"
-                            viewBox="0 0 24 24"
-                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
-                        >
-                            <path
-                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                            stroke-width="1"
-                            ></path>
-                            <path d="M8 12H16" stroke-width="1"></path>
-                            <path d="M12 16V8" stroke-width="1"></path>
-                        </svg>
-                    </button>
+                   
                 </div>
 
                 <button class="animated-button" id="aggiungiAttivitaBtn">
@@ -1220,25 +1166,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <p>Personale educativo</p>
                     </div>
 
-                    <button
-                        title="Add New" id="aggiungi-educatore-btn-mobile"
-                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
-                        >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="50px"
-                            height="50px"
-                            viewBox="0 0 24 24"
-                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
-                        >
-                            <path
-                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                            stroke-width="1"
-                            ></path>
-                            <path d="M8 12H16" stroke-width="1"></path>
-                            <path d="M12 16V8" stroke-width="1"></path>
-                        </svg>
-                    </button>
+                    
                 </div>
 
 
@@ -1396,25 +1324,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <p>Gestione account Overlimits</p>
                     </div>
 
-                    <button
-                        title="Add New" id="aggiungi-account-btn-mobile"
-                        class="group cursor-pointer outline-none hover:rotate-90 duration-300 "
-                        >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="50px"
-                            height="50px"
-                            viewBox="0 0 24 24"
-                            class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300"
-                        >
-                            <path
-                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                            stroke-width="1"
-                            ></path>
-                            <path d="M8 12H16" stroke-width="1"></path>
-                            <path d="M12 16V8" stroke-width="1"></path>
-                        </svg>
-                    </button>
+                   
                 </div>
                 <div class="users-table-box">
                     <table class="users-table">
@@ -1679,7 +1589,7 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         </main>
         
- <footer class="footer-bar" style="bottom: auto;">
+            <footer class="footer-bar" style="bottom: auto;">
                 <div class="footer-left" >© Time4All • 2026</div>
                 <div class="footer-top">
                     <a href="#top" class="footer-image"></a>
@@ -1708,34 +1618,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <img src="immagini/book.png" alt="Agenda">
                 </div>
                 <span class="mobile-nav-label">Agenda</span>
-            </a>
-
-            <a href="#" class="mobile-nav-item" data-tab="tab-attivita" onclick="switchTab('tab-attivita', this); return false;">
-                <div class="mobile-nav-icon">
-                    <img src="immagini/attivita.png" alt="attivita">
-                </div>
-                <span class="mobile-nav-label">Attività</span>
-            </a>
-
-            <a href="#" class="mobile-nav-item" data-tab="tab-resoconti" onclick="switchTab('tab-resoconti', this); return false;">
-                <div class="mobile-nav-icon">
-                    <img src="immagini/resoconti.png" alt="resoconti">
-                </div>
-                <span class="mobile-nav-label">Resoconti</span>
-            </a>
-
-            <a href="#" class="mobile-nav-item" data-tab="tab-educatori" onclick="switchTab('tab-educatori', this); return false;">
-                <div class="mobile-nav-icon">
-                    <img src="immagini/educatore.png" alt="educatori">
-                </div>
-                <span class="mobile-nav-label">Educatori</span>
-            </a>
-
-            <a href="#" class="mobile-nav-item" data-tab="tab-account" onclick="switchTab('tab-account', this); return false;">
-                <div class="mobile-nav-icon">
-                    <img src="immagini/account.png" alt="account">
-                </div>
-                <span class="mobile-nav-label">Account</span>
             </a>
         </nav>
 
@@ -3876,11 +3758,7 @@ function displayAgenda(dayIndex){
                     <span class="ragazzi-photos">${ragazziPhotos}</span>
                 </div>
             </div>
-            <div class="activity-actions">
-                <button class="delete-agenda-btn" data-id="${att.id}" title="Elimina">
-                    <img src="immagini/delete.png" alt="Elimina">
-                </button>
-            </div>
+            
         </div>
         `;
     });

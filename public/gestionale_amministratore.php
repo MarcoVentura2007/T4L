@@ -3921,7 +3921,7 @@ function displayAgenda(dayIndex){
             <img src="${r.fotografia}" alt="${r.nome} ${r.cognome}" class="ragazzo-avatar">
             <span class="ragazzo-cognome">${r.cognome}</span>
             <span class="ragazzo-gruppo-label" style="display:block; font-size:0.85em; color:#666;">${gruppoLabel}</span>
-</div>`}).join('') || '—';
+            </div>`}).join('') || '—';
 
         html += `
         <div class="activity-card" data-id="${att.id}">

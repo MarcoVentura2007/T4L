@@ -1776,13 +1776,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 </div>
                 <span class="mobile-nav-label">Educatori</span>
             </a>
-
-            <a href="#" class="mobile-nav-item" data-tab="tab-account" onclick="switchTab('tab-account', this); return false;">
-                <div class="mobile-nav-icon">
-                    <img src="immagini/account.png" alt="account">
-                </div>
-                <span class="mobile-nav-label">Account</span>
-            </a>
         </nav>
 
     <!-- OVERLAY PRINCIPALE PER MODALI -->
