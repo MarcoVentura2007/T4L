@@ -144,3 +144,83 @@ Stack trace:
 [06-Mar-2026 11:08:21 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
 [07-Mar-2026 09:08:48 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
 [07-Mar-2026 09:09:22 Europe/Berlin] api_aggiorna_utente received gruppo (multipart)=0
+[20-Mar-2026 20:02:44 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddsii', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 13.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:08:13 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddsii', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 19.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:08:36 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddsii', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:13:34 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 0.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:13:38 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:14:20 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:15:25 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:19:02 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 0.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:19:06 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:22:38 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:26:11 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:27:17 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:31:32 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 0.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:34:08 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 0.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:41:21 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 10.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[20-Mar-2026 20:42:22 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of variables must match the number of parameters in the prepared statement in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php:272
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 0.0, '---', 0, 28)
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272

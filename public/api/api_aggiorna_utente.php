@@ -8,27 +8,25 @@ session_start();
 header('Content-Type: application/json; charset=utf-8');
 header("Cache-Control: no-cache");
 
-// --- BLOCCO ACCESSO DIRETTO ---
-// Permetti solo richieste POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }
 
-if(!isset($_SESSION['username'])){
-    echo json_encode(['success'=>false, 'message' => 'Sessione non valida']);
+if (!isset($_SESSION['username'])) {
+    echo json_encode(['success' => false, 'message' => 'Sessione non valida']);
     exit;
 }
-// --- FINE BLOCCO ---
 
 // Connessione al DB
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4all');
 if ($conn->connect_error) {
-    die(json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]));
+    echo json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]);
+    exit;
 }
 
-// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono accedere ---
+// Controllo ruolo
 $stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
 if ($stmtClasse) {
     $stmtClasse->bind_param("s", $_SESSION['username']);
@@ -36,7 +34,7 @@ if ($stmtClasse) {
     $stmtClasse->bind_result($userClasse);
     if ($stmtClasse->fetch()) {
         if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
-            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono aggiornare gli utenti.']);
+            echo json_encode(['success' => false, 'message' => 'Accesso negato.']);
             $stmtClasse->close();
             $conn->close();
             exit;
@@ -53,44 +51,50 @@ if ($stmtClasse) {
     $conn->close();
     exit;
 }
-// --- FINE CONTROLLO RUOLO ---
 
-// Determina se è una richiesta con file o JSON
+// ─── Lettura parametri ────────────────────────────────────────────────────────
 $contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
 
-// inizializziamo tutte le variabili comuni
-$id = 0;
-$nome = $cognome = $data_nascita = $codice_fiscale = $email = $telefono = $disabilita = '';
-$intolleranze = '';
-$prezzo_orario = 0;
-$note = '';
-$gruppo = null; // null indica che il client non ha fornito il campo
-$fotografia = null;
-$oldFotografia = null;
+$id                   = 0;
+$nome                 = '';
+$cognome              = '';
+$data_nascita         = '';
+$codice_fiscale       = '';
+$email                = '';
+$telefono             = '';
+$disabilita           = '';
+$intolleranze         = '';
+$prezzo_orario        = 0.0;
+$prezzo_orario_gruppo = 0.0;
+$note                 = '';
+$gruppo               = null;   // null = non fornito dal client
+$fotografia           = null;   // null = non cambiare foto
 
 if (strpos($contentType, 'multipart/form-data') !== false) {
-    // Richiesta con file upload
-    $id = intval($_POST['id'] ?? 0);
-    $nome = $_POST['nome'] ?? '';
-    $cognome = $_POST['cognome'] ?? '';
-    $data_nascita = $_POST['data_nascita'] ?? '';
-    $codice_fiscale = $_POST['codice_fiscale'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $telefono = $_POST['telefono'] ?? '';
-    $disabilita = $_POST['disabilita'] ?? '';
-    $intolleranze = $_POST['intolleranze'] ?? '';
-    $prezzo_orario = floatval($_POST['prezzo_orario'] ?? 0);
-    $note = $_POST['note'] ?? '';
-    // normalizza il valore di gruppo se inviato
+
+    // ── Richiesta con file upload ────────────────────────────────────────────
+    $id                   = intval($_POST['id']                    ?? 0);
+    $nome                 = trim($_POST['nome']                    ?? '');
+    $cognome              = trim($_POST['cognome']                 ?? '');
+    $data_nascita         = trim($_POST['data_nascita']            ?? '');
+    $codice_fiscale       = trim($_POST['codice_fiscale']          ?? '');
+    $email                = trim($_POST['email']                   ?? '');
+    $telefono             = trim($_POST['telefono']                ?? '');
+    $disabilita           = trim($_POST['disabilita']              ?? '');
+    $intolleranze         = trim($_POST['intolleranze']            ?? '');
+    $prezzo_orario        = floatval($_POST['prezzo_orario']       ?? 0);
+    $prezzo_orario_gruppo = floatval($_POST['prezzo_orario_gruppo'] ?? 0);
+    $note                 = trim($_POST['note']                    ?? '');
+
     if (isset($_POST['gruppo'])) {
         $gruppo = intval($_POST['gruppo']) === 1 ? 1 : 0;
     }
 
-    // log per debug
-    error_log("api_aggiorna_utente received gruppo (multipart)=" . var_export($gruppo, true));
+    // Gestione file foto
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
 
-    // Recupera la fotografia precedente prima di caricarne una nuova
-    if (!empty($id)) {
+        // Recupera foto precedente per eliminarla dopo
+        $oldFotografia = null;
         $stmtOldFoto = $conn->prepare("SELECT Fotografia FROM iscritto WHERE id = ?");
         if ($stmtOldFoto) {
             $stmtOldFoto->bind_param("i", $id);
@@ -99,138 +103,127 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
             $stmtOldFoto->fetch();
             $stmtOldFoto->close();
         }
-    }
 
-    // Gestione upload file
-    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = '../immagini/';
-        
-        // Crea la directory se non esiste
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-        
-        // Genera nome file univoco
-        $fileName = time() . '_' . basename($_FILES['foto']['name']);
-        $targetPath = $uploadDir . $fileName;
-        
-        // Verifica che sia un'immagine
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        
-        // Ottieni MIME type usando finfo_file
-        $fileType = 'application/octet-stream';
+        $fileType     = 'application/octet-stream';
+
         if (function_exists('finfo_file')) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            if ($finfo !== false) {
-                $fileType = finfo_file($finfo, $_FILES['foto']['tmp_name']);
-                finfo_close($finfo);
-            }
+            $finfo    = finfo_open(FILEINFO_MIME_TYPE);
+            $fileType = finfo_file($finfo, $_FILES['foto']['tmp_name']);
+            finfo_close($finfo);
         } else {
-            // Fallback: usa l'estensione del file
-            $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-            $extToMime = [
-                'jpg' => 'image/jpeg',
-                'jpeg' => 'image/jpeg',
-                'png' => 'image/png',
-                'gif' => 'image/gif',
-                'webp' => 'image/webp'
-            ];
-            $fileType = $extToMime[$ext] ?? 'application/octet-stream';
+            $ext      = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            $map      = ['jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png',
+                         'gif'=>'image/gif','webp'=>'image/webp'];
+            $fileType = $map[$ext] ?? 'application/octet-stream';
         }
-        
+
         if (!in_array($fileType, $allowedTypes)) {
-            echo json_encode(['success' => false, 'message' => 'Tipo di file non valido. Solo immagini sono permesse.']);
+            echo json_encode(['success' => false, 'message' => 'Tipo file non valido. Solo immagini.']);
             exit;
         }
-        
-        // Sposta il file
+
+        $fileName   = time() . '_' . basename($_FILES['foto']['name']);
+        $targetPath = $uploadDir . $fileName;
+
         if (move_uploaded_file($_FILES['foto']['tmp_name'], $targetPath)) {
             $fotografia = 'immagini/' . $fileName;
-            
-            // Elimina la fotografia precedente se esiste
-            if ($oldFotografia && !empty($oldFotografia) && $oldFotografia !== "immagini/default-user.png" && $oldFotografia !== "default-user.png") {
-                $oldFotoPath = __DIR__ . '/../' . $oldFotografia;
-                if (file_exists($oldFotoPath)) {
-                    unlink($oldFotoPath);
-                }
+
+            // Elimina vecchia foto
+            if ($oldFotografia &&
+                $oldFotografia !== 'immagini/default-user.png' &&
+                $oldFotografia !== 'default-user.png') {
+                $oldPath = __DIR__ . '/../' . $oldFotografia;
+                if (file_exists($oldPath)) unlink($oldPath);
             }
         } else {
             echo json_encode(['success' => false, 'message' => 'Errore nel caricamento del file']);
             exit;
         }
     }
+
 } else {
-    // Richiesta JSON (senza file)
+
+    // ── Richiesta JSON (senza file) ──────────────────────────────────────────
     $data = json_decode(file_get_contents('php://input'), true);
-    
-    $id = intval($data['id'] ?? 0);
-    $nome = $data['nome'] ?? '';
-    $cognome = $data['cognome'] ?? '';
-    $data_nascita = $data['data_nascita'] ?? '';
-    $codice_fiscale = $data['codice_fiscale'] ?? '';
-    $email = $data['email'] ?? '';
-    $telefono = $data['telefono'] ?? '';
-    $disabilita = $data['disabilita'] ?? '';
-    $intolleranze = $data['intolleranze'] ?? '';
-    $prezzo_orario = floatval($data['prezzo_orario'] ?? 0);
-    $note = $data['note'] ?? '';
+
+    $id                   = intval($data['id']                    ?? 0);
+    $nome                 = trim($data['nome']                    ?? '');
+    $cognome              = trim($data['cognome']                 ?? '');
+    $data_nascita         = trim($data['data_nascita']            ?? '');
+    $codice_fiscale       = trim($data['codice_fiscale']          ?? '');
+    $email                = trim($data['email']                   ?? '');
+    $telefono             = trim($data['telefono']                ?? '');
+    $disabilita           = trim($data['disabilita']              ?? '');
+    $intolleranze         = trim($data['intolleranze']            ?? '');
+    $prezzo_orario        = floatval($data['prezzo_orario']       ?? 0);
+    $prezzo_orario_gruppo = floatval($data['prezzo_orario_gruppo'] ?? 0);
+    $note                 = trim($data['note']                    ?? '');
+
     if (isset($data['gruppo'])) {
         $gruppo = intval($data['gruppo']) === 1 ? 1 : 0;
     }
-    $fotografia = null;
 }
 
-// Controllo che ci sia l'id
-if(empty($id)){
+// Controllo id
+if (empty($id)) {
     echo json_encode(['success' => false, 'message' => 'ID mancante']);
     exit;
 }
 
-// se non è stato inviato il campo gruppo, recupero il valore corrente dal DB
+// Se gruppo non è stato fornito, leggo il valore attuale dal DB
 if ($gruppo === null) {
     $stmtTmp = $conn->prepare("SELECT Gruppo FROM iscritto WHERE id = ?");
     if ($stmtTmp) {
         $stmtTmp->bind_param("i", $id);
         $stmtTmp->execute();
         $stmtTmp->bind_result($existingGroup);
-        if ($stmtTmp->fetch()) {
-            $gruppo = intval($existingGroup) === 1 ? 1 : 0;
-        } else {
-            $gruppo = 0;
-        }
+        $gruppo = $stmtTmp->fetch() ? (intval($existingGroup) === 1 ? 1 : 0) : 0;
         $stmtTmp->close();
     } else {
-        // se la query fallisce, default a 0 per sicurezza
         $gruppo = 0;
     }
-    error_log("api_aggiorna_utente gruppo non fornito, usato valore DB={$gruppo}");
 }
 
-// Costruzione query SQL con prepared statement
+// ─── Costruzione query ────────────────────────────────────────────────────────
 if ($fotografia !== null) {
-    // Aggiorna anche la fotografia sempre (e Gruppo)
-    $sql = "UPDATE iscritto SET 
-            Nome = ?,
-            Cognome = ?,
-            Data_nascita = ?,
-            Codice_fiscale = ?,
-            Email = ?,
-            Telefono = ?,
-            Disabilita = ?,
-            Allergie_Intolleranze = ?,
-            Prezzo_Orario = ?,
-            Note = ?,
-            Fotografia = ?,
-            Gruppo = ?
+
+    // UPDATE con foto
+    // Colonne: Nome, Cognome, Data_nascita, Codice_fiscale, Email, Telefono,
+    //          Disabilita, Allergie_Intolleranze,
+    //          Prezzo_Orario (d), Prezzo_Orario_Gruppo (d),
+    //          Note, Fotografia,
+    //          Gruppo (i)
+    //          WHERE id (i)
+    // Tipi:    s s s s s s s s d d s s i i   → 14 caratteri
+    $sql = "UPDATE iscritto SET
+                Nome                  = ?,
+                Cognome               = ?,
+                Data_nascita          = ?,
+                Codice_fiscale        = ?,
+                Email                 = ?,
+                Telefono              = ?,
+                Disabilita            = ?,
+                Allergie_Intolleranze = ?,
+                Prezzo_Orario         = ?,
+                Prezzo_Orario_Gruppo  = ?,
+                Note                  = ?,
+                Fotografia            = ?,
+                Gruppo                = ?
             WHERE id = ?";
+
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
-        echo json_encode(['success' => false, 'message' => 'Errore nella preparazione della query: ' . $conn->error]);
+        echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
         exit;
     }
-    // 13 parameters: 8 strings, 1 double, 1 string, 2 integers (gruppo,id)
+
+    // 8 stringhe + 2 double + 2 stringhe + 1 int (gruppo) + 1 int (id) = "ssssssssddssii"
     $stmt->bind_param(
-        "ssssssssdssii",
+        "ssssssssddssii",
         $nome,
         $cognome,
         $data_nascita,
@@ -240,33 +233,47 @@ if ($fotografia !== null) {
         $disabilita,
         $intolleranze,
         $prezzo_orario,
+        $prezzo_orario_gruppo,
         $note,
         $fotografia,
         $gruppo,
         $id
     );
+
 } else {
-    // Non aggiornare la fotografia, ma includo sempre gruppo
-    $sql = "UPDATE iscritto SET 
-            Nome = ?,
-            Cognome = ?,
-            Data_nascita = ?,
-            Codice_fiscale = ?,
-            Email = ?,
-            Telefono = ?,
-            Disabilita = ?,
-            Allergie_Intolleranze = ?,
-            Prezzo_Orario = ?,
-            Note = ?,
-            Gruppo = ?
+
+    // UPDATE senza foto
+    // Colonne: Nome, Cognome, Data_nascita, Codice_fiscale, Email, Telefono,
+    //          Disabilita, Allergie_Intolleranze,
+    //          Prezzo_Orario (d), Prezzo_Orario_Gruppo (d),
+    //          Note,
+    //          Gruppo (i)
+    //          WHERE id (i)
+    // Tipi:    s s s s s s s s d d s i i   → 13 caratteri
+    $sql = "UPDATE iscritto SET
+                Nome                  = ?,
+                Cognome               = ?,
+                Data_nascita          = ?,
+                Codice_fiscale        = ?,
+                Email                 = ?,
+                Telefono              = ?,
+                Disabilita            = ?,
+                Allergie_Intolleranze = ?,
+                Prezzo_Orario         = ?,
+                Prezzo_Orario_Gruppo  = ?,
+                Note                  = ?,
+                Gruppo                = ?
             WHERE id = ?";
+
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
-        echo json_encode(['success' => false, 'message' => 'Errore nella preparazione della query: ' . $conn->error]);
+        echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
         exit;
     }
+
+    // 8 stringhe + 2 double + 1 stringa + 1 int (gruppo) + 1 int (id) = "ssssssssddsi i"
     $stmt->bind_param(
-        "ssssssssdsii",
+        "ssssssssddsii",
         $nome,
         $cognome,
         $data_nascita,
@@ -276,19 +283,20 @@ if ($fotografia !== null) {
         $disabilita,
         $intolleranze,
         $prezzo_orario,
+        $prezzo_orario_gruppo,
         $note,
         $gruppo,
         $id
     );
 }
 
+// ─── Esecuzione ──────────────────────────────────────────────────────────────
 try {
-    if($stmt->execute()){
+    if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => 'Utente aggiornato']);
     } else {
-        $errorMsg = 'Errore: ' . $stmt->error;
-        error_log("api_aggiorna_utente error: " . $errorMsg);
-        echo json_encode(['success' => false, 'message' => $errorMsg]);
+        error_log("api_aggiorna_utente error: " . $stmt->error);
+        echo json_encode(['success' => false, 'message' => 'Errore: ' . $stmt->error]);
     }
 } catch (Exception $e) {
     error_log("api_aggiorna_utente exception: " . $e->getMessage());
@@ -297,4 +305,3 @@ try {
 
 $stmt->close();
 $conn->close();
-?>

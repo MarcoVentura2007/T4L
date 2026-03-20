@@ -1,16 +1,14 @@
 <?php
 header('Content-Type: application/json');
-header("Cache-Control: no chache");
+header("Cache-Control: no-cache");
 session_start();
 
-// Controlla login
 if (!isset($_SESSION['username'])) {
     http_response_code(401);
     echo json_encode(['error' => 'Non autorizzato']);
     exit;
 }
 
-// Connessione DB
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4all');
 if ($conn->connect_error) {
@@ -19,36 +17,49 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Calcola lunedì e venerdì della settimana corrente
-$today = new DateTime();
-// Se oggi è domenica, sposta a domani
-if ($today->format('N') == 7) $today->modify('+1 day');
+// ── Calcola lunedì della settimana richiesta ──────────────────────────────
+// Se arriva ?week=YYYY-MM-DD usa quella data come lunedì,
+// altrimenti calcola il lunedì della settimana corrente.
+if (!empty($_GET['week'])) {
+    $requestedDate = DateTime::createFromFormat('Y-m-d', $_GET['week']);
+    if ($requestedDate === false) {
+        // formato non valido → settimana corrente
+        $requestedDate = new DateTime();
+    }
+} else {
+    $requestedDate = new DateTime();
+}
 
-$monday = clone $today;
-$monday->modify('Monday this week');
-$friday = clone $today;
-$friday->modify('Friday this week');
+// Porta sempre al lunedì della settimana del giorno ricevuto
+$dow = (int)$requestedDate->format('N'); // 1=lun ... 7=dom
+if ($dow !== 1) {
+    $requestedDate->modify('Monday this week');
+}
+
+$monday = clone $requestedDate;
+$friday = clone $requestedDate;
+$friday->modify('+4 days');
 
 $mondayStr = $monday->format('Y-m-d');
-$fridayStr = $friday->format('Y-m-d');
+$fridayStr  = $friday->format('Y-m-d');
 
-// --- Query attività + educatori con prepared statement ---
+// ── Query attività + educatori ────────────────────────────────────────────
 $stmt = $conn->prepare("SELECT 
-            p.id AS partecipa_id,
-            p.Data,
-            p.Ora_Inizio,
-            p.Ora_Fine,
-            a.id AS attivita_id,
-            a.Nome AS attivita_nome,
-            a.Descrizione,
-            e.id AS educatore_id,
-            e.nome AS educatore_nome,
-            e.cognome AS educatore_cognome
-        FROM partecipa p
-        INNER JOIN attivita a ON p.ID_Attivita = a.id
-        INNER JOIN educatore e ON p.ID_Educatore = e.id
-        WHERE p.Data BETWEEN ? AND ?
-        ORDER BY p.Data ASC, p.Ora_Inizio ASC");
+        p.id AS partecipa_id,
+        p.Data,
+        p.Ora_Inizio,
+        p.Ora_Fine,
+        a.id AS attivita_id,
+        a.Nome AS attivita_nome,
+        a.Descrizione,
+        e.id AS educatore_id,
+        e.nome AS educatore_nome,
+        e.cognome AS educatore_cognome
+    FROM partecipa p
+    INNER JOIN attivita a ON p.ID_Attivita = a.id
+    INNER JOIN educatore e ON p.ID_Educatore = e.id
+    WHERE p.Data BETWEEN ? AND ?
+    ORDER BY p.Data ASC, p.Ora_Inizio ASC");
 
 if (!$stmt) {
     http_response_code(500);
@@ -65,56 +76,58 @@ if (!$result) {
     exit;
 }
 
-
-// Organizza attività ed educatori
 $attivita_map = [];
 while ($row = $result->fetch_assoc()) {
-    $key = $row['attivita_id'] . '_' . $row['Data'] . '_' . substr($row['Ora_Inizio'], 0, 5) . '_' . substr($row['Ora_Fine'], 0, 5);
+    $key = $row['attivita_id'] . '_' . $row['Data'] . '_'
+        . substr($row['Ora_Inizio'], 0, 5) . '_' . substr($row['Ora_Fine'], 0, 5);
+
     if (!isset($attivita_map[$key])) {
         $attivita_map[$key] = [
-            'id' => $key,
-            'data' => $row['Data'],
-            'ora_inizio' => $row['Ora_Inizio'],
-            'ora_fine' => $row['Ora_Fine'],
-            'attivita_id' => $row['attivita_id'],
+            'id'           => $key,
+            'data'         => $row['Data'],
+            'ora_inizio'   => $row['Ora_Inizio'],
+            'ora_fine'     => $row['Ora_Fine'],
+            'attivita_id'  => $row['attivita_id'],
             'attivita_nome' => $row['attivita_nome'],
-            'descrizione' => $row['Descrizione'],
-            'educatori' => [],
-            'ragazzi' => [] // array vuoto da riempire
+            'descrizione'  => $row['Descrizione'],
+            'educatori'    => [],
+            'ragazzi'      => []
         ];
     }
 
-    // Evita duplicati educatori
     $exists = false;
     foreach ($attivita_map[$key]['educatori'] as $ed) {
-        if ($ed['id'] == $row['educatore_id']) { $exists = true; break; }
+        if ($ed['id'] == $row['educatore_id']) {
+            $exists = true;
+            break;
+        }
     }
     if (!$exists) {
         $attivita_map[$key]['educatori'][] = [
-            'id' => $row['educatore_id'],
-            'nome' => $row['educatore_nome'],
+            'id'      => $row['educatore_id'],
+            'nome'    => $row['educatore_nome'],
             'cognome' => $row['educatore_cognome']
         ];
     }
 }
 
-// --- Query ragazzi con prepared statement ---
+// ── Query ragazzi ─────────────────────────────────────────────────────────
 $stmt_ragazzi = $conn->prepare("SELECT
-                    p.ID_Attivita,
-                    p.Data,
-                    p.Ora_Inizio,
-                    p.Ora_Fine,
-                    i.id AS ragazzo_id,
-                    i.nome AS ragazzo_nome,
-                    i.cognome AS ragazzo_cognome,
-                    i.fotografia AS ragazzo_fotografia,
-                    i.Gruppo AS ragazzo_gruppo_default,
-                    p.presenza_effettiva AS effettiva_presenza,
-                    p.gruppo AS ragazzo_gruppo
-                FROM partecipa p
-                INNER JOIN iscritto i ON p.ID_Ragazzo = i.id
-                WHERE p.Data BETWEEN ? AND ?
-                ORDER BY p.Data ASC, p.Ora_Inizio ASC");
+        p.ID_Attivita,
+        p.Data,
+        p.Ora_Inizio,
+        p.Ora_Fine,
+        i.id AS ragazzo_id,
+        i.nome AS ragazzo_nome,
+        i.cognome AS ragazzo_cognome,
+        i.fotografia AS ragazzo_fotografia,
+        i.Gruppo AS ragazzo_gruppo_default,
+        p.presenza_effettiva AS effettiva_presenza,
+        p.gruppo AS ragazzo_gruppo
+    FROM partecipa p
+    INNER JOIN iscritto i ON p.ID_Ragazzo = i.id
+    WHERE p.Data BETWEEN ? AND ?
+    ORDER BY p.Data ASC, p.Ora_Inizio ASC");
 
 if (!$stmt_ragazzi) {
     http_response_code(500);
@@ -127,30 +140,30 @@ $stmt_ragazzi->execute();
 $result_ragazzi = $stmt_ragazzi->get_result();
 
 $ragazzi_per_attivita = [];
-
 if ($result_ragazzi) {
     while ($row = $result_ragazzi->fetch_assoc()) {
-        $key = $row['ID_Attivita'] . '_' . $row['Data'] . '_' . substr($row['Ora_Inizio'], 0, 5) . '_' . substr($row['Ora_Fine'], 0, 5);
+        $key = $row['ID_Attivita'] . '_' . $row['Data'] . '_'
+            . substr($row['Ora_Inizio'], 0, 5) . '_' . substr($row['Ora_Fine'], 0, 5);
+
         if (!isset($ragazzi_per_attivita[$key])) $ragazzi_per_attivita[$key] = [];
 
-        // Use p.gruppo if set in agenda, otherwise fallback to default i.Gruppo
         $gruppo_val = $row['ragazzo_gruppo'];
         if ($gruppo_val === null || $gruppo_val === '') {
             $gruppo_val = $row['ragazzo_gruppo_default'];
         }
 
         $ragazzi_per_attivita[$key][] = [
-            'id' => $row['ragazzo_id'],
-            'nome' => $row['ragazzo_nome'],
-            'cognome' => $row['ragazzo_cognome'],
-            'fotografia' => $row['ragazzo_fotografia'],
+            'id'                => $row['ragazzo_id'],
+            'nome'              => $row['ragazzo_nome'],
+            'cognome'           => $row['ragazzo_cognome'],
+            'fotografia'        => $row['ragazzo_fotografia'],
             'effettiva_presenza' => (bool)$row['effettiva_presenza'],
-            'gruppo' => $gruppo_val
+            'gruppo'            => $gruppo_val
         ];
     }
 }
 
-// Make ragazzi unique per activity
+// Rendi unici i ragazzi per attività
 foreach ($ragazzi_per_attivita as $key => &$ragazzi) {
     $unique = [];
     foreach ($ragazzi as $r) {
@@ -158,23 +171,22 @@ foreach ($ragazzi_per_attivita as $key => &$ragazzi) {
     }
     $ragazzi = array_values($unique);
 }
+unset($ragazzi);
 
-// Aggiungi ragazzi alle attività
+// Assembla risposta
 $agenda = [];
 foreach ($attivita_map as $key => $att) {
     $att['ragazzi'] = $ragazzi_per_attivita[$key] ?? [];
     $agenda[] = $att;
 }
 
-// Restituisci JSON
 echo json_encode([
     'success' => true,
-    'data' => $agenda,
-    'monday' => $mondayStr,
-    'friday' => $fridayStr
+    'data'    => $agenda,
+    'monday'  => $mondayStr,
+    'friday'  => $fridayStr
 ]);
 
 $stmt->close();
 $stmt_ragazzi->close();
 $conn->close();
-?>

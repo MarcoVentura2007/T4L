@@ -1,62 +1,16 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-header("Cache-Control: no chache");
-// Verifica se l'utente è loggato
+header("Cache-Control: no-cache");
+
 if (!isset($_SESSION['username'])) {
     echo json_encode(['success' => false, 'message' => 'Non autorizzato']);
     exit;
 }
 
-// Verifica che il form sia stato inviato
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Richiesta non valida']);
     exit;
-}
-
-// Recupera i dati dal POST
-$requiredFields = ['nome', 'cognome', 'data_nascita', 'codice_fiscale', 'email', 'telefono', 'disabilita', 'intolleranze', 'prezzo_orario', 'note', 'gruppo'];
-
-
-foreach ($requiredFields as $field) {
-    if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
-        echo json_encode(['success' => false, 'message' => "Campo mancante: $field"]);
-        exit;
-    }
-}
-
-// Dati puliti
-$nome = $_POST['nome'];
-$cognome = $_POST['cognome'];
-$data_nascita = $_POST['data_nascita'];
-$codice_fiscale = $_POST['codice_fiscale'];
-$email = $_POST['email'];
-$telefono = $_POST['telefono'];
-$disabilita = $_POST['disabilita'];
-
-$intolleranze = $_POST['intolleranze'];
-$prezzo_orario = $_POST['prezzo_orario'];
-$note = $_POST['note'];
-$gruppo = intval($_POST['gruppo']) === 1 ? 1 : 0;
-
-// Gestione foto
-$fotografia = "immagini/default-user.png"; // default
-if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = __DIR__ . "/../immagini/";
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-
-    $nomeFile = basename($_FILES['foto']['name']);
-    $targetFile = $uploadDir . $nomeFile;
-
-    // Evita sovrascrittura: aggiunge timestamp
-    if (file_exists($targetFile)) {
-        $nomeFile = time() . "_" . $nomeFile;
-        $targetFile = $uploadDir . $nomeFile;
-    }
-
-    if (move_uploaded_file($_FILES['foto']['tmp_name'], $targetFile)) {
-        $fotografia = "immagini/" . $nomeFile;
-    }
 }
 
 // Connessione DB
@@ -67,8 +21,7 @@ if ($conn->connect_error) {
     exit;
 }
 
-
-// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono accedere ---
+// Controllo ruolo
 $stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
 if ($stmtClasse) {
     $stmtClasse->bind_param("s", $_SESSION['username']);
@@ -76,7 +29,7 @@ if ($stmtClasse) {
     $stmtClasse->bind_result($userClasse);
     if ($stmtClasse->fetch()) {
         if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
-            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono aggiornare gli utenti.']);
+            echo json_encode(['success' => false, 'message' => 'Accesso negato.']);
             $stmtClasse->close();
             $conn->close();
             exit;
@@ -93,10 +46,58 @@ if ($stmtClasse) {
     $conn->close();
     exit;
 }
-// --- FINE CONTROLLO RUOLO ---
 
-// Inserimento utente
-$stmt = $conn->prepare("INSERT INTO iscritto (Nome, Cognome, Data_nascita, Codice_fiscale, Email, Telefono, Disabilita, Allergie_Intolleranze, Prezzo_Orario, Note, Fotografia, Gruppo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+// Recupera campi obbligatori
+$requiredFields = ['nome', 'cognome', 'data_nascita', 'codice_fiscale'];
+foreach ($requiredFields as $field) {
+    if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
+        echo json_encode(['success' => false, 'message' => "Campo mancante: $field"]);
+        exit;
+    }
+}
+
+$nome               = trim($_POST['nome']);
+$cognome            = trim($_POST['cognome']);
+$data_nascita       = trim($_POST['data_nascita']);
+$codice_fiscale     = trim($_POST['codice_fiscale']);
+$email              = trim($_POST['email']              ?? '');
+$telefono           = trim($_POST['telefono']           ?? '');
+$disabilita         = trim($_POST['disabilita']         ?? '');
+$intolleranze       = trim($_POST['intolleranze']       ?? '');
+$prezzo_orario      = floatval($_POST['prezzo_orario']       ?? 0);
+$prezzo_orario_gruppo = floatval($_POST['prezzo_orario_gruppo'] ?? 0);
+$note               = trim($_POST['note']               ?? '');
+$gruppo             = intval($_POST['gruppo']            ?? 0) === 1 ? 1 : 0;
+
+// Gestione foto
+$fotografia = "immagini/default-user.png";
+if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+    $uploadDir = __DIR__ . "/../immagini/";
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+    $nomeFile  = basename($_FILES['foto']['name']);
+    $targetFile = $uploadDir . $nomeFile;
+
+    if (file_exists($targetFile)) {
+        $nomeFile   = time() . "_" . $nomeFile;
+        $targetFile = $uploadDir . $nomeFile;
+    }
+
+    if (move_uploaded_file($_FILES['foto']['tmp_name'], $targetFile)) {
+        $fotografia = "immagini/" . $nomeFile;
+    }
+}
+
+// INSERT
+// Tipi: s s s s s s s s d d s s i
+//        n c d cf em tel dis int pr prg not foto grp
+$stmt = $conn->prepare(
+    "INSERT INTO iscritto
+        (Nome, Cognome, Data_nascita, Codice_fiscale, Email, Telefono,
+         Disabilita, Allergie_Intolleranze, Prezzo_Orario, Prezzo_Orario_Gruppo,
+         Note, Fotografia, Gruppo)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+);
 
 if (!$stmt) {
     echo json_encode(['success' => false, 'message' => 'Errore prepare: ' . $conn->error]);
@@ -104,7 +105,7 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "ssssssssdssi",
+    "ssssssssddssi",
     $nome,
     $cognome,
     $data_nascita,
@@ -114,11 +115,11 @@ $stmt->bind_param(
     $disabilita,
     $intolleranze,
     $prezzo_orario,
+    $prezzo_orario_gruppo,
     $note,
     $fotografia,
     $gruppo
 );
-
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Utente aggiunto', 'id' => $stmt->insert_id]);
