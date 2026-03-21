@@ -76,6 +76,148 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 display: none;
             }
         }
+        .agenda-week-nav {
+                display: flex;
+                align-items: center;
+                justify-content: center;  
+                gap: 8px;
+                padding: 10px 0 8px;
+            }
+
+            .week-nav-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 34px;
+                height: 34px;
+                border: 1.5px solid #e0e0e0;
+                border-radius: 8px;
+                background: #fff;
+                color: #444;
+                cursor: pointer;
+                flex-shrink: 0;
+                transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+            }
+
+            .week-nav-btn:hover {
+                background: #640a35;
+                border-color: #640a35;
+                color: #fff;
+                transform: scale(1.05);
+            }
+
+            .week-nav-btn:active {
+                transform: scale(0.97);
+            }
+
+            .week-label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #444;
+                min-width: 130px;
+                text-align: center;
+                letter-spacing: 0.01em;
+            }
+
+            .week-nav-today {
+                font-size: 0.75rem;
+                font-weight: 600;
+                padding: 6px 12px;
+                border: 1.5px solid #640a35;
+                border-radius: 8px;
+                background: transparent;
+                color: #640a35;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: background 0.15s, color 0.15s;
+            }
+
+            .week-nav-today:hover {
+                background: #640a35;
+                color: #fff;
+            }
+
+            .week-nav-today.is-current-week {
+                background: #640a35;
+                color: #fff;
+                border-color: #640a35;
+            }
+
+            @media (max-width: 768px) {
+                .week-label {
+                    min-width: 90px;
+                    font-size: 0.78rem;
+                }
+                .week-nav-today {
+                    font-size: 0.7rem;
+                    padding: 5px 9px;
+                }
+            }
+
+            /* Navigazione giorni — Presenze */
+            .presenze-day-nav {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 10px 0 12px;
+            }
+            .presenze-day-nav .week-nav-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 34px;
+                height: 34px;
+                border: 1.5px solid #e0e0e0;
+                border-radius: 8px;
+                background: #fff;
+                color: #444;
+                cursor: pointer;
+                flex-shrink: 0;
+                transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+            }
+            .presenze-day-nav .week-nav-btn:hover {
+                background: #640a35;
+                border-color: #640a35;
+                color: #fff;
+                transform: scale(1.05);
+            }
+            .presenze-day-nav .week-nav-btn:active {
+                transform: scale(0.97);
+            }
+            .presenze-day-label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #444;
+                min-width: 200px;
+                text-align: center;
+                letter-spacing: 0.01em;
+            }
+            .presenze-day-nav .week-nav-today {
+                font-size: 0.75rem;
+                font-weight: 600;
+                padding: 6px 12px;
+                border: 1.5px solid #640a35;
+                border-radius: 8px;
+                background: transparent;
+                color: #640a35;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: background 0.15s, color 0.15s;
+            }
+            .presenze-day-nav .week-nav-today:hover {
+                background: #640a35;
+                color: #fff;
+            }
+            .presenze-day-nav .week-nav-today.is-today {
+                background: #640a35;
+                color: #fff;
+                border-color: #640a35;
+            }
+            @media (max-width: 768px) {
+                .presenze-day-label { min-width: 140px; font-size: 0.78rem; }
+                .presenze-day-nav .week-nav-today { font-size: 0.7rem; padding: 5px 9px; }
+            }
     </style>
 </head>
 
@@ -281,6 +423,20 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                         <h1>Presenze</h1>
                         <p>Elenco presenze giornaliere</p>
                     </div>
+                    <div class="presenze-day-nav">
+                        <button class="week-nav-btn" id="prevDayBtn" title="Giorno precedente">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="presenze-day-label" id="presenzeDayLabel"></span>
+                        <button class="week-nav-btn" id="nextDayBtn" title="Giorno successivo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
+                        <button class="week-nav-today" id="todayPresenzeBtn" title="Vai ad oggi">Oggi</button>
+                    </div>
                     <div class="users-table-box">
                         <table class="users-table" id="presenzeTable">
                             <thead>
@@ -294,32 +450,6 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-                                if ($resultPresenze && $resultPresenze->num_rows > 0) {
-                                    while ($row = $resultPresenze->fetch_assoc()) {
-                                        echo '
-                                <tr
-                                    data-id="' . htmlspecialchars($row['id']) . '"
-                                    data-nome="' . htmlspecialchars($row['nome']) . '"
-                                    data-cognome="' . htmlspecialchars($row['cognome']) . '"
-                                    data-ingresso="' . htmlspecialchars($row['ingresso']) . '"
-                                    data-uscita="' . htmlspecialchars($row['uscita']) . '"
-                                >
-                                    <td><img class="user-avatar" src="' . $row['fotografia'] . '"></td>
-                                    <td>' . htmlspecialchars($row['nome']) . '</td>
-                                    <td>' . htmlspecialchars($row['cognome']) . '</td>
-                                    <td>' . htmlspecialchars($row['ingresso']) . '</td>
-                                    <td>' . htmlspecialchars($row['uscita']) . '</td>
-                                    <td>
-                                        <button class="edit-presenza-btn" data-id="' . htmlspecialchars($row['id']) . '"><img src="immagini/edit.png" alt="Modifica"></button>
-                                        <button class="delete-presenza-btn" data-id="' . htmlspecialchars($row['id']) . '"><img src="immagini/delete.png" alt="Elimina"></button>
-                                    </td>
-                                </tr>';
-                                    }
-                                } else {
-                                    echo '<tr><td colspan="6">Nessuna presenza registrata oggi.</td></tr>';
-                                }
-                                ?>
                             </tbody>
                         </table>
                     </div>
@@ -334,6 +464,20 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                         </div>
                     </div>
                     <div class="agenda-container" style="margin:0 auto;">
+                        <div class="agenda-week-nav">
+                            <button class="week-nav-btn" id="prevWeekBtn" title="Settimana precedente">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 18l-6-6 6-6" />
+                                </svg>
+                            </button>
+                            <span class="week-label" id="weekLabel"></span>
+                            <button class="week-nav-btn" id="nextWeekBtn" title="Settimana successiva">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 18l6-6-6-6" />
+                                </svg>
+                            </button>
+                            <button class="week-nav-today" id="todayBtn" title="Vai alla settimana corrente">Oggi</button>
+                        </div>
                         <div class="header-agenda">
                             <div class="days-tabs">
                                 <button class="day-tab active" data-day="0"><span class="day-name">Lunedì</span><span class="day-date" id="date-monday"></span></button>
@@ -717,23 +861,43 @@ $resultRagazzi = $conn->query($sqlRagazzi);
         };
 
         // =====================================================================
-        // AGENDA (solo visualizzazione)
+        // AGENDA
         // =====================================================================
         let agendaData = [],
             agendaWeekStart = null,
             selectedDayIndex = 0,
             currentMonday = null;
 
-        function calculateWeekDates(weekStartStr) {
+        // ── offset in settimane rispetto alla settimana corrente (0 = oggi)
+        let weekOffset = 0;
+
+        function getMondayOfWeek(offset) {
             const today = new Date();
-            let monday;
-            if (weekStartStr) {
-                const p = weekStartStr.split('-');
-                monday = new Date(p[0], p[1] - 1, p[2]);
-            } else {
-                monday = new Date(today);
-                monday.setDate(today.getDate() - today.getDay() + 1);
-            }
+            const day = today.getDay(); // 0=dom, 1=lun...
+            const diff = (day === 0 ? -6 : 1 - day); // giorni a ritroso fino a lunedì
+            const monday = new Date(today);
+            monday.setDate(today.getDate() + diff + offset * 7);
+            monday.setHours(0, 0, 0, 0);
+            return monday;
+        }
+
+        function updateWeekLabel() {
+            const monday = getMondayOfWeek(weekOffset);
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4);
+            const fmt = d => d.toLocaleDateString('it-IT', {
+                day: '2-digit',
+                month: 'short'
+            });
+            document.getElementById('weekLabel').innerText = `${fmt(monday)} – ${fmt(friday)}`;
+
+            // evidenzia "Oggi" se siamo sulla settimana corrente
+            const todayBtn = document.getElementById('todayBtn');
+            if (todayBtn) todayBtn.classList.toggle('is-current-week', weekOffset === 0);
+        }
+
+        function calculateWeekDates() {
+            const monday = getMondayOfWeek(weekOffset);
             currentMonday = monday;
             const labels = ['date-monday', 'date-tuesday', 'date-wednesday', 'date-thursday', 'date-friday'];
             for (let i = 0; i < 5; i++) {
@@ -745,26 +909,35 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                     month: '2-digit'
                 });
             }
+            updateWeekLabel();
         }
 
         function loadAgenda() {
             const div = document.getElementById('agendaContent');
             div.innerHTML = '<div class="loading">Caricamento attività...</div>';
-            fetch('api/api_get_agenda.php').then(r => r.json()).then(data => {
-                if (data.success) {
-                    agendaData = data.data || [];
-                    agendaWeekStart = data.monday || null;
-                    calculateWeekDates(agendaWeekStart);
-                    let def = new Date().getDay() - 1;
-                    if (def < 0 || def > 4) def = 0;
-                    const saved = parseInt(localStorage.getItem("selectedDayIndex"));
-                    displayAgenda(isNaN(saved) ? def : saved);
-                } else {
-                    div.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
-                }
-            }).catch(() => {
-                document.getElementById('agendaContent').innerHTML = '<div class="error-message">Errore nel caricamento</div>';
-            });
+
+            const monday = getMondayOfWeek(weekOffset);
+            const mondayStr = getLocalDateString(monday);
+
+            fetch(`api/api_get_agenda.php?week=${mondayStr}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        agendaData = data.data || [];
+                        agendaWeekStart = mondayStr;
+                        calculateWeekDates();
+                        let def = new Date().getDay() - 1;
+                        if (def < 0 || def > 4) def = 0;
+                        // se siamo sulla settimana corrente ripristina il giorno salvato, altrimenti lunedì
+                        const saved = parseInt(localStorage.getItem("selectedDayIndex"));
+                        displayAgenda(weekOffset === 0 && !isNaN(saved) ? saved : (weekOffset === 0 ? def : 0));
+                    } else {
+                        div.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
+                    }
+                })
+                .catch(() => {
+                    div.innerHTML = '<div class="error-message">Errore nel caricamento dell\'agenda</div>';
+                });
         }
 
         function displayAgenda(dayIndex) {
@@ -825,41 +998,103 @@ $resultRagazzi = $conn->query($sqlRagazzi);
             });
         });
 
+        // ── Bottoni navigazione settimane
+        document.getElementById('prevWeekBtn').onclick = () => {
+            weekOffset--;
+            loadAgenda();
+        };
+        document.getElementById('nextWeekBtn').onclick = () => {
+            weekOffset++;
+            loadAgenda();
+        };
+        document.getElementById('todayBtn').onclick = () => {
+            if (weekOffset !== 0) {
+                weekOffset = 0;
+                loadAgenda();
+            }
+        };
+
+        document.querySelectorAll('.ragazzo-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const sel = this.closest('label').querySelector('.ragazzo-gruppo');
+                if (sel) sel.style.display = this.checked ? 'inline-block' : 'none';
+            });
+        });
+
+        
+
+        
         // Stampa Agenda
         const stampaAgendaBtn = document.getElementById("stampaAgendaBtn");
         if (stampaAgendaBtn) {
             stampaAgendaBtn.onclick = () => {
                 const pw = window.open('', '_blank', 'width=800,height=600');
                 const timeSlots = [{
-                    start: '08:00',
-                    end: '10:00',
-                    bg: '#e6f7ff'
-                }, {
-                    start: '10:00',
-                    end: '12:00',
-                    bg: '#fff7e6'
-                }, {
-                    start: '12:00',
-                    end: '14:00',
-                    bg: '#f6ffed'
-                }, {
-                    start: '14:00',
-                    end: '16:00',
-                    bg: '#fff2f0'
-                }, {
-                    start: '16:00',
-                    end: '18:00',
-                    bg: '#f9f0ff'
-                }];
+                        start: '08:00',
+                        end: '10:00',
+                        bg: '#e6f7ff'
+                    }, {
+                        start: '10:00',
+                        end: '12:00',
+                        bg: '#fff7e6'
+                    },
+                    {
+                        start: '12:00',
+                        end: '14:00',
+                        bg: '#f6ffed'
+                    }, {
+                        start: '14:00',
+                        end: '16:00',
+                        bg: '#fff2f0'
+                    },
+                    {
+                        start: '16:00',
+                        end: '18:00',
+                        bg: '#f9f0ff'
+                    }
+                ];
                 const giorni = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
-                pw.document.write(`<html><head><title>Agenda Settimanale</title><style>@page{size:A4 landscape;}body{font-family:Arial,sans-serif;margin:3px;width:297mm;}table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed;}th,td{border:1px solid #000;padding:8px;text-align:left;vertical-align:top;width:20%;word-wrap:break-word;-webkit-print-color-adjust:exact;print-color-adjust:exact;}th{background:#f0f0f0;font-weight:bold;}.activity{margin-bottom:6px;}</style></head><body><h2 style="text-align:center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2><table><thead><tr><th>Lunedì</th><th>Martedì</th><th>Mercoledì</th><th>Giovedì</th><th>Venerdì</th></tr></thead><tbody>`);
+                pw.document.write(`<html><head><title>Agenda Settimanale</title><style>@page{size:A4 landscape;}body{font-family:Arial,sans-serif;margin:3px;width:297mm;}table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed;}th,td{border:1px solid #000;padding:8px;text-align:left;vertical-align:top;width:20%;word-wrap:break-word;-webkit-print-color-adjust:exact;print-color-adjust:exact;}th{background:#f0f0f0;font-weight:bold;}.activity{margin-bottom:6px;}
+        /* Navigazione giorni — Presenze */
+        .presenze-day-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 0 12px;
+        }
+        .presenze-day-nav .week-nav-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 34px; height: 34px;
+            border: 1.5px solid #e0e0e0; border-radius: 8px;
+            background: #fff; color: #444; cursor: pointer; flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
+        .presenze-day-nav .week-nav-btn:hover { background: #640a35; border-color: #640a35; color: #fff; transform: scale(1.05); }
+        .presenze-day-nav .week-nav-btn:active { transform: scale(0.97); }
+        .presenze-day-label {
+            font-size: 0.85rem; font-weight: 600; color: #444;
+            min-width: 200px; text-align: center; letter-spacing: 0.01em;
+        }
+        .presenze-day-nav .week-nav-today {
+            font-size: 0.75rem; font-weight: 600; padding: 6px 12px;
+            border: 1.5px solid #640a35; border-radius: 8px;
+            background: transparent; color: #640a35; cursor: pointer;
+            white-space: nowrap; transition: background 0.15s, color 0.15s;
+        }
+        .presenze-day-nav .week-nav-today:hover { background: #640a35; color: #fff; }
+        .presenze-day-nav .week-nav-today.is-today { background: #640a35; color: #fff; border-color: #640a35; }
+        @media (max-width: 768px) {
+            .presenze-day-label { min-width: 140px; font-size: 0.78rem; }
+            .presenze-day-nav .week-nav-today { font-size: 0.7rem; padding: 5px 9px; }
+        }
+    </style></head><body><h2 style="text-align:center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2><table><thead><tr><th>Lunedì</th><th>Martedì</th><th>Mercoledì</th><th>Giovedì</th><th>Venerdì</th></tr></thead><tbody>`);
                 timeSlots.forEach(slot => {
                     pw.document.write('<tr>');
                     for (let idx = 0; idx < 5; idx++) {
                         let monday2;
                         if (agendaWeekStart) {
-                            const p = agendaWeekStart.split('-');
-                            monday2 = new Date(p[0], p[1] - 1, p[2]);
+                            monday2 = getMondayOfWeek(weekOffset);
                         } else {
                             monday2 = new Date();
                             monday2.setDate(monday2.getDate() - monday2.getDay() + 1);
@@ -888,60 +1123,126 @@ $resultRagazzi = $conn->query($sqlRagazzi);
             };
         }
 
-        // =====================================================================
-        // SIDEBAR STATE
-        // =====================================================================
-        const checkboxInput = document.getElementById('checkbox-input');
-        if (checkboxInput) {
-            const s = localStorage.getItem('sidebarOpen');
-            if (s !== null) checkboxInput.checked = s === 'true';
-            checkboxInput.addEventListener('change', () => localStorage.setItem('sidebarOpen', checkboxInput.checked));
-        }
+                    // =====================================================================
+                    // SIDEBAR STATE
+                    // =====================================================================
+                    const checkboxInput = document.getElementById('checkbox-input');
+                    if (checkboxInput) {
+                        const s = localStorage.getItem('sidebarOpen');
+                        if (s !== null) checkboxInput.checked = s === 'true';
+                        checkboxInput.addEventListener('change', () => localStorage.setItem('sidebarOpen', checkboxInput.checked));
+                    }
 
-        // =====================================================================
-        // SCROLL LOCK
-        // =====================================================================
-        function syncBodyScrollLock() {
-            document.body.classList.toggle("popup-open", Boolean(document.querySelector(".modal-box.show,.popup.show,.logout-modal.show,.success-popup.show,.modal-overlay.show,.logout-overlay.show")));
-        }
-        new MutationObserver(() => syncBodyScrollLock()).observe(document.body, {
-            subtree: true,
-            attributes: true,
-            attributeFilter: ["class"]
-        });
-        syncBodyScrollLock();
+                    // =====================================================================
+                    // SCROLL LOCK
+                    // =====================================================================
+                    function syncBodyScrollLock() {
+                        document.body.classList.toggle("popup-open", Boolean(document.querySelector(".modal-box.show,.popup.show,.logout-modal.show,.success-popup.show,.modal-overlay.show,.logout-overlay.show")));
+                    }
+                    new MutationObserver(() => syncBodyScrollLock()).observe(document.body, {
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ["class"]
+                    }); syncBodyScrollLock();
 
-        // =====================================================================
-        // MOBILE TAB SWITCH + RESTORE
-        // =====================================================================
-        function switchTab(tabId, navItem) {
-            document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-            navItem.classList.add('active');
-            document.querySelectorAll('.tab-link').forEach(l => {
-                l.classList.remove('active');
-                if (l.dataset.tab === tabId) l.classList.add('active');
-            });
-            document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            localStorage.setItem("activeTab", tabId);
-        }
+                    // =====================================================================
+                    // MOBILE TAB SWITCH + RESTORE
+                    // =====================================================================
+                    function switchTab(tabId, navItem) {
+                        document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+                        navItem.classList.add('active');
+                        document.querySelectorAll('.tab-link').forEach(l => {
+                            l.classList.remove('active');
+                            if (l.dataset.tab === tabId) l.classList.add('active');
+                        });
+                        document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+                        document.getElementById(tabId).classList.add('active');
+                        localStorage.setItem("activeTab", tabId);
+                    }
 
-        window.addEventListener("DOMContentLoaded", () => {
-            loadAgenda();
-            const savedTab = localStorage.getItem("activeTab");
-            if (savedTab) {
-                document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-                const mn = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
-                if (mn) mn.classList.add('active');
-                document.querySelectorAll('.tab-link').forEach(l => {
-                    l.classList.remove('active');
-                    if (l.dataset.tab === savedTab) l.classList.add('active');
-                });
-                document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
-                const sc = document.getElementById(savedTab);
-                if (sc) sc.classList.add('active');
-            }
-        });
+                    // =====================================================================
+                    // PRESENZE — navigazione per data
+                    // =====================================================================
+                    let presenzeOffset = 0;
+
+                    function getPresenzaDateString(offset) {
+                        const d = new Date();
+                        d.setDate(d.getDate() + offset);
+                        return getLocalDateString(d);
+                    }
+
+                    function updatePresenzeDayLabel() {
+                        const d = new Date();
+                        d.setDate(d.getDate() + presenzeOffset);
+                        const label = d.toLocaleDateString('it-IT', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                        document.getElementById('presenzeDayLabel').innerText = label.charAt(0).toUpperCase() + label.slice(1);
+                        const todayBtn = document.getElementById('todayPresenzeBtn');
+                        if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
+                        const nextBtn = document.getElementById('nextDayBtn');
+                        if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
+                    }
+
+                    function loadPresenze() {
+                        const dataStr = getPresenzaDateString(presenzeOffset);
+                        const tbody = document.querySelector('#presenzeTable tbody');
+                        if (!tbody) return;
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Caricamento...</td></tr>';
+                        updatePresenzeDayLabel();
+                        fetch(`api/api_get_presenze.php?data=${dataStr}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                if (!data.success) {
+                                    tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento</td></tr>';
+                                    return;
+                                }
+                                if (data.data.length === 0) {
+                                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Nessuna presenza registrata per questo giorno.</td></tr>';
+                                    return;
+                                }
+                                tbody.innerHTML = data.data.map(row => `<tr data-id="${row.id}" data-nome="${row.nome}" data-cognome="${row.cognome}" data-ingresso="${row.ingresso}" data-uscita="${row.uscita || ''}"><td><img class="user-avatar" src="${row.fotografia}"></td><td>${row.nome}</td><td>${row.cognome}</td><td>${row.ingresso}</td><td>${row.uscita || '—'}</td><td><button class="edit-presenza-btn" data-id="${row.id}"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-presenza-btn" data-id="${row.id}"><img src="immagini/delete.png" alt="Elimina"></button></td></tr>`).join('');
+                            })
+                            .catch(() => {
+                                tbody.innerHTML = '<tr><td colspan="6">Errore di rete</td></tr>';
+                            });
+                    }
+
+                    document.getElementById('prevDayBtn').onclick = () => {
+                        presenzeOffset--;
+                        loadPresenze();
+                    }; document.getElementById('nextDayBtn').onclick = () => {
+                        if (presenzeOffset < 0) {
+                            presenzeOffset++;
+                            loadPresenze();
+                        }
+                    }; document.getElementById('todayPresenzeBtn').onclick = () => {
+                        if (presenzeOffset !== 0) {
+                            presenzeOffset = 0;
+                            loadPresenze();
+                        }
+                    };
+
+                    window.addEventListener("DOMContentLoaded", () => {
+                        loadPresenze();
+                        loadAgenda();
+                        const savedTab = localStorage.getItem("activeTab");
+                        if (savedTab) {
+                            document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+                            const mn = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
+                            if (mn) mn.classList.add('active');
+                            document.querySelectorAll('.tab-link').forEach(l => {
+                                l.classList.remove('active');
+                                if (l.dataset.tab === savedTab) l.classList.add('active');
+                            });
+                            document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+                            const sc = document.getElementById(savedTab);
+                            if (sc) sc.classList.add('active');
+                        }
+                    });
     </script>
 
     <script src="js/mobile-calendar.js"></script>

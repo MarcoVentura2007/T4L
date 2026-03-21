@@ -6298,4 +6298,81 @@ section h3 {
 }
 
 
+        .agenda-week-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;  /* ← aggiunta */
+            gap: 8px;
+            padding: 10px 0 8px;
+        }
+
+        .week-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #444;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
+
+        .week-nav-btn:hover {
+            background: #640a35;
+            border-color: #640a35;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .week-nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        .week-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            min-width: 130px;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+
+        .week-nav-today {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1.5px solid #640a35;
+            border-radius: 8px;
+            background: transparent;
+            color: #640a35;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .week-nav-today:hover {
+            background: #640a35;
+            color: #fff;
+        }
+
+        .week-nav-today.is-current-week {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+        }
+
+        @media (max-width: 768px) {
+            .week-label {
+                min-width: 90px;
+                font-size: 0.78rem;
+            }
+            .week-nav-today {
+                font-size: 0.7rem;
+                padding: 5px 9px;
+            }
+        }
 
