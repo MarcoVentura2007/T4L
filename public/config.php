@@ -2,9 +2,11 @@
 
 // --- BLOCCO ACCESSO DIRETTO ---
 // Permetti solo richieste POST AJAX
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || 
-    empty($_SERVER['HTTP_X_REQUESTED_WITH']) || 
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+    empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest'
+) {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }

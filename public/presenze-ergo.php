@@ -15,7 +15,7 @@ $conn = getDbConnection('time4all');
 
 // Prendi la classe dell'utente loggato
 $resultClasse = $conn->query("SELECT classe, codice_univoco FROM Account WHERE nome_utente = '$username'");
-if($resultClasse && $resultClasse->num_rows > 0){
+if ($resultClasse && $resultClasse->num_rows > 0) {
     $rowClasse = $resultClasse->fetch_assoc();
     $classe = $rowClasse['classe'];
     $codice = $rowClasse['codice_univoco'];
@@ -42,7 +42,7 @@ $result = $conn->query($sql);
 // Crea un array per mappare nome completo a ID
 $userMap = [];
 if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
+    while ($row = $result->fetch_assoc()) {
         $fullName = $row['nome'] . " " . $row['cognome'];
         $userMap[$fullName] = $row['id'];
     }
@@ -56,42 +56,43 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 ?>
 
 <script>
-var userMap = <?php echo json_encode($userMap); ?>;
+    var userMap = <?php echo json_encode($userMap); ?>;
 </script>
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>T4L | Selezione</title>
+    <title>T4L | Selezione</title>
 
-<link rel="icon" href="<?php echo htmlspecialchars($faviconHref, ENT_QUOTES, 'UTF-8'); ?>">
-<link rel="stylesheet" href="<?php echo htmlspecialchars($styleHref, ENT_QUOTES, 'UTF-8'); ?>">
+    <link rel="icon" href="<?php echo htmlspecialchars($faviconHref, ENT_QUOTES, 'UTF-8'); ?>">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($styleHref, ENT_QUOTES, 'UTF-8'); ?>">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-/* Fallback: evita SVG gigantesche se il CSS principale non viene caricato */
-.faceid-header-icon svg,
-.faceid-capture-btn svg,
-.faceid-result-icon svg,
-.button .svgIcon {
-    width: 24px;
-    height: 24px;
-}
-</style>
+    <style>
+        /* Fallback: evita SVG gigantesche se il CSS principale non viene caricato */
+        .faceid-header-icon svg,
+        .faceid-capture-btn svg,
+        .faceid-result-icon svg,
+        .button .svgIcon {
+            width: 24px;
+            height: 24px;
+        }
+    </style>
 
 </head>
 
 <body>
 
 
-<!-- LOADER TIKTOK-STYLE - Time4All Branded 
+    <!-- LOADER TIKTOK-STYLE - Time4All Branded 
 <div id="page-loader" class="show">
 <div class="logo-pulse-loader">
     <div class="logo-pulse-ring"></div>
@@ -103,14 +104,14 @@ var userMap = <?php echo json_encode($userMap); ?>;
 </div>
 
 -->
- 
 
- <script src="js/loader.js"></script>
+
+    <script src="js/loader.js"></script>
 
 
     <!-- NAVBAR -->
     <header class="navbar">
-        
+
 
         <div class="user-box" id="userBox">
             <img src="immagini/profile-picture.png" alt="Profile">
@@ -124,7 +125,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
             </div>
         </div>
 
-    <div class="logout-overlay" id="logoutOverlay"></div>
+        <div class="logout-overlay" id="logoutOverlay"></div>
 
         <div class="logout-modal" id="logoutModal">
             <h3>Conferma logout</h3>
@@ -136,7 +137,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
             </div>
         </div>
 
-    <div class="logo-area">
+        <div class="logo-area">
             <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
             <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
             <a href="ergoterapeutica.php"><img src="immagini/Logo-Cooperativa-Ergaterapeutica.png"></a>
@@ -150,86 +151,85 @@ var userMap = <?php echo json_encode($userMap); ?>;
 
         <div class="dropdown" id="dropdown">
 
-        <div class="menu-group">
+            <div class="menu-group">
 
-            <div class="menu-main" data-target="centroMenu">
-                <img src="immagini/Logo-centrodiurno.png">
-                Centro Diurno
+                <div class="menu-main" data-target="centroMenu">
+                    <img src="immagini/Logo-centrodiurno.png">
+                    Centro Diurno
+                </div>
+
+                <div class="submenu" id="centroMenu">
+                    <div class="menu-item" data-link="fogliofirme-centro.php">
+                        <img src="immagini/foglio-over.png" alt="">
+                        Foglio firme
+                    </div>
+                    <?php
+                    if ($classe === 'Educatore') {
+                        $gestionalePage = "gestionale_utenti.php";
+                    } elseif ($classe === 'Contabile') {
+                        $gestionalePage = "gestionale_contabile.php";
+                    } else {
+                        $gestionalePage = "#"; // default se classe sconosciuta
+                    }
+                    ?>
+                    <div class="menu-item" id="cardGestionale" data-link=<?php echo $gestionalePage; ?>>
+                        <img src="immagini/gestionale-over.png" alt="">
+                        Gestionale
+                    </div>
+                </div>
+
             </div>
 
-            <div class="submenu" id="centroMenu">
-                <div class="menu-item" data-link="fogliofirme-centro.php">
-                    <img src="immagini/foglio-over.png" alt="">
-                    Foglio firme
+
+            <div class="menu-group">
+
+                <div class="menu-main" data-target="ergoMenu">
+                    <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+                    Ergoterapeutica
                 </div>
-                <?php
-                        if($classe === 'Educatore'){
-                            $gestionalePage = "gestionale_utenti.php";
-                        } elseif($classe === 'Contabile'){
-                            $gestionalePage = "gestionale_contabile.php";
-                        } else {
-                            $gestionalePage = "#"; // default se classe sconosciuta
-                        }
+
+                <div class="submenu" id="ergoMenu">
+                    <div class="menu-item" data-link="presenze-ergo.php">
+                        <img src="immagini/presenze-ergo.png" alt="">
+                        Presenze
+                    </div>
+                    <?php
+                    if ($classe === 'Educatore') {
+                        $gestionalePageErgo = "gestionale_ergo_utenti.php";
+                    } else if ($classe === 'Contabile') {
+                        $gestionalePageErgo = "gestionale_ergo_contabile.php";
+                    } else if ($classe === 'Amministratore') {
+                        $gestionalePageErgo = "gestionale_ergo_amministratore.php";
+                    } else {
+                        $gestionalePageErgo = "#";
+                    }
                     ?>
-                <div class="menu-item" id="cardGestionale" data-link=<?php echo $gestionalePage; ?> >
-                    <img src="immagini/gestionale-over.png" alt="">
-                    Gestionale
+
+                    <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
+                        <img src="immagini/gestionale-ergo.png" alt="">
+                        Gestionale
+                    </div>
                 </div>
+
             </div>
 
         </div>
-
-
-        <div class="menu-group">
-
-            <div class="menu-main" data-target="ergoMenu">
-                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
-                Ergoterapeutica
-            </div>
-
-            <div class="submenu" id="ergoMenu">
-                <div class="menu-item" data-link="presenze-ergo.php">
-                    <img src="immagini/presenze-ergo.png" alt="">
-                    Presenze
-                </div>
-                <?php
-                        if($classe === 'Educatore'){
-                            $gestionalePageErgo = "gestionale_ergo_utenti.php";
-
-                        } else if($classe === 'Contabile'){
-                            $gestionalePageErgo = "gestionale_ergo_contabile.php";
-                        } else if($classe === 'Amministratore') {
-                            $gestionalePageErgo = "gestionale_ergo_amministratore.php"; 
-                        } else {
-                            $gestionalePageErgo = "#"; 
-                        }
-                    ?>
-                
-                <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
-                    <img src="immagini/gestionale-ergo.png" alt="">
-                    Gestionale
-                </div>
-            </div>
-
-        </div>
-
-    </div>
 
     </header>
 
-    
+
 
     <!-- CONTENUTO PRINCIPALE -->
     <main class="carousel-dashboard">
 
-        
+
 
         <!-- FACE ID MODERN CONTAINER -->
         <div class="faceid-container">
             <div class="faceid-header">
                 <div class="faceid-header-icon">
                     <svg viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1s-1-.45-1-1V11zm4 8c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2z"/>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1s-1-.45-1-1V11zm4 8c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2z" />
                     </svg>
                 </div>
                 <h2>Riconoscimento Facciale</h2>
@@ -238,7 +238,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
 
             <div class="faceid-video-wrapper">
                 <video id="video" width="320" height="240" autoplay></video>
-                
+
                 <!-- Scanning overlay -->
                 <div class="faceid-scan-overlay" id="scanOverlay">
                     <div class="faceid-scan-line"></div>
@@ -250,13 +250,13 @@ var userMap = <?php echo json_encode($userMap); ?>;
                     </div>
                 </div>
             </div>
-            
+
             <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
-            
+
             <!-- Modern Capture Button -->
             <button id="snap" class="faceid-capture-btn">
                 <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7v-2z"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7v-2z" />
                 </svg>
                 <span>Scatta e verifica</span>
             </button>
@@ -265,7 +265,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
             <div id="faceidResult" class="faceid-result">
                 <div class="faceid-result-icon">
                     <svg id="resultIcon" viewBox="0 0 24 24">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
                 </div>
                 <div class="faceid-result-content">
@@ -285,7 +285,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
                     <img id="popupUserImg">
                     <h3 id="popupUserName"></h3>
                 </div>
-                
+
 
                 <div class="popup-right">
                     <h2 class="popup-title">Inserisci orari</h2>
@@ -299,7 +299,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
                             <input type="time" id="timeOut">
                         </div>
                     </div>
-                    
+
 
                     <button class="btn-next" id="goSignature" style="background-color: aqua;">Continua</button>
                 </div>
@@ -308,21 +308,21 @@ var userMap = <?php echo json_encode($userMap); ?>;
 
         <!-- FIRMA -->
         <div class="popup big" id="signaturePopup">
-            
+
             <div class="popup-content">
                 <div class="popup-left">
-                    
+
                     <img id="popupUserImg2">
                     <h3 id="popupUserName2"></h3>
                 </div>
 
                 <div class="popup-right">
-                    
+
                     <button class="close-popup" id="closeSignaturePopup">✖</button>
 
                     <button class="button" id="backToTimePopup">
                         <svg class="svgIcon" viewBox="0 0 24 24">
-                            <path fill="white" d="M19 11H7.8l4.6-4.6a1 1 0 1 0-1.4-1.4l-6.3 6.3a1 1 0 0 0 0 1.4l6.3 6.3a1 1 0 1 0 1.4-1.4L7.8 13H19a1 1 0 1 0 0-2z"/>
+                            <path fill="white" d="M19 11H7.8l4.6-4.6a1 1 0 1 0-1.4-1.4l-6.3 6.3a1 1 0 0 0 0 1.4l6.3 6.3a1 1 0 1 0 1.4-1.4L7.8 13H19a1 1 0 1 0 0-2z" />
                         </svg>
                     </button>
 
@@ -344,98 +344,95 @@ var userMap = <?php echo json_encode($userMap); ?>;
         <div class="popup success-popup" id="successPopup">
             <div class="success-content">
                 <div class="success-icon">
-                <svg viewBox="-2 -2 56 56">
-                    <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-                    <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
-                </svg>
+                    <svg viewBox="-2 -2 56 56">
+                        <circle class="check-circle" cx="26" cy="26" r="25" fill="none" />
+                        <path class="check-check" d="M14 27 L22 35 L38 19" fill="none" />
+                    </svg>
                 </div>
                 <p class="success-text">Firma completata!!</p>
             </div>
         </div>
 
 
-        
+
 
 
 
     </main>
 
     <div id="code-popup-ergo" class="popupErgo">
-                <div class="content">
-                    <p class="codice-text">Inserisci il codice di accesso</p>
-                   <input 
-                        type="password" 
-                        placeholder="Codice d'accesso" 
-                        id="password-ergo"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        autocomplete="off"
-                        required
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                    >
+        <div class="content">
+            <p class="codice-text">Inserisci il codice di accesso</p>
+            <input
+                type="password"
+                placeholder="Codice d'accesso"
+                id="password-ergo"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                autocomplete="off"
+                required
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
 
 
-                    <button class="learn-more" id="button-gestionale-ergo">
-                        <span class="circle" aria-hidden="true">
-                        <span class="icon arrow"></span>
-                        </span>
-                        <span class="button-text">Continua</span>
-                    </button>
+            <button class="learn-more" id="button-gestionale-ergo">
+                <span class="circle" aria-hidden="true">
+                    <span class="icon arrow"></span>
+                </span>
+                <span class="button-text">Continua</span>
+            </button>
 
-                    <div id="notify" class="notify hidden">
-                        <div class="icon" id="notify-icon"></div>
-                        <div class="text" id="notify-text"></div>
-                    </div>
+            <div id="notify" class="notify hidden">
+                <div class="icon" id="notify-icon"></div>
+                <div class="text" id="notify-text"></div>
             </div>
         </div>
+    </div>
     <!-- POPUP CODICE GESTIONALE -->
-        <div id="code-popup" class="popup">
-                <div class="content">
-                    <p class="codice-text">Inserisci il codice di accesso</p>
-                   <input 
-                        type="password" 
-                        placeholder="Codice d'accesso" 
-                        id="password"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        autocomplete="off"
-                        required
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                    >
+    <div id="code-popup" class="popup">
+        <div class="content">
+            <p class="codice-text">Inserisci il codice di accesso</p>
+            <input
+                type="password"
+                placeholder="Codice d'accesso"
+                id="password"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                autocomplete="off"
+                required
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
 
 
-                    <button class="learn-more" id="button-gestionale" style="background-color: aqua;">
-                        <span class="circle" aria-hidden="true">
-                        <span class="icon arrow"></span>
-                        </span>
-                        <span class="button-text">Continua</span>
-                    </button>
+            <button class="learn-more" id="button-gestionale" style="background-color: aqua;">
+                <span class="circle" aria-hidden="true">
+                    <span class="icon arrow"></span>
+                </span>
+                <span class="button-text">Continua</span>
+            </button>
 
-                    <div id="notify" class="notify hidden">
-                        <div class="icon" id="notify-icon"></div>
-                        <div class="text" id="notify-text"></div>
-                    </div>
+            <div id="notify" class="notify hidden">
+                <div class="icon" id="notify-icon"></div>
+                <div class="text" id="notify-text"></div>
             </div>
         </div>
+    </div>
 
-        <footer class="footer-bar">
-            <div class="footer-left">© Time4All • 2026</div>
-            <div class="footer-top">
-                <a href="#top" class="footer-image"></a>
-            </div>
+    <footer class="footer-bar">
+        <div class="footer-left">© Time4All • 2026</div>
+        <div class="footer-top">
+            <a href="#top" class="footer-image"></a>
+        </div>
         <div class="footer-right">
             <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
         </div>
-        </footer>
+    </footer>
 
     <script>
-
         // FACEID ELEMENTS
         const video = document.getElementById("video");
-        const canvas = document.getElementById("canvas");        
+        const canvas = document.getElementById("canvas");
         const snap = document.getElementById("snap");
         const scanOverlay = document.getElementById("scanOverlay");
-        
+
         // Result elements
         const faceidResult = document.getElementById("faceidResult");
         const resultIcon = document.getElementById("resultIcon");
@@ -443,7 +440,9 @@ var userMap = <?php echo json_encode($userMap); ?>;
         const resultMessage = document.getElementById("resultMessage");
 
         // WEBCAM ACCESS
-        navigator.mediaDevices.getUserMedia({ video: true })
+        navigator.mediaDevices.getUserMedia({
+                video: true
+            })
             .then(stream => {
                 video.srcObject = stream;
             })
@@ -456,15 +455,15 @@ var userMap = <?php echo json_encode($userMap); ?>;
         function showFaceIDResult(type, title, message) {
             // Remove old classes
             faceidResult.classList.remove('success', 'error', 'info');
-            
+
             // Add new class and show
             faceidResult.classList.add(type);
             faceidResult.classList.add('show');
-            
+
             // Update content
             resultTitle.textContent = title;
             resultMessage.textContent = message;
-            
+
             // Update icon based on type
             if (type === 'success') {
                 resultIcon.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
@@ -473,7 +472,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
             } else {
                 resultIcon.innerHTML = '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>';
             }
-            
+
             // Auto hide after 8 seconds for success
             if (type === 'success') {
                 setTimeout(() => {
@@ -487,7 +486,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
             // Show scanning animation
             scanOverlay.classList.add('active');
             snap.classList.add('capturing');
-            
+
             const ctx = canvas.getContext("2d");
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -495,18 +494,21 @@ var userMap = <?php echo json_encode($userMap); ?>;
                 const formData = new FormData();
                 formData.append("image", blob, "photo.png");
 
-                fetch("../faceid/public/upload.php", { method: "POST", body: formData })
+                fetch("../faceid/public/upload.php", {
+                        method: "POST",
+                        body: formData
+                    })
                     .then(res => {
                         console.log("DEBUG: Response status:", res.status);
                         return res.text();
                     })
                     .then(text => {
                         console.log("DEBUG: Response text:", text);
-                        
+
                         // Hide scanning animation
                         scanOverlay.classList.remove('active');
                         snap.classList.remove('capturing');
-                        
+
                         try {
                             const data = JSON.parse(text);
                             console.log("DEBUG: Parsed data:", data);
@@ -549,7 +551,7 @@ var userMap = <?php echo json_encode($userMap); ?>;
                                         overlay.classList.add("show");
                                         timePopup.classList.add("show");
                                         document.body.classList.add("popup-open");
-                                        
+
                                         // Hide Face ID result when popup opens
                                         faceidResult.classList.remove('show');
                                     }, 1500);
@@ -576,179 +578,183 @@ var userMap = <?php echo json_encode($userMap); ?>;
         });
 
         // ELEMENTI
-    const cardGestionale = document.getElementById("cardGestionale");
-    const overlay = document.getElementById("popupOverlay");
-    const codePopup = document.getElementById("code-popup");
-    const buttonGestionale = document.getElementById("button-gestionale");
-    const passwordField = document.getElementById("password");
-    const hamGestionale = document.getElementById("ham-gestionale");
+        const cardGestionale = document.getElementById("cardGestionale");
+        const overlay = document.getElementById("popupOverlay");
+        const codePopup = document.getElementById("code-popup");
+        const buttonGestionale = document.getElementById("button-gestionale");
+        const passwordField = document.getElementById("password");
+        const hamGestionale = document.getElementById("ham-gestionale");
 
 
 
 
 
-// FUNZIONE NOTIFICATION
-function showNotification(success = true, message = "Messaggio") {
-    const notify = document.createElement('div');
-    notify.classList.add('notify');
-    notify.classList.add(success ? 'success' : 'error');
+        // FUNZIONE NOTIFICATION
+        function showNotification(success = true, message = "Messaggio") {
+            const notify = document.createElement('div');
+            notify.classList.add('notify');
+            notify.classList.add(success ? 'success' : 'error');
 
-    const iconWrapper = document.createElement('div');
-    iconWrapper.classList.add('icon-wrapper');
+            const iconWrapper = document.createElement('div');
+            iconWrapper.classList.add('icon-wrapper');
 
-    const circle = document.createElement('div');
-    circle.classList.add('circle');
-    iconWrapper.appendChild(circle);
+            const circle = document.createElement('div');
+            circle.classList.add('circle');
+            iconWrapper.appendChild(circle);
 
-    const icon = document.createElement('span');
-    icon.classList.add('icon');
-    icon.textContent = success ? "✔" : "✖";
-    iconWrapper.appendChild(icon);
+            const icon = document.createElement('span');
+            icon.classList.add('icon');
+            icon.textContent = success ? "✔" : "✖";
+            iconWrapper.appendChild(icon);
 
-    notify.appendChild(iconWrapper);
+            notify.appendChild(iconWrapper);
 
-    const text = document.createElement('span');
-    text.textContent = message;
-    notify.appendChild(text);
+            const text = document.createElement('span');
+            text.textContent = message;
+            notify.appendChild(text);
 
-    document.body.appendChild(notify);
+            document.body.appendChild(notify);
 
-    // Mostra con animazione
-    setTimeout(() => notify.classList.add('show'), 10);
+            // Mostra con animazione
+            setTimeout(() => notify.classList.add('show'), 10);
 
-    // Nascondi dopo 3 secondi con animazione uscita
-    setTimeout(() => {
-        notify.classList.remove('show');
-        notify.classList.add('hide');
-        notify.addEventListener('animationend', () => notify.remove());
-    }, 2000);
-}
-
-cardGestionale.addEventListener("click", (e) => {
-    e.preventDefault();
-    overlay.classList.add("show");
-    codePopup.classList.add("show");
-    document.body.classList.add("popup-open");
-    passwordField.focus();
-    return false;
-});
-
-// CHIUDI POPUP CLICCANDO FUORI
-overlay.addEventListener("click", () => {
-    overlay.classList.remove("show");
-    codePopup.classList.remove("show");
-    document.body.classList.remove("popup-open");
-});
-
-const passwordFieldErgo = document.getElementById("password-ergo");
-const codePopupErgo = document.getElementById("code-popup-ergo");
-
-const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
-buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
-
-// FUNZIONE DI CONTROLLO CODICE
-async function verificaCodiceErgo() {
-    const codice = passwordFieldErgo.value.trim();
-
-    if (!codice) {
-        showNotification(false, "Inserisci il codice");
-        return;
-    }
-
-    try {
-        const response = await fetch("api/api_codice_gestionale_ergo.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `codice=${encodeURIComponent(codice)}`
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification(true, "Accesso consentito");
-
-            passwordFieldErgo.value = "";
-
-            // Chiudi popup
-            overlay.classList.remove("show");
-            codePopupErgo.classList.remove("show");
-            document.body.classList.remove("popup-open");
-
-            // Redirect alla pagina di gestionale
+            // Nascondi dopo 3 secondi con animazione uscita
             setTimeout(() => {
-                window.location.href = result.redirect;
+                notify.classList.remove('show');
+                notify.classList.add('hide');
+                notify.addEventListener('animationend', () => notify.remove());
             }, 2000);
-        } else {
-            showNotification(false, result.message);
-            passwordFieldErgo.value = ""; // pulisci input se sbagliato
         }
 
-    } catch (err) {
-        showNotification(false, "Errore server");
-        console.error(err);
-    }
-}
-
-        overlay.onclick = closePopups;
-
-passwordFieldErgo.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        e.preventDefault(); // evita submit involontario
-        verificaCodiceErgo();
-    }
-});
-
-
-// FUNZIONE DI CONTROLLO CODICE
-async function verificaCodice() {
-    const codice = passwordField.value.trim();
-
-    if (!codice) {
-        showNotification(false, "Inserisci il codice");
-        return;
-    }
-
-    try {
-        const response = await fetch("api/api_codice_gestionale.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `codice=${encodeURIComponent(codice)}`
+        cardGestionale.addEventListener("click", (e) => {
+            e.preventDefault();
+            overlay.classList.add("show");
+            codePopup.classList.add("show");
+            document.body.classList.add("popup-open");
+            passwordField.focus();
+            return false;
         });
 
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification(true, "Accesso consentito");
-
-          
+        // CHIUDI POPUP CLICCANDO FUORI
+        overlay.addEventListener("click", () => {
             overlay.classList.remove("show");
             codePopup.classList.remove("show");
             document.body.classList.remove("popup-open");
+        });
 
-            setTimeout(() => {
-                window.location.href = result.redirect;
-            }, 2000);
-        } else {
-            showNotification(false, result.message);
-            passwordField.value = ""; 
+        const passwordFieldErgo = document.getElementById("password-ergo");
+        const codePopupErgo = document.getElementById("code-popup-ergo");
+
+        const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
+        buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
+
+        // FUNZIONE DI CONTROLLO CODICE
+        async function verificaCodiceErgo() {
+            const codice = passwordFieldErgo.value.trim();
+
+            if (!codice) {
+                showNotification(false, "Inserisci il codice");
+                return;
+            }
+
+            try {
+                const response = await fetch("api/api_codice_gestionale_ergo.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `codice=${encodeURIComponent(codice)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(true, "Accesso consentito");
+
+                    passwordFieldErgo.value = "";
+
+                    // Chiudi popup
+                    overlay.classList.remove("show");
+                    codePopupErgo.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+
+                    // Redirect alla pagina di gestionale
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 2000);
+                } else {
+                    showNotification(false, result.message);
+                    passwordFieldErgo.value = ""; // pulisci input se sbagliato
+                }
+
+            } catch (err) {
+                showNotification(false, "Errore server");
+                console.error(err);
+            }
         }
 
-    } catch (err) {
-        showNotification(false, "Errore server");
-        console.error(err);
-    }
-}
+        overlay.onclick = closePopups;
 
-    // BOTTONE CONTINUA
-    buttonGestionale.addEventListener("click", verificaCodice);
+        passwordFieldErgo.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault(); // evita submit involontario
+                verificaCodiceErgo();
+            }
+        });
 
-    // INVIO DALL'INPUT
-    passwordField.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            verificaCodice();
+
+        // FUNZIONE DI CONTROLLO CODICE
+        async function verificaCodice() {
+            const codice = passwordField.value.trim();
+
+            if (!codice) {
+                showNotification(false, "Inserisci il codice");
+                return;
+            }
+
+            try {
+                const response = await fetch("api/api_codice_gestionale.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `codice=${encodeURIComponent(codice)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(true, "Accesso consentito");
+
+
+                    overlay.classList.remove("show");
+                    codePopup.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 2000);
+                } else {
+                    showNotification(false, result.message);
+                    passwordField.value = "";
+                }
+
+            } catch (err) {
+                showNotification(false, "Errore server");
+                console.error(err);
+            }
         }
-    });
+
+        // BOTTONE CONTINUA
+        buttonGestionale.addEventListener("click", verificaCodice);
+
+        // INVIO DALL'INPUT
+        passwordField.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                verificaCodice();
+            }
+        });
 
 
         /* HAMBURGER */
@@ -767,7 +773,7 @@ async function verificaCodice() {
 
                 // chiudi tutti gli altri submenu
                 document.querySelectorAll(".submenu").forEach(menu => {
-                    if(menu !== targetMenu){
+                    if (menu !== targetMenu) {
                         menu.classList.remove("open");
                         menu.previousElementSibling.classList.remove("open"); // reset freccetta
                     }
@@ -783,7 +789,7 @@ async function verificaCodice() {
 
         document.querySelectorAll(".menu-item[data-link]").forEach(item => {
             const link = item.dataset.link;
-            if(link.includes("gestionale_ergo")) { 
+            if (link.includes("gestionale_ergo")) {
                 // Ergoterapeutica Gestionale - usa popup ergo
                 item.addEventListener("click", (e) => {
                     e.preventDefault(); // previeni redirect
@@ -792,7 +798,7 @@ async function verificaCodice() {
                     document.body.classList.add("popup-open");
                     passwordFieldErgo.focus(); // focus input
                 });
-            } else if(link.includes("gestionale")) { 
+            } else if (link.includes("gestionale")) {
                 // Centro Diurno Gestionale - usa popup standard
                 item.addEventListener("click", (e) => {
                     e.preventDefault(); // previeni redirect
@@ -817,12 +823,12 @@ async function verificaCodice() {
         /* USER DROPDOWN */
         const userBox = document.getElementById("userBox");
         const userDropdown = document.getElementById("userDropdown");
-        userBox.addEventListener("click", (e)=>{
+        userBox.addEventListener("click", (e) => {
             e.stopPropagation();
             userDropdown.classList.toggle("show");
         });
-        document.addEventListener("click",(e)=>{
-            if(!userBox.contains(e.target)){
+        document.addEventListener("click", (e) => {
+            if (!userBox.contains(e.target)) {
                 userDropdown.classList.remove("show");
             }
         });
@@ -842,7 +848,8 @@ async function verificaCodice() {
 
         cancelLogout.onclick = closeLogout;
         logoutOverlay.onclick = closeLogout;
-        function closeLogout(){
+
+        function closeLogout() {
             logoutOverlay.classList.remove("show");
             logoutModal.classList.remove("show");
         }
@@ -870,13 +877,17 @@ async function verificaCodice() {
             }
         });
 
-        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        popupObserver.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class"]
+        });
         syncBodyScrollLock();
 
 
 
         /* POPUP PROFILI */
-        
+
         const timePopup = document.getElementById("timePopup");
         const signPopup = document.getElementById("signaturePopup");
         const img1 = document.getElementById("popupUserImg");
@@ -911,7 +922,7 @@ async function verificaCodice() {
             const timeOut = document.getElementById("timeOut").value;
 
             // CONTROLLO PRIMA DI ANDARE ALLA FIRMA
-            if(timeIn === "" || timeOut === ""){
+            if (timeIn === "" || timeOut === "") {
                 alert("Inserisci prima l'orario di ingresso e di uscita!");
                 return; // blocca il passaggio alla firma
             }
@@ -927,8 +938,8 @@ async function verificaCodice() {
 
         /* PER USCIRE */
         overlay.onclick = closePopups;
-        
-         function closePopups(){
+
+        function closePopups() {
             overlay.classList.remove("show");
             codePopup.classList.remove("show");
             codePopupErgo.classList.remove("show");
@@ -939,24 +950,9 @@ async function verificaCodice() {
         const backBtn = document.getElementById("backToTimePopup");
 
         backBtn.onclick = () => {
-            signPopup.classList.remove("show");   // chiude firma
-            timePopup.classList.add("show");      // riapre orari
+            signPopup.classList.remove("show"); // chiude firma
+            timePopup.classList.add("show"); // riapre orari
         };
-
-
-
-
-
-
-
-
-
-
-        
-        
-
-
-
     </script>
 
 

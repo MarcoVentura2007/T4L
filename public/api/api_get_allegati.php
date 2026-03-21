@@ -35,7 +35,7 @@ while ($row = $result->fetch_assoc()) {
     // Determina tipo file per icona
     $extension = pathinfo($row['file'], PATHINFO_EXTENSION);
     $tipo = 'file';
-    
+
     switch (strtolower($extension)) {
         case 'pdf':
             $tipo = 'pdf';
@@ -58,7 +58,7 @@ while ($row = $result->fetch_assoc()) {
             $tipo = 'txt';
             break;
     }
-    
+
     $allegati[] = [
         'id' => $row['id'],
         'percorso' => $row['file'], // legacy key used by frontend

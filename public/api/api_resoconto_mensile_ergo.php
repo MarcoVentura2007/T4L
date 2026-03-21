@@ -3,14 +3,14 @@ session_start();
 header('Content-Type: application/json');
 header("Cache-Control: no-cache");
 
-if(!isset($_SESSION['username'])){
-    echo json_encode(['success'=>false, 'error'=>'Non autorizzato']);
+if (!isset($_SESSION['username'])) {
+    echo json_encode(['success' => false, 'error' => 'Non autorizzato']);
     exit;
 }
 
 $data = json_decode(file_get_contents("php://input"), true);
-if(!isset($data['mese'])){
-    echo json_encode(['success'=>false, 'error'=>'Mese non specificato']);
+if (!isset($data['mese'])) {
+    echo json_encode(['success' => false, 'error' => 'Mese non specificato']);
     exit;
 }
 
@@ -20,7 +20,7 @@ list($anno, $mese) = explode('-', $data['mese']);
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4allergo');
 if ($conn->connect_error) {
-    echo json_encode(['success'=>false,'error'=>'Connessione DB fallita']);
+    echo json_encode(['success' => false, 'error' => 'Connessione DB fallita']);
     exit;
 }
 
@@ -75,14 +75,13 @@ $stmt->execute();
 $res = $stmt->get_result();
 
 $rows = [];
-while($r = $res->fetch_assoc()){
+while ($r = $res->fetch_assoc()) {
     $r['ore_totali'] = round($r['ore_totali'], 2);
     $r['costo'] = round($r['ore_totali'] * $r['Stipendio_Orario'], 2);
     // Include all users, even those with 0 hours
     $rows[] = $r;
 }
 
-echo json_encode(['success'=>true,'data'=>$rows]);
+echo json_encode(['success' => true, 'data' => $rows]);
 $stmt->close();
 $conn->close();
-?>

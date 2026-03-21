@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 // Database connection
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4all');
-if($conn->connect_error){
+if ($conn->connect_error) {
     echo json_encode([
         "success" => false,
         "message" => "Errore connessione database"
@@ -88,7 +88,7 @@ if ($stmt->execute()) {
     if (file_exists($filePath)) {
         unlink($filePath);
     }
-    
+
     echo json_encode(['success' => true, 'message' => 'Allegato eliminato con successo']);
 } else {
     echo json_encode(['success' => false, 'message' => 'Errore eliminazione: ' . $stmt->error]);

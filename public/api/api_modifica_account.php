@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 header("Cache-Control: no chache");
 require __DIR__ . '/../config.php';
 
-if(!isset($_SESSION['username'])){
+if (!isset($_SESSION['username'])) {
     echo json_encode([
         "success" => false,
         "message" => "Sessione non valida"
@@ -15,7 +15,7 @@ if(!isset($_SESSION['username'])){
 
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4all');
-if($conn->connect_error){
+if ($conn->connect_error) {
     echo json_encode([
         "success" => false,
         "message" => "Errore connessione database"
@@ -57,7 +57,7 @@ $password = isset($data['password']) ? trim($data['password']) : "";
 $classe = isset($data['classe']) ? trim($data['classe']) : "";
 $codice_univoco = isset($data['codice_univoco']) ? trim($data['codice_univoco']) : "";
 
-if($nome_utente === "" || $classe === "" || $codice_univoco === ""){
+if ($nome_utente === "" || $classe === "" || $codice_univoco === "") {
     echo json_encode([
         "success" => false,
         "message" => "Compila tutti i campi obbligatori"
@@ -66,10 +66,10 @@ if($nome_utente === "" || $classe === "" || $codice_univoco === ""){
 }
 
 // Se password è fornita, fai l'hash, altrimenti non modificarla
-if($password !== ""){
+if ($password !== "") {
     // Usa PEPPER come in api_login
     $password_hash = password_hash($password . PEPPER, PASSWORD_BCRYPT);
-    
+
     $stmt = $conn->prepare(
         "UPDATE Account SET password = ?, classe = ?, codice_univoco = ? WHERE nome_utente = ?"
     );
@@ -81,8 +81,8 @@ if($password !== ""){
     $stmt->bind_param("sss", $classe, $codice_univoco, $nome_utente);
 }
 
-if($stmt->execute()){
-    if($stmt->affected_rows > 0){
+if ($stmt->execute()) {
+    if ($stmt->affected_rows > 0) {
         echo json_encode([
             "success" => true,
             "message" => "Account modificato con successo"
@@ -102,5 +102,3 @@ if($stmt->execute()){
 
 $stmt->close();
 $conn->close();
-
-?>

@@ -76,148 +76,165 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 display: none;
             }
         }
+
         .agenda-week-nav {
-                display: flex;
-                align-items: center;
-                justify-content: center;  
-                gap: 8px;
-                padding: 10px 0 8px;
-            }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 0 8px;
+        }
 
-            .week-nav-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 34px;
-                height: 34px;
-                border: 1.5px solid #e0e0e0;
-                border-radius: 8px;
-                background: #fff;
-                color: #444;
-                cursor: pointer;
-                flex-shrink: 0;
-                transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
-            }
+        .week-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #444;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
 
-            .week-nav-btn:hover {
-                background: #640a35;
-                border-color: #640a35;
-                color: #fff;
-                transform: scale(1.05);
-            }
+        .week-nav-btn:hover {
+            background: #640a35;
+            border-color: #640a35;
+            color: #fff;
+            transform: scale(1.05);
+        }
 
-            .week-nav-btn:active {
-                transform: scale(0.97);
-            }
+        .week-nav-btn:active {
+            transform: scale(0.97);
+        }
 
+        .week-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            min-width: 130px;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+
+        .week-nav-today {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1.5px solid #640a35;
+            border-radius: 8px;
+            background: transparent;
+            color: #640a35;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .week-nav-today:hover {
+            background: #640a35;
+            color: #fff;
+        }
+
+        .week-nav-today.is-current-week {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+        }
+
+        @media (max-width: 768px) {
             .week-label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: #444;
-                min-width: 130px;
-                text-align: center;
-                letter-spacing: 0.01em;
+                min-width: 90px;
+                font-size: 0.78rem;
             }
 
             .week-nav-today {
-                font-size: 0.75rem;
-                font-weight: 600;
-                padding: 6px 12px;
-                border: 1.5px solid #640a35;
-                border-radius: 8px;
-                background: transparent;
-                color: #640a35;
-                cursor: pointer;
-                white-space: nowrap;
-                transition: background 0.15s, color 0.15s;
+                font-size: 0.7rem;
+                padding: 5px 9px;
             }
+        }
 
-            .week-nav-today:hover {
-                background: #640a35;
-                color: #fff;
-            }
+        /* Navigazione giorni — Presenze */
+        .presenze-day-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 0 12px;
+        }
 
-            .week-nav-today.is-current-week {
-                background: #640a35;
-                color: #fff;
-                border-color: #640a35;
-            }
+        .presenze-day-nav .week-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #444;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
 
-            @media (max-width: 768px) {
-                .week-label {
-                    min-width: 90px;
-                    font-size: 0.78rem;
-                }
-                .week-nav-today {
-                    font-size: 0.7rem;
-                    padding: 5px 9px;
-                }
-            }
+        .presenze-day-nav .week-nav-btn:hover {
+            background: #640a35;
+            border-color: #640a35;
+            color: #fff;
+            transform: scale(1.05);
+        }
 
-            /* Navigazione giorni — Presenze */
-            .presenze-day-nav {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                padding: 10px 0 12px;
-            }
-            .presenze-day-nav .week-nav-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 34px;
-                height: 34px;
-                border: 1.5px solid #e0e0e0;
-                border-radius: 8px;
-                background: #fff;
-                color: #444;
-                cursor: pointer;
-                flex-shrink: 0;
-                transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
-            }
-            .presenze-day-nav .week-nav-btn:hover {
-                background: #640a35;
-                border-color: #640a35;
-                color: #fff;
-                transform: scale(1.05);
-            }
-            .presenze-day-nav .week-nav-btn:active {
-                transform: scale(0.97);
-            }
+        .presenze-day-nav .week-nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        .presenze-day-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            min-width: 200px;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+
+        .presenze-day-nav .week-nav-today {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1.5px solid #640a35;
+            border-radius: 8px;
+            background: transparent;
+            color: #640a35;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .presenze-day-nav .week-nav-today:hover {
+            background: #640a35;
+            color: #fff;
+        }
+
+        .presenze-day-nav .week-nav-today.is-today {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+        }
+
+        @media (max-width: 768px) {
             .presenze-day-label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: #444;
-                min-width: 200px;
-                text-align: center;
-                letter-spacing: 0.01em;
+                min-width: 140px;
+                font-size: 0.78rem;
             }
+
             .presenze-day-nav .week-nav-today {
-                font-size: 0.75rem;
-                font-weight: 600;
-                padding: 6px 12px;
-                border: 1.5px solid #640a35;
-                border-radius: 8px;
-                background: transparent;
-                color: #640a35;
-                cursor: pointer;
-                white-space: nowrap;
-                transition: background 0.15s, color 0.15s;
+                font-size: 0.7rem;
+                padding: 5px 9px;
             }
-            .presenze-day-nav .week-nav-today:hover {
-                background: #640a35;
-                color: #fff;
-            }
-            .presenze-day-nav .week-nav-today.is-today {
-                background: #640a35;
-                color: #fff;
-                border-color: #640a35;
-            }
-            @media (max-width: 768px) {
-                .presenze-day-label { min-width: 140px; font-size: 0.78rem; }
-                .presenze-day-nav .week-nav-today { font-size: 0.7rem; padding: 5px 9px; }
-            }
+        }
     </style>
 </head>
 
@@ -1021,9 +1038,9 @@ $resultRagazzi = $conn->query($sqlRagazzi);
             });
         });
 
-        
 
-        
+
+
         // Stampa Agenda
         const stampaAgendaBtn = document.getElementById("stampaAgendaBtn");
         if (stampaAgendaBtn) {
@@ -1123,126 +1140,129 @@ $resultRagazzi = $conn->query($sqlRagazzi);
             };
         }
 
-                    // =====================================================================
-                    // SIDEBAR STATE
-                    // =====================================================================
-                    const checkboxInput = document.getElementById('checkbox-input');
-                    if (checkboxInput) {
-                        const s = localStorage.getItem('sidebarOpen');
-                        if (s !== null) checkboxInput.checked = s === 'true';
-                        checkboxInput.addEventListener('change', () => localStorage.setItem('sidebarOpen', checkboxInput.checked));
+        // =====================================================================
+        // SIDEBAR STATE
+        // =====================================================================
+        const checkboxInput = document.getElementById('checkbox-input');
+        if (checkboxInput) {
+            const s = localStorage.getItem('sidebarOpen');
+            if (s !== null) checkboxInput.checked = s === 'true';
+            checkboxInput.addEventListener('change', () => localStorage.setItem('sidebarOpen', checkboxInput.checked));
+        }
+
+        // =====================================================================
+        // SCROLL LOCK
+        // =====================================================================
+        function syncBodyScrollLock() {
+            document.body.classList.toggle("popup-open", Boolean(document.querySelector(".modal-box.show,.popup.show,.logout-modal.show,.success-popup.show,.modal-overlay.show,.logout-overlay.show")));
+        }
+        new MutationObserver(() => syncBodyScrollLock()).observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class"]
+        });
+        syncBodyScrollLock();
+
+        // =====================================================================
+        // MOBILE TAB SWITCH + RESTORE
+        // =====================================================================
+        function switchTab(tabId, navItem) {
+            document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+            navItem.classList.add('active');
+            document.querySelectorAll('.tab-link').forEach(l => {
+                l.classList.remove('active');
+                if (l.dataset.tab === tabId) l.classList.add('active');
+            });
+            document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            localStorage.setItem("activeTab", tabId);
+        }
+
+        // =====================================================================
+        // PRESENZE — navigazione per data
+        // =====================================================================
+        let presenzeOffset = 0;
+
+        function getPresenzaDateString(offset) {
+            const d = new Date();
+            d.setDate(d.getDate() + offset);
+            return getLocalDateString(d);
+        }
+
+        function updatePresenzeDayLabel() {
+            const d = new Date();
+            d.setDate(d.getDate() + presenzeOffset);
+            const label = d.toLocaleDateString('it-IT', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            document.getElementById('presenzeDayLabel').innerText = label.charAt(0).toUpperCase() + label.slice(1);
+            const todayBtn = document.getElementById('todayPresenzeBtn');
+            if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
+            const nextBtn = document.getElementById('nextDayBtn');
+            if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
+        }
+
+        function loadPresenze() {
+            const dataStr = getPresenzaDateString(presenzeOffset);
+            const tbody = document.querySelector('#presenzeTable tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Caricamento...</td></tr>';
+            updatePresenzeDayLabel();
+            fetch(`api/api_get_presenze.php?data=${dataStr}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento</td></tr>';
+                        return;
                     }
-
-                    // =====================================================================
-                    // SCROLL LOCK
-                    // =====================================================================
-                    function syncBodyScrollLock() {
-                        document.body.classList.toggle("popup-open", Boolean(document.querySelector(".modal-box.show,.popup.show,.logout-modal.show,.success-popup.show,.modal-overlay.show,.logout-overlay.show")));
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Nessuna presenza registrata per questo giorno.</td></tr>';
+                        return;
                     }
-                    new MutationObserver(() => syncBodyScrollLock()).observe(document.body, {
-                        subtree: true,
-                        attributes: true,
-                        attributeFilter: ["class"]
-                    }); syncBodyScrollLock();
+                    tbody.innerHTML = data.data.map(row => `<tr data-id="${row.id}" data-nome="${row.nome}" data-cognome="${row.cognome}" data-ingresso="${row.ingresso}" data-uscita="${row.uscita || ''}"><td><img class="user-avatar" src="${row.fotografia}"></td><td>${row.nome}</td><td>${row.cognome}</td><td>${row.ingresso}</td><td>${row.uscita || '—'}</td><td><button class="edit-presenza-btn" data-id="${row.id}"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-presenza-btn" data-id="${row.id}"><img src="immagini/delete.png" alt="Elimina"></button></td></tr>`).join('');
+                })
+                .catch(() => {
+                    tbody.innerHTML = '<tr><td colspan="6">Errore di rete</td></tr>';
+                });
+        }
 
-                    // =====================================================================
-                    // MOBILE TAB SWITCH + RESTORE
-                    // =====================================================================
-                    function switchTab(tabId, navItem) {
-                        document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-                        navItem.classList.add('active');
-                        document.querySelectorAll('.tab-link').forEach(l => {
-                            l.classList.remove('active');
-                            if (l.dataset.tab === tabId) l.classList.add('active');
-                        });
-                        document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
-                        document.getElementById(tabId).classList.add('active');
-                        localStorage.setItem("activeTab", tabId);
-                    }
+        document.getElementById('prevDayBtn').onclick = () => {
+            presenzeOffset--;
+            loadPresenze();
+        };
+        document.getElementById('nextDayBtn').onclick = () => {
+            if (presenzeOffset < 0) {
+                presenzeOffset++;
+                loadPresenze();
+            }
+        };
+        document.getElementById('todayPresenzeBtn').onclick = () => {
+            if (presenzeOffset !== 0) {
+                presenzeOffset = 0;
+                loadPresenze();
+            }
+        };
 
-                    // =====================================================================
-                    // PRESENZE — navigazione per data
-                    // =====================================================================
-                    let presenzeOffset = 0;
-
-                    function getPresenzaDateString(offset) {
-                        const d = new Date();
-                        d.setDate(d.getDate() + offset);
-                        return getLocalDateString(d);
-                    }
-
-                    function updatePresenzeDayLabel() {
-                        const d = new Date();
-                        d.setDate(d.getDate() + presenzeOffset);
-                        const label = d.toLocaleDateString('it-IT', {
-                            weekday: 'long',
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric'
-                        });
-                        document.getElementById('presenzeDayLabel').innerText = label.charAt(0).toUpperCase() + label.slice(1);
-                        const todayBtn = document.getElementById('todayPresenzeBtn');
-                        if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
-                        const nextBtn = document.getElementById('nextDayBtn');
-                        if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
-                    }
-
-                    function loadPresenze() {
-                        const dataStr = getPresenzaDateString(presenzeOffset);
-                        const tbody = document.querySelector('#presenzeTable tbody');
-                        if (!tbody) return;
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Caricamento...</td></tr>';
-                        updatePresenzeDayLabel();
-                        fetch(`api/api_get_presenze.php?data=${dataStr}`)
-                            .then(r => r.json())
-                            .then(data => {
-                                if (!data.success) {
-                                    tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento</td></tr>';
-                                    return;
-                                }
-                                if (data.data.length === 0) {
-                                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Nessuna presenza registrata per questo giorno.</td></tr>';
-                                    return;
-                                }
-                                tbody.innerHTML = data.data.map(row => `<tr data-id="${row.id}" data-nome="${row.nome}" data-cognome="${row.cognome}" data-ingresso="${row.ingresso}" data-uscita="${row.uscita || ''}"><td><img class="user-avatar" src="${row.fotografia}"></td><td>${row.nome}</td><td>${row.cognome}</td><td>${row.ingresso}</td><td>${row.uscita || '—'}</td><td><button class="edit-presenza-btn" data-id="${row.id}"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-presenza-btn" data-id="${row.id}"><img src="immagini/delete.png" alt="Elimina"></button></td></tr>`).join('');
-                            })
-                            .catch(() => {
-                                tbody.innerHTML = '<tr><td colspan="6">Errore di rete</td></tr>';
-                            });
-                    }
-
-                    document.getElementById('prevDayBtn').onclick = () => {
-                        presenzeOffset--;
-                        loadPresenze();
-                    }; document.getElementById('nextDayBtn').onclick = () => {
-                        if (presenzeOffset < 0) {
-                            presenzeOffset++;
-                            loadPresenze();
-                        }
-                    }; document.getElementById('todayPresenzeBtn').onclick = () => {
-                        if (presenzeOffset !== 0) {
-                            presenzeOffset = 0;
-                            loadPresenze();
-                        }
-                    };
-
-                    window.addEventListener("DOMContentLoaded", () => {
-                        loadPresenze();
-                        loadAgenda();
-                        const savedTab = localStorage.getItem("activeTab");
-                        if (savedTab) {
-                            document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-                            const mn = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
-                            if (mn) mn.classList.add('active');
-                            document.querySelectorAll('.tab-link').forEach(l => {
-                                l.classList.remove('active');
-                                if (l.dataset.tab === savedTab) l.classList.add('active');
-                            });
-                            document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
-                            const sc = document.getElementById(savedTab);
-                            if (sc) sc.classList.add('active');
-                        }
-                    });
+        window.addEventListener("DOMContentLoaded", () => {
+            loadPresenze();
+            loadAgenda();
+            const savedTab = localStorage.getItem("activeTab");
+            if (savedTab) {
+                document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+                const mn = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
+                if (mn) mn.classList.add('active');
+                document.querySelectorAll('.tab-link').forEach(l => {
+                    l.classList.remove('active');
+                    if (l.dataset.tab === savedTab) l.classList.add('active');
+                });
+                document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+                const sc = document.getElementById(savedTab);
+                if (sc) sc.classList.add('active');
+            }
+        });
     </script>
 
     <script src="js/mobile-calendar.js"></script>

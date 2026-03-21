@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 header("Cache-Control: no chache");
 require __DIR__ . '/../config.php';
 
-if(!isset($_SESSION['username'])){
+if (!isset($_SESSION['username'])) {
     echo json_encode([
         "success" => false,
         "message" => "Sessione non valida"
@@ -15,7 +15,7 @@ if(!isset($_SESSION['username'])){
 
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4all');
-if($conn->connect_error){
+if ($conn->connect_error) {
     echo json_encode([
         "success" => false,
         "message" => "Errore connessione database"
@@ -57,7 +57,7 @@ $password = isset($data['password']) ? trim($data['password']) : "";
 $classe = isset($data['classe']) ? trim($data['classe']) : "";
 $codice_univoco = isset($data['codice_univoco']) ? trim($data['codice_univoco']) : "";
 
-if($nome_utente === "" || $password === "" || $classe === "" || $codice_univoco === ""){
+if ($nome_utente === "" || $password === "" || $classe === "" || $codice_univoco === "") {
     echo json_encode([
         "success" => false,
         "message" => "Compila tutti i campi"
@@ -71,7 +71,7 @@ $stmtCheck->bind_param("s", $nome_utente);
 $stmtCheck->execute();
 $resCheck = $stmtCheck->get_result();
 
-if($resCheck->num_rows > 0){
+if ($resCheck->num_rows > 0) {
     echo json_encode([
         "success" => false,
         "message" => "Username già esistente"
@@ -88,7 +88,7 @@ $stmtInsert = $conn->prepare(
 );
 $stmtInsert->bind_param("ssss", $nome_utente, $password_hash, $classe, $codice_univoco);
 
-if($stmtInsert->execute()){
+if ($stmtInsert->execute()) {
     echo json_encode([
         "success" => true,
         "message" => "Account aggiunto con successo"
@@ -103,5 +103,3 @@ if($stmtInsert->execute()){
 $stmtInsert->close();
 $stmtCheck->close();
 $conn->close();
-
-?>

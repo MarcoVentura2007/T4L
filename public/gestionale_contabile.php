@@ -98,148 +98,165 @@ $resultResoconti = $conn->query($sqlResoconti);
                 display: none;
             }
         }
+
         .agenda-week-nav {
-                display: flex;
-                align-items: center;
-                justify-content: center;  
-                gap: 8px;
-                padding: 10px 0 8px;
-            }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 0 8px;
+        }
 
-            .week-nav-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 34px;
-                height: 34px;
-                border: 1.5px solid #e0e0e0;
-                border-radius: 8px;
-                background: #fff;
-                color: #444;
-                cursor: pointer;
-                flex-shrink: 0;
-                transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
-            }
+        .week-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #444;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
 
-            .week-nav-btn:hover {
-                background: #640a35;
-                border-color: #640a35;
-                color: #fff;
-                transform: scale(1.05);
-            }
+        .week-nav-btn:hover {
+            background: #640a35;
+            border-color: #640a35;
+            color: #fff;
+            transform: scale(1.05);
+        }
 
-            .week-nav-btn:active {
-                transform: scale(0.97);
-            }
+        .week-nav-btn:active {
+            transform: scale(0.97);
+        }
 
+        .week-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            min-width: 130px;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+
+        .week-nav-today {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1.5px solid #640a35;
+            border-radius: 8px;
+            background: transparent;
+            color: #640a35;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .week-nav-today:hover {
+            background: #640a35;
+            color: #fff;
+        }
+
+        .week-nav-today.is-current-week {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+        }
+
+        @media (max-width: 768px) {
             .week-label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: #444;
-                min-width: 130px;
-                text-align: center;
-                letter-spacing: 0.01em;
+                min-width: 90px;
+                font-size: 0.78rem;
             }
 
             .week-nav-today {
-                font-size: 0.75rem;
-                font-weight: 600;
-                padding: 6px 12px;
-                border: 1.5px solid #640a35;
-                border-radius: 8px;
-                background: transparent;
-                color: #640a35;
-                cursor: pointer;
-                white-space: nowrap;
-                transition: background 0.15s, color 0.15s;
+                font-size: 0.7rem;
+                padding: 5px 9px;
             }
+        }
 
-            .week-nav-today:hover {
-                background: #640a35;
-                color: #fff;
-            }
+        /* Navigazione giorni — Presenze */
+        .presenze-day-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 0 12px;
+        }
 
-            .week-nav-today.is-current-week {
-                background: #640a35;
-                color: #fff;
-                border-color: #640a35;
-            }
+        .presenze-day-nav .week-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #444;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
 
-            @media (max-width: 768px) {
-                .week-label {
-                    min-width: 90px;
-                    font-size: 0.78rem;
-                }
-                .week-nav-today {
-                    font-size: 0.7rem;
-                    padding: 5px 9px;
-                }
-            }
+        .presenze-day-nav .week-nav-btn:hover {
+            background: #640a35;
+            border-color: #640a35;
+            color: #fff;
+            transform: scale(1.05);
+        }
 
-            /* Navigazione giorni — Presenze */
-            .presenze-day-nav {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                padding: 10px 0 12px;
-            }
-            .presenze-day-nav .week-nav-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 34px;
-                height: 34px;
-                border: 1.5px solid #e0e0e0;
-                border-radius: 8px;
-                background: #fff;
-                color: #444;
-                cursor: pointer;
-                flex-shrink: 0;
-                transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
-            }
-            .presenze-day-nav .week-nav-btn:hover {
-                background: #640a35;
-                border-color: #640a35;
-                color: #fff;
-                transform: scale(1.05);
-            }
-            .presenze-day-nav .week-nav-btn:active {
-                transform: scale(0.97);
-            }
+        .presenze-day-nav .week-nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        .presenze-day-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            min-width: 200px;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+
+        .presenze-day-nav .week-nav-today {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1.5px solid #640a35;
+            border-radius: 8px;
+            background: transparent;
+            color: #640a35;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .presenze-day-nav .week-nav-today:hover {
+            background: #640a35;
+            color: #fff;
+        }
+
+        .presenze-day-nav .week-nav-today.is-today {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+        }
+
+        @media (max-width: 768px) {
             .presenze-day-label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: #444;
-                min-width: 200px;
-                text-align: center;
-                letter-spacing: 0.01em;
+                min-width: 140px;
+                font-size: 0.78rem;
             }
+
             .presenze-day-nav .week-nav-today {
-                font-size: 0.75rem;
-                font-weight: 600;
-                padding: 6px 12px;
-                border: 1.5px solid #640a35;
-                border-radius: 8px;
-                background: transparent;
-                color: #640a35;
-                cursor: pointer;
-                white-space: nowrap;
-                transition: background 0.15s, color 0.15s;
+                font-size: 0.7rem;
+                padding: 5px 9px;
             }
-            .presenze-day-nav .week-nav-today:hover {
-                background: #640a35;
-                color: #fff;
-            }
-            .presenze-day-nav .week-nav-today.is-today {
-                background: #640a35;
-                color: #fff;
-                border-color: #640a35;
-            }
-            @media (max-width: 768px) {
-                .presenze-day-label { min-width: 140px; font-size: 0.78rem; }
-                .presenze-day-nav .week-nav-today { font-size: 0.7rem; padding: 5px 9px; }
-            }
+        }
     </style>
 </head>
 

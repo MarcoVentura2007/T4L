@@ -8,9 +8,11 @@ session_start();
 header('Content-Type: application/json; charset=utf-8');
 header("Cache-Control: no-cache");
 // --- BLOCCO ACCESSO DIRETTO ---
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST' ||
     empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest'
+) {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }
@@ -114,7 +116,7 @@ $resultSelect = $stmtSelect->get_result();
 if ($resultSelect && $resultSelect->num_rows > 0) {
     $row = $resultSelect->fetch_assoc();
     $fotografia = $row['fotografia'];
-    
+
     // Se esiste una fotografia, eliminala dal filesystem
     if ($fotografia && !empty($fotografia)) {
         $fotografia = str_replace("\\", "/", $fotografia);
@@ -150,5 +152,3 @@ if ($stmt->execute()) {
 $stmt->close();
 $stmtSelect->close();
 $conn->close();
-
-?>

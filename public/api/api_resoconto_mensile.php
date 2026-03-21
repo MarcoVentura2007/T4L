@@ -25,7 +25,9 @@ $stmtClasse->execute();
 $stmtClasse->bind_result($userClasse);
 if (!$stmtClasse->fetch() || ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore')) {
     echo json_encode(['success' => false, 'message' => 'Accesso negato.']);
-    $stmtClasse->close(); $conn->close(); exit;
+    $stmtClasse->close();
+    $conn->close();
+    exit;
 }
 $stmtClasse->close();
 
@@ -180,4 +182,3 @@ while ($iscritto = $resIscritti->fetch_assoc()) {
 
 echo json_encode(['success' => true, 'data' => $rows]);
 $conn->close();
-?>

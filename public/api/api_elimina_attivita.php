@@ -3,15 +3,17 @@ session_start();
 header('Content-Type: application/json');
 header("Cache-Control: no chache");
 
-if(!isset($_SESSION['username'])){
-    echo json_encode(["success"=>false, "message"=>"Sessione non valida"]);
+if (!isset($_SESSION['username'])) {
+    echo json_encode(["success" => false, "message" => "Sessione non valida"]);
     exit;
 }
 
 // --- BLOCCO ACCESSO DIRETTO ---
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || 
-    empty($_SERVER['HTTP_X_REQUESTED_WITH']) || 
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+    empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest'
+) {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }
@@ -56,8 +58,8 @@ $data = json_decode(file_get_contents('php://input'), true);
 
 // Recupero ID
 $id = intval($data['id']);
-if(!$id){
-    echo json_encode(['success'=>false, 'message'=>'ID attività non valido']);
+if (!$id) {
+    echo json_encode(['success' => false, 'message' => 'ID attività non valido']);
     exit;
 }
 
@@ -73,12 +75,10 @@ if (!$stmt) {
 $stmt->bind_param("i", $id);
 
 if ($stmt->execute()) {
-    echo json_encode(['success'=>true, 'message'=>'Attività eliminata con successo']);
+    echo json_encode(['success' => true, 'message' => 'Attività eliminata con successo']);
 } else {
-    echo json_encode(['success'=>false, 'message'=>'Errore: ' . $stmt->error]);
+    echo json_encode(['success' => false, 'message' => 'Errore: ' . $stmt->error]);
 }
 
 $stmt->close();
 $conn->close();
-
-?>

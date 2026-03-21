@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 // Connessione al DB time4allergo
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4allergo');
-if($conn->connect_error){
+if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]);
     exit;
 }
@@ -12,7 +12,7 @@ if($conn->connect_error){
 // Leggi input JSON
 $input = json_decode(file_get_contents('php://input'), true);
 
-if(!isset($input['id'])){
+if (!isset($input['id'])) {
     echo json_encode(['success' => false, 'message' => 'ID presenza mancante']);
     exit;
 }
@@ -23,8 +23,8 @@ $id = intval($input['id']);
 $stmt = $conn->prepare("DELETE FROM presenza WHERE id = ?");
 $stmt->bind_param("i", $id);
 
-if($stmt->execute()){
-    if($stmt->affected_rows > 0){
+if ($stmt->execute()) {
+    if ($stmt->affected_rows > 0) {
         echo json_encode(['success' => true, 'message' => 'Presenza eliminata con successo']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Presenza non trovata']);
@@ -35,4 +35,3 @@ if($stmt->execute()){
 
 $stmt->close();
 $conn->close();
-?>

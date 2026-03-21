@@ -15,7 +15,7 @@ $conn = getDbConnection('time4all');
 
 // Prendi la classe dell'utente loggato
 $resultClasse = $conn->query("SELECT classe, codice_univoco FROM Account WHERE nome_utente = '$username'");
-if($resultClasse && $resultClasse->num_rows > 0){
+if ($resultClasse && $resultClasse->num_rows > 0) {
     $rowClasse = $resultClasse->fetch_assoc();
     $classe = $rowClasse['classe'];
     $codice = $rowClasse['codice_univoco'];
@@ -44,22 +44,23 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>T4L | Selezione</title>
+    <title>T4L | Selezione</title>
 
-<link rel="icon" href="immagini/Icona.ico">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-<link rel="stylesheet" href="style.css">
+    <link rel="icon" href="immagini/Icona.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="style.css">
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
 </head>
 
@@ -69,7 +70,7 @@ $conn->close();
 
     <!-- NAVBAR -->
     <header class="navbar">
-        
+
 
         <div class="user-box" id="userBox">
             <img src="immagini/profile-picture.png" alt="Profile">
@@ -109,74 +110,73 @@ $conn->close();
 
         <div class="dropdown" id="dropdown">
 
-        <div class="menu-group">
+            <div class="menu-group">
 
-            <div class="menu-main" data-target="centroMenu">
-                <img src="immagini/Logo-centrodiurno.png">
-                Centro Diurno
+                <div class="menu-main" data-target="centroMenu">
+                    <img src="immagini/Logo-centrodiurno.png">
+                    Centro Diurno
+                </div>
+
+                <div class="submenu" id="centroMenu">
+                    <div class="menu-item" data-link="fogliofirme-centro.php">
+                        <img src="immagini/foglio-over.png" alt="">
+                        Foglio firme
+                    </div>
+                    <?php
+                    if ($classe === 'Educatore') {
+                        $gestionalePage = "gestionale_utenti.php";
+                    } elseif ($classe === 'Contabile') {
+                        $gestionalePage = "gestionale_contabile.php";
+                    } else {
+                        $gestionalePage = "#"; // default se classe sconosciuta
+                    }
+                    ?>
+                    <div class="menu-item" id="cardGestionale" data-link=<?php echo $gestionalePage; ?>>
+                        <img src="immagini/gestionale-over.png" alt="">
+                        Gestionale
+                    </div>
+                </div>
+
             </div>
 
-            <div class="submenu" id="centroMenu">
-                <div class="menu-item" data-link="fogliofirme-centro.php">
-                    <img src="immagini/foglio-over.png" alt="">
-                    Foglio firme
+
+            <div class="menu-group">
+
+                <div class="menu-main" data-target="ergoMenu">
+                    <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+                    Ergoterapeutica
                 </div>
-                <?php
-                        if($classe === 'Educatore'){
-                            $gestionalePage = "gestionale_utenti.php";
-                        } elseif($classe === 'Contabile'){
-                            $gestionalePage = "gestionale_contabile.php";
-                        } else {
-                            $gestionalePage = "#"; // default se classe sconosciuta
-                        }
+
+                <div class="submenu" id="ergoMenu">
+                    <div class="menu-item" data-link="presenze-ergo.php">
+                        <img src="immagini/presenze-ergo.png" alt="">
+                        Presenze
+                    </div>
+                    <?php
+                    if ($classe === 'Educatore') {
+                        $gestionalePageErgo = "gestionale_ergo_utenti.php";
+                    } else if ($classe === 'Contabile') {
+                        $gestionalePageErgo = "gestionale_ergo_contabile.php";
+                    } else if ($classe === 'Amministratore') {
+                        $gestionalePageErgo = "gestionale_ergo_amministratore.php";
+                    } else {
+                        $gestionalePageErgo = "#";
+                    }
                     ?>
-                <div class="menu-item" id="cardGestionale" data-link=<?php echo $gestionalePage; ?> >
-                    <img src="immagini/gestionale-over.png" alt="">
-                    Gestionale
+
+                    <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
+                        <img src="immagini/gestionale-ergo.png" alt="">
+                        Gestionale
+                    </div>
                 </div>
+
             </div>
 
         </div>
-
-
-        <div class="menu-group">
-
-            <div class="menu-main" data-target="ergoMenu">
-                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
-                Ergoterapeutica
-            </div>
-
-            <div class="submenu" id="ergoMenu">
-                <div class="menu-item" data-link="presenze-ergo.php">
-                    <img src="immagini/presenze-ergo.png" alt="">
-                    Presenze
-                </div>
-                <?php
-                        if($classe === 'Educatore'){
-                            $gestionalePageErgo = "gestionale_ergo_utenti.php";
-
-                        } else if($classe === 'Contabile'){
-                            $gestionalePageErgo = "gestionale_ergo_contabile.php";
-                        } else if($classe === 'Amministratore') {
-                            $gestionalePageErgo = "gestionale_ergo_amministratore.php"; 
-                        } else {
-                            $gestionalePageErgo = "#"; 
-                        }
-                    ?>
-                
-                <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
-                    <img src="immagini/gestionale-ergo.png" alt="">
-                    Gestionale
-                </div>
-            </div>
-
-        </div>
-
-    </div>
 
     </header>
 
-    
+
 
     <!-- CONTENUTO PRINCIPALE -->
     <main class="carousel-dashboard">
@@ -194,7 +194,7 @@ $conn->close();
             <div class="swiper-wrapper">
                 <?php
                 if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
+                    while ($row = $result->fetch_assoc()) {
                         $nome = htmlspecialchars($row['nome']);
                         $cognome = htmlspecialchars($row['cognome']);
                         $img = htmlspecialchars($row['fotografia']);
@@ -229,7 +229,7 @@ $conn->close();
                     <img id="popupUserImg">
                     <h3 id="popupUserName"></h3>
                 </div>
-                
+
 
                 <div class="popup-right">
                     <h2 class="popup-title">Inserisci orari</h2>
@@ -243,7 +243,7 @@ $conn->close();
                             <input type="time" id="timeOut">
                         </div>
                     </div>
-                    
+
 
                     <button class="btn-next" id="goSignature">Continua</button>
                 </div>
@@ -252,21 +252,21 @@ $conn->close();
 
         <!-- FIRMA -->
         <div class="popup big" id="signaturePopup">
-            
+
             <div class="popup-content">
                 <div class="popup-left">
-                    
+
                     <img id="popupUserImg2">
                     <h3 id="popupUserName2"></h3>
                 </div>
 
                 <div class="popup-right">
-                    
+
                     <button class="close-popup" id="closeSignaturePopup">✖</button>
 
                     <button class="button" id="backToTimePopup">
                         <svg class="svgIcon" viewBox="0 0 24 24">
-                            <path fill="white" d="M19 11H7.8l4.6-4.6a1 1 0 1 0-1.4-1.4l-6.3 6.3a1 1 0 0 0 0 1.4l6.3 6.3a1 1 0 1 0 1.4-1.4L7.8 13H19a1 1 0 1 0 0-2z"/>
+                            <path fill="white" d="M19 11H7.8l4.6-4.6a1 1 0 1 0-1.4-1.4l-6.3 6.3a1 1 0 0 0 0 1.4l6.3 6.3a1 1 0 1 0 1.4-1.4L7.8 13H19a1 1 0 1 0 0-2z" />
                         </svg>
                     </button>
 
@@ -288,268 +288,269 @@ $conn->close();
         <div class="popup success-popup" id="successPopup">
             <div class="success-content">
                 <div class="success-icon">
-                <svg viewBox="-2 -2 56 56">
-                    <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-                    <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
-                </svg>
+                    <svg viewBox="-2 -2 56 56">
+                        <circle class="check-circle" cx="26" cy="26" r="25" fill="none" />
+                        <path class="check-check" d="M14 27 L22 35 L38 19" fill="none" />
+                    </svg>
                 </div>
                 <p class="success-text">Firma completata!!</p>
             </div>
         </div>
 
 
-        
+
 
 
 
     </main>
     <!-- POPUP CODICE GESTIONALE -->
-        <div id="code-popup" class="popup">
-                <div class="content">
-                    <p class="codice-text">Inserisci il codice di accesso</p>
-                   <input 
-                        type="password" 
-                        placeholder="Codice d'accesso" 
-                        id="password"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        autocomplete="off"
-                        required
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                    >
+    <div id="code-popup" class="popup">
+        <div class="content">
+            <p class="codice-text">Inserisci il codice di accesso</p>
+            <input
+                type="password"
+                placeholder="Codice d'accesso"
+                id="password"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                autocomplete="off"
+                required
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
 
 
-                    <button class="learn-more" id="button-gestionale">
-                        <span class="circle" aria-hidden="true">
-                        <span class="icon arrow"></span>
-                        </span>
-                        <span class="button-text">Continua</span>
-                    </button>
+            <button class="learn-more" id="button-gestionale">
+                <span class="circle" aria-hidden="true">
+                    <span class="icon arrow"></span>
+                </span>
+                <span class="button-text">Continua</span>
+            </button>
 
-                    <div id="notify" class="notify hidden">
-                        <div class="icon" id="notify-icon"></div>
-                        <div class="text" id="notify-text"></div>
-                    </div>
+            <div id="notify" class="notify hidden">
+                <div class="icon" id="notify-icon"></div>
+                <div class="text" id="notify-text"></div>
             </div>
         </div>
+    </div>
 
-        <div id="code-popup-ergo" class="popupErgo">
-                <div class="content">
-                    <p class="codice-text">Inserisci il codice di accesso</p>
-                   <input 
-                        type="password" 
-                        placeholder="Codice d'accesso" 
-                        id="password-ergo"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        autocomplete="off"
-                        required
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                    >
+    <div id="code-popup-ergo" class="popupErgo">
+        <div class="content">
+            <p class="codice-text">Inserisci il codice di accesso</p>
+            <input
+                type="password"
+                placeholder="Codice d'accesso"
+                id="password-ergo"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                autocomplete="off"
+                required
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
 
 
-                    <button class="learn-more" id="button-gestionale-ergo">
-                        <span class="circle" aria-hidden="true">
-                        <span class="icon arrow"></span>
-                        </span>
-                        <span class="button-text">Continua</span>
-                    </button>
+            <button class="learn-more" id="button-gestionale-ergo">
+                <span class="circle" aria-hidden="true">
+                    <span class="icon arrow"></span>
+                </span>
+                <span class="button-text">Continua</span>
+            </button>
 
-                    <div id="notify" class="notify hidden">
-                        <div class="icon" id="notify-icon"></div>
-                        <div class="text" id="notify-text"></div>
-                    </div>
+            <div id="notify" class="notify hidden">
+                <div class="icon" id="notify-icon"></div>
+                <div class="text" id="notify-text"></div>
             </div>
         </div>
+    </div>
 
 
-        <footer class="footer-bar">
-            <div class="footer-left">© Time4All • 2026</div>
-            <div class="footer-top">
-                <a href="#top" class="footer-image"></a>
-            </div>
+    <footer class="footer-bar">
+        <div class="footer-left">© Time4All • 2026</div>
+        <div class="footer-top">
+            <a href="#top" class="footer-image"></a>
+        </div>
         <div class="footer-right">
             <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
         </div>
-        </footer>
+    </footer>
 
     <script>
-
         // ELEMENTI
-    const cardGestionale = document.getElementById("cardGestionale");
-    const overlay = document.getElementById("popupOverlay");
-    const codePopup = document.getElementById("code-popup");
-    const buttonGestionale = document.getElementById("button-gestionale");
-    const passwordField = document.getElementById("password");
-    const hamGestionale = document.getElementById("ham-gestionale");
+        const cardGestionale = document.getElementById("cardGestionale");
+        const overlay = document.getElementById("popupOverlay");
+        const codePopup = document.getElementById("code-popup");
+        const buttonGestionale = document.getElementById("button-gestionale");
+        const passwordField = document.getElementById("password");
+        const hamGestionale = document.getElementById("ham-gestionale");
 
 
 
 
-// FUNZIONE NOTIFICATION
-function showNotification(success = true, message = "Messaggio") {
-    const notify = document.createElement('div');
-    notify.classList.add('notify');
-    notify.classList.add(success ? 'success' : 'error');
+        // FUNZIONE NOTIFICATION
+        function showNotification(success = true, message = "Messaggio") {
+            const notify = document.createElement('div');
+            notify.classList.add('notify');
+            notify.classList.add(success ? 'success' : 'error');
 
-    const iconWrapper = document.createElement('div');
-    iconWrapper.classList.add('icon-wrapper');
+            const iconWrapper = document.createElement('div');
+            iconWrapper.classList.add('icon-wrapper');
 
-    const circle = document.createElement('div');
-    circle.classList.add('circle');
-    iconWrapper.appendChild(circle);
+            const circle = document.createElement('div');
+            circle.classList.add('circle');
+            iconWrapper.appendChild(circle);
 
-    const icon = document.createElement('span');
-    icon.classList.add('icon');
-    icon.textContent = success ? "✔" : "✖";
-    iconWrapper.appendChild(icon);
+            const icon = document.createElement('span');
+            icon.classList.add('icon');
+            icon.textContent = success ? "✔" : "✖";
+            iconWrapper.appendChild(icon);
 
-    notify.appendChild(iconWrapper);
+            notify.appendChild(iconWrapper);
 
-    const text = document.createElement('span');
-    text.textContent = message;
-    notify.appendChild(text);
+            const text = document.createElement('span');
+            text.textContent = message;
+            notify.appendChild(text);
 
-    document.body.appendChild(notify);
+            document.body.appendChild(notify);
 
-    // Mostra con animazione
-    setTimeout(() => notify.classList.add('show'), 10);
+            // Mostra con animazione
+            setTimeout(() => notify.classList.add('show'), 10);
 
-    // Nascondi dopo 3 secondi con animazione uscita
-    setTimeout(() => {
-        notify.classList.remove('show');
-        notify.classList.add('hide');
-        notify.addEventListener('animationend', () => notify.remove());
-    }, 2000);
-}
-
-cardGestionale.addEventListener("click", (e) => {
-    e.preventDefault();
-    overlay.classList.add("show");
-    codePopup.classList.add("show");
-    document.body.classList.add("popup-open");
-    passwordField.focus();
-    return false;
-});
-
-// CHIUDI POPUP CLICCANDO FUORI
-overlay.addEventListener("click", () => {
-    overlay.classList.remove("show");
-    codePopup.classList.remove("show");
-    document.body.classList.remove("popup-open");
-});
-
-const passwordFieldErgo = document.getElementById("password-ergo");
-const codePopupErgo = document.getElementById("code-popup-ergo");
-
-const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
-buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
-
-// FUNZIONE DI CONTROLLO CODICE
-async function verificaCodiceErgo() {
-    const codice = passwordFieldErgo.value.trim();
-
-    if (!codice) {
-        showNotification(false, "Inserisci il codice");
-        return;
-    }
-
-    try {
-        const response = await fetch("api/api_codice_gestionale_ergo.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `codice=${encodeURIComponent(codice)}`
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification(true, "Accesso consentito");
-
-            passwordFieldErgo.value = "";
-
-            // Chiudi popup
-            overlay.classList.remove("show");
-            codePopupErgo.classList.remove("show");
-            document.body.classList.remove("popup-open");
-
-            // Redirect alla pagina di gestionale
+            // Nascondi dopo 3 secondi con animazione uscita
             setTimeout(() => {
-                window.location.href = result.redirect;
+                notify.classList.remove('show');
+                notify.classList.add('hide');
+                notify.addEventListener('animationend', () => notify.remove());
             }, 2000);
-        } else {
-            showNotification(false, result.message);
-            passwordFieldErgo.value = ""; // pulisci input se sbagliato
         }
 
-    } catch (err) {
-        showNotification(false, "Errore server");
-        console.error(err);
-    }
-}
-
-        overlay.onclick = closePopups;
-
-passwordFieldErgo.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        e.preventDefault(); // evita submit involontario
-        verificaCodiceErgo();
-    }
-});
-
-// FUNZIONE DI CONTROLLO CODICE
-async function verificaCodice() {
-    const codice = passwordField.value.trim();
-
-    if (!codice) {
-        showNotification(false, "Inserisci il codice");
-        return;
-    }
-
-    try {
-        const response = await fetch("api/api_codice_gestionale.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `codice=${encodeURIComponent(codice)}`
+        cardGestionale.addEventListener("click", (e) => {
+            e.preventDefault();
+            overlay.classList.add("show");
+            codePopup.classList.add("show");
+            document.body.classList.add("popup-open");
+            passwordField.focus();
+            return false;
         });
 
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification(true, "Accesso consentito");
-
-          
+        // CHIUDI POPUP CLICCANDO FUORI
+        overlay.addEventListener("click", () => {
             overlay.classList.remove("show");
             codePopup.classList.remove("show");
             document.body.classList.remove("popup-open");
+        });
 
-            setTimeout(() => {
-                window.location.href = result.redirect;
-            }, 2000);
-        } else {
-            showNotification(false, result.message);
-            passwordField.value = ""; 
+        const passwordFieldErgo = document.getElementById("password-ergo");
+        const codePopupErgo = document.getElementById("code-popup-ergo");
+
+        const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
+        buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
+
+        // FUNZIONE DI CONTROLLO CODICE
+        async function verificaCodiceErgo() {
+            const codice = passwordFieldErgo.value.trim();
+
+            if (!codice) {
+                showNotification(false, "Inserisci il codice");
+                return;
+            }
+
+            try {
+                const response = await fetch("api/api_codice_gestionale_ergo.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `codice=${encodeURIComponent(codice)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(true, "Accesso consentito");
+
+                    passwordFieldErgo.value = "";
+
+                    // Chiudi popup
+                    overlay.classList.remove("show");
+                    codePopupErgo.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+
+                    // Redirect alla pagina di gestionale
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 2000);
+                } else {
+                    showNotification(false, result.message);
+                    passwordFieldErgo.value = ""; // pulisci input se sbagliato
+                }
+
+            } catch (err) {
+                showNotification(false, "Errore server");
+                console.error(err);
+            }
         }
 
-    } catch (err) {
-        showNotification(false, "Errore server");
-        console.error(err);
-    }
-}
+        overlay.onclick = closePopups;
 
-    // BOTTONE CONTINUA
-    buttonGestionale.addEventListener("click", verificaCodice);
+        passwordFieldErgo.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault(); // evita submit involontario
+                verificaCodiceErgo();
+            }
+        });
 
-    // INVIO DALL'INPUT
-    passwordField.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            verificaCodice();
+        // FUNZIONE DI CONTROLLO CODICE
+        async function verificaCodice() {
+            const codice = passwordField.value.trim();
+
+            if (!codice) {
+                showNotification(false, "Inserisci il codice");
+                return;
+            }
+
+            try {
+                const response = await fetch("api/api_codice_gestionale.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `codice=${encodeURIComponent(codice)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(true, "Accesso consentito");
+
+
+                    overlay.classList.remove("show");
+                    codePopup.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 2000);
+                } else {
+                    showNotification(false, result.message);
+                    passwordField.value = "";
+                }
+
+            } catch (err) {
+                showNotification(false, "Errore server");
+                console.error(err);
+            }
         }
-    });
+
+        // BOTTONE CONTINUA
+        buttonGestionale.addEventListener("click", verificaCodice);
+
+        // INVIO DALL'INPUT
+        passwordField.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                verificaCodice();
+            }
+        });
 
 
-        
+
         /* SWIPER */
         const swiper = new Swiper(".mySwiper", {
             slidesPerView: 3,
@@ -566,9 +567,15 @@ async function verificaCodice() {
                 clickable: true,
             },
             breakpoints: {
-                0: { slidesPerView: 1.2 },
-                700: { slidesPerView: 2 },
-                1100: { slidesPerView: 3 }
+                0: {
+                    slidesPerView: 1.2
+                },
+                700: {
+                    slidesPerView: 2
+                },
+                1100: {
+                    slidesPerView: 3
+                }
             }
         });
 
@@ -593,7 +600,7 @@ async function verificaCodice() {
 
                 // chiudi tutti gli altri submenu
                 document.querySelectorAll(".submenu").forEach(menu => {
-                    if(menu !== targetMenu){
+                    if (menu !== targetMenu) {
                         menu.classList.remove("open");
                         menu.previousElementSibling.classList.remove("open"); // reset freccetta
                     }
@@ -609,7 +616,7 @@ async function verificaCodice() {
 
         document.querySelectorAll(".menu-item[data-link]").forEach(item => {
             const link = item.dataset.link;
-            if(link.includes("gestionale_ergo")) { 
+            if (link.includes("gestionale_ergo")) {
                 // Ergoterapeutica Gestionale - usa popup ergo
                 item.addEventListener("click", (e) => {
                     e.preventDefault(); // previeni redirect
@@ -618,7 +625,7 @@ async function verificaCodice() {
                     document.body.classList.add("popup-open");
                     passwordFieldErgo.focus(); // focus input
                 });
-            } else if(link.includes("gestionale")) { 
+            } else if (link.includes("gestionale")) {
                 // Centro Diurno Gestionale - usa popup standard
                 item.addEventListener("click", (e) => {
                     e.preventDefault(); // previeni redirect
@@ -643,19 +650,19 @@ async function verificaCodice() {
         /* USER DROPDOWN */
         const userBox = document.getElementById("userBox");
         const userDropdown = document.getElementById("userDropdown");
-        userBox.addEventListener("click", (e)=>{
+        userBox.addEventListener("click", (e) => {
             e.stopPropagation();
             userDropdown.classList.toggle("show");
         });
-        document.addEventListener("click",(e)=>{
-            if(!userBox.contains(e.target)){
+        document.addEventListener("click", (e) => {
+            if (!userBox.contains(e.target)) {
                 userDropdown.classList.remove("show");
             }
         });
 
 
 
-/* LOGOUT */
+        /* LOGOUT */
         const logoutBtn = document.getElementById("logoutBtn");
         const logoutOverlay = document.getElementById("logoutOverlay");
         const logoutModal = document.getElementById("logoutModal");
@@ -670,7 +677,8 @@ async function verificaCodice() {
 
         cancelLogout.onclick = closeLogout;
         logoutOverlay.onclick = closeLogout;
-        function closeLogout(){
+
+        function closeLogout() {
             logoutOverlay.classList.remove("show");
             logoutModal.classList.remove("show");
         }
@@ -682,7 +690,7 @@ async function verificaCodice() {
 
 
         /* POPUP PROFILI */
-        
+
         const timePopup = document.getElementById("timePopup");
         const signPopup = document.getElementById("signaturePopup");
         const img1 = document.getElementById("popupUserImg");
@@ -716,14 +724,14 @@ async function verificaCodice() {
             const timeIn = document.getElementById("timeIn").value;
             const timeOut = document.getElementById("timeOut").value;
 
-            if(timeIn === "" || timeOut === ""){
+            if (timeIn === "" || timeOut === "") {
                 alert("Inserisci prima l'orario di ingresso e di uscita!");
                 return;
             }
 
             timePopup.classList.remove("show");
             signPopup.classList.add("show");
-            
+
             setTimeout(() => {
                 resizeCanvas();
                 canvas.focus();
@@ -737,8 +745,8 @@ async function verificaCodice() {
 
         /* PER USCIRE */
         overlay.onclick = closePopups;
-        
-         function closePopups(){
+
+        function closePopups() {
             overlay.classList.remove("show");
             codePopup.classList.remove("show");
             codePopupErgo.classList.remove("show");
@@ -751,8 +759,8 @@ async function verificaCodice() {
         const backBtn = document.getElementById("backToTimePopup");
 
         backBtn.onclick = () => {
-            signPopup.classList.remove("show");   // chiude firma
-            timePopup.classList.add("show");      // riapre orari
+            signPopup.classList.remove("show"); // chiude firma
+            timePopup.classList.add("show"); // riapre orari
         };
 
 
@@ -762,14 +770,14 @@ async function verificaCodice() {
         /* DISEGNO */
         const canvas = document.getElementById("signatureCanvas");
         const ctx = canvas.getContext("2d");
-        
+
         // Imposta proprietà del contesto
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         ctx.lineWidth = 2;
         ctx.strokeStyle = "#000";
-        
-        function resizeCanvas(){
+
+        function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
@@ -778,7 +786,7 @@ async function verificaCodice() {
             ctx.lineWidth = 2;
             ctx.strokeStyle = "#000";
         }
-        
+
         setTimeout(resizeCanvas, 100);
         window.addEventListener("resize", resizeCanvas);
 
@@ -808,7 +816,7 @@ async function verificaCodice() {
         }
 
         function draw(e) {
-            if(!drawing) return;
+            if (!drawing) return;
             e.preventDefault();
             e.stopPropagation();
             const coords = getCoords(e);
@@ -820,31 +828,43 @@ async function verificaCodice() {
 
         function stopDrawing(e) {
             drawing = false;
-            ctx.beginPath(); 
+            ctx.beginPath();
         }
 
         // Eventi mouse
-        canvas.addEventListener("mousedown", startDrawing, {passive: false});
-        canvas.addEventListener("mousemove", draw, {passive: false});
+        canvas.addEventListener("mousedown", startDrawing, {
+            passive: false
+        });
+        canvas.addEventListener("mousemove", draw, {
+            passive: false
+        });
         canvas.addEventListener("mouseup", stopDrawing);
         canvas.addEventListener("mouseout", stopDrawing);
 
         // Eventi touch
-        canvas.addEventListener("touchstart", startDrawing, {passive: false});
-        canvas.addEventListener("touchmove", draw, {passive: false});
+        canvas.addEventListener("touchstart", startDrawing, {
+            passive: false
+        });
+        canvas.addEventListener("touchmove", draw, {
+            passive: false
+        });
         canvas.addEventListener("touchend", stopDrawing);
         canvas.addEventListener("touchcancel", stopDrawing);
 
         // Eventi pointer (fallback)
-        canvas.addEventListener("pointerdown", startDrawing, {passive: false});
-        canvas.addEventListener("pointermove", draw, {passive: false});
+        canvas.addEventListener("pointerdown", startDrawing, {
+            passive: false
+        });
+        canvas.addEventListener("pointermove", draw, {
+            passive: false
+        });
         canvas.addEventListener("pointerup", stopDrawing);
         canvas.addEventListener("pointerleave", stopDrawing);
 
 
         /* PULISCI */
-        document.getElementById("clearSign").onclick = ()=>{
-            ctx.clearRect(0,0,canvas.width,canvas.height);
+        document.getElementById("clearSign").onclick = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         };
 
 
@@ -853,13 +873,13 @@ async function verificaCodice() {
         /* CHIUDI POPUP FIRMA CON X */
         const closeSignBtn = document.getElementById("closeSignaturePopup");
         closeSignBtn.onclick = () => {
-            signPopup.classList.remove("show"); 
+            signPopup.classList.remove("show");
             overlay.classList.remove("show");
             document.body.classList.remove("popup-open");
         };
 
 
-        
+
 
 
 
@@ -876,7 +896,7 @@ async function verificaCodice() {
             onChange: function(selectedDates, dateStr) {
                 timeOutPicker.set("minTime", dateStr);
 
-                if(timeOutPicker.input.value && timeOutPicker.input.value < dateStr){
+                if (timeOutPicker.input.value && timeOutPicker.input.value < dateStr) {
                     timeOutPicker.clear();
                 }
             }
@@ -903,44 +923,44 @@ async function verificaCodice() {
             const idIscritto = selectedIdIscritto;
 
             // CONTROLLO CAMPI VUOTI
-            if(timeIn === "" || timeOut === ""){
+            if (timeIn === "" || timeOut === "") {
                 alert("Inserisci sia l'orario di ingresso che quello di uscita!");
                 return; // BLOCCA L'INVIO
             }
 
             // INVIO DATI A api_firma.php
             fetch("api/api_firma.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({
-                    id_iscritto: idIscritto,
-                    ora_ingresso: timeIn,
-                    ora_uscita: timeOut,
-                    check_firma: check_firma
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({
+                        id_iscritto: idIscritto,
+                        ora_ingresso: timeIn,
+                        ora_uscita: timeOut,
+                        check_firma: check_firma
+                    })
                 })
-            })
-            .then(res => res.json())
-            .then(data => {
+                .then(res => res.json())
+                .then(data => {
 
-                if (!data.success) {
-                    alert("Errore nel salvataggio firma");
-                    return;
-                }
+                    if (!data.success) {
+                        alert("Errore nel salvataggio firma");
+                        return;
+                    }
 
-                signPopup.classList.remove("show");
-                successPopup.classList.add("show");
+                    signPopup.classList.remove("show");
+                    successPopup.classList.add("show");
 
-                setTimeout(()=>{
-                    successPopup.classList.remove("show");
-                    overlay.classList.remove("show");
-                    document.body.classList.remove("popup-open");
-                    location.reload();
-                },1800);
+                    setTimeout(() => {
+                        successPopup.classList.remove("show");
+                        overlay.classList.remove("show");
+                        document.body.classList.remove("popup-open");
+                        location.reload();
+                    }, 1800);
 
-            });
+                });
         }
 
         // Blocca scroll del body quando un popup è aperto
@@ -962,11 +982,12 @@ async function verificaCodice() {
             }
         });
 
-        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        popupObserver.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class"]
+        });
         syncBodyScrollLock();
-
-
-
     </script>
 
 

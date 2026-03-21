@@ -3,15 +3,17 @@ session_start();
 header('Content-Type: application/json');
 header("Cache-Control: no chache");
 
-if(!isset($_SESSION['username'])){
-    echo json_encode(["success"=>false, "message"=>"Sessione non valida"]);
+if (!isset($_SESSION['username'])) {
+    echo json_encode(["success" => false, "message" => "Sessione non valida"]);
     exit;
 }
 
 // --- BLOCCO ACCESSO DIRETTO ---
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST' ||
     empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest'
+) {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }
@@ -21,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4all');
 if ($conn->connect_error) {
-    die(json_encode(['success'=>false,'message'=>'Connessione fallita']));
+    die(json_encode(['success' => false, 'message' => 'Connessione fallita']));
 }
 
 // --- CONTROLLO RUOLO: solo Contabile o Amministratore possono eliminare agenda ---
@@ -54,15 +56,15 @@ if ($stmtClasse) {
 $data = json_decode(file_get_contents('php://input'), true);
 
 $id = $data['id'] ?? '';
-if(!$id){
-    echo json_encode(['success'=>false,'message'=>'ID agenda non valido']);
+if (!$id) {
+    echo json_encode(['success' => false, 'message' => 'ID agenda non valido']);
     exit;
 }
 
 // Parse the composite key: attivita_id_data_ora_inizio_ora_fine
 $parts = explode('_', $id);
-if(count($parts) != 4){
-    echo json_encode(['success'=>false,'message'=>'ID non valido']);
+if (count($parts) != 4) {
+    echo json_encode(['success' => false, 'message' => 'ID non valido']);
     exit;
 }
 $attivitaId = intval($parts[0]);
@@ -82,13 +84,11 @@ if (!$stmt) {
 
 $stmt->bind_param("isss", $attivitaId, $dataDel, $oraInizioDel, $oraFineDel);
 
-if($stmt->execute()){
-    echo json_encode(['success'=>true,'message'=>'Agenda eliminata con successo']);
-}else{
-    echo json_encode(['success'=>false,'message'=>'Errore: '.$stmt->error]);
+if ($stmt->execute()) {
+    echo json_encode(['success' => true, 'message' => 'Agenda eliminata con successo']);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Errore: ' . $stmt->error]);
 }
 
 $stmt->close();
 $conn->close();
-
-?>

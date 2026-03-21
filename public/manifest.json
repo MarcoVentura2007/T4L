@@ -27,7 +27,11 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "health"],
+  "categories": [
+    "business",
+    "productivity",
+    "health"
+  ],
   "lang": "it-IT",
   "dir": "ltr"
 }

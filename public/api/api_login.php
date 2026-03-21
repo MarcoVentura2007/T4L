@@ -6,9 +6,11 @@ require __DIR__ . '/../config.php';
 
 // --- BLOCCO ACCESSO DIRETTO ---
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || 
-    empty($_SERVER['HTTP_X_REQUESTED_WITH']) || 
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+    empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest'
+) {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }
@@ -20,7 +22,7 @@ $username = trim($_POST['username'] ?? '');
 $password = $_POST['password'] ?? '';
 
 if (!$username || !$password) {
-    echo json_encode(['success'=>false, 'message'=>'Inserisci username e password']);
+    echo json_encode(['success' => false, 'message' => 'Inserisci username e password']);
     exit;
 }
 
@@ -64,12 +66,11 @@ $conn->close();
 if ($result->num_rows > 0) {
     if (password_verify($password . PEPPER, $result->fetch_assoc()['password'])) {
         $_SESSION['username'] = $username;
-        echo json_encode(['success'=>true]);
+        echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['success'=>false, 'message'=>'Username o password errati']);
+        echo json_encode(['success' => false, 'message' => 'Username o password errati']);
     }
-} 
-else {
-    echo json_encode(['success'=>false, 'message'=>'Username o password errati']);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Username o password errati']);
 }
 exit;

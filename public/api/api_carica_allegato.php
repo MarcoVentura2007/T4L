@@ -156,7 +156,7 @@ $stmt->bind_param("si", $percorsoDb, $id_iscritto);
 
 if ($stmt->execute()) {
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => 'Allegato caricato con successo',
         'id' => $stmt->insert_id,
         'file' => $percorsoDb,

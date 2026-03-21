@@ -116,8 +116,13 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
             finfo_close($finfo);
         } else {
             $ext      = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-            $map      = ['jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png',
-                         'gif'=>'image/gif','webp'=>'image/webp'];
+            $map      = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp'
+            ];
             $fileType = $map[$ext] ?? 'application/octet-stream';
         }
 
@@ -133,9 +138,11 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
             $fotografia = 'immagini/' . $fileName;
 
             // Elimina vecchia foto
-            if ($oldFotografia &&
+            if (
+                $oldFotografia &&
                 $oldFotografia !== 'immagini/default-user.png' &&
-                $oldFotografia !== 'default-user.png') {
+                $oldFotografia !== 'default-user.png'
+            ) {
                 $oldPath = __DIR__ . '/../' . $oldFotografia;
                 if (file_exists($oldPath)) unlink($oldPath);
             }
@@ -144,7 +151,6 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
             exit;
         }
     }
-
 } else {
 
     // ── Richiesta JSON (senza file) ──────────────────────────────────────────
@@ -239,7 +245,6 @@ if ($fotografia !== null) {
         $gruppo,
         $id
     );
-
 } else {
 
     // UPDATE senza foto

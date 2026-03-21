@@ -4,17 +4,19 @@ header('Content-Type: application/json');
 header("Cache-Control: no-cache");
 
 // --- BLOCCO ACCESSO DIRETTO ---
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' ||
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST' ||
     empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest'
+) {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }
 // --- FINE BLOCCO ---
 
-if(!isset($_SESSION['username'])){ 
-    echo json_encode(['success'=>false,'message'=>'Non autorizzato']); 
-    exit; 
+if (!isset($_SESSION['username'])) {
+    echo json_encode(['success' => false, 'message' => 'Non autorizzato']);
+    exit;
 }
 
 // Connessione al DB
@@ -53,7 +55,11 @@ if ($stmtClasse) {
 // --- FINE CONTROLLO RUOLO ---
 
 $data = json_decode(file_get_contents("php://input"), true);
-$id = $data['id'] ?? 0; if(!$id){ echo json_encode(['success'=>false,'message'=>'ID mancante']); exit; }
+$id = $data['id'] ?? 0;
+if (!$id) {
+    echo json_encode(['success' => false, 'message' => 'ID mancante']);
+    exit;
+}
 
 // Reuse existing connection ($conn already established)
 
@@ -75,8 +81,8 @@ if ($resultSelect && $resultSelect->num_rows > 0) {
 $stmt = $conn->prepare("DELETE FROM iscritto WHERE id=?");
 
 
-$stmt->bind_param("i",$id);
-if($stmt->execute()) {
+$stmt->bind_param("i", $id);
+if ($stmt->execute()) {
     // Se esiste una fotografia, eliminala dal filesystem
     if ($fotografia && !empty($fotografia)) {
         $fotografia = str_replace("\\", "/", $fotografia);
@@ -92,9 +98,8 @@ if($stmt->execute()) {
             }
         }
     }
-    echo json_encode(['success'=>true]);
-}
-else echo json_encode(['success'=>false,'message'=>$stmt->error]);
+    echo json_encode(['success' => true]);
+} else echo json_encode(['success' => false, 'message' => $stmt->error]);
 
 $stmt->close();
 $stmtSelect->close();

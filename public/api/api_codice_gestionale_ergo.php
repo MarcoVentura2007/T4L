@@ -7,10 +7,10 @@ header("Cache-Control: no chache");
 
 
 
-if(!isset($_SESSION['username'])){
+if (!isset($_SESSION['username'])) {
     echo json_encode([
-        "success"=>false,
-        "message"=>"Sessione non valida"
+        "success" => false,
+        "message" => "Sessione non valida"
     ]);
     exit;
 }
@@ -18,20 +18,20 @@ if(!isset($_SESSION['username'])){
 
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4all');
-if($conn->connect_error){
+if ($conn->connect_error) {
     echo json_encode([
-        "success"=>false,
-        "message"=>"Errore connessione database"
+        "success" => false,
+        "message" => "Errore connessione database"
     ]);
     exit;
 }
 
 $codice = isset($_POST['codice']) ? trim($_POST['codice']) : "";
 
-if($codice === ""){
+if ($codice === "") {
     echo json_encode([
-        "success"=>false,
-        "message"=>"Inserisci il codice"
+        "success" => false,
+        "message" => "Inserisci il codice"
     ]);
     exit;
 }
@@ -43,14 +43,14 @@ $username = $_SESSION['username'];
 $stmtUser = $conn->prepare(
     "SELECT classe FROM Account WHERE nome_utente = ?"
 );
-$stmtUser->bind_param("s",$username);
+$stmtUser->bind_param("s", $username);
 $stmtUser->execute();
 $resUser = $stmtUser->get_result();
 
-if($resUser->num_rows === 0){
+if ($resUser->num_rows === 0) {
     echo json_encode([
-        "success"=>false,
-        "message"=>"Utente non trovato"
+        "success" => false,
+        "message" => "Utente non trovato"
     ]);
     exit;
 }
@@ -66,10 +66,10 @@ $stmtCode->bind_param("ss", $username, $codice);
 $stmtCode->execute();
 $resCode = $stmtCode->get_result();
 
-if($resCode->num_rows === 0){
+if ($resCode->num_rows === 0) {
     echo json_encode([
-        "success"=>false,
-        "message"=>"Codice errato"
+        "success" => false,
+        "message" => "Codice errato"
     ]);
     exit;
 }
@@ -77,10 +77,10 @@ if($resCode->num_rows === 0){
 $classeCodice = $resCode->fetch_assoc()['classe'];
 
 /* CONTROLLO */
-if($classeCodice !== $userClasse){
+if ($classeCodice !== $userClasse) {
     echo json_encode([
-        "success"=>false,
-        "message"=>"Non autorizzato"
+        "success" => false,
+        "message" => "Non autorizzato"
     ]);
     exit;
 }
@@ -92,16 +92,15 @@ $_SESSION['codice_verificato_time'] = time();
 /* REDIRECT */
 $redirect = "#";
 
-if($userClasse === "Educatore"){
+if ($userClasse === "Educatore") {
     $redirect = "gestionale_ergo_utenti.php";
-}
-elseif($userClasse === "Contabile"){
+} elseif ($userClasse === "Contabile") {
     $redirect = "gestionale_ergo_contabile.php";
-} elseif($userClasse === "Amministratore") {
+} elseif ($userClasse === "Amministratore") {
     $redirect = "gestionale_ergo_amministratore.php";
 }
 
 echo json_encode([
-    "success"=>true,
-    "redirect"=>$redirect
+    "success" => true,
+    "redirect" => $redirect
 ]);

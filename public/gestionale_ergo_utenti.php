@@ -21,7 +21,7 @@ $stmtClasse->bind_param("s", $username);
 $stmtClasse->execute();
 $resultClasse = $stmtClasse->get_result();
 
-if($resultClasse && $resultClasse->num_rows > 0){
+if ($resultClasse && $resultClasse->num_rows > 0) {
     $rowClasse = $resultClasse->fetch_assoc();
     $classe = $rowClasse['classe'];
     $codiceUnivoco = $rowClasse['codice_univoco'];
@@ -34,7 +34,7 @@ $stmtClasse->close();
 $connAccount->close();
 
 // Se non amministratore → redirect
-if($classe !== 'Educatore'){
+if ($classe !== 'Educatore') {
     header("Location: index.php");
     exit;
 }
@@ -118,70 +118,75 @@ $stmtResoconti->close();
 <!DOCTYPE html>
 
 <html lang="it">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T4L | Gestionale utenti</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T4L | Gestionale utenti</title>
 
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="immagini/Icona.ico">
-<script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="immagini/Icona.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
-<style>
-    .animated-button{
-        box-shadow: 0 0 0 2px #0b516c;
-    }
-    .animated-button .circle{
-        background-color: #0b516c;
-    }
-
-    .btn-primary{
-        background: linear-gradient(135deg, #0b516c, #1085b3);
-    }
-    .btn-primary:hover{
-        background: linear-gradient(135deg, #1085b3, #0b516c);
-        box-shadow: 0 6px 20px rgba(9, 41, 77, 0.4);
-    }
-    .btn-primary:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(14, 55, 92, 0.3);
-    }
-
-    .check-check{
-        stroke: #0b516c;
-    }
-    .check-circle{
-        stroke: #0b516c;
-    }
-
-     @media (max-width: 768px){
-        .footer-bar{
-            display: none;
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+    <style>
+        .animated-button {
+            box-shadow: 0 0 0 2px #0b516c;
         }
-    }
-</style>
+
+        .animated-button .circle {
+            background-color: #0b516c;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0b516c, #1085b3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1085b3, #0b516c);
+            box-shadow: 0 6px 20px rgba(9, 41, 77, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(14, 55, 92, 0.3);
+        }
+
+        .check-check {
+            stroke: #0b516c;
+        }
+
+        .check-circle {
+            stroke: #0b516c;
+        }
+
+        @media (max-width: 768px) {
+            .footer-bar {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
-<div id="page-loader" class="show">
-<div class="logo-pulse-loader">
-    <div class="logo-pulse-ring"></div>
-    <div class="logo-pulse-ring"></div>
-    <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
-</div>
+    <!-- LOADER TIKTOK-STYLE - Time4All Branded -->
+    <div id="page-loader" class="show">
+        <div class="logo-pulse-loader">
+            <div class="logo-pulse-ring"></div>
+            <div class="logo-pulse-ring"></div>
+            <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
+        </div>
 
-    <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
-</div>
+        <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
+    </div>
 
- 
 
- <script src="js/loader.js"></script>
+
+    <script src="js/loader.js"></script>
 
     <!-- NAVBAR -->
     <header class="navbar">
@@ -200,7 +205,7 @@ $stmtResoconti->close();
 
         <div class="logout-overlay" id="logoutOverlay"></div>
 
-        
+
 
         <div class="logout-modal" id="logoutModal">
             <h3>Conferma logout</h3>
@@ -226,78 +231,78 @@ $stmtResoconti->close();
 
         <div class="dropdown" id="dropdown">
 
-        <div class="menu-group">
+            <div class="menu-group">
 
-            <div class="menu-main" data-target="centroMenu">
-                <img src="immagini/Logo-centrodiurno.png">
-                Centro Diurno
+                <div class="menu-main" data-target="centroMenu">
+                    <img src="immagini/Logo-centrodiurno.png">
+                    Centro Diurno
+                </div>
+
+                <div class="submenu" id="centroMenu">
+                    <div class="menu-item" data-link="fogliofirme-centro.php">
+                        <img src="immagini/foglio-over.png" alt="">
+                        Foglio firme
+                    </div>
+                    <?php
+                    if ($classe === 'Educatore') {
+                        $gestionalePage = "gestional_utenti.php";
+                    } elseif ($classe === 'Contabile') {
+                        $gestionalePage = "gestionale_contabile.php";
+                    } elseif ($classe === 'Amministratore') {
+                        $gestionalePage = "gestionale_amministratore.php";
+                    } else {
+                        $gestionalePage = "#";
+                    }
+                    ?>
+                    <div class="menu-item" data-link="<?php echo $gestionalePage; ?>">
+                        <img src="immagini/gestionale-over.png" alt="">
+                        Gestionale
+                    </div>
+                </div>
+
             </div>
 
-            <div class="submenu" id="centroMenu">
-                <div class="menu-item" data-link="fogliofirme-centro.php">
-                    <img src="immagini/foglio-over.png" alt="">
-                    Foglio firme
+
+            <div class="menu-group">
+
+                <div class="menu-main" data-target="ergoMenu">
+                    <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+                    Ergoterapeutica
                 </div>
-                <?php
-                        if($classe === 'Educatore'){
-                            $gestionalePage = "gestional_utenti.php";
-                        } elseif($classe === 'Contabile'){
-                            $gestionalePage = "gestionale_contabile.php";
-                        } elseif($classe === 'Amministratore') {
-                            $gestionalePage = "gestionale_amministratore.php";
-                        } else {
-                            $gestionalePage = "#"; 
-                        }
+
+                <div class="submenu" id="ergoMenu">
+                    <div class="menu-item" data-link="presenze-ergo.php">
+                        <img src="immagini/presenze-ergo.png" alt="">
+                        Presenze
+                    </div>
+
+                    <?php
+                    if ($classe === 'Educatore') {
+                        $gestionalePageErgo = "gestional_ergo_utenti.php";
+                    } elseif ($classe === 'Contabile') {
+                        $gestionalePageErgo = "gestionale_ergo_contabile.php";
+                    } elseif ($classe === 'Amministratore') {
+                        $gestionalePageErgo = "gestionale_ergo_amministratore.php";
+                    } else {
+                        $gestionalePageErgo = "#";
+                    }
                     ?>
-                <div class="menu-item" data-link="<?php echo $gestionalePage; ?>">
-                    <img src="immagini/gestionale-over.png" alt="">
-                    Gestionale
+
+                    <div class="menu-item" data-link="<?php echo $gestionalePageErgo; ?>">
+                        <img src="immagini/gestionale-ergo.png" alt="">
+                        Gestionale
+                    </div>
                 </div>
+
             </div>
 
         </div>
 
-
-        <div class="menu-group">
-
-            <div class="menu-main" data-target="ergoMenu">
-                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
-                Ergoterapeutica
-            </div>
-
-            <div class="submenu" id="ergoMenu">
-                <div class="menu-item" data-link="presenze-ergo.php">
-                    <img src="immagini/presenze-ergo.png" alt="">
-                    Presenze
-                </div>
-
-                <?php
-                        if($classe === 'Educatore'){
-                            $gestionalePageErgo = "gestional_ergo_utenti.php";
-                        } elseif($classe === 'Contabile'){
-                            $gestionalePageErgo = "gestionale_ergo_contabile.php";
-                        } elseif($classe === 'Amministratore') {
-                            $gestionalePageErgo = "gestionale_ergo_amministratore.php";
-                        } else {
-                            $gestionalePageErgo = "#"; 
-                        }
-                    ?>
-
-                <div class="menu-item" data-link="<?php echo $gestionalePageErgo; ?>">
-                    <img src="immagini/gestionale-ergo.png" alt="">
-                    Gestionale
-                </div>
-            </div>
-
         </div>
-
-    </div>
-
-    </div>
     </header>
 
     <div class="app-layout">
- 
+
         <!-- SIDEBAR -->
         <aside class="vertical-sidebar">
             <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
@@ -337,9 +342,9 @@ $stmtResoconti->close();
                             </a>
                         </li>
                         <li>
-                            <hr/>
+                            <hr />
                         </li>
-                        
+
 
 
 
@@ -351,152 +356,152 @@ $stmtResoconti->close();
             </nav>
         </aside>
 
-        
+
 
 
 
         <main class="main-content">
             <div class="main-container">
-            <!-- TAB UTENTI -->
-            <div class="page-tab active" id="tab-utenti">
-                <div class="page-header">
-                    <h1>Utenti</h1>
-                    <p>Elenco iscritti registrati</p>
-                </div>
+                <!-- TAB UTENTI -->
+                <div class="page-tab active" id="tab-utenti">
+                    <div class="page-header">
+                        <h1>Utenti</h1>
+                        <p>Elenco iscritti registrati</p>
+                    </div>
 
-                <div class="users-table-box">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Fotografia</th>
-                                <th>Nome</th>
-                                <th>Cognome</th>
-                                <th>Data di nascita</th>
-                                <th>Email</th>
-                                <th>Telefono</th>
-                                <th>Disabilità</th>
+                    <div class="users-table-box">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Fotografia</th>
+                                    <th>Nome</th>
+                                    <th>Cognome</th>
+                                    <th>Data di nascita</th>
+                                    <th>Email</th>
+                                    <th>Telefono</th>
+                                    <th>Disabilità</th>
 
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        if($result && $result->num_rows > 0){
-                            while($row = $result->fetch_assoc()){
-                                echo '<tr '
-                                    .'data-id="'.htmlspecialchars($row['id']).'" '
-                                    .'data-nome="'.htmlspecialchars($row['Nome']).'" '
-                                    .'data-cognome="'.htmlspecialchars($row['Cognome']).'" '
-                                    .'data-nascita="'.htmlspecialchars($row['Data_nascita']).'" '
-                                    .'data-cf="'.htmlspecialchars($row['Codice_fiscale']).'" '
-                                    .'data-email="'.htmlspecialchars($row['Email']).'" '
-                                    .'data-telefono="'.htmlspecialchars($row['Telefono']).'" '
-                                    .'data-disabilita="'.htmlspecialchars($row['Disabilita']).'" '
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                if ($result && $result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        echo '<tr '
+                                            . 'data-id="' . htmlspecialchars($row['id']) . '" '
+                                            . 'data-nome="' . htmlspecialchars($row['Nome']) . '" '
+                                            . 'data-cognome="' . htmlspecialchars($row['Cognome']) . '" '
+                                            . 'data-nascita="' . htmlspecialchars($row['Data_nascita']) . '" '
+                                            . 'data-cf="' . htmlspecialchars($row['Codice_fiscale']) . '" '
+                                            . 'data-email="' . htmlspecialchars($row['Email']) . '" '
+                                            . 'data-telefono="' . htmlspecialchars($row['Telefono']) . '" '
+                                            . 'data-disabilita="' . htmlspecialchars($row['Disabilita']) . '" '
 
-                                    .'data-intolleranze="'.htmlspecialchars($row['Allergie_intolleranze'] ?? '').'" '
-                                    .'data-prezzo="'.htmlspecialchars($row['Stipendio_Orario']).'" '
-                                    .'data-note="'.htmlspecialchars($row['Note']).'"
+                                            . 'data-intolleranze="' . htmlspecialchars($row['Allergie_intolleranze'] ?? '') . '" '
+                                            . 'data-prezzo="' . htmlspecialchars($row['Stipendio_Orario']) . '" '
+                                            . 'data-note="' . htmlspecialchars($row['Note']) . '"
                                 >
-                                    <td><img class="user-avatar" src="'.$row['Fotografia'].'"></td>
-                                    <td>'.htmlspecialchars($row['Nome']).'</td>
-                                    <td>'.htmlspecialchars($row['Cognome']).'</td>
-                                    <td>'.htmlspecialchars($row['Data_nascita']).'</td>
-                                    <td>'.htmlspecialchars($row['Email']).'</td>
-                                    <td>'.htmlspecialchars($row['Telefono']).'</td>
-                                    <td>'.htmlspecialchars($row['Disabilita']).'</td>
+                                    <td><img class="user-avatar" src="' . $row['Fotografia'] . '"></td>
+                                    <td>' . htmlspecialchars($row['Nome']) . '</td>
+                                    <td>' . htmlspecialchars($row['Cognome']) . '</td>
+                                    <td>' . htmlspecialchars($row['Data_nascita']) . '</td>
+                                    <td>' . htmlspecialchars($row['Email']) . '</td>
+                                    <td>' . htmlspecialchars($row['Telefono']) . '</td>
+                                    <td>' . htmlspecialchars($row['Disabilita']) . '</td>
 
                                     <td>'
-                                        .'<button class="view-btn"><img src="immagini/open-eye.png" alt="Visualizza"></button>'
-                                    .'</td>'
+                                            . '<button class="view-btn"><img src="immagini/open-eye.png" alt="Visualizza"></button>'
+                                            . '</td>'
 
-                                .'</tr>';
-                            }
-                        } else {
-                            echo '<tr><td colspan="10">Nessun utente registrato.</td></tr>';
-                        }
-                        ?>
-                        </tbody>
-                    </table>
-                </div>
+                                            . '</tr>';
+                                    }
+                                } else {
+                                    echo '<tr><td colspan="10">Nessun utente registrato.</td></tr>';
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <!-- Modal Modifica Utente -->
-                <div class="modal-box large" id="modalModificaUtente">
-                    <h3 class="modal-title">Modifica utente</h3>
-                    <form id="formModificaUtente">
-                        <input type="hidden" id="editUtenteId">
-                        <div class="edit-field">
-                            <label>Nome</label>
-                            <input type="text" id="editUtenteNome" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Cognome</label>
-                            <input type="text" id="editUtenteCognome" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Data di nascita</label>
-                            <input type="date" id="editUtenteData" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Codice Fiscale</label>
-                            <input type="text" id="editUtenteCF" required>
-                        </div>
-                        <div class="edit-field">
-                            <label>Email</label>
-                            <input type="email" id="editUtenteEmail">
-                        </div>
-                        <div class="edit-field">
-                            <label>Telefono</label>
-                            <input type="tel" id="editUtenteTelefono">
-                        </div>
+                    <!-- Modal Modifica Utente -->
+                    <div class="modal-box large" id="modalModificaUtente">
+                        <h3 class="modal-title">Modifica utente</h3>
+                        <form id="formModificaUtente">
+                            <input type="hidden" id="editUtenteId">
+                            <div class="edit-field">
+                                <label>Nome</label>
+                                <input type="text" id="editUtenteNome" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Cognome</label>
+                                <input type="text" id="editUtenteCognome" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Data di nascita</label>
+                                <input type="date" id="editUtenteData" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Codice Fiscale</label>
+                                <input type="text" id="editUtenteCF" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Email</label>
+                                <input type="email" id="editUtenteEmail">
+                            </div>
+                            <div class="edit-field">
+                                <label>Telefono</label>
+                                <input type="tel" id="editUtenteTelefono">
+                            </div>
 
-                        <div class="edit-field">
-                            <label>Disabilità</label>
-                            <input type="text" id="editUtenteDisabilita">
-                        </div>
-                        <div class="edit-field">
-                            <label>Intolleranze / Allergie</label>
-                            <input type="text" id="editUtenteIntolleranze">
-                        </div>
-                        <div class="edit-field">
-                            <label>Stipendio orario (€)</label>
-                            <input type="number" id="editUtentePrezzo" step="0.01">
-                        </div>
-                        <div class="edit-field">
-                            <label>Note</label>
-                            <textarea id="editUtenteNote"></textarea>
-                        </div>
+                            <div class="edit-field">
+                                <label>Disabilità</label>
+                                <input type="text" id="editUtenteDisabilita">
+                            </div>
+                            <div class="edit-field">
+                                <label>Intolleranze / Allergie</label>
+                                <input type="text" id="editUtenteIntolleranze">
+                            </div>
+                            <div class="edit-field">
+                                <label>Stipendio orario (€)</label>
+                                <input type="number" id="editUtentePrezzo" step="0.01">
+                            </div>
+                            <div class="edit-field">
+                                <label>Note</label>
+                                <textarea id="editUtenteNote"></textarea>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal(document.getElementById('modalModificaUtente'))">Chiudi</button>
+                                <button type="button" class="btn-primary" id="salvaModificaUtente">Salva</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Modal Delete Utente -->
+                    <div class="modal-box danger" id="modalDeleteUtente">
+                        <h3>Elimina utente</h3>
+                        <p>Questa azione è definitiva. Vuoi continuare?</p>
                         <div class="modal-actions">
-                            <button type="button" class="btn-secondary" onclick="closeModal(document.getElementById('modalModificaUtente'))">Chiudi</button>
-                            <button type="button" class="btn-primary" id="salvaModificaUtente">Salva</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Modal Delete Utente -->
-                <div class="modal-box danger" id="modalDeleteUtente">
-                    <h3>Elimina utente</h3>
-                    <p>Questa azione è definitiva. Vuoi continuare?</p>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-secondary" onclick="closeModal(document.getElementById('modalDeleteUtente'))">Annulla</button>
-                        <button type="button" class="btn-danger" id="confirmDeleteUtente">Elimina</button>
-                    </div>
-                </div>
-
-                <!-- Modal Visualizza Utente -->
-                <div class="modal-box large" id="viewModal">
-                    <div class="profile-header">
-                        <img id="viewAvatar" class="profile-avatar">
-                        <div class="profile-main">
-                            <h3 id="viewFullname"></h3>
-                            <span id="viewBirth"></span>
+                            <button type="button" class="btn-secondary" onclick="closeModal(document.getElementById('modalDeleteUtente'))">Annulla</button>
+                            <button type="button" class="btn-danger" id="confirmDeleteUtente">Elimina</button>
                         </div>
                     </div>
-                    <div class="profile-grid" id="viewContent"></div>
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal(document.getElementById('viewModal'))">Chiudi</button>
+
+                    <!-- Modal Visualizza Utente -->
+                    <div class="modal-box large" id="viewModal">
+                        <div class="profile-header">
+                            <img id="viewAvatar" class="profile-avatar">
+                            <div class="profile-main">
+                                <h3 id="viewFullname"></h3>
+                                <span id="viewBirth"></span>
+                            </div>
+                        </div>
+                        <div class="profile-grid" id="viewContent"></div>
+                        <div class="modal-actions">
+                            <button class="btn-secondary" onclick="closeModal(document.getElementById('viewModal'))">Chiudi</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
 
 
@@ -505,286 +510,288 @@ $stmtResoconti->close();
 
 
 
-            <!-- TAB PRESENZE -->
-            <div class="page-tab" id="tab-presenze">
-                <div class="page-header">
-                    <h1>Presenze</h1>
-                    <p>Elenco presenze giornaliere</p>
-                </div>
+                <!-- TAB PRESENZE -->
+                <div class="page-tab" id="tab-presenze">
+                    <div class="page-header">
+                        <h1>Presenze</h1>
+                        <p>Elenco presenze giornaliere</p>
+                    </div>
 
-                <div class="presenze-controls">
-                    
-                </div>
+                    <div class="presenze-controls">
 
-                <div class="users-table-box">
-                    <table class="users-table" id="presenzeTable">
-                        <thead>
-                            <tr>
-                                <th>Fotografia</th>
-                                <th>Nome</th>
-                                <th>Cognome</th>
-                                <th>Ingresso</th>
-                                <th>Uscita</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        if($resultPresenze && $resultPresenze->num_rows > 0){
-                            while($row = $resultPresenze->fetch_assoc()){
-                                echo '
+                    </div>
+
+                    <div class="users-table-box">
+                        <table class="users-table" id="presenzeTable">
+                            <thead>
+                                <tr>
+                                    <th>Fotografia</th>
+                                    <th>Nome</th>
+                                    <th>Cognome</th>
+                                    <th>Ingresso</th>
+                                    <th>Uscita</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                if ($resultPresenze && $resultPresenze->num_rows > 0) {
+                                    while ($row = $resultPresenze->fetch_assoc()) {
+                                        echo '
                                     <tr
-                                        data-id="'.htmlspecialchars($row['id']).'"
-                                        data-nome="'.htmlspecialchars($row['Nome']).'"
-                                        data-cognome="'.htmlspecialchars($row['Cognome']).'"
-                                        data-ingresso="'.htmlspecialchars($row['Ingresso']).'"
-                                        data-uscita="'.htmlspecialchars($row['Uscita']).'"
+                                        data-id="' . htmlspecialchars($row['id']) . '"
+                                        data-nome="' . htmlspecialchars($row['Nome']) . '"
+                                        data-cognome="' . htmlspecialchars($row['Cognome']) . '"
+                                        data-ingresso="' . htmlspecialchars($row['Ingresso']) . '"
+                                        data-uscita="' . htmlspecialchars($row['Uscita']) . '"
                                     >
-                                        <td><img class="user-avatar" src="'.$row['Fotografia'].'"></td>
-                                        <td>'.htmlspecialchars($row['Nome']).'</td>
-                                        <td>'.htmlspecialchars($row['Cognome']).'</td>
-                                        <td>'.htmlspecialchars($row['Ingresso']).'</td>
-                                        <td>'.htmlspecialchars($row['Uscita']).'</td>
+                                        <td><img class="user-avatar" src="' . $row['Fotografia'] . '"></td>
+                                        <td>' . htmlspecialchars($row['Nome']) . '</td>
+                                        <td>' . htmlspecialchars($row['Cognome']) . '</td>
+                                        <td>' . htmlspecialchars($row['Ingresso']) . '</td>
+                                        <td>' . htmlspecialchars($row['Uscita']) . '</td>
                                         <td>
-                                            <button class="edit-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/edit.png" alt="Modifica"></button>
-                                            <button class="delete-presenza-btn" data-id="'.htmlspecialchars($row['id']).'"><img src="immagini/delete.png" alt="Elimina"></button>
+                                            <button class="edit-presenza-btn" data-id="' . htmlspecialchars($row['id']) . '"><img src="immagini/edit.png" alt="Modifica"></button>
+                                            <button class="delete-presenza-btn" data-id="' . htmlspecialchars($row['id']) . '"><img src="immagini/delete.png" alt="Elimina"></button>
                                         </td>
                                     </tr>
                                 ';
-                            }
-                        } else {
-                            echo '<tr><td colspan="6">Nessuna presenza registrata oggi.</td></tr>';
-                        }
+                                    }
+                                } else {
+                                    echo '<tr><td colspan="6">Nessuna presenza registrata oggi.</td></tr>';
+                                }
 
-                        ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-
-
-            
-
-
-            <!-- TAB RESOCONTI -->
-            <div class="page-tab" id="tab-resoconti">
-
-                <div class="page-header" style="margin-bottom: 20px;">
-                    <h1>Resoconti</h1>
-                    <p>Riepilogo mensile iscritti</p>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="resoconti-mese-label">
-                    <label>Seleziona mese: </label>
-                    <input type="month" id="resocontiMeseFiltro" value="<?= date('Y-m') ?>">
-                </div>
 
-                
 
-                <div class="users-table-box">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Foto</th>
-                                <th>Nome</th>
-                                <th>Cognome</th>
-                                <th>Ore totali</th>
-                                <th>Stipendio totale (€)</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
 
-                        <tbody id="resocontiMensiliBody">
-                            <tr><td colspan="6">Caricamento...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                
 
-                <div class="modal-box large modal-resoconto" id="modalResocontoGiorni">
 
-                    <h3 class="modal-title" id="resocontoNome"></h3>
 
-                    <div class="edit-field">
-                        <label>Mese</label>
-                        <input type="text" id="resocontoMese">
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <!-- TAB RESOCONTI -->
+                <div class="page-tab" id="tab-resoconti">
+
+                    <div class="page-header" style="margin-bottom: 20px;">
+                        <h1>Resoconti</h1>
+                        <p>Riepilogo mensile iscritti</p>
                     </div>
 
-                    <!-- QUI VIENE COSTRUITO IL CALENDARIO -->
-                    <div id="resocontoContent" class="resoconto-calendar"></div>
+                    <div class="resoconti-mese-label">
+                        <label>Seleziona mese: </label>
+                        <input type="month" id="resocontiMeseFiltro" value="<?= date('Y-m') ?>">
+                    </div>
 
 
 
-                    <div class="users-table-box" style="display:none">
+                    <div class="users-table-box">
                         <table class="users-table">
-                            <tbody id="resocontoGiorniBody"></tbody>
+                            <thead>
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Nome</th>
+                                    <th>Cognome</th>
+                                    <th>Ore totali</th>
+                                    <th>Stipendio totale (€)</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="resocontiMensiliBody">
+                                <tr>
+                                    <td colspan="6">Caricamento...</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
 
 
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                    </div>
-                </div>
-            </div>
+                    <div class="modal-box large modal-resoconto" id="modalResocontoGiorni">
 
+                        <h3 class="modal-title" id="resocontoNome"></h3>
 
+                        <div class="edit-field">
+                            <label>Mese</label>
+                            <input type="text" id="resocontoMese">
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-
-
-
-
-
-
-            <div class="main-container">
-        </main>
-    </div>
-    
-            <!-- POPUP CONFERMA FIRMA -->
-                <div class="popup success-popup" id="successPopup">
-                    <div class="success-content">
-                        <div class="success-icon">
-                        <svg viewBox="-2 -2 56 56">
-                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none"/>
-                        </svg>
-                        </div>
-                        <p class="success-text" id="success-text">Utente modificato!!</p>
-                    </div>
-                </div>
-
-                <!-- EDIT MODAL -->
-                <div class="modal-box large" id="editModal">
-                        <h3 class="modal-title" id="modalEditTitle">Modifica utente</h3>
-
-                        <div class="profile-header" id="profileHeader" style="display: none;">
-                            <img id="viewAvatar-mod" class="profile-avatar">
-                            <div class="profile-main">
-                                <h3 id="viewFullname-mod"></h3>
-                                <span id="viewBirth-mod"></span>
-                            </div>
                         </div>
 
-                        <div class="edit-grid" id="editContent">
-                            <!-- Riempito da JS -->
-                            <div class="edit-field" id="fieldNome">
-                                <label>Nome</label>
-                                <input type="text" id="editNome" placeholder="Nome">
-                            </div>
-                            <div class="edit-field" id="fieldCognome">
-                                <label>Cognome</label>
-                                <input type="text" id="editCognome" placeholder="Cognome">
-                            </div>
-                            <div class="edit-field" id="fieldData">
-                                <label>Data di nascita</label>
-                                <input type="date" id="editData">
-                            </div>
-                            <div class="edit-field" id="fieldCF">
-                                <label>Codice Fiscale</label>
-                                <input type="text" id="editCF" placeholder="Codice Fiscale">
-                            </div>
-                            <div class="edit-field" id="fieldEmail">
-                                <label>Email</label>
-                                <input type="email" id="editEmail" placeholder="Email">
-                            </div>
-                            <div class="edit-field" id="fieldTelefono">
-                                <label>Telefono</label>
-                                <input type="tel" id="editTelefono" placeholder="Telefono">
-                            </div>
+                        <!-- QUI VIENE COSTRUITO IL CALENDARIO -->
+                        <div id="resocontoContent" class="resoconto-calendar"></div>
 
-                            <div class="edit-field" id="fieldDisabilita">
-                                <label>Disabilità</label>
-                                <input type="text" id="editDisabilita" placeholder="Disabilità">
-                            </div>
-                            <div class="edit-field" id="fieldIntolleranze">
-                                <label>Intolleranze</label>
-                                <input type="text" id="editIntolleranze" placeholder="Intolleranze">
-                            </div>
-                            <div class="edit-field" id="fieldPrezzo">
-                                <label>Prezzo orario</label>
-                                <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
-                            </div>
-                            <div class="edit-field" id="fieldNote">
-                                <label>Note</label>
-                                <textarea id="editNote" placeholder="Note"></textarea>
-                            </div>
-                            <div class="edit-field" id="fieldIngresso" style="display: none;">
-                                <label>Ingresso (ora)</label>
-                                <input type="time" id="editIngresso" placeholder="Ingresso">
-                            </div>
-                            <div class="edit-field" id="fieldUscita" style="display: none;">
-                                <label>Uscita (ora)</label>
-                                <input type="time" id="editUscita" placeholder="Uscita">
-                            </div>
+
+
+                        <div class="users-table-box" style="display:none">
+                            <table class="users-table">
+                                <tbody id="resocontoGiorniBody"></tbody>
+                            </table>
                         </div>
+
 
                         <div class="modal-actions">
                             <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                            <button class="btn-primary" id="saveEdit">Salva</button>
                         </div>
-                    
-                </div>
-
-
-                <!-- DELETE USER -->
-                <div class="modal-box danger" id="deleteModal">
-                    <h3>Elimina utente</h3>
-                    <h3></h3>
-                    <p>Questa azione è definitiva. Vuoi continuare?</p>
-
-                    <div class="modal-actions">
-                        <button class="btn-secondary" onclick="closeModal()">Annulla</button>
-                        <button class="btn-danger">Elimina</button>
                     </div>
                 </div>
 
-           
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="main-container">
+        </main>
+    </div>
+
+    <!-- POPUP CONFERMA FIRMA -->
+    <div class="popup success-popup" id="successPopup">
+        <div class="success-content">
+            <div class="success-icon">
+                <svg viewBox="-2 -2 56 56">
+                    <circle class="check-circle" cx="26" cy="26" r="25" fill="none" />
+                    <path class="check-check" d="M14 27 L22 35 L38 19" fill="none" />
+                </svg>
+            </div>
+            <p class="success-text" id="success-text">Utente modificato!!</p>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div class="modal-box large" id="editModal">
+        <h3 class="modal-title" id="modalEditTitle">Modifica utente</h3>
+
+        <div class="profile-header" id="profileHeader" style="display: none;">
+            <img id="viewAvatar-mod" class="profile-avatar">
+            <div class="profile-main">
+                <h3 id="viewFullname-mod"></h3>
+                <span id="viewBirth-mod"></span>
+            </div>
+        </div>
+
+        <div class="edit-grid" id="editContent">
+            <!-- Riempito da JS -->
+            <div class="edit-field" id="fieldNome">
+                <label>Nome</label>
+                <input type="text" id="editNome" placeholder="Nome">
+            </div>
+            <div class="edit-field" id="fieldCognome">
+                <label>Cognome</label>
+                <input type="text" id="editCognome" placeholder="Cognome">
+            </div>
+            <div class="edit-field" id="fieldData">
+                <label>Data di nascita</label>
+                <input type="date" id="editData">
+            </div>
+            <div class="edit-field" id="fieldCF">
+                <label>Codice Fiscale</label>
+                <input type="text" id="editCF" placeholder="Codice Fiscale">
+            </div>
+            <div class="edit-field" id="fieldEmail">
+                <label>Email</label>
+                <input type="email" id="editEmail" placeholder="Email">
+            </div>
+            <div class="edit-field" id="fieldTelefono">
+                <label>Telefono</label>
+                <input type="tel" id="editTelefono" placeholder="Telefono">
             </div>
 
-        </main>
-        
- <footer class="footer-bar" style="bottom: auto;">
-                <div class="footer-left" >© Time4All • 2026</div>
-                <div class="footer-top">
-                    <a href="#top" class="footer-image"></a>
-                </div>
-                <div class="footer-right">
-                    <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
-                </div>
-            </footer>
+            <div class="edit-field" id="fieldDisabilita">
+                <label>Disabilità</label>
+                <input type="text" id="editDisabilita" placeholder="Disabilità">
+            </div>
+            <div class="edit-field" id="fieldIntolleranze">
+                <label>Intolleranze</label>
+                <input type="text" id="editIntolleranze" placeholder="Intolleranze">
+            </div>
+            <div class="edit-field" id="fieldPrezzo">
+                <label>Prezzo orario</label>
+                <input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.01">
+            </div>
+            <div class="edit-field" id="fieldNote">
+                <label>Note</label>
+                <textarea id="editNote" placeholder="Note"></textarea>
+            </div>
+            <div class="edit-field" id="fieldIngresso" style="display: none;">
+                <label>Ingresso (ora)</label>
+                <input type="time" id="editIngresso" placeholder="Ingresso">
+            </div>
+            <div class="edit-field" id="fieldUscita" style="display: none;">
+                <label>Uscita (ora)</label>
+                <input type="time" id="editUscita" placeholder="Uscita">
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+            <button class="btn-primary" id="saveEdit">Salva</button>
+        </div>
+
+    </div>
+
+
+    <!-- DELETE USER -->
+    <div class="modal-box danger" id="deleteModal">
+        <h3>Elimina utente</h3>
+        <h3></h3>
+        <p>Questa azione è definitiva. Vuoi continuare?</p>
+
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Annulla</button>
+            <button class="btn-danger">Elimina</button>
+        </div>
+    </div>
+
+
+    </div>
+
+    </main>
+
+    <footer class="footer-bar" style="bottom: auto;">
+        <div class="footer-left">© Time4All • 2026</div>
+        <div class="footer-top">
+            <a href="#top" class="footer-image"></a>
+        </div>
+        <div class="footer-right">
+            <a href="privacy_policy.php" class="hover-underline-animation">PRIVACY POLICY</a>
+        </div>
+    </footer>
 
     <!-- MOBILE BOTTOM NAVIGATION -->
     <nav class="mobile-bottom-nav">
@@ -805,52 +812,52 @@ $stmtResoconti->close();
     <!-- OVERLAY PRINCIPALE PER MODALI -->
     <div class="modal-overlay" id="Overlay"></div>
 
-    
+
 
     <script>
-    document.querySelectorAll(".tab-link").forEach(link => {
-        link.addEventListener("click", e => {
-            e.preventDefault();
-            const target = e.currentTarget.dataset.tab;
+        document.querySelectorAll(".tab-link").forEach(link => {
+            link.addEventListener("click", e => {
+                e.preventDefault();
+                const target = e.currentTarget.dataset.tab;
 
-            document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
-            document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
+                document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+                document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
 
-            e.currentTarget.classList.add("active");
-            document.getElementById(target).classList.add("active");
+                e.currentTarget.classList.add("active");
+                document.getElementById(target).classList.add("active");
 
-            localStorage.setItem("activeTab", target);
+                localStorage.setItem("activeTab", target);
+            });
         });
-    });
 
-    window.addEventListener("DOMContentLoaded", () => {
-        const savedTab = localStorage.getItem("activeTab");
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedTab = localStorage.getItem("activeTab");
 
-        if (savedTab) {
-            document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
-            document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
+            if (savedTab) {
+                document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+                document.querySelectorAll(".page-tab").forEach(tab => tab.classList.remove("active"));
 
-            const link = document.querySelector(`.tab-link[data-tab="${savedTab}"]`);
-            const page = document.getElementById(savedTab);
-            if (link && page) {
-                link.classList.add("active");
-                page.classList.add("active");
+                const link = document.querySelector(`.tab-link[data-tab="${savedTab}"]`);
+                const page = document.getElementById(savedTab);
+                if (link && page) {
+                    link.classList.add("active");
+                    page.classList.add("active");
+                }
             }
-        }
-    });
+        });
 
 
-            /* HAMBURGER */
+        /* HAMBURGER */
         const ham = document.getElementById("hamburger");
         const drop = document.getElementById("dropdown");
-        
+
         if (ham) {
             ham.onclick = () => {
                 ham.classList.toggle("active");
                 drop.classList.toggle("show");
             };
         }
-        
+
         document.querySelectorAll(".menu-main").forEach(main => {
             main.addEventListener("click", () => {
 
@@ -858,35 +865,35 @@ $stmtResoconti->close();
                 const targetMenu = document.getElementById(targetId);
 
                 document.querySelectorAll(".submenu").forEach(menu => {
-                    if(menu !== targetMenu){
+                    if (menu !== targetMenu) {
                         menu.classList.remove("open");
-                        menu.previousElementSibling.classList.remove("open"); 
+                        menu.previousElementSibling.classList.remove("open");
                     }
                 });
 
                 targetMenu.classList.toggle("open");
-                main.classList.toggle("open"); 
+                main.classList.toggle("open");
             });
         });
 
-    document.querySelectorAll(".menu-item").forEach(item => {
-        item.onclick = () => {
-            window.location.href = item.dataset.link;
-        }
-    });
+        document.querySelectorAll(".menu-item").forEach(item => {
+            item.onclick = () => {
+                window.location.href = item.dataset.link;
+            }
+        });
 
-    
+
 
 
         /* USER DROPDOWN */
         const userBox = document.getElementById("userBox");
         const userDropdown = document.getElementById("userDropdown");
-        userBox.addEventListener("click", (e)=>{
+        userBox.addEventListener("click", (e) => {
             e.stopPropagation();
             userDropdown.classList.toggle("show");
         });
-        document.addEventListener("click",(e)=>{
-            if(!userBox.contains(e.target)){
+        document.addEventListener("click", (e) => {
+            if (!userBox.contains(e.target)) {
                 userDropdown.classList.remove("show");
             }
         });
@@ -909,7 +916,8 @@ $stmtResoconti->close();
 
         cancelLogout.onclick = closeLogout;
         logoutOverlay.onclick = closeLogout;
-        function closeLogout(){
+
+        function closeLogout() {
             logoutOverlay.classList.remove("show");
             logoutModal.classList.remove("show");
         }
@@ -918,65 +926,66 @@ $stmtResoconti->close();
             window.location.href = "logout.php";
         };
 
-    // Modal (use the global `Overlay` element for modal backdrop)
-    const Overlay = document.getElementById("Overlay");
-    const viewModal = document.getElementById("viewModal");
-    const editModal = document.getElementById("editModal");
-    const deleteModal = document.getElementById("deleteModal");
+        // Modal (use the global `Overlay` element for modal backdrop)
+        const Overlay = document.getElementById("Overlay");
+        const viewModal = document.getElementById("viewModal");
+        const editModal = document.getElementById("editModal");
+        const deleteModal = document.getElementById("deleteModal");
 
-    const successText = document.getElementById("success-text");
-    const successPopup = document.getElementById("successPopup");
+        const successText = document.getElementById("success-text");
+        const successPopup = document.getElementById("successPopup");
 
-    function openModal(modal){
-        if(!modal) return;
-        modal.classList.add("show");
-        if(Overlay) Overlay.classList.add("show");
-    }
-    
-    function closeModal(modal){
-        if(Overlay) Overlay.classList.remove("show");
-        if(modal){
-            modal.classList.remove("show");
-        } else {
-            document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
+        function openModal(modal) {
+            if (!modal) return;
+            modal.classList.add("show");
+            if (Overlay) Overlay.classList.add("show");
         }
-    }
+
+        function closeModal(modal) {
+            if (Overlay) Overlay.classList.remove("show");
+            if (modal) {
+                modal.classList.remove("show");
+            } else {
+                document.querySelectorAll(".modal-box.show").forEach(el => el.classList.remove("show"));
+            }
+        }
 
 
-    function showSuccess(popup, overlay) {
-        if (popup) popup.classList.add("show");
-        if (overlay) overlay.classList.add("show");
-    }
-    function hideSuccess(popup, overlay) {
-        if (popup) popup.classList.remove("show");
-        if (overlay) overlay.classList.remove("show");
-    }
+        function showSuccess(popup, overlay) {
+            if (popup) popup.classList.add("show");
+            if (overlay) overlay.classList.add("show");
+        }
+
+        function hideSuccess(popup, overlay) {
+            if (popup) popup.classList.remove("show");
+            if (overlay) overlay.classList.remove("show");
+        }
 
 
-    if(Overlay) Overlay.onclick = () => closeModal();
+        if (Overlay) Overlay.onclick = () => closeModal();
 
-    // Popup view
-    document.querySelectorAll(".view-btn").forEach(btn=>{
-        btn.onclick = e=>{
-            const row = e.target.closest("tr");
-            const avatar = row.querySelector("img").src;
-            const nome = row.dataset.nome;
-            const cognome = row.dataset.cognome;
-            const data = row.dataset.nascita;
-            const cf = row.dataset.cf;
-            const email = row.dataset.email;
-            const telefono = row.dataset.telefono;
-            const disabilita = row.dataset.disabilita;
+        // Popup view
+        document.querySelectorAll(".view-btn").forEach(btn => {
+            btn.onclick = e => {
+                const row = e.target.closest("tr");
+                const avatar = row.querySelector("img").src;
+                const nome = row.dataset.nome;
+                const cognome = row.dataset.cognome;
+                const data = row.dataset.nascita;
+                const cf = row.dataset.cf;
+                const email = row.dataset.email;
+                const telefono = row.dataset.telefono;
+                const disabilita = row.dataset.disabilita;
 
-            const intolleranze = row.dataset.intolleranze;
-            const prezzo = row.dataset.prezzo;
-            const note = row.dataset.note;
+                const intolleranze = row.dataset.intolleranze;
+                const prezzo = row.dataset.prezzo;
+                const note = row.dataset.note;
 
-            document.getElementById("viewAvatar").src = avatar;
-            document.getElementById("viewFullname").innerText = nome + " " + cognome;
-            document.getElementById("viewBirth").innerText = "Nato il " + data;
+                document.getElementById("viewAvatar").src = avatar;
+                document.getElementById("viewFullname").innerText = nome + " " + cognome;
+                document.getElementById("viewBirth").innerText = "Nato il " + data;
 
-            document.getElementById("viewContent").innerHTML = `
+                document.getElementById("viewContent").innerHTML = `
                 <div class="profile-field"><label>Nome</label><span>${nome}</span></div>
                 <div class="profile-field"><label>Cognome</label><span>${cognome}</span></div>
                 <div class="profile-field"><label>Data di nascita</label><span>${data}</span></div>
@@ -989,95 +998,103 @@ $stmtResoconti->close();
                 <div class="profile-field"><label>Stipendio orario</label><span>${prezzo ? prezzo + ' €' : '-'}</span></div>
                 <div class="profile-field"><label>Note</label><span>${note || '-'}</span></div>
             `;
-            openModal(viewModal);
-        }
-    });
+                openModal(viewModal);
+            }
+        });
 
-    // Presenze: edit/delete handlers
-    document.addEventListener('click', function(e){
-        // Edit presenza
-        if(e.target.closest && e.target.closest('.edit-presenza-btn')){
-            const btn = e.target.closest('.edit-presenza-btn');
-            const row = btn.closest('tr');
-            const id = row.dataset.id;
-            const nome = row.dataset.nome;
-            const cognome = row.dataset.cognome;
-            const ingresso = row.dataset.ingresso || '';
-            const uscita = row.dataset.uscita || '';
+        // Presenze: edit/delete handlers
+        document.addEventListener('click', function(e) {
+            // Edit presenza
+            if (e.target.closest && e.target.closest('.edit-presenza-btn')) {
+                const btn = e.target.closest('.edit-presenza-btn');
+                const row = btn.closest('tr');
+                const id = row.dataset.id;
+                const nome = row.dataset.nome;
+                const cognome = row.dataset.cognome;
+                const ingresso = row.dataset.ingresso || '';
+                const uscita = row.dataset.uscita || '';
 
-            // Nasconde i campi utente e mostra quelli presenza
-            document.getElementById('profileHeader').style.display = 'none';
-            document.getElementById('fieldNome').style.display = 'none';
-            document.getElementById('fieldCognome').style.display = 'none';
-            document.getElementById('fieldData').style.display = 'none';
-            document.getElementById('fieldCF').style.display = 'none';
-            document.getElementById('fieldEmail').style.display = 'none';
-            document.getElementById('fieldTelefono').style.display = 'none';
+                // Nasconde i campi utente e mostra quelli presenza
+                document.getElementById('profileHeader').style.display = 'none';
+                document.getElementById('fieldNome').style.display = 'none';
+                document.getElementById('fieldCognome').style.display = 'none';
+                document.getElementById('fieldData').style.display = 'none';
+                document.getElementById('fieldCF').style.display = 'none';
+                document.getElementById('fieldEmail').style.display = 'none';
+                document.getElementById('fieldTelefono').style.display = 'none';
 
-            document.getElementById('fieldDisabilita').style.display = 'none';
-            document.getElementById('fieldIntolleranze').style.display = 'none';
-            document.getElementById('fieldPrezzo').style.display = 'none';
-            document.getElementById('fieldNote').style.display = 'none';
-            document.getElementById('fieldIngresso').style.display = 'block';
-            document.getElementById('fieldUscita').style.display = 'block';
+                document.getElementById('fieldDisabilita').style.display = 'none';
+                document.getElementById('fieldIntolleranze').style.display = 'none';
+                document.getElementById('fieldPrezzo').style.display = 'none';
+                document.getElementById('fieldNote').style.display = 'none';
+                document.getElementById('fieldIngresso').style.display = 'block';
+                document.getElementById('fieldUscita').style.display = 'block';
 
-            // Set modal title
-            document.getElementById('modalEditTitle').innerText = 'Modifica Presenza - ' + nome + ' ' + cognome;
+                // Set modal title
+                document.getElementById('modalEditTitle').innerText = 'Modifica Presenza - ' + nome + ' ' + cognome;
 
-            // Set modal data
-            editModal.dataset.editType = 'presenza';
-            editModal.dataset.presenzeId = id;
+                // Set modal data
+                editModal.dataset.editType = 'presenza';
+                editModal.dataset.presenzeId = id;
 
-            // Estrae solo l'ora dal formato DB (YYYY-MM-DD HH:MM:SS)
-            const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
-            const uscitaTime = uscita.split(' ')[1]?.slice(0, 5) || '';
+                // Estrae solo l'ora dal formato DB (YYYY-MM-DD HH:MM:SS)
+                const ingressoTime = ingresso.split(' ')[1]?.slice(0, 5) || '';
+                const uscitaTime = uscita.split(' ')[1]?.slice(0, 5) || '';
 
-            document.getElementById('editIngresso').value = ingressoTime;
-            document.getElementById('editUscita').value = uscitaTime;
+                document.getElementById('editIngresso').value = ingressoTime;
+                document.getElementById('editUscita').value = uscitaTime;
 
-            openModal(editModal);
-        }
+                openModal(editModal);
+            }
 
-        // Delete presenza
-        if(e.target.closest && e.target.closest('.delete-presenza-btn')){
-            const btn = e.target.closest('.delete-presenza-btn');
-            const row = btn.closest('tr');
-            const id = row.dataset.id;
-            const nome = row.dataset.nome;
-            const cognome = row.dataset.cognome;
+            // Delete presenza
+            if (e.target.closest && e.target.closest('.delete-presenza-btn')) {
+                const btn = e.target.closest('.delete-presenza-btn');
+                const row = btn.closest('tr');
+                const id = row.dataset.id;
+                const nome = row.dataset.nome;
+                const cognome = row.dataset.cognome;
 
-            document.getElementById('deleteModal').querySelector('h3').innerText = 'Eliminazione Presenza - ' + nome + ' ' + cognome;
-            deleteModal.dataset.deleteType = 'presenza';
-            deleteModal.dataset.presenzeId = id;
-            openModal(deleteModal);
+                document.getElementById('deleteModal').querySelector('h3').innerText = 'Eliminazione Presenza - ' + nome + ' ' + cognome;
+                deleteModal.dataset.deleteType = 'presenza';
+                deleteModal.dataset.presenzeId = id;
+                openModal(deleteModal);
 
-            const confirmDelete = deleteModal.querySelector('.btn-danger');
-            confirmDelete.onclick = () => {
-                fetch('api/api_elimina_presenza_ergo.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    body: JSON.stringify({ id: id })
-                }).then(r => r.json()).then(data => {
-                    if(data.success){
-                        deleteModal.classList.remove('show');
-                        successText.innerText = 'Presenza Eliminata!!';
-                        showSuccess(successPopup, Overlay);
-                        setTimeout(()=>{
-                            closeModal();
-                            hideSuccess(successPopup, Overlay);
-                            location.reload();
-                        }, 1800);
-                    } else {
-                        alert('Errore: ' + data.message);
-                    }
-                }).catch(err => { console.error(err); alert('Errore richiesta'); });
-            };
-        }
-    });
+                const confirmDelete = deleteModal.querySelector('.btn-danger');
+                confirmDelete.onclick = () => {
+                    fetch('api/api_elimina_presenza_ergo.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            id: id
+                        })
+                    }).then(r => r.json()).then(data => {
+                        if (data.success) {
+                            deleteModal.classList.remove('show');
+                            successText.innerText = 'Presenza Eliminata!!';
+                            showSuccess(successPopup, Overlay);
+                            setTimeout(() => {
+                                closeModal();
+                                hideSuccess(successPopup, Overlay);
+                                location.reload();
+                            }, 1800);
+                        } else {
+                            alert('Errore: ' + data.message);
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        alert('Errore richiesta');
+                    });
+                };
+            }
+        });
 
 
-        document.querySelectorAll(".edit-btn").forEach(btn=>{
-            btn.onclick = e=>{
+        document.querySelectorAll(".edit-btn").forEach(btn => {
+            btn.onclick = e => {
                 const row = e.target.closest("tr");
 
                 const avatar = row.querySelector("img").src;
@@ -1129,8 +1146,8 @@ $stmtResoconti->close();
         });
         succesPopupDelete = document.getElementById("successPopupDelete");
 
-        document.querySelectorAll(".delete-btn").forEach(btn=>{
-            btn.onclick = ()=>{
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+            btn.onclick = () => {
                 const row = btn.closest("tr");
                 const nomeCompleto = row.dataset.nome + " " + row.dataset.cognome;
 
@@ -1143,44 +1160,46 @@ $stmtResoconti->close();
                 const confirmDelete = deleteModal.querySelector(".btn-danger");
                 confirmDelete.onclick = () => {
                     fetch("api/api_elimina_utente.php", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-Requested-With": "XMLHttpRequest"
-                        },
-                        body: JSON.stringify({ id_iscritto: row.dataset.id })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            deleteModal.classList.remove("show");
-                            successText.innerText = "Utente Eliminato!! ";
-                            showSuccess(successPopup, Overlay);
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            body: JSON.stringify({
+                                id_iscritto: row.dataset.id
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                deleteModal.classList.remove("show");
+                                successText.innerText = "Utente Eliminato!! ";
+                                showSuccess(successPopup, Overlay);
 
-                            setTimeout(()=>{
-                                closeModal();
-                                hideSuccess(successPopup, Overlay);
-                                row.remove();
-                                location.reload();
-                            },1800); 
-                        }
+                                setTimeout(() => {
+                                    closeModal();
+                                    hideSuccess(successPopup, Overlay);
+                                    row.remove();
+                                    location.reload();
+                                }, 1800);
+                            }
 
-                    
-                    });
+
+                        });
                 };
             }
         });
 
-        
+
         const modalBoxEdit = document.getElementById("editModal");
-        
+
         document.getElementById("saveEdit").onclick = () => {
             const editType = editModal.dataset.editType || 'utente';
 
-            if(editType === 'presenza'){
+            if (editType === 'presenza') {
                 const id = editModal.dataset.presenzeId;
-                const ingresso = document.getElementById("editIngresso").value;  
-                const uscita = document.getElementById("editUscita").value;    
+                const ingresso = document.getElementById("editIngresso").value;
+                const uscita = document.getElementById("editUscita").value;
 
                 // Ottenere la data di oggi in formato YYYY-MM-DD
                 const today = new Date().toISOString().split('T')[0];
@@ -1191,29 +1210,33 @@ $stmtResoconti->close();
 
                 fetch('api/api_modifica_presenza_ergo.php', {
 
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ id: id, ingresso: ingressoDb, uscita: uscitaDb })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success){
-                        editModal.classList.remove("show");
-                        if(Overlay) Overlay.classList.remove("show");
-                        successText.innerText = "Presenza modificata!!";
-                        showSuccess(successPopup, Overlay);
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            ingresso: ingressoDb,
+                            uscita: uscitaDb
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            editModal.classList.remove("show");
+                            if (Overlay) Overlay.classList.remove("show");
+                            successText.innerText = "Presenza modificata!!";
+                            showSuccess(successPopup, Overlay);
 
-                        setTimeout(()=>{
-                            hideSuccess(successPopup, Overlay);
-                            location.reload();
-                        }, 1800);
-                    } else {
-                        alert("Errore: " + data.message);
-                    }
-                });
+                            setTimeout(() => {
+                                hideSuccess(successPopup, Overlay);
+                                location.reload();
+                            }, 1800);
+                        } else {
+                            alert("Errore: " + data.message);
+                        }
+                    });
             } else {
                 // Salva un utente
                 const id = editModal.dataset.userId;
@@ -1234,29 +1257,29 @@ $stmtResoconti->close();
                 };
 
                 fetch('api/api_aggiorna_utente.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success){
-                        editModal.classList.remove("show");
-                        if(Overlay) Overlay.classList.remove("show");
-                        successText.innerText = "Utente modificato!!";
-                        showSuccess(successPopup, Overlay);
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            editModal.classList.remove("show");
+                            if (Overlay) Overlay.classList.remove("show");
+                            successText.innerText = "Utente modificato!!";
+                            showSuccess(successPopup, Overlay);
 
-                        setTimeout(()=>{
-                            hideSuccess(successPopup, Overlay);
-                            location.reload();
-                        }, 1800);
-                    } else {
-                        alert("Errore: " + data.message);
-                    }
-                });
+                            setTimeout(() => {
+                                hideSuccess(successPopup, Overlay);
+                                location.reload();
+                            }, 1800);
+                        } else {
+                            alert("Errore: " + data.message);
+                        }
+                    });
             }
         };
 
@@ -1273,87 +1296,91 @@ $stmtResoconti->close();
 
 
 
-        
-
-
-
-
-    
-        
 
 
 
 
 
-       document.addEventListener("DOMContentLoaded", () => {
-    const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
-    const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
-    const modalResoconto = document.getElementById("modalResocontoGiorni");
-    const bodyResoconto = document.getElementById("resocontoGiorniBody");
-    const meseInput = document.getElementById("resocontoMese");
-    const titoloResoconto = document.getElementById("resocontoNome");
 
-    let currentIscritto = null;
 
-    // CARICAMENTO INIZIALE MENSILE
-    if(resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
 
-    // CAMBIO MESE GLOBALE
-    if(resocontiMeseFiltro) {
-        resocontiMeseFiltro.addEventListener("change", () => {
-            caricaResocontiMensili(resocontiMeseFiltro.value);
-        });
-    }
 
-    // CLICK PULSANTE DETTAGLI GIORNALIERI
-    document.addEventListener("click", e => {
-        const btn = e.target.closest(".resoconto-btn, .calendario-btn");
-        if(!btn) return;
 
-        currentIscritto = btn.dataset.id;
-        const nome = btn.dataset.nome || "";
-        const cognome = btn.dataset.cognome || "";
 
-        if(!titoloResoconto) return;
-        titoloResoconto.textContent = "Resoconto - " + (cognome + " " + nome).trim();
 
-        if(!meseInput) return;
-        meseInput.value = resocontiMeseFiltro.value;
+        document.addEventListener("DOMContentLoaded", () => {
+            const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
+            const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
+            const modalResoconto = document.getElementById("modalResocontoGiorni");
+            const bodyResoconto = document.getElementById("resocontoGiorniBody");
+            const meseInput = document.getElementById("resocontoMese");
+            const titoloResoconto = document.getElementById("resocontoNome");
 
-        if(bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Caricamento...</td></tr>`;
+            let currentIscritto = null;
 
-        if(modalResoconto && typeof openModal === "function") openModal(modalResoconto);
+            // CARICAMENTO INIZIALE MENSILE
+            if (resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
 
-        caricaResocontoGiorni();
-    });
-
-    // CAMBIO MESE NEL MODAL
-    if(meseInput) meseInput.addEventListener("change", caricaResocontoGiorni);
-
-    // FUNZIONE CARICA RESOCONTI MENSILI
-    function caricaResocontiMensili(mese){
-        if(!resocontiMensiliBody) return;
-        resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
-
-        fetch("api/api_resoconto_mensile_ergo.php", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({mese})
-        })
-        .then(r => r.json())
-        .then(json => {
-            resocontiMensiliBody.innerHTML = "";
-
-            if(!json.success || json.data.length === 0){
-                resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Nessun dato disponibile</td></tr>`;
-                return;
+            // CAMBIO MESE GLOBALE
+            if (resocontiMeseFiltro) {
+                resocontiMeseFiltro.addEventListener("change", () => {
+                    caricaResocontiMensili(resocontiMeseFiltro.value);
+                });
             }
 
-            json.data.forEach(r => {
-                const ore = parseFloat(r.ore_totali).toFixed(2);
-                const stipendio = parseFloat(r.ore_totali * r.Stipendio_Orario).toFixed(2);
+            // CLICK PULSANTE DETTAGLI GIORNALIERI
+            document.addEventListener("click", e => {
+                const btn = e.target.closest(".resoconto-btn, .calendario-btn");
+                if (!btn) return;
 
-                resocontiMensiliBody.innerHTML += `
+                currentIscritto = btn.dataset.id;
+                const nome = btn.dataset.nome || "";
+                const cognome = btn.dataset.cognome || "";
+
+                if (!titoloResoconto) return;
+                titoloResoconto.textContent = "Resoconto - " + (cognome + " " + nome).trim();
+
+                if (!meseInput) return;
+                meseInput.value = resocontiMeseFiltro.value;
+
+                if (bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Caricamento...</td></tr>`;
+
+                if (modalResoconto && typeof openModal === "function") openModal(modalResoconto);
+
+                caricaResocontoGiorni();
+            });
+
+            // CAMBIO MESE NEL MODAL
+            if (meseInput) meseInput.addEventListener("change", caricaResocontoGiorni);
+
+            // FUNZIONE CARICA RESOCONTI MENSILI
+            function caricaResocontiMensili(mese) {
+                if (!resocontiMensiliBody) return;
+                resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
+
+                fetch("api/api_resoconto_mensile_ergo.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            mese
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(json => {
+                        resocontiMensiliBody.innerHTML = "";
+
+                        if (!json.success || json.data.length === 0) {
+                            resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Nessun dato disponibile</td></tr>`;
+                            return;
+                        }
+
+                        json.data.forEach(r => {
+                            const ore = parseFloat(r.ore_totali).toFixed(2);
+                            const stipendio = parseFloat(r.ore_totali * r.Stipendio_Orario).toFixed(2);
+
+                            resocontiMensiliBody.innerHTML += `
                     <tr>
                         <td><img src="${r.Fotografia}" class="user-avatar"></td>
                         <td>${r.Nome}</td>
@@ -1368,57 +1395,62 @@ $stmtResoconti->close();
                         </td>
                     </tr>
                 `;
-            });
-        })
-        .catch(err => {
-            console.error(err);
-            resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Errore nel caricamento</td></tr>`;
-        });
-    }
-
-
-    // FUNZIONE CARICA RESOCONTO GIORNI CON CALENDARIO
-    function caricaResocontoGiorni(){
-        if(!currentIscritto || !meseInput) return;
-
-        fetch("api/api_resoconto_giornaliero_ergo.php", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                id: currentIscritto,
-                mese: meseInput.value
-            })
-        })
-        .then(r => r.json())
-        .then(json => {
-            if(!bodyResoconto || !document.getElementById("resocontoContent")) return;
-            bodyResoconto.innerHTML = "";
-            const resocontoContent = document.getElementById("resocontoContent");
-            resocontoContent.innerHTML = "";
-
-            if(!json.success || json.data.length === 0){
-                bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
-                resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">📅 Nessun dato disponibile per questo mese</p>`;
-                return;
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Errore nel caricamento</td></tr>`;
+                    });
             }
 
 
-            const daysMap = new Map();
-            let totalOre = 0;
-            let totalCosto = 0;
+            // FUNZIONE CARICA RESOCONTO GIORNI CON CALENDARIO
+            function caricaResocontoGiorni() {
+                if (!currentIscritto || !meseInput) return;
 
-            json.data.forEach(r => {
-                const giorno = new Date(r.giorno).getDate();
-                if(!daysMap.has(giorno)) daysMap.set(giorno, {ore:0, costo:0});
-                const day = daysMap.get(giorno);
+                fetch("api/api_resoconto_giornaliero_ergo.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: currentIscritto,
+                            mese: meseInput.value
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(json => {
+                        if (!bodyResoconto || !document.getElementById("resocontoContent")) return;
+                        bodyResoconto.innerHTML = "";
+                        const resocontoContent = document.getElementById("resocontoContent");
+                        resocontoContent.innerHTML = "";
 
-                day.ore += r.ore;
-                day.costo += r.costo;
+                        if (!json.success || json.data.length === 0) {
+                            bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
+                            resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">📅 Nessun dato disponibile per questo mese</p>`;
+                            return;
+                        }
 
-                totalOre += r.ore;
-                totalCosto += r.costo;
 
-                bodyResoconto.innerHTML += `
+                        const daysMap = new Map();
+                        let totalOre = 0;
+                        let totalCosto = 0;
+
+                        json.data.forEach(r => {
+                            const giorno = new Date(r.giorno).getDate();
+                            if (!daysMap.has(giorno)) daysMap.set(giorno, {
+                                ore: 0,
+                                costo: 0
+                            });
+                            const day = daysMap.get(giorno);
+
+                            day.ore += r.ore;
+                            day.costo += r.costo;
+
+                            totalOre += r.ore;
+                            totalCosto += r.costo;
+
+                            bodyResoconto.innerHTML += `
                     <tr>
                         <td>${giorno}</td>
                         <td>Presenza</td>
@@ -1426,80 +1458,80 @@ $stmtResoconti->close();
                         <td>${r.costo.toFixed(2)} €</td>
                     </tr>
                 `;
-            });
+                        });
 
-            const [anno, mese] = meseInput.value.split('-');
+                        const [anno, mese] = meseInput.value.split('-');
 
-            const firstDay = new Date(anno, mese-1, 1);
-            const lastDay = new Date(anno, mese, 0);
-            const startPadding = firstDay.getDay() === 0 ? 6 : firstDay.getDay()-1;
+                        const firstDay = new Date(anno, mese - 1, 1);
+                        const lastDay = new Date(anno, mese, 0);
+                        const startPadding = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
 
-            let calendarHTML = `<div class="calendar-weekdays">
+                        let calendarHTML = `<div class="calendar-weekdays">
                 <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
             </div><div class="calendar-grid">`;
 
-            for(let i=0;i<startPadding;i++) calendarHTML += `<div class="calendar-cell empty"></div>`;
+                        for (let i = 0; i < startPadding; i++) calendarHTML += `<div class="calendar-cell empty"></div>`;
 
-            for (let d = 1; d <= lastDay.getDate(); d++) {
-                const day = daysMap.get(d);
-                const presente = day && day.ore > 0;
+                        for (let d = 1; d <= lastDay.getDate(); d++) {
+                            const day = daysMap.get(d);
+                            const presente = day && day.ore > 0;
 
-                calendarHTML += `<div class="calendar-cell ${presente ? 'has-activity' : ''}">`;
+                            calendarHTML += `<div class="calendar-cell ${presente ? 'has-activity' : ''}">`;
 
-                if (day) {
-                    console.log("Giorno", d, "ore:", day.ore);
-                }
+                            if (day) {
+                                console.log("Giorno", d, "ore:", day.ore);
+                            }
 
-                if (presente) {
-                    calendarHTML += `<img class="presente-icon" src="immagini/presente.png" alt="Presente">`;
-                }
+                            if (presente) {
+                                calendarHTML += `<img class="presente-icon" src="immagini/presente.png" alt="Presente">`;
+                            }
 
-                calendarHTML += `<div class="day-number">${d}</div>`;
+                            calendarHTML += `<div class="day-number">${d}</div>`;
 
-                if (day && day.ore > 0) {
-                    calendarHTML += `<div class="day-activities">`;
-                    calendarHTML += `
+                            if (day && day.ore > 0) {
+                                calendarHTML += `<div class="day-activities">`;
+                                calendarHTML += `
                         <div class="activity-item">
                             <span class="activity-name">Ore lavorate</span>
                             <span class="activity-meta">
                                 ${day.ore.toFixed(2)}h, ${day.costo.toFixed(2)}€
                             </span>
                         </div>`;
-                    calendarHTML += `</div>`;
-                }
+                                calendarHTML += `</div>`;
+                            }
 
-                calendarHTML += `</div>`;
-            }
+                            calendarHTML += `</div>`;
+                        }
 
-            calendarHTML += `</div>`;
+                        calendarHTML += `</div>`;
 
-            // Totali
-            calendarHTML += `<div class="resoconto-totals">
+                        // Totali
+                        calendarHTML += `<div class="resoconto-totals">
                 <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/timing.png">Ore Totali</div><div class="total-value hours">${totalOre.toFixed(1)}</div></div>
                 <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/money.png">Stipendio Mensile</div><div class="total-value currency">${totalCosto.toFixed(2)}€</div></div>
 
                 <div class="total-card"><div class="total-label"><img class="resoconti-icon" src="immagini/appointment.png">Giorni Presenza</div><div class="total-value">${daysMap.size}</div></div>
             </div>`;
 
-            resocontoContent.innerHTML = calendarHTML;
-        })
-        .catch(err => {
-            console.error(err);
-            if(bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Errore nel caricamento</td></tr>`;
-            const resocontoContent = document.getElementById("resocontoContent");
-            if(resocontoContent) resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">❌ Errore nel caricamento</p>`;
-        });
-    }
+                        resocontoContent.innerHTML = calendarHTML;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        if (bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Errore nel caricamento</td></tr>`;
+                        const resocontoContent = document.getElementById("resocontoContent");
+                        if (resocontoContent) resocontoContent.innerHTML = `<p style="text-align:center;margin-top:12px;">❌ Errore nel caricamento</p>`;
+                    });
+            }
 
-});
+        });
 
 
         flatpickr("#resocontiMeseFiltro", {
             plugins: [
-                new monthSelectPlugin({ 
-                    shorthand: false, 
-                    dateFormat: "Y-m", 
-                    altFormat: "F Y"   
+                new monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y"
                 })
             ],
             defaultDate: new Date(),
@@ -1508,7 +1540,7 @@ $stmtResoconti->close();
 
         flatpickr("#resocontoMese", {
             plugins: [
-                new monthSelectPlugin({ 
+                new monthSelectPlugin({
                     shorthand: false,
                     dateFormat: "Y-m",
                     altFormat: "F Y"
@@ -1561,14 +1593,18 @@ $stmtResoconti->close();
             }
         });
 
-        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        popupObserver.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class"]
+        });
         syncBodyScrollLock();
 
         // utilità: YYYY-MM-DD locale
         function getLocalDateString(date) {
             const y = date.getFullYear();
-            const m = (date.getMonth() + 1).toString().padStart(2,'0');
-            const d = date.getDate().toString().padStart(2,'0');
+            const m = (date.getMonth() + 1).toString().padStart(2, '0');
+            const d = date.getDate().toString().padStart(2, '0');
             return `${y}-${m}-${d}`;
         }
 
@@ -1583,7 +1619,7 @@ $stmtResoconti->close();
             // Update desktop sidebar active states
             document.querySelectorAll('.tab-link').forEach(link => {
                 link.classList.remove('active');
-                if(link.dataset.tab === tabId) {
+                if (link.dataset.tab === tabId) {
                     link.classList.add('active');
                 }
             });
@@ -1608,15 +1644,15 @@ $stmtResoconti->close();
                     document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
                     mobileNavItem.classList.add('active');
                 }
-                
+
                 // Update desktop sidebar active state
                 document.querySelectorAll('.tab-link').forEach(link => {
                     link.classList.remove('active');
-                    if(link.dataset.tab === savedTab) {
+                    if (link.dataset.tab === savedTab) {
                         link.classList.add('active');
                     }
                 });
-                
+
                 // Show the saved tab content
                 document.querySelectorAll('.page-tab').forEach(tab => {
                     tab.classList.remove('active');
@@ -1627,7 +1663,6 @@ $stmtResoconti->close();
                 }
             }
         });
-
     </script>
 
 

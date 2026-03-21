@@ -3,15 +3,17 @@ session_start();
 header('Content-Type: application/json');
 header("Cache-Control: no chache");
 
-if(!isset($_SESSION['username'])){
-    echo json_encode(["success"=>false, "message"=>"Sessione non valida"]);
+if (!isset($_SESSION['username'])) {
+    echo json_encode(["success" => false, "message" => "Sessione non valida"]);
     exit;
 }
 
 // --- BLOCCO ACCESSO DIRETTO ---
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || 
-    empty($_SERVER['HTTP_X_REQUESTED_WITH']) || 
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest') {
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+    empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest'
+) {
     echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
     exit;
 }
@@ -60,8 +62,8 @@ $nome = trim($data['nome']);
 $descrizione = trim($data['descrizione']);
 
 // Controllo dati essenziali
-if(!$id || $nome === '' || $descrizione === ''){
-    echo json_encode(['success'=>false, 'message'=>'Dati mancanti o non validi']);
+if (!$id || $nome === '' || $descrizione === '') {
+    echo json_encode(['success' => false, 'message' => 'Dati mancanti o non validi']);
     exit;
 }
 
@@ -77,12 +79,10 @@ if (!$stmt) {
 $stmt->bind_param("ssi", $nome, $descrizione, $id);
 
 if ($stmt->execute()) {
-    echo json_encode(['success'=>true, 'message'=>'Attività modificata con successo']);
+    echo json_encode(['success' => true, 'message' => 'Attività modificata con successo']);
 } else {
-    echo json_encode(['success'=>false, 'message'=>'Errore: ' . $stmt->error]);
+    echo json_encode(['success' => false, 'message' => 'Errore: ' . $stmt->error]);
 }
 
 $stmt->close();
 $conn->close();
-
-?>

@@ -19,7 +19,7 @@ $conn = getDbConnection('time4all');
 
 // Prendi la classe dell'utente loggato
 $resultClasse = $conn->query("SELECT classe FROM Account WHERE nome_utente = '$username'");
-if($resultClasse && $resultClasse->num_rows > 0){
+if ($resultClasse && $resultClasse->num_rows > 0) {
     $rowClasse = $resultClasse->fetch_assoc();
     $classe = $rowClasse['classe'];
 } else {
@@ -31,45 +31,47 @@ if($resultClasse && $resultClasse->num_rows > 0){
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>T4L | Dashboard</title>
+    <title>T4L | Dashboard</title>
 
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="immagini/Icona.ico">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#640a35">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Time4All">
-<meta name="mobile-web-app-capable" content="yes">
-<script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="immagini/Icona.ico">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#640a35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Time4All">
+    <meta name="mobile-web-app-capable" content="yes">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body>
 
-<!-- NAVBAR -->
-<header class="navbar">
+    <!-- NAVBAR -->
+    <header class="navbar">
 
-<!-- LOADER TIKTOK-STYLE - Time4All Branded -->
-<div id="page-loader" class="show">
-<div class="logo-pulse-loader">
-    <div class="logo-pulse-ring"></div>
-    <div class="logo-pulse-ring"></div>
-    <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
-</div>
+        <!-- LOADER TIKTOK-STYLE - Time4All Branded -->
+        <div id="page-loader" class="show">
+            <div class="logo-pulse-loader">
+                <div class="logo-pulse-ring"></div>
+                <div class="logo-pulse-ring"></div>
+                <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
+            </div>
 
-    <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
-</div>
-
- 
-
- <script src="js/loader.js"></script>
+            <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
+        </div>
 
 
 
-    <div class="user-box" id="userBox">
+        <script src="js/loader.js"></script>
+
+
+
+        <div class="user-box" id="userBox">
             <img src="immagini/profilo-ergo.png" alt="Profile">
             <span id="username-nav"><?php echo htmlspecialchars($username); ?></span>
 
@@ -100,124 +102,122 @@ if($resultClasse && $resultClasse->num_rows > 0){
         </div>
 
 
-    <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
 
-    <div class="dropdown" id="dropdown">
+        <div class="dropdown" id="dropdown">
 
-        <div class="menu-group">
+            <div class="menu-group">
 
-            <div class="menu-main" data-target="centroMenu">
-                <img src="immagini/Logo-centrodiurno.png">
-                Centro Diurno
+                <div class="menu-main" data-target="centroMenu">
+                    <img src="immagini/Logo-centrodiurno.png">
+                    Centro Diurno
+                </div>
+
+                <div class="submenu" id="centroMenu">
+                    <div class="menu-item" data-link="fogliofirme-centro.php">
+                        <img src="immagini/foglio-over.png" alt="">
+                        Foglio firme
+                    </div>
+                    <?php
+                    if ($classe === 'Educatore') {
+                        $gestionalePage = "gestionale_utenti.php";
+                    } else if ($classe === 'Contabile') {
+                        $gestionalePage = "gestionale_contabile.php";
+                    } else if ($classe === 'Amministratore') {
+                        $gestionalePage = "gestionale_amministratore.php";
+                    } else {
+                        $gestionalePage = "#";
+                    }
+                    ?>
+                    <div class="menu-item" data-link=<?php echo $gestionalePage; ?>>
+                        <img src="immagini/gestionale-over.png" alt="">
+                        Gestionale
+                    </div>
+                </div>
+
             </div>
 
-            <div class="submenu" id="centroMenu">
-                <div class="menu-item" data-link="fogliofirme-centro.php">
-                    <img src="immagini/foglio-over.png" alt="">
-                    Foglio firme
+
+            <div class="menu-group">
+
+                <div class="menu-main" data-target="ergoMenu">
+                    <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
+                    Ergoterapeutica
                 </div>
-                <?php
-                        if($classe === 'Educatore'){
-                            $gestionalePage = "gestionale_utenti.php";
-                        } else if($classe === 'Contabile'){
-                            $gestionalePage = "gestionale_contabile.php";
-                        } else if($classe === 'Amministratore') {
-                            $gestionalePage = "gestionale_amministratore.php"; 
-                        } else {
-                            $gestionalePage = "#"; 
-                        }
+
+                <div class="submenu" id="ergoMenu">
+                    <div class="menu-item" data-link="presenze-ergo.php">
+                        <img src="immagini/presenze-ergo.png" alt="">
+                        Presenze
+                    </div>
+
+                    <?php
+                    if ($classe === 'Educatore') {
+                        $gestionalePageErgo = "gestionale_ergo_utenti.php";
+                    } else if ($classe === 'Contabile') {
+                        $gestionalePageErgo = "gestionale_ergo_contabile.php";
+                    } else if ($classe === 'Amministratore') {
+                        $gestionalePageErgo = "gestionale_ergo_amministratore.php";
+                    } else {
+                        $gestionalePageErgo = "#";
+                    }
                     ?>
-                <div class="menu-item" data-link=<?php echo $gestionalePage; ?> >
-                    <img src="immagini/gestionale-over.png" alt="">
-                    Gestionale
+
+                    <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
+                        <img src="immagini/gestionale-ergo.png" alt="">
+                        Gestionale
+                    </div>
                 </div>
+
             </div>
 
         </div>
 
 
-        <div class="menu-group">
 
-            <div class="menu-main" data-target="ergoMenu">
-                <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
-                Ergoterapeutica
-            </div>
+    </header>
 
-            <div class="submenu" id="ergoMenu">
-                <div class="menu-item" data-link="presenze-ergo.php">
-                    <img src="immagini/presenze-ergo.png" alt="">
-                    Presenze
-                </div>
+    <main class="dashboard">
 
-                <?php
-                        if($classe === 'Educatore'){
-                            $gestionalePageErgo = "gestionale_ergo_utenti.php";
+        <h1>Benvenuto, <span id="nomeutente"> <?php echo htmlspecialchars($username); ?> </span></h1>
+        <p class="subtitle">Cosa desideri fare oggi?</p>
 
-                        } else if($classe === 'Contabile'){
-                            $gestionalePageErgo = "gestionale_ergo_contabile.php";
-                        } else if($classe === 'Amministratore') {
-                            $gestionalePageErgo = "gestionale_ergo_amministratore.php"; 
-                        } else {
-                            $gestionalePageErgo = "#"; 
-                        }
-                    ?>
-                
-                <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
-                    <img src="immagini/gestionale-ergo.png" alt="">
-                    Gestionale
-                </div>
-            </div>
+        <section class="cards">
 
-        </div>
-
-    </div>
+            <a href="presenze-ergo.php" class="card">
+                <img src="immagini/presenze-ergo.png">
+                <h3>Presenze</h3>
+            </a>
 
 
+            <a href="#" class="card" id="card-gestionale">
+                <img src="immagini/gestionale-ergo.png" style="height: 140px;">
+                <h3>Gestionale</h3>
+            </a>
 
-</header>
+            <div class="popup-overlay" id="popupOverlay"></div>
 
-<main class="dashboard">
-
-    <h1>Benvenuto, <span id="nomeutente"> <?php echo htmlspecialchars($username); ?> </span></h1>
-    <p class="subtitle">Cosa desideri fare oggi?</p>
-
-    <section class="cards">
-
-        <a href="presenze-ergo.php" class="card">
-            <img src="immagini/presenze-ergo.png">
-            <h3>Presenze</h3>
-        </a>
-
-
-        <a href="#" class="card" id="card-gestionale" >
-            <img src="immagini/gestionale-ergo.png" style="height: 140px;">
-            <h3>Gestionale</h3>
-        </a>
-
-        <div class="popup-overlay" id="popupOverlay"></div>
-
-        <div id="code-popup" class="popup">
+            <div id="code-popup" class="popup">
                 <div class="content">
                     <p class="codice-text">Inserisci il codice di accesso</p>
-                   <input 
-                        type="password" 
-                        placeholder="Codice d'accesso" 
+                    <input
+                        type="password"
+                        placeholder="Codice d'accesso"
                         id="password"
                         inputmode="numeric"
                         pattern="[0-9]*"
                         autocomplete="off"
                         required
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                    >
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
 
 
                     <button class="learn-more" id="button-gestionale">
                         <span class="circle" aria-hidden="true">
-                        <span class="icon arrow"></span>
+                            <span class="icon arrow"></span>
                         </span>
                         <span class="button-text">Continua</span>
                     </button>
@@ -226,27 +226,26 @@ if($resultClasse && $resultClasse->num_rows > 0){
                         <div class="icon" id="notify-icon"></div>
                         <div class="text" id="notify-text"></div>
                     </div>
+                </div>
             </div>
-        </div>
 
-        <div id="code-popup-ergo" class="popupErgo">
+            <div id="code-popup-ergo" class="popupErgo">
                 <div class="content">
                     <p class="codice-text">Inserisci il codice di accesso</p>
-                   <input 
-                        type="password" 
-                        placeholder="Codice d'accesso" 
+                    <input
+                        type="password"
+                        placeholder="Codice d'accesso"
                         id="password-ergo"
                         inputmode="numeric"
                         pattern="[0-9]*"
                         autocomplete="off"
                         required
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                    >
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
 
 
                     <button class="learn-more" id="button-gestionale-ergo">
                         <span class="circle" aria-hidden="true">
-                        <span class="icon arrow"></span>
+                            <span class="icon arrow"></span>
                         </span>
                         <span class="button-text">Continua</span>
                     </button>
@@ -255,16 +254,16 @@ if($resultClasse && $resultClasse->num_rows > 0){
                         <div class="icon" id="notify-icon"></div>
                         <div class="text" id="notify-text"></div>
                     </div>
+                </div>
             </div>
-        </div>
 
-    </section>
+        </section>
 
-</main>
+    </main>
 
-<footer class="footer-bar">
+    <footer class="footer-bar">
         <div class="footer-left">© Time4All • 2026</div>
-         <div class="footer-top">
+        <div class="footer-top">
             <a href="#top" class="footer-image"></a>
         </div>
         <div class="footer-right">
@@ -273,188 +272,192 @@ if($resultClasse && $resultClasse->num_rows > 0){
     </footer>
 
 
-<script>
-// ELEMENTI
-    const cardGestionale = document.getElementById("card-gestionale");
-    const overlay = document.getElementById("popupOverlay");
-    const codePopup = document.getElementById("code-popup");
-    const codePopupErgo = document.getElementById("code-popup-ergo");
-    const buttonGestionale = document.getElementById("button-gestionale");
-    const passwordField = document.getElementById("password");
-    const passwordFieldErgo = document.getElementById("password-ergo");
-    const hamGestionale = document.getElementById("ham-gestionale");
+    <script>
+        // ELEMENTI
+        const cardGestionale = document.getElementById("card-gestionale");
+        const overlay = document.getElementById("popupOverlay");
+        const codePopup = document.getElementById("code-popup");
+        const codePopupErgo = document.getElementById("code-popup-ergo");
+        const buttonGestionale = document.getElementById("button-gestionale");
+        const passwordField = document.getElementById("password");
+        const passwordFieldErgo = document.getElementById("password-ergo");
+        const hamGestionale = document.getElementById("ham-gestionale");
 
 
 
 
-// FUNZIONE NOTIFICATION
-function showNotification(success = true, message = "Messaggio") {
-    const notify = document.createElement('div');
-    notify.classList.add('notify');
-    notify.classList.add(success ? 'success' : 'error');
+        // FUNZIONE NOTIFICATION
+        function showNotification(success = true, message = "Messaggio") {
+            const notify = document.createElement('div');
+            notify.classList.add('notify');
+            notify.classList.add(success ? 'success' : 'error');
 
-    const iconWrapper = document.createElement('div');
-    iconWrapper.classList.add('icon-wrapper');
+            const iconWrapper = document.createElement('div');
+            iconWrapper.classList.add('icon-wrapper');
 
-    const circle = document.createElement('div');
-    circle.classList.add('circle');
-    iconWrapper.appendChild(circle);
+            const circle = document.createElement('div');
+            circle.classList.add('circle');
+            iconWrapper.appendChild(circle);
 
-    const icon = document.createElement('span');
-    icon.classList.add('icon');
-    icon.textContent = success ? "✔" : "✖";
-    iconWrapper.appendChild(icon);
+            const icon = document.createElement('span');
+            icon.classList.add('icon');
+            icon.textContent = success ? "✔" : "✖";
+            iconWrapper.appendChild(icon);
 
-    notify.appendChild(iconWrapper);
+            notify.appendChild(iconWrapper);
 
-    const text = document.createElement('span');
-    text.textContent = message;
-    notify.appendChild(text);
+            const text = document.createElement('span');
+            text.textContent = message;
+            notify.appendChild(text);
 
-    document.body.appendChild(notify);
+            document.body.appendChild(notify);
 
-    // Mostra con animazione
-    setTimeout(() => notify.classList.add('show'), 10);
+            // Mostra con animazione
+            setTimeout(() => notify.classList.add('show'), 10);
 
-    // Nascondi dopo 3 secondi con animazione uscita
-    setTimeout(() => {
-        notify.classList.remove('show');
-        notify.classList.add('hide');
-        notify.addEventListener('animationend', () => notify.remove());
-    }, 2000);
-}
-
-cardGestionale.addEventListener("click", (e) => {
-    e.preventDefault();
-    overlay.classList.add("show");
-    codePopupErgo.classList.add("show");
-    document.body.classList.add("popup-open");
-    passwordFieldErgo.focus(); 
-});
-
-// CHIUDI POPUP CLICCANDO FUORI
-overlay.addEventListener("click", () => {
-    overlay.classList.remove("show");
-    codePopup.classList.remove("show");
-    codePopupErgo.classList.remove("show");
-    document.body.classList.remove("popup-open");
-});
-
-// FUNZIONE DI CONTROLLO CODICE
-async function verificaCodiceErgo() {
-    const codice = passwordFieldErgo.value.trim();
-
-    if (!codice) {
-        showNotification(false, "Inserisci il codice");
-        return;
-    }
-
-    try {
-        const response = await fetch("api/api_codice_gestionale_ergo.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `codice=${encodeURIComponent(codice)}`
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification(true, "Accesso consentito");
-
-            passwordFieldErgo.value = "";
-
-            // Chiudi popup
-            overlay.classList.remove("show");
-            codePopupErgo.classList.remove("show");
-            document.body.classList.remove("popup-open");
-
-            // Redirect alla pagina di gestionale
+            // Nascondi dopo 3 secondi con animazione uscita
             setTimeout(() => {
-                window.location.href = result.redirect;
+                notify.classList.remove('show');
+                notify.classList.add('hide');
+                notify.addEventListener('animationend', () => notify.remove());
             }, 2000);
-        } else {
-            showNotification(false, result.message);
-            passwordFieldErgo.value = ""; // pulisci input se sbagliato
         }
 
-    } catch (err) {
-        showNotification(false, "Errore server");
-        console.error(err);
-    }
-}
-
-async function verificaCodice() {
-    const codice = passwordField.value.trim();
-
-    if (!codice) {
-        showNotification(false, "Inserisci il codice");
-        return;
-    }
-
-    try {
-        const response = await fetch("api/api_codice_gestionale.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `codice=${encodeURIComponent(codice)}`
+        cardGestionale.addEventListener("click", (e) => {
+            e.preventDefault();
+            overlay.classList.add("show");
+            codePopupErgo.classList.add("show");
+            document.body.classList.add("popup-open");
+            passwordFieldErgo.focus();
         });
 
-        const result = await response.json();
-
-        if (result.success) {
-            showNotification(true, "Accesso consentito");
-
-            passwordField.value = "";
-
-            // Chiudi popup
+        // CHIUDI POPUP CLICCANDO FUORI
+        overlay.addEventListener("click", () => {
             overlay.classList.remove("show");
             codePopup.classList.remove("show");
+            codePopupErgo.classList.remove("show");
             document.body.classList.remove("popup-open");
+        });
 
-            // Redirect alla pagina di gestionale
-            setTimeout(() => {
-                window.location.href = result.redirect;
-            }, 2000);
-        } else {
-            showNotification(false, result.message);
-            passwordField.value = ""; // pulisci input se sbagliato
+        // FUNZIONE DI CONTROLLO CODICE
+        async function verificaCodiceErgo() {
+            const codice = passwordFieldErgo.value.trim();
+
+            if (!codice) {
+                showNotification(false, "Inserisci il codice");
+                return;
+            }
+
+            try {
+                const response = await fetch("api/api_codice_gestionale_ergo.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `codice=${encodeURIComponent(codice)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(true, "Accesso consentito");
+
+                    passwordFieldErgo.value = "";
+
+                    // Chiudi popup
+                    overlay.classList.remove("show");
+                    codePopupErgo.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+
+                    // Redirect alla pagina di gestionale
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 2000);
+                } else {
+                    showNotification(false, result.message);
+                    passwordFieldErgo.value = ""; // pulisci input se sbagliato
+                }
+
+            } catch (err) {
+                showNotification(false, "Errore server");
+                console.error(err);
+            }
         }
 
-    } catch (err) {
-        showNotification(false, "Errore server");
-        console.error(err);
-    }
-}
+        async function verificaCodice() {
+            const codice = passwordField.value.trim();
+
+            if (!codice) {
+                showNotification(false, "Inserisci il codice");
+                return;
+            }
+
+            try {
+                const response = await fetch("api/api_codice_gestionale.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `codice=${encodeURIComponent(codice)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(true, "Accesso consentito");
+
+                    passwordField.value = "";
+
+                    // Chiudi popup
+                    overlay.classList.remove("show");
+                    codePopup.classList.remove("show");
+                    document.body.classList.remove("popup-open");
+
+                    // Redirect alla pagina di gestionale
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 2000);
+                } else {
+                    showNotification(false, result.message);
+                    passwordField.value = ""; // pulisci input se sbagliato
+                }
+
+            } catch (err) {
+                showNotification(false, "Errore server");
+                console.error(err);
+            }
+        }
 
 
-// BOTTONE CONTINUA
-buttonGestionale.addEventListener("click", verificaCodice);
-const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
-buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
+        // BOTTONE CONTINUA
+        buttonGestionale.addEventListener("click", verificaCodice);
+        const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
+        buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
 
-// INVIO DALL'INPUT
-passwordField.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        e.preventDefault(); // evita submit involontario
-        verificaCodice();
-    }
-});
+        // INVIO DALL'INPUT
+        passwordField.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault(); // evita submit involontario
+                verificaCodice();
+            }
+        });
 
-passwordFieldErgo.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        e.preventDefault(); // evita submit involontario
-        verificaCodiceErgo();
-    }
-});
+        passwordFieldErgo.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault(); // evita submit involontario
+                verificaCodiceErgo();
+            }
+        });
         // CHIUDI POPUP CLICCANDO FUORI
         overlay.onclick = closePopups;
 
-function closePopups(){
-    overlay.classList.remove("show");
-    codePopup.classList.remove("show");
-    codePopupErgo.classList.remove("show");
-    document.body.classList.remove("popup-open");
-}
-        
+        function closePopups() {
+            overlay.classList.remove("show");
+            codePopup.classList.remove("show");
+            codePopupErgo.classList.remove("show");
+            document.body.classList.remove("popup-open");
+        }
+
 
         /* HAMBURGER */
         const ham = document.getElementById("hamburger");
@@ -472,7 +475,7 @@ function closePopups(){
 
                 // chiudi tutti gli altri submenu
                 document.querySelectorAll(".submenu").forEach(menu => {
-                    if(menu !== targetMenu){
+                    if (menu !== targetMenu) {
                         menu.classList.remove("open");
                         menu.previousElementSibling.classList.remove("open"); // reset freccetta
                     }
@@ -489,7 +492,7 @@ function closePopups(){
         // Prendi tutti i link "menu-item" con data-link
         document.querySelectorAll(".menu-item[data-link]").forEach(item => {
             const link = item.dataset.link;
-            if(link.includes("gestionale_ergo")) { 
+            if (link.includes("gestionale_ergo")) {
                 // Ergoterapeutica Gestionale - usa popup ergo
                 item.addEventListener("click", (e) => {
                     e.preventDefault(); // previeni redirect
@@ -498,7 +501,7 @@ function closePopups(){
                     document.body.classList.add("popup-open");
                     passwordFieldErgo.focus(); // focus input
                 });
-            } else if(link.includes("gestionale")) { 
+            } else if (link.includes("gestionale")) {
                 // Centro Diurno Gestionale - usa popup standard
                 item.addEventListener("click", (e) => {
                     e.preventDefault(); // previeni redirect
@@ -519,12 +522,12 @@ function closePopups(){
         /* USER DROPDOWN */
         const userBox = document.getElementById("userBox");
         const userDropdown = document.getElementById("userDropdown");
-        userBox.addEventListener("click", (e)=>{
+        userBox.addEventListener("click", (e) => {
             e.stopPropagation();
             userDropdown.classList.toggle("show");
         });
-        document.addEventListener("click",(e)=>{
-            if(!userBox.contains(e.target)){
+        document.addEventListener("click", (e) => {
+            if (!userBox.contains(e.target)) {
                 userDropdown.classList.remove("show");
             }
         });
@@ -544,7 +547,8 @@ function closePopups(){
 
         cancelLogout.onclick = closeLogout;
         logoutOverlay.onclick = closeLogout;
-        function closeLogout(){
+
+        function closeLogout() {
             logoutOverlay.classList.remove("show");
             logoutModal.classList.remove("show");
         }
@@ -572,11 +576,13 @@ function closePopups(){
             }
         });
 
-        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        popupObserver.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class"]
+        });
         syncBodyScrollLock();
-
-
-</script>
+    </script>
 
 </body>
 

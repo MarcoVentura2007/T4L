@@ -4,7 +4,7 @@ session_start();
 header('Content-Type: application/json');
 header("Cache-Control: no chache");
 
-if(!isset($_SESSION['username'])){
+if (!isset($_SESSION['username'])) {
     echo json_encode([
         "success" => false,
         "message" => "Sessione non valida"
@@ -14,7 +14,7 @@ if(!isset($_SESSION['username'])){
 
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4all');
-if($conn->connect_error){
+if ($conn->connect_error) {
     echo json_encode([
         "success" => false,
         "message" => "Errore connessione database"
@@ -54,7 +54,7 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 $nome_utente = isset($data['nome_utente']) ? trim($data['nome_utente']) : "";
 
-if($nome_utente === ""){
+if ($nome_utente === "") {
     echo json_encode([
         "success" => false,
         "message" => "Nome utente non valido"
@@ -63,7 +63,7 @@ if($nome_utente === ""){
 }
 
 // Impedisci di eliminare l'account loggato
-if($nome_utente === $_SESSION['username']){
+if ($nome_utente === $_SESSION['username']) {
     echo json_encode([
         "success" => false,
         "message" => "Non puoi eliminare il tuo account"
@@ -74,8 +74,8 @@ if($nome_utente === $_SESSION['username']){
 $stmt = $conn->prepare("DELETE FROM Account WHERE nome_utente = ?");
 $stmt->bind_param("s", $nome_utente);
 
-if($stmt->execute()){
-    if($stmt->affected_rows > 0){
+if ($stmt->execute()) {
+    if ($stmt->affected_rows > 0) {
         echo json_encode([
             "success" => true,
             "message" => "Account eliminato con successo"
@@ -95,5 +95,3 @@ if($stmt->execute()){
 
 $stmt->close();
 $conn->close();
-
-?>

@@ -106,148 +106,165 @@ $resultResoconti = $conn->query($sqlResoconti);
                 display: none;
             }
         }
+
         .agenda-week-nav {
-                display: flex;
-                align-items: center;
-                justify-content: center;  
-                gap: 8px;
-                padding: 10px 0 8px;
-            }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 0 8px;
+        }
 
-            .week-nav-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 34px;
-                height: 34px;
-                border: 1.5px solid #e0e0e0;
-                border-radius: 8px;
-                background: #fff;
-                color: #444;
-                cursor: pointer;
-                flex-shrink: 0;
-                transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
-            }
+        .week-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #444;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
 
-            .week-nav-btn:hover {
-                background: #640a35;
-                border-color: #640a35;
-                color: #fff;
-                transform: scale(1.05);
-            }
+        .week-nav-btn:hover {
+            background: #640a35;
+            border-color: #640a35;
+            color: #fff;
+            transform: scale(1.05);
+        }
 
-            .week-nav-btn:active {
-                transform: scale(0.97);
-            }
+        .week-nav-btn:active {
+            transform: scale(0.97);
+        }
 
+        .week-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            min-width: 130px;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+
+        .week-nav-today {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1.5px solid #640a35;
+            border-radius: 8px;
+            background: transparent;
+            color: #640a35;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .week-nav-today:hover {
+            background: #640a35;
+            color: #fff;
+        }
+
+        .week-nav-today.is-current-week {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+        }
+
+        @media (max-width: 768px) {
             .week-label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: #444;
-                min-width: 130px;
-                text-align: center;
-                letter-spacing: 0.01em;
+                min-width: 90px;
+                font-size: 0.78rem;
             }
 
             .week-nav-today {
-                font-size: 0.75rem;
-                font-weight: 600;
-                padding: 6px 12px;
-                border: 1.5px solid #640a35;
-                border-radius: 8px;
-                background: transparent;
-                color: #640a35;
-                cursor: pointer;
-                white-space: nowrap;
-                transition: background 0.15s, color 0.15s;
+                font-size: 0.7rem;
+                padding: 5px 9px;
             }
+        }
 
-            .week-nav-today:hover {
-                background: #640a35;
-                color: #fff;
-            }
+        /* Navigazione giorni — Presenze */
+        .presenze-day-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 0 12px;
+        }
 
-            .week-nav-today.is-current-week {
-                background: #640a35;
-                color: #fff;
-                border-color: #640a35;
-            }
+        .presenze-day-nav .week-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #444;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
 
-            @media (max-width: 768px) {
-                .week-label {
-                    min-width: 90px;
-                    font-size: 0.78rem;
-                }
-                .week-nav-today {
-                    font-size: 0.7rem;
-                    padding: 5px 9px;
-                }
-            }
+        .presenze-day-nav .week-nav-btn:hover {
+            background: #640a35;
+            border-color: #640a35;
+            color: #fff;
+            transform: scale(1.05);
+        }
 
-            /* Navigazione giorni — Presenze */
-            .presenze-day-nav {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                padding: 10px 0 12px;
-            }
-            .presenze-day-nav .week-nav-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 34px;
-                height: 34px;
-                border: 1.5px solid #e0e0e0;
-                border-radius: 8px;
-                background: #fff;
-                color: #444;
-                cursor: pointer;
-                flex-shrink: 0;
-                transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
-            }
-            .presenze-day-nav .week-nav-btn:hover {
-                background: #640a35;
-                border-color: #640a35;
-                color: #fff;
-                transform: scale(1.05);
-            }
-            .presenze-day-nav .week-nav-btn:active {
-                transform: scale(0.97);
-            }
+        .presenze-day-nav .week-nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        .presenze-day-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            min-width: 200px;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+
+        .presenze-day-nav .week-nav-today {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1.5px solid #640a35;
+            border-radius: 8px;
+            background: transparent;
+            color: #640a35;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .presenze-day-nav .week-nav-today:hover {
+            background: #640a35;
+            color: #fff;
+        }
+
+        .presenze-day-nav .week-nav-today.is-today {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+        }
+
+        @media (max-width: 768px) {
             .presenze-day-label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: #444;
-                min-width: 200px;
-                text-align: center;
-                letter-spacing: 0.01em;
+                min-width: 140px;
+                font-size: 0.78rem;
             }
+
             .presenze-day-nav .week-nav-today {
-                font-size: 0.75rem;
-                font-weight: 600;
-                padding: 6px 12px;
-                border: 1.5px solid #640a35;
-                border-radius: 8px;
-                background: transparent;
-                color: #640a35;
-                cursor: pointer;
-                white-space: nowrap;
-                transition: background 0.15s, color 0.15s;
+                font-size: 0.7rem;
+                padding: 5px 9px;
             }
-            .presenze-day-nav .week-nav-today:hover {
-                background: #640a35;
-                color: #fff;
-            }
-            .presenze-day-nav .week-nav-today.is-today {
-                background: #640a35;
-                color: #fff;
-                border-color: #640a35;
-            }
-            @media (max-width: 768px) {
-                .presenze-day-label { min-width: 140px; font-size: 0.78rem; }
-                .presenze-day-nav .week-nav-today { font-size: 0.7rem; padding: 5px 9px; }
-            }
+        }
     </style>
 </head>
 
@@ -3056,508 +3073,511 @@ $resultResoconti = $conn->query($sqlResoconti);
             };
         }
 
-                    // =====================================================================
-                    // RESOCONTI
-                    // =====================================================================
-                    document.addEventListener("DOMContentLoaded", () => {
-                        const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
-                        const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
-                        const modalResoconto = document.getElementById("modalResocontoGiorni");
-                        const bodyResoconto = document.getElementById("resocontoGiorniBody");
-                        const titoloResoconto = document.getElementById("resocontoNome");
-                        let currentIscritto = null,
-                            mobileCalendarInstance = null;
-                        let resocontoCurrentData = {
-                            nome: '',
-                            cognome: '',
-                            mese: '',
-                            giorniData: [],
-                            attivitaMensili: [],
-                            totalOre: 0,
-                            totalCosto: 0,
-                            giorniPresenza: 0
-                        };
+        // =====================================================================
+        // RESOCONTI
+        // =====================================================================
+        document.addEventListener("DOMContentLoaded", () => {
+            const resocontiMeseFiltro = document.getElementById("resocontiMeseFiltro");
+            const resocontiMensiliBody = document.getElementById("resocontiMensiliBody");
+            const modalResoconto = document.getElementById("modalResocontoGiorni");
+            const bodyResoconto = document.getElementById("resocontoGiorniBody");
+            const titoloResoconto = document.getElementById("resocontoNome");
+            let currentIscritto = null,
+                mobileCalendarInstance = null;
+            let resocontoCurrentData = {
+                nome: '',
+                cognome: '',
+                mese: '',
+                giorniData: [],
+                attivitaMensili: [],
+                totalOre: 0,
+                totalCosto: 0,
+                giorniPresenza: 0
+            };
 
-                        if (resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
-                        if (resocontiMeseFiltro) resocontiMeseFiltro.addEventListener("change", () => {
-                            caricaResocontiMensili(resocontiMeseFiltro.value);
-                        });
+            if (resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
+            if (resocontiMeseFiltro) resocontiMeseFiltro.addEventListener("change", () => {
+                caricaResocontiMensili(resocontiMeseFiltro.value);
+            });
 
-                        document.addEventListener("click", e => {
-                            const btn = e.target.closest(".resoconto-btn,.calendario-btn");
-                            if (!btn) return;
-                            currentIscritto = btn.dataset.id;
-                            resocontoCurrentData.nome = btn.dataset.nome || "";
-                            resocontoCurrentData.cognome = btn.dataset.cognome || "";
-                            if (titoloResoconto) titoloResoconto.textContent = "Resoconto - " + (resocontoCurrentData.cognome + " " + resocontoCurrentData.nome).trim();
-                            if (bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Caricamento...</td></tr>`;
-                            if (modalResoconto && typeof openModal === "function") openModal(modalResoconto);
-                            caricaResocontoGiorni();
-                        });
+            document.addEventListener("click", e => {
+                const btn = e.target.closest(".resoconto-btn,.calendario-btn");
+                if (!btn) return;
+                currentIscritto = btn.dataset.id;
+                resocontoCurrentData.nome = btn.dataset.nome || "";
+                resocontoCurrentData.cognome = btn.dataset.cognome || "";
+                if (titoloResoconto) titoloResoconto.textContent = "Resoconto - " + (resocontoCurrentData.cognome + " " + resocontoCurrentData.nome).trim();
+                if (bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Caricamento...</td></tr>`;
+                if (modalResoconto && typeof openModal === "function") openModal(modalResoconto);
+                caricaResocontoGiorni();
+            });
 
-                        function caricaResocontiMensili(mese) {
-                            if (!resocontiMensiliBody) return;
-                            resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
-                            fetch("api/api_resoconto_mensile.php", {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({
-                                        mese
-                                    })
-                                })
-                                .then(r => r.json()).then(json => {
-                                    resocontiMensiliBody.innerHTML = "";
-                                    if (!json.success || json.data.length === 0) {
-                                        resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Nessun dato disponibile</td></tr>`;
-                                        return;
-                                    }
-                                    json.data.forEach(r => {
-                                        const ore = parseFloat(r.ore_totali).toFixed(2);
-                                        const costo = parseFloat(r.costo ?? r.ore_totali * r.Prezzo_Orario).toFixed(2);
-                                        resocontiMensiliBody.innerHTML += `<tr>
+            function caricaResocontiMensili(mese) {
+                if (!resocontiMensiliBody) return;
+                resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Caricamento...</td></tr>`;
+                fetch("api/api_resoconto_mensile.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            mese
+                        })
+                    })
+                    .then(r => r.json()).then(json => {
+                        resocontiMensiliBody.innerHTML = "";
+                        if (!json.success || json.data.length === 0) {
+                            resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Nessun dato disponibile</td></tr>`;
+                            return;
+                        }
+                        json.data.forEach(r => {
+                            const ore = parseFloat(r.ore_totali).toFixed(2);
+                            const costo = parseFloat(r.costo ?? r.ore_totali * r.Prezzo_Orario).toFixed(2);
+                            resocontiMensiliBody.innerHTML += `<tr>
                     <td><img src="${r.Fotografia}" class="user-avatar"></td>
                     <td>${r.Nome}</td><td>${r.Cognome}</td>
                     <td>${ore}</td><td>${costo} €</td>
                     <td><button class="btn-icon calendario-btn" data-id="${r.id}" data-nome="${r.Nome}" data-cognome="${r.Cognome}"><img src="immagini/calendario.png" alt="Calendario"></button></td>
                 </tr>`;
-                                    });
-                                }).catch(err => {
-                                    resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Errore nel caricamento</td></tr>`;
-                                });
-                        }
-
-                        let currentModalMese = null;
-
-                        function caricaResocontoGiorni(meseForzato = null) {
-                            if (!currentIscritto) return;
-                            const meseDaUsare = meseForzato || resocontiMeseFiltro.value;
-                            currentModalMese = meseDaUsare;
-                            fetch("api/api_resoconto_giornaliero.php", {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({
-                                        id: currentIscritto,
-                                        mese: meseDaUsare
-                                    })
-                                })
-                                .then(r => r.json()).then(json => {
-                                    if (!bodyResoconto) return;
-                                    bodyResoconto.innerHTML = "";
-                                    const attivitaMensiliBody = document.getElementById("attivitaMensiliBody");
-                                    if (attivitaMensiliBody) attivitaMensiliBody.innerHTML = "";
-                                    let totalOre = 0,
-                                        totalCosto = 0,
-                                        giorniPresenza = 0;
-                                    const summaryOre = document.getElementById('summaryOre');
-                                    const summaryCosto = document.getElementById('summaryCosto');
-                                    const summaryGiorni = document.getElementById('summaryGiorni');
-                                    if (!json.success || json.data.length === 0) {
-                                        bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
-                                        if (attivitaMensiliBody) attivitaMensiliBody.innerHTML = `<tr><td colspan="2">Nessuna attività</td></tr>`;
-                                        if (summaryOre) summaryOre.textContent = '0.00';
-                                        if (summaryCosto) summaryCosto.textContent = '0.00 €';
-                                        if (summaryGiorni) summaryGiorni.textContent = '0';
-                                        if (mobileCalendarInstance) {
-                                            const [anno, mese] = meseDaUsare.split('-');
-                                            const nd = new Date(parseInt(anno), parseInt(mese) - 1, 1);
-                                            if (mobileCalendarInstance.currentDate.getFullYear() !== nd.getFullYear() || mobileCalendarInstance.currentDate.getMonth() !== nd.getMonth()) mobileCalendarInstance.setDate(nd);
-                                            mobileCalendarInstance.setActivitiesData({});
-                                        } else {
-                                            const cc = document.getElementById("mobileCalendarContainer");
-                                            if (cc && window.MobileCalendar) {
-                                                const [anno, mese] = meseDaUsare.split('-');
-                                                mobileCalendarInstance = new MobileCalendar('mobileCalendarContainer', {
-                                                    selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
-                                                    activitiesData: {},
-                                                    activitiesPanel: '#mc-activities-panel',
-                                                    onMonthChange: function(nd) {
-                                                        caricaResocontoGiorni(`${nd.getFullYear()}-${String(nd.getMonth()+1).padStart(2,'0')}`);
-                                                    }
-                                                });
-                                            }
-                                        }
-                                        return;
-                                    }
-                                    const daysMap = new Map(),
-                                        attivitaMap = new Map(),
-                                        activitiesData = {};
-                                    json.data.forEach(r => {
-                                        const giorno = new Date(r.giorno).getDate(),
-                                            dateStr = r.giorno;
-                                        if (!daysMap.has(giorno)) {
-                                            daysMap.set(giorno, {
-                                                attivita: [],
-                                                ore: 0,
-                                                costo: 0
-                                            });
-                                            giorniPresenza++;
-                                        }
-                                        const day = daysMap.get(giorno);
-                                        r.attivita.forEach(a => {
-                                            day.attivita.push(a);
-                                            attivitaMap.set(a.Nome, (attivitaMap.get(a.Nome) || 0) + a.ore);
-                                        });
-                                        day.ore += r.ore;
-                                        day.costo += r.costo;
-                                        totalOre += r.ore;
-                                        totalCosto += r.costo;
-                                        bodyResoconto.innerHTML += `<tr><td>${giorno}</td><td>${r.attivita.map(a=>`${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€)`).join('<br>')}</td><td>${r.ore.toFixed(2)}</td><td>${r.costo.toFixed(2)} €</td></tr>`;
-                                        if (!activitiesData[dateStr]) activitiesData[dateStr] = [];
-                                        if (r.attivita && r.attivita.length > 0) {
-                                            r.attivita.forEach(a => activitiesData[dateStr].push({
-                                                nome: a.Nome,
-                                                descrizione: `${a.ore.toFixed(2)} ore - ${a.costo.toFixed(2)}€`,
-                                                ora_inizio: '',
-                                                ora_fine: '',
-                                                educatori: ''
-                                            }));
-                                        } else {
-                                            activitiesData[dateStr].push({
-                                                nome: 'Presente',
-                                                descrizione: `${r.ore.toFixed(2)} ore - ${r.costo.toFixed(2)}€`,
-                                                ora_inizio: '',
-                                                ora_fine: '',
-                                                educatori: ''
-                                            });
-                                        }
-                                    });
-                                    Array.from(attivitaMap.entries()).sort((a, b) => b[1] - a[1]).forEach(([nome, ore]) => {
-                                        if (attivitaMensiliBody) attivitaMensiliBody.innerHTML += `<tr><td>${nome}</td><td>${ore.toFixed(2)} ore</td></tr>`;
-                                    });
-                                    if (summaryOre) summaryOre.textContent = totalOre.toFixed(2);
-                                    if (summaryCosto) summaryCosto.textContent = totalCosto.toFixed(2) + ' €';
-                                    if (summaryGiorni) summaryGiorni.textContent = giorniPresenza;
-                                    resocontoCurrentData = {
-                                        ...resocontoCurrentData,
-                                        mese: meseDaUsare,
-                                        giorniData: json.data,
-                                        attivitaMensili: Array.from(attivitaMap.entries()),
-                                        totalOre,
-                                        totalCosto,
-                                        giorniPresenza
-                                    };
-                                    const cc = document.getElementById("mobileCalendarContainer");
-                                    if (cc && window.MobileCalendar) {
-                                        const [anno, mese] = meseDaUsare.split('-');
-                                        if (mobileCalendarInstance) {
-                                            const nd = new Date(parseInt(anno), parseInt(mese) - 1, 1);
-                                            if (mobileCalendarInstance.currentDate.getFullYear() !== nd.getFullYear() || mobileCalendarInstance.currentDate.getMonth() !== nd.getMonth()) mobileCalendarInstance.setDate(nd);
-                                            mobileCalendarInstance.setActivitiesData(activitiesData);
-                                        } else {
-                                            mobileCalendarInstance = new MobileCalendar('mobileCalendarContainer', {
-                                                selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
-                                                activitiesData,
-                                                activitiesPanel: '#mc-activities-panel',
-                                                onMonthChange: function(nd) {
-                                                    caricaResocontoGiorni(`${nd.getFullYear()}-${String(nd.getMonth()+1).padStart(2,'0')}`);
-                                                }
-                                            });
-                                        }
-                                    }
-                                }).catch(err => {
-                                    if (bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Errore nel caricamento</td></tr>`;
-                                });
-                        }
-
-                        function generaAnteprimaPDF() {
-                            let h = '<div style="font-family:Arial,sans-serif;padding:20px;background:white;color:#333;line-height:1.6;">';
-                            h += `<h2 style="text-align:center;border-bottom:2px solid #333;padding-bottom:10px;">RESOCONTO MENSILE</h2>`;
-                            h += `<p style="text-align:center;font-size:14px;"><strong>${resocontoCurrentData.cognome} ${resocontoCurrentData.nome}</strong></p>`;
-                            h += `<p style="text-align:center;font-size:13px;">Mese: ${resocontoCurrentData.mese}</p>`;
-                            h += `<p style="text-align:center;font-size:12px;color:#666;">Data Stampa: ${new Date().toLocaleString('it-IT')}</p>`;
-                            h += '<h3 style="margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:5px;font-size:14px;">DETTAGLIO GIORNALIERO</h3>';
-                            h += '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">';
-                            h += '<tr style="background:#f0f0f0;"><th style="padding:8px;border:1px solid #ddd;">Giorno</th><th style="padding:8px;border:1px solid #ddd;">Attività</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Ore</th><th style="padding:8px;border:1px solid #ddd;text-align:right;">Costo</th></tr>';
-                            resocontoCurrentData.giorniData.forEach(r => {
-                                const g = new Date(r.giorno).toLocaleDateString('it-IT');
-                                if (r.attivita && r.attivita.length > 0) {
-                                    r.attivita.forEach((a, idx) => {
-                                        h += `<tr style="border:1px solid #ddd;"><td style="padding:8px;border:1px solid #ddd;">${idx===0?g:''}</td><td style="padding:8px;border:1px solid #ddd;">${a.Nome}</td><td style="padding:8px;text-align:center;border:1px solid #ddd;">${a.ore.toFixed(2)}h</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">${a.costo.toFixed(2)}€</td></tr>`;
-                                    });
-                                } else {
-                                    h += `<tr style="border:1px solid #ddd;"><td style="padding:8px;border:1px solid #ddd;">${g}</td><td style="padding:8px;border:1px solid #ddd;">Presenza</td><td style="padding:8px;text-align:center;border:1px solid #ddd;">${r.ore.toFixed(2)}h</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">${r.costo.toFixed(2)}€</td></tr>`;
-                                }
-                            });
-                            h += '</table>';
-                            h += '<h3 style="margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:5px;font-size:14px;">RIEPILOGO ATTIVITÀ</h3>';
-                            h += '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">';
-                            resocontoCurrentData.attivitaMensili.forEach(([nome, ore]) => {
-                                h += `<tr style="border:1px solid #ddd;"><td style="padding:8px;border:1px solid #ddd;">${nome}</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">${ore.toFixed(2)}h</td></tr>`;
-                            });
-                            h += '</table>';
-                            h += `<h3 style="margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:5px;font-size:14px;">TOTALI</h3>`;
-                            h += `<div style="font-size:13px;"><p><strong>Ore Totali:</strong> ${resocontoCurrentData.totalOre.toFixed(2)}h</p><p><strong>Costo Totale:</strong> ${resocontoCurrentData.totalCosto.toFixed(2)}€</p><p><strong>Giorni di Presenza:</strong> ${resocontoCurrentData.giorniPresenza}</p></div>`;
-                            h += `<div style="margin-top:40px;border-top:1px solid #333;padding-top:15px;"><p style="font-size:12px;">Firma: ___________________________</p><p style="margin-top:20px;font-size:12px;color:#999;">Data: ${new Date().toLocaleDateString('it-IT')}</p></div>`;
-                            h += '</div>';
-                            return h;
-                        }
-
-                        function generaAnteprimaCSV() {
-                            let h = '<div style="font-family:monospace;font-size:12px;padding:10px;background:white;"><table style="border-collapse:collapse;width:100%;">';
-                            h += '<tr style="background:#f0f0f0;"><td style="padding:8px;border:1px solid #ccc;font-weight:bold;">Giorno</td><td style="padding:8px;border:1px solid #ccc;font-weight:bold;">Attività</td><td style="padding:8px;border:1px solid #ccc;text-align:center;font-weight:bold;">Ore</td><td style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">Costo</td></tr>';
-                            resocontoCurrentData.giorniData.forEach(r => {
-                                const g = new Date(r.giorno).toLocaleDateString('it-IT');
-                                if (r.attivita && r.attivita.length > 0) {
-                                    r.attivita.forEach(a => {
-                                        h += `<tr><td style="padding:6px;border:1px solid #ddd;">${g}</td><td style="padding:6px;border:1px solid #ddd;">${a.Nome}</td><td style="padding:6px;border:1px solid #ddd;text-align:center;">${a.ore.toFixed(2)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right;">${a.costo.toFixed(2)}</td></tr>`;
-                                    });
-                                } else {
-                                    h += `<tr><td style="padding:6px;border:1px solid #ddd;">${g}</td><td style="padding:6px;border:1px solid #ddd;">Presenza</td><td style="padding:6px;border:1px solid #ddd;text-align:center;">${r.ore.toFixed(2)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right;">${r.costo.toFixed(2)}</td></tr>`;
-                                }
-                            });
-                            h += `</table><div style="margin-top:20px;padding:15px;background:#f9f9f9;border:1px solid #ddd;"><p style="font-weight:bold;">TOTALI</p><p>Ore: ${resocontoCurrentData.totalOre.toFixed(2)}</p><p>Costo: ${resocontoCurrentData.totalCosto.toFixed(2)}</p><p>Giorni: ${resocontoCurrentData.giorniPresenza}</p></div></div>`;
-                            return h;
-                        }
-
-                        const stampaResocontoBtn = document.getElementById('stampaResocontoBtn');
-                        if (stampaResocontoBtn) {
-                            stampaResocontoBtn.addEventListener('click', e => {
-                                e.stopPropagation();
-                                document.getElementById('formatoDownload').value = 'pdf';
-                                document.getElementById('anteprimaContenuto').innerHTML = generaAnteprimaPDF();
-                                document.getElementById('modalAnteprimaResoconto').style.display = 'block';
-                                document.getElementById('overlayAnteprimaResoconto').style.display = 'block';
-                            });
-                        }
-
-                        window.chiudiModalAnteprima = function() {
-                            document.getElementById('modalAnteprimaResoconto').style.display = 'none';
-                            document.getElementById('overlayAnteprimaResoconto').style.display = 'none';
-                        };
-                        document.getElementById('chiudiAnteprimaBtn')?.addEventListener('click', () => window.chiudiModalAnteprima());
-                        document.getElementById('overlayAnteprimaResoconto')?.addEventListener('click', () => window.chiudiModalAnteprima());
-                        document.addEventListener('keydown', e => {
-                            if (e.key === 'Escape' && document.getElementById('modalAnteprimaResoconto').style.display === 'block') window.chiudiModalAnteprima();
                         });
+                    }).catch(err => {
+                        resocontiMensiliBody.innerHTML = `<tr><td colspan="6">Errore nel caricamento</td></tr>`;
+                    });
+            }
 
-                        const formatoDownload = document.getElementById('formatoDownload');
-                        if (formatoDownload) {
-                            formatoDownload.addEventListener('change', () => {
-                                const f = formatoDownload.value;
-                                document.getElementById('anteprimaContenuto').innerHTML = f === 'pdf' ? generaAnteprimaPDF() : generaAnteprimaCSV();
-                            });
-                        }
+            let currentModalMese = null;
 
-                        function generaResocontoCSV() {
-                            if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
-                                alert('Nessun dato da scaricare');
-                                return;
-                            }
-                            let csv = 'Giorno,Attività,Ore,Costo\n';
-                            resocontoCurrentData.giorniData.forEach(r => {
-                                const g = new Date(r.giorno).toLocaleDateString('it-IT');
-                                if (r.attivita && r.attivita.length > 0) {
-                                    r.attivita.forEach(a => {
-                                        csv += `${g},${a.Nome},${a.ore.toFixed(2)},${a.costo.toFixed(2)}\n`;
-                                    });
-                                } else {
-                                    csv += `${g},Presenza,${r.ore.toFixed(2)},${r.costo.toFixed(2)}\n`;
-                                }
-                            });
-                            csv += '\n\nRiepilogo Attività,Ore Totali\n';
-                            resocontoCurrentData.attivitaMensili.forEach(([nome, ore]) => {
-                                csv += `${nome},${ore.toFixed(2)}\n`;
-                            });
-                            csv += `\n\nTOTALI\nOre Totali,${resocontoCurrentData.totalOre.toFixed(2)}\nCosto Totale,${resocontoCurrentData.totalCosto.toFixed(2)}\nGiorni di Presenza,${resocontoCurrentData.giorniPresenza}\n`;
-                            const blob = new Blob([csv], {
-                                type: 'text/csv;charset=utf-8;'
-                            });
-                            const link = document.createElement('a');
-                            link.href = URL.createObjectURL(blob);
-                            link.download = `resoconto_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.csv`;
-                            link.style.visibility = 'hidden';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        }
-
-                        function generaResoconsoPDF() {
-                            if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
-                                alert('Nessun dato da scaricare');
-                                return;
-                            }
-                            if (typeof html2pdf === 'undefined') {
-                                const s = document.createElement('script');
-                                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-                                s.onload = () => generaResoconsoPDFInternal();
-                                document.head.appendChild(s);
+            function caricaResocontoGiorni(meseForzato = null) {
+                if (!currentIscritto) return;
+                const meseDaUsare = meseForzato || resocontiMeseFiltro.value;
+                currentModalMese = meseDaUsare;
+                fetch("api/api_resoconto_giornaliero.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: currentIscritto,
+                            mese: meseDaUsare
+                        })
+                    })
+                    .then(r => r.json()).then(json => {
+                        if (!bodyResoconto) return;
+                        bodyResoconto.innerHTML = "";
+                        const attivitaMensiliBody = document.getElementById("attivitaMensiliBody");
+                        if (attivitaMensiliBody) attivitaMensiliBody.innerHTML = "";
+                        let totalOre = 0,
+                            totalCosto = 0,
+                            giorniPresenza = 0;
+                        const summaryOre = document.getElementById('summaryOre');
+                        const summaryCosto = document.getElementById('summaryCosto');
+                        const summaryGiorni = document.getElementById('summaryGiorni');
+                        if (!json.success || json.data.length === 0) {
+                            bodyResoconto.innerHTML = `<tr><td colspan="4">Nessun dato</td></tr>`;
+                            if (attivitaMensiliBody) attivitaMensiliBody.innerHTML = `<tr><td colspan="2">Nessuna attività</td></tr>`;
+                            if (summaryOre) summaryOre.textContent = '0.00';
+                            if (summaryCosto) summaryCosto.textContent = '0.00 €';
+                            if (summaryGiorni) summaryGiorni.textContent = '0';
+                            if (mobileCalendarInstance) {
+                                const [anno, mese] = meseDaUsare.split('-');
+                                const nd = new Date(parseInt(anno), parseInt(mese) - 1, 1);
+                                if (mobileCalendarInstance.currentDate.getFullYear() !== nd.getFullYear() || mobileCalendarInstance.currentDate.getMonth() !== nd.getMonth()) mobileCalendarInstance.setDate(nd);
+                                mobileCalendarInstance.setActivitiesData({});
                             } else {
-                                generaResoconsoPDFInternal();
+                                const cc = document.getElementById("mobileCalendarContainer");
+                                if (cc && window.MobileCalendar) {
+                                    const [anno, mese] = meseDaUsare.split('-');
+                                    mobileCalendarInstance = new MobileCalendar('mobileCalendarContainer', {
+                                        selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
+                                        activitiesData: {},
+                                        activitiesPanel: '#mc-activities-panel',
+                                        onMonthChange: function(nd) {
+                                            caricaResocontoGiorni(`${nd.getFullYear()}-${String(nd.getMonth()+1).padStart(2,'0')}`);
+                                        }
+                                    });
+                                }
+                            }
+                            return;
+                        }
+                        const daysMap = new Map(),
+                            attivitaMap = new Map(),
+                            activitiesData = {};
+                        json.data.forEach(r => {
+                            const giorno = new Date(r.giorno).getDate(),
+                                dateStr = r.giorno;
+                            if (!daysMap.has(giorno)) {
+                                daysMap.set(giorno, {
+                                    attivita: [],
+                                    ore: 0,
+                                    costo: 0
+                                });
+                                giorniPresenza++;
+                            }
+                            const day = daysMap.get(giorno);
+                            r.attivita.forEach(a => {
+                                day.attivita.push(a);
+                                attivitaMap.set(a.Nome, (attivitaMap.get(a.Nome) || 0) + a.ore);
+                            });
+                            day.ore += r.ore;
+                            day.costo += r.costo;
+                            totalOre += r.ore;
+                            totalCosto += r.costo;
+                            bodyResoconto.innerHTML += `<tr><td>${giorno}</td><td>${r.attivita.map(a=>`${a.Nome} (${a.ore.toFixed(2)}h, ${a.costo.toFixed(2)}€)`).join('<br>')}</td><td>${r.ore.toFixed(2)}</td><td>${r.costo.toFixed(2)} €</td></tr>`;
+                            if (!activitiesData[dateStr]) activitiesData[dateStr] = [];
+                            if (r.attivita && r.attivita.length > 0) {
+                                r.attivita.forEach(a => activitiesData[dateStr].push({
+                                    nome: a.Nome,
+                                    descrizione: `${a.ore.toFixed(2)} ore - ${a.costo.toFixed(2)}€`,
+                                    ora_inizio: '',
+                                    ora_fine: '',
+                                    educatori: ''
+                                }));
+                            } else {
+                                activitiesData[dateStr].push({
+                                    nome: 'Presente',
+                                    descrizione: `${r.ore.toFixed(2)} ore - ${r.costo.toFixed(2)}€`,
+                                    ora_inizio: '',
+                                    ora_fine: '',
+                                    educatori: ''
+                                });
+                            }
+                        });
+                        Array.from(attivitaMap.entries()).sort((a, b) => b[1] - a[1]).forEach(([nome, ore]) => {
+                            if (attivitaMensiliBody) attivitaMensiliBody.innerHTML += `<tr><td>${nome}</td><td>${ore.toFixed(2)} ore</td></tr>`;
+                        });
+                        if (summaryOre) summaryOre.textContent = totalOre.toFixed(2);
+                        if (summaryCosto) summaryCosto.textContent = totalCosto.toFixed(2) + ' €';
+                        if (summaryGiorni) summaryGiorni.textContent = giorniPresenza;
+                        resocontoCurrentData = {
+                            ...resocontoCurrentData,
+                            mese: meseDaUsare,
+                            giorniData: json.data,
+                            attivitaMensili: Array.from(attivitaMap.entries()),
+                            totalOre,
+                            totalCosto,
+                            giorniPresenza
+                        };
+                        const cc = document.getElementById("mobileCalendarContainer");
+                        if (cc && window.MobileCalendar) {
+                            const [anno, mese] = meseDaUsare.split('-');
+                            if (mobileCalendarInstance) {
+                                const nd = new Date(parseInt(anno), parseInt(mese) - 1, 1);
+                                if (mobileCalendarInstance.currentDate.getFullYear() !== nd.getFullYear() || mobileCalendarInstance.currentDate.getMonth() !== nd.getMonth()) mobileCalendarInstance.setDate(nd);
+                                mobileCalendarInstance.setActivitiesData(activitiesData);
+                            } else {
+                                mobileCalendarInstance = new MobileCalendar('mobileCalendarContainer', {
+                                    selectedDate: new Date(parseInt(anno), parseInt(mese) - 1, 1),
+                                    activitiesData,
+                                    activitiesPanel: '#mc-activities-panel',
+                                    onMonthChange: function(nd) {
+                                        caricaResocontoGiorni(`${nd.getFullYear()}-${String(nd.getMonth()+1).padStart(2,'0')}`);
+                                    }
+                                });
                             }
                         }
-
-                        function generaResoconsoPDFInternal() {
-                            const div = document.createElement('div');
-                            div.innerHTML = generaAnteprimaPDF();
-                            div.style.padding = '20px';
-                            html2pdf().set({
-                                margin: 10,
-                                filename: `resoconto_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`,
-                                image: {
-                                    type: 'jpeg',
-                                    quality: 0.98
-                                },
-                                html2canvas: {
-                                    scale: 2
-                                },
-                                jsPDF: {
-                                    orientation: 'portrait',
-                                    unit: 'mm',
-                                    format: 'a4'
-                                }
-                            }).from(div).save();
-                        }
-
-                        const scaricaResocontoBtn = document.getElementById('scaricaResocontoBtn');
-                        if (scaricaResocontoBtn) {
-                            scaricaResocontoBtn.addEventListener('click', () => {
-                                const f = document.getElementById('formatoDownload').value;
-                                if (f === 'csv') generaResocontoCSV();
-                                else generaResoconsoPDF();
-                            });
-                        }
+                    }).catch(err => {
+                        if (bodyResoconto) bodyResoconto.innerHTML = `<tr><td colspan="4">Errore nel caricamento</td></tr>`;
                     });
+            }
 
-                    // =====================================================================
-                    // FLATPICKR
-                    // =====================================================================
-                    flatpickr("#resocontiMeseFiltro", {
-                        plugins: [new monthSelectPlugin({
-                            shorthand: false,
-                            dateFormat: "Y-m",
-                            altFormat: "F Y"
-                        })],
-                        defaultDate: new Date(),
-                        altInput: true
-                    });
-
-                    // =====================================================================
-                    // SIDEBAR STATE
-                    // =====================================================================
-                    const checkboxInput = document.getElementById('checkbox-input');
-                    if (checkboxInput) {
-                        const s = localStorage.getItem('sidebarOpen');
-                        if (s !== null) checkboxInput.checked = s === 'true';
-                        checkboxInput.addEventListener('change', () => localStorage.setItem('sidebarOpen', checkboxInput.checked));
-                    }
-
-                    // =====================================================================
-                    // SCROLL LOCK
-                    // =====================================================================
-                    function syncBodyScrollLock() {
-                        document.body.classList.toggle("popup-open", Boolean(document.querySelector(".modal-box.show,.popup.show,.logout-modal.show,.success-popup.show,.modal-overlay.show,.logout-overlay.show")));
-                    }
-                    new MutationObserver(() => syncBodyScrollLock()).observe(document.body, {
-                        subtree: true,
-                        attributes: true,
-                        attributeFilter: ["class"]
-                    }); syncBodyScrollLock();
-
-                    // =====================================================================
-                    // MOBILE TAB SWITCH + RESTORE
-                    // =====================================================================
-                    function switchTab(tabId, navItem) {
-                        document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-                        navItem.classList.add('active');
-                        document.querySelectorAll('.tab-link').forEach(l => {
-                            l.classList.remove('active');
-                            if (l.dataset.tab === tabId) l.classList.add('active');
+            function generaAnteprimaPDF() {
+                let h = '<div style="font-family:Arial,sans-serif;padding:20px;background:white;color:#333;line-height:1.6;">';
+                h += `<h2 style="text-align:center;border-bottom:2px solid #333;padding-bottom:10px;">RESOCONTO MENSILE</h2>`;
+                h += `<p style="text-align:center;font-size:14px;"><strong>${resocontoCurrentData.cognome} ${resocontoCurrentData.nome}</strong></p>`;
+                h += `<p style="text-align:center;font-size:13px;">Mese: ${resocontoCurrentData.mese}</p>`;
+                h += `<p style="text-align:center;font-size:12px;color:#666;">Data Stampa: ${new Date().toLocaleString('it-IT')}</p>`;
+                h += '<h3 style="margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:5px;font-size:14px;">DETTAGLIO GIORNALIERO</h3>';
+                h += '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">';
+                h += '<tr style="background:#f0f0f0;"><th style="padding:8px;border:1px solid #ddd;">Giorno</th><th style="padding:8px;border:1px solid #ddd;">Attività</th><th style="padding:8px;border:1px solid #ddd;text-align:center;">Ore</th><th style="padding:8px;border:1px solid #ddd;text-align:right;">Costo</th></tr>';
+                resocontoCurrentData.giorniData.forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    if (r.attivita && r.attivita.length > 0) {
+                        r.attivita.forEach((a, idx) => {
+                            h += `<tr style="border:1px solid #ddd;"><td style="padding:8px;border:1px solid #ddd;">${idx===0?g:''}</td><td style="padding:8px;border:1px solid #ddd;">${a.Nome}</td><td style="padding:8px;text-align:center;border:1px solid #ddd;">${a.ore.toFixed(2)}h</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">${a.costo.toFixed(2)}€</td></tr>`;
                         });
-                        document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
-                        document.getElementById(tabId).classList.add('active');
-                        localStorage.setItem("activeTab", tabId);
+                    } else {
+                        h += `<tr style="border:1px solid #ddd;"><td style="padding:8px;border:1px solid #ddd;">${g}</td><td style="padding:8px;border:1px solid #ddd;">Presenza</td><td style="padding:8px;text-align:center;border:1px solid #ddd;">${r.ore.toFixed(2)}h</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">${r.costo.toFixed(2)}€</td></tr>`;
                     }
+                });
+                h += '</table>';
+                h += '<h3 style="margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:5px;font-size:14px;">RIEPILOGO ATTIVITÀ</h3>';
+                h += '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">';
+                resocontoCurrentData.attivitaMensili.forEach(([nome, ore]) => {
+                    h += `<tr style="border:1px solid #ddd;"><td style="padding:8px;border:1px solid #ddd;">${nome}</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">${ore.toFixed(2)}h</td></tr>`;
+                });
+                h += '</table>';
+                h += `<h3 style="margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:5px;font-size:14px;">TOTALI</h3>`;
+                h += `<div style="font-size:13px;"><p><strong>Ore Totali:</strong> ${resocontoCurrentData.totalOre.toFixed(2)}h</p><p><strong>Costo Totale:</strong> ${resocontoCurrentData.totalCosto.toFixed(2)}€</p><p><strong>Giorni di Presenza:</strong> ${resocontoCurrentData.giorniPresenza}</p></div>`;
+                h += `<div style="margin-top:40px;border-top:1px solid #333;padding-top:15px;"><p style="font-size:12px;">Firma: ___________________________</p><p style="margin-top:20px;font-size:12px;color:#999;">Data: ${new Date().toLocaleDateString('it-IT')}</p></div>`;
+                h += '</div>';
+                return h;
+            }
 
-                    // =====================================================================
-                    // PRESENZE — navigazione per data
-                    // =====================================================================
-                    let presenzeOffset = 0;
-
-                    function getPresenzaDateString(offset) {
-                        const d = new Date();
-                        d.setDate(d.getDate() + offset);
-                        return getLocalDateString(d);
-                    }
-
-                    function updatePresenzeDayLabel() {
-                        const d = new Date();
-                        d.setDate(d.getDate() + presenzeOffset);
-                        const label = d.toLocaleDateString('it-IT', {
-                            weekday: 'long',
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric'
+            function generaAnteprimaCSV() {
+                let h = '<div style="font-family:monospace;font-size:12px;padding:10px;background:white;"><table style="border-collapse:collapse;width:100%;">';
+                h += '<tr style="background:#f0f0f0;"><td style="padding:8px;border:1px solid #ccc;font-weight:bold;">Giorno</td><td style="padding:8px;border:1px solid #ccc;font-weight:bold;">Attività</td><td style="padding:8px;border:1px solid #ccc;text-align:center;font-weight:bold;">Ore</td><td style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">Costo</td></tr>';
+                resocontoCurrentData.giorniData.forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    if (r.attivita && r.attivita.length > 0) {
+                        r.attivita.forEach(a => {
+                            h += `<tr><td style="padding:6px;border:1px solid #ddd;">${g}</td><td style="padding:6px;border:1px solid #ddd;">${a.Nome}</td><td style="padding:6px;border:1px solid #ddd;text-align:center;">${a.ore.toFixed(2)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right;">${a.costo.toFixed(2)}</td></tr>`;
                         });
-                        document.getElementById('presenzeDayLabel').innerText = label.charAt(0).toUpperCase() + label.slice(1);
-                        const todayBtn = document.getElementById('todayPresenzeBtn');
-                        if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
-                        const nextBtn = document.getElementById('nextDayBtn');
-                        if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
+                    } else {
+                        h += `<tr><td style="padding:6px;border:1px solid #ddd;">${g}</td><td style="padding:6px;border:1px solid #ddd;">Presenza</td><td style="padding:6px;border:1px solid #ddd;text-align:center;">${r.ore.toFixed(2)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right;">${r.costo.toFixed(2)}</td></tr>`;
                     }
+                });
+                h += `</table><div style="margin-top:20px;padding:15px;background:#f9f9f9;border:1px solid #ddd;"><p style="font-weight:bold;">TOTALI</p><p>Ore: ${resocontoCurrentData.totalOre.toFixed(2)}</p><p>Costo: ${resocontoCurrentData.totalCosto.toFixed(2)}</p><p>Giorni: ${resocontoCurrentData.giorniPresenza}</p></div></div>`;
+                return h;
+            }
 
-                    function loadPresenze() {
-                        const dataStr = getPresenzaDateString(presenzeOffset);
-                        const tbody = document.querySelector('#presenzeTable tbody');
-                        if (!tbody) return;
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Caricamento...</td></tr>';
-                        updatePresenzeDayLabel();
-                        fetch(`api/api_get_presenze.php?data=${dataStr}`)
-                            .then(r => r.json())
-                            .then(data => {
-                                if (!data.success) {
-                                    tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento</td></tr>';
-                                    return;
-                                }
-                                if (data.data.length === 0) {
-                                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Nessuna presenza registrata per questo giorno.</td></tr>';
-                                    return;
-                                }
-                                tbody.innerHTML = data.data.map(row => `<tr data-id="${row.id}" data-nome="${row.nome}" data-cognome="${row.cognome}" data-ingresso="${row.ingresso}" data-uscita="${row.uscita || ''}"><td><img class="user-avatar" src="${row.fotografia}"></td><td>${row.nome}</td><td>${row.cognome}</td><td>${row.ingresso}</td><td>${row.uscita || '—'}</td><td><button class="edit-presenza-btn" data-id="${row.id}"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-presenza-btn" data-id="${row.id}"><img src="immagini/delete.png" alt="Elimina"></button></td></tr>`).join('');
-                            })
-                            .catch(() => {
-                                tbody.innerHTML = '<tr><td colspan="6">Errore di rete</td></tr>';
-                            });
+            const stampaResocontoBtn = document.getElementById('stampaResocontoBtn');
+            if (stampaResocontoBtn) {
+                stampaResocontoBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    document.getElementById('formatoDownload').value = 'pdf';
+                    document.getElementById('anteprimaContenuto').innerHTML = generaAnteprimaPDF();
+                    document.getElementById('modalAnteprimaResoconto').style.display = 'block';
+                    document.getElementById('overlayAnteprimaResoconto').style.display = 'block';
+                });
+            }
+
+            window.chiudiModalAnteprima = function() {
+                document.getElementById('modalAnteprimaResoconto').style.display = 'none';
+                document.getElementById('overlayAnteprimaResoconto').style.display = 'none';
+            };
+            document.getElementById('chiudiAnteprimaBtn')?.addEventListener('click', () => window.chiudiModalAnteprima());
+            document.getElementById('overlayAnteprimaResoconto')?.addEventListener('click', () => window.chiudiModalAnteprima());
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && document.getElementById('modalAnteprimaResoconto').style.display === 'block') window.chiudiModalAnteprima();
+            });
+
+            const formatoDownload = document.getElementById('formatoDownload');
+            if (formatoDownload) {
+                formatoDownload.addEventListener('change', () => {
+                    const f = formatoDownload.value;
+                    document.getElementById('anteprimaContenuto').innerHTML = f === 'pdf' ? generaAnteprimaPDF() : generaAnteprimaCSV();
+                });
+            }
+
+            function generaResocontoCSV() {
+                if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
+                    alert('Nessun dato da scaricare');
+                    return;
+                }
+                let csv = 'Giorno,Attività,Ore,Costo\n';
+                resocontoCurrentData.giorniData.forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    if (r.attivita && r.attivita.length > 0) {
+                        r.attivita.forEach(a => {
+                            csv += `${g},${a.Nome},${a.ore.toFixed(2)},${a.costo.toFixed(2)}\n`;
+                        });
+                    } else {
+                        csv += `${g},Presenza,${r.ore.toFixed(2)},${r.costo.toFixed(2)}\n`;
                     }
+                });
+                csv += '\n\nRiepilogo Attività,Ore Totali\n';
+                resocontoCurrentData.attivitaMensili.forEach(([nome, ore]) => {
+                    csv += `${nome},${ore.toFixed(2)}\n`;
+                });
+                csv += `\n\nTOTALI\nOre Totali,${resocontoCurrentData.totalOre.toFixed(2)}\nCosto Totale,${resocontoCurrentData.totalCosto.toFixed(2)}\nGiorni di Presenza,${resocontoCurrentData.giorniPresenza}\n`;
+                const blob = new Blob([csv], {
+                    type: 'text/csv;charset=utf-8;'
+                });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `resoconto_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.csv`;
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
 
-                    document.getElementById('prevDayBtn').onclick = () => {
-                        presenzeOffset--;
-                        loadPresenze();
-                    }; document.getElementById('nextDayBtn').onclick = () => {
-                        if (presenzeOffset < 0) {
-                            presenzeOffset++;
-                            loadPresenze();
-                        }
-                    }; document.getElementById('todayPresenzeBtn').onclick = () => {
-                        if (presenzeOffset !== 0) {
-                            presenzeOffset = 0;
-                            loadPresenze();
-                        }
-                    };
+            function generaResoconsoPDF() {
+                if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
+                    alert('Nessun dato da scaricare');
+                    return;
+                }
+                if (typeof html2pdf === 'undefined') {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                    s.onload = () => generaResoconsoPDFInternal();
+                    document.head.appendChild(s);
+                } else {
+                    generaResoconsoPDFInternal();
+                }
+            }
 
-                    window.addEventListener("DOMContentLoaded", () => {
-                        loadPresenze();
-                        // Carica agenda
-                        loadAgenda();
+            function generaResoconsoPDFInternal() {
+                const div = document.createElement('div');
+                div.innerHTML = generaAnteprimaPDF();
+                div.style.padding = '20px';
+                html2pdf().set({
+                    margin: 10,
+                    filename: `resoconto_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`,
+                    image: {
+                        type: 'jpeg',
+                        quality: 0.98
+                    },
+                    html2canvas: {
+                        scale: 2
+                    },
+                    jsPDF: {
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    }
+                }).from(div).save();
+            }
 
-                        // Ripristina tab
-                        const savedTab = localStorage.getItem("activeTab");
-                        if (savedTab) {
-                            document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-                            const mn = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
-                            if (mn) mn.classList.add('active');
-                            document.querySelectorAll('.tab-link').forEach(l => {
-                                l.classList.remove('active');
-                                if (l.dataset.tab === savedTab) l.classList.add('active');
-                            });
-                            document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
-                            const sc = document.getElementById(savedTab);
-                            if (sc) sc.classList.add('active');
-                        }
-                    });
+            const scaricaResocontoBtn = document.getElementById('scaricaResocontoBtn');
+            if (scaricaResocontoBtn) {
+                scaricaResocontoBtn.addEventListener('click', () => {
+                    const f = document.getElementById('formatoDownload').value;
+                    if (f === 'csv') generaResocontoCSV();
+                    else generaResoconsoPDF();
+                });
+            }
+        });
+
+        // =====================================================================
+        // FLATPICKR
+        // =====================================================================
+        flatpickr("#resocontiMeseFiltro", {
+            plugins: [new monthSelectPlugin({
+                shorthand: false,
+                dateFormat: "Y-m",
+                altFormat: "F Y"
+            })],
+            defaultDate: new Date(),
+            altInput: true
+        });
+
+        // =====================================================================
+        // SIDEBAR STATE
+        // =====================================================================
+        const checkboxInput = document.getElementById('checkbox-input');
+        if (checkboxInput) {
+            const s = localStorage.getItem('sidebarOpen');
+            if (s !== null) checkboxInput.checked = s === 'true';
+            checkboxInput.addEventListener('change', () => localStorage.setItem('sidebarOpen', checkboxInput.checked));
+        }
+
+        // =====================================================================
+        // SCROLL LOCK
+        // =====================================================================
+        function syncBodyScrollLock() {
+            document.body.classList.toggle("popup-open", Boolean(document.querySelector(".modal-box.show,.popup.show,.logout-modal.show,.success-popup.show,.modal-overlay.show,.logout-overlay.show")));
+        }
+        new MutationObserver(() => syncBodyScrollLock()).observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class"]
+        });
+        syncBodyScrollLock();
+
+        // =====================================================================
+        // MOBILE TAB SWITCH + RESTORE
+        // =====================================================================
+        function switchTab(tabId, navItem) {
+            document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+            navItem.classList.add('active');
+            document.querySelectorAll('.tab-link').forEach(l => {
+                l.classList.remove('active');
+                if (l.dataset.tab === tabId) l.classList.add('active');
+            });
+            document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            localStorage.setItem("activeTab", tabId);
+        }
+
+        // =====================================================================
+        // PRESENZE — navigazione per data
+        // =====================================================================
+        let presenzeOffset = 0;
+
+        function getPresenzaDateString(offset) {
+            const d = new Date();
+            d.setDate(d.getDate() + offset);
+            return getLocalDateString(d);
+        }
+
+        function updatePresenzeDayLabel() {
+            const d = new Date();
+            d.setDate(d.getDate() + presenzeOffset);
+            const label = d.toLocaleDateString('it-IT', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            document.getElementById('presenzeDayLabel').innerText = label.charAt(0).toUpperCase() + label.slice(1);
+            const todayBtn = document.getElementById('todayPresenzeBtn');
+            if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
+            const nextBtn = document.getElementById('nextDayBtn');
+            if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
+        }
+
+        function loadPresenze() {
+            const dataStr = getPresenzaDateString(presenzeOffset);
+            const tbody = document.querySelector('#presenzeTable tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Caricamento...</td></tr>';
+            updatePresenzeDayLabel();
+            fetch(`api/api_get_presenze.php?data=${dataStr}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento</td></tr>';
+                        return;
+                    }
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Nessuna presenza registrata per questo giorno.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.data.map(row => `<tr data-id="${row.id}" data-nome="${row.nome}" data-cognome="${row.cognome}" data-ingresso="${row.ingresso}" data-uscita="${row.uscita || ''}"><td><img class="user-avatar" src="${row.fotografia}"></td><td>${row.nome}</td><td>${row.cognome}</td><td>${row.ingresso}</td><td>${row.uscita || '—'}</td><td><button class="edit-presenza-btn" data-id="${row.id}"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-presenza-btn" data-id="${row.id}"><img src="immagini/delete.png" alt="Elimina"></button></td></tr>`).join('');
+                })
+                .catch(() => {
+                    tbody.innerHTML = '<tr><td colspan="6">Errore di rete</td></tr>';
+                });
+        }
+
+        document.getElementById('prevDayBtn').onclick = () => {
+            presenzeOffset--;
+            loadPresenze();
+        };
+        document.getElementById('nextDayBtn').onclick = () => {
+            if (presenzeOffset < 0) {
+                presenzeOffset++;
+                loadPresenze();
+            }
+        };
+        document.getElementById('todayPresenzeBtn').onclick = () => {
+            if (presenzeOffset !== 0) {
+                presenzeOffset = 0;
+                loadPresenze();
+            }
+        };
+
+        window.addEventListener("DOMContentLoaded", () => {
+            loadPresenze();
+            // Carica agenda
+            loadAgenda();
+
+            // Ripristina tab
+            const savedTab = localStorage.getItem("activeTab");
+            if (savedTab) {
+                document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+                const mn = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
+                if (mn) mn.classList.add('active');
+                document.querySelectorAll('.tab-link').forEach(l => {
+                    l.classList.remove('active');
+                    if (l.dataset.tab === savedTab) l.classList.add('active');
+                });
+                document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+                const sc = document.getElementById(savedTab);
+                if (sc) sc.classList.add('active');
+            }
+        });
     </script>
 
     <script src="js/mobile-calendar.js"></script>

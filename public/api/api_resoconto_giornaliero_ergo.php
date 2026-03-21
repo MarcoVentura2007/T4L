@@ -3,14 +3,14 @@ session_start();
 header('Content-Type: application/json');
 header("Cache-Control: no-cache");
 
-if(!isset($_SESSION['username'])){
-    echo json_encode(['success'=>false, 'error'=>'Non autorizzato']);
+if (!isset($_SESSION['username'])) {
+    echo json_encode(['success' => false, 'error' => 'Non autorizzato']);
     exit;
 }
 
 $data = json_decode(file_get_contents("php://input"), true);
-if(!isset($data['id']) || !isset($data['mese'])){
-    echo json_encode(['success'=>false, 'error'=>'Parametri mancanti']);
+if (!isset($data['id']) || !isset($data['mese'])) {
+    echo json_encode(['success' => false, 'error' => 'Parametri mancanti']);
     exit;
 }
 
@@ -21,7 +21,7 @@ list($anno, $mese) = explode('-', $data['mese']);
 require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4allergo');
 if ($conn->connect_error) {
-    echo json_encode(['success'=>false,'error'=>'Connessione DB fallita']);
+    echo json_encode(['success' => false, 'error' => 'Connessione DB fallita']);
     exit;
 }
 
@@ -82,37 +82,37 @@ $stmt->execute();
 $res = $stmt->get_result();
 
 $days = [];
-while($p = $res->fetch_assoc()){
+while ($p = $res->fetch_assoc()) {
     // Skip if Uscita is NULL or empty - presence not yet completed
-    if(empty($p['Uscita'])) continue;
-    
+    if (empty($p['Uscita'])) continue;
+
     $giorno = date('Y-m-d', strtotime($p['Ingresso']));
-    
-    if(!isset($days[$giorno])){
+
+    if (!isset($days[$giorno])) {
         $days[$giorno] = [
             'ore' => 0,
             'costo' => 0
         ];
     }
-    
+
     // Calculate hours for this presence
     $ingresso = strtotime($p['Ingresso']);
     $uscita = strtotime($p['Uscita']);
     $ore = ($uscita - $ingresso) / 3600; // Convert seconds to hours
-    
+
     $days[$giorno]['ore'] += $ore;
 }
 
 
 // Round values and calculate costs
-foreach($days as $giorno => &$data){
+foreach ($days as $giorno => &$data) {
     $data['ore'] = round($data['ore'], 2);
     $data['costo'] = round($data['ore'] * $prezzo, 2);
 }
 
 // Format for JSON response
 $rows = [];
-foreach($days as $giorno => $data){
+foreach ($days as $giorno => $data) {
     $rows[] = [
         'giorno' => $giorno,
         'ore' => $data['ore'],
@@ -121,7 +121,6 @@ foreach($days as $giorno => $data){
     ];
 }
 
-echo json_encode(['success'=>true,'data'=>$rows]);
+echo json_encode(['success' => true, 'data' => $rows]);
 $stmt->close();
 $conn->close();
-?>

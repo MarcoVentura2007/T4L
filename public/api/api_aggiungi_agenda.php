@@ -10,7 +10,8 @@ session_start();
 /* =========================
    FUNZIONE DI USCITA SICURA
    ========================= */
-function fail($msg, $extra = []) {
+function fail($msg, $extra = [])
+{
     echo json_encode(array_merge([
         'success' => false,
         'error' => $msg
@@ -74,7 +75,7 @@ if (!$data) {
         'json_error' => json_last_error_msg(),
         'content_type' => $_SERVER['CONTENT_TYPE'] ?? null
     ]);
-}  
+}
 
 $data_agenda = $data['data'] ?? null;
 $ora_inizio  = $data['ora_inizio'] ?? null;
@@ -189,7 +190,6 @@ try {
         'righe_inserite' => $righe_inserite
     ]);
     exit;
-
 } catch (Exception $e) {
     $conn->rollback();
     fail('Errore server', ['details' => $e->getMessage()]);
