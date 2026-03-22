@@ -99,162 +99,258 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
         }
 
-        .agenda-week-nav {
+        /* ── Calendario picker presenze ───────────────────────────── */
+        .cal-picker-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 8000;
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .cal-picker-overlay.open {
+            display: block;
+        }
+
+        .cal-picker {
+            position: absolute;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(100, 10, 53, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+            width: 300px;
+            padding: 0 0 12px;
+            overflow: hidden;
+            animation: calPop .18s ease;
+            z-index: 8001;
+        }
+
+        @keyframes calPop {
+            from {
+                opacity: 0;
+                transform: scale(.94) translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .cal-picker-header {
+            background: #640a35;
+            color: #fff;
+            padding: 16px 16px 12px;
+        }
+
+        .cal-picker-header .cal-month-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .cal-picker-header .cal-month-label {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: .02em;
+            text-transform: capitalize;
+        }
+
+        .cal-nav-btn {
+            background: rgba(255, 255, 255, .18);
+            border: none;
+            border-radius: 8px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 10px 0 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: background .15s;
+            flex-shrink: 0;
         }
 
-        .week-nav-btn {
+        .cal-nav-btn:hover {
+            background: rgba(255, 255, 255, .32);
+        }
+
+        .cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .cal-weekday {
+            text-align: center;
+            font-size: .72rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .65);
+            padding: 2px 0;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            padding: 10px 12px 4px;
+        }
+
+        .cal-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: .85rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: #333;
+            transition: background .12s, color .12s, transform .1s;
+            user-select: none;
+        }
+
+        .cal-day:hover:not(.cal-empty):not(.cal-future) {
+            background: #f4e0ea;
+            color: #640a35;
+            transform: scale(1.08);
+        }
+
+        .cal-day.cal-today {
+            border: 2px solid #640a35;
+            color: #640a35;
+            font-weight: 700;
+        }
+
+        .cal-day.cal-selected {
+            background: #640a35 !important;
+            color: #fff !important;
+            font-weight: 700;
+        }
+
+        .cal-day.cal-future {
+            color: #ccc;
+            cursor: default;
+        }
+
+        .cal-day.cal-empty {
+            cursor: default;
+        }
+
+        .cal-open-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 34px;
             height: 34px;
-            border: 1.5px solid #e0e0e0;
+            border: 1.5px solid #640a35;
             border-radius: 8px;
             background: #fff;
-            color: #444;
+            color: #640a35;
             cursor: pointer;
             flex-shrink: 0;
-            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+            transition: background .15s, color .15s, transform .1s;
         }
 
-        .week-nav-btn:hover {
+        .cal-open-btn:hover {
             background: #640a35;
-            border-color: #640a35;
             color: #fff;
             transform: scale(1.05);
         }
 
-        .week-nav-btn:active {
-            transform: scale(0.97);
+        .cal-open-btn:active {
+            transform: scale(.97);
         }
 
-        .week-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #444;
-            min-width: 130px;
-            text-align: center;
-            letter-spacing: 0.01em;
-        }
-
-        .week-nav-today {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 6px 12px;
-            border: 1.5px solid #640a35;
-            border-radius: 8px;
-            background: transparent;
-            color: #640a35;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.15s, color 0.15s;
-        }
-
-        .week-nav-today:hover {
-            background: #640a35;
-            color: #fff;
-        }
-
-        .week-nav-today.is-current-week {
-            background: #640a35;
-            color: #fff;
-            border-color: #640a35;
-        }
-
-        @media (max-width: 768px) {
-            .week-label {
-                min-width: 90px;
-                font-size: 0.78rem;
-            }
-
-            .week-nav-today {
-                font-size: 0.7rem;
-                padding: 5px 9px;
-            }
-        }
-
-        /* Navigazione giorni — Presenze */
-        .presenze-day-nav {
+        /* ── Tab header row: titolo sx, bottoni dx ── */
+        .tab-header-row {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .tab-header-row .page-header {
+            margin-bottom: 0;
+        }
+
+        .tab-actions {
+            display: flex;
+            align-items: center;
             gap: 8px;
-            padding: 10px 0 12px;
+            flex-shrink: 0;
         }
 
-        .presenze-day-nav .week-nav-btn {
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 34px;
+            padding: 0 16px;
+            background: #fff;
+            color: #640a35;
+            border: 1.5px solid #d4748a;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s ease, color 0.15s ease,
+                border-color 0.15s ease, box-shadow 0.15s ease,
+                transform 0.10s ease;
+        }
+
+        .btn-add:hover {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+            box-shadow: 0 3px 12px rgba(100, 10, 53, 0.20);
+            transform: translateY(-1px);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .btn-add-icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 8px;
-            background: #fff;
-            color: #444;
-            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid currentColor;
+            border-radius: 50%;
             flex-shrink: 0;
-            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
         }
 
-        .presenze-day-nav .week-nav-btn:hover {
-            background: #640a35;
-            border-color: #640a35;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        .presenze-day-nav .week-nav-btn:active {
-            transform: scale(0.97);
-        }
-
-        .presenze-day-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #444;
-            min-width: 200px;
-            text-align: center;
-            letter-spacing: 0.01em;
-        }
-
-        .presenze-day-nav .week-nav-today {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 6px 12px;
-            border: 1.5px solid #640a35;
-            border-radius: 8px;
-            background: transparent;
-            color: #640a35;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.15s, color 0.15s;
-        }
-
-        .presenze-day-nav .week-nav-today:hover {
-            background: #640a35;
-            color: #fff;
-        }
-
-        .presenze-day-nav .week-nav-today.is-today {
+        .btn-add.btn-add--primary {
             background: #640a35;
             color: #fff;
             border-color: #640a35;
+        }
+
+        .btn-add.btn-add--primary:hover {
+            background: #7d0d42;
+            border-color: #7d0d42;
+            box-shadow: 0 3px 14px rgba(100, 10, 53, 0.26);
         }
 
         @media (max-width: 768px) {
-            .presenze-day-label {
-                min-width: 140px;
-                font-size: 0.78rem;
+            .btn-add {
+                display: none !important;
             }
 
-            .presenze-day-nav .week-nav-today {
-                font-size: 0.7rem;
-                padding: 5px 9px;
+            .tab-actions {
+                display: none;
+            }
+
+            .tab-header-row {
+                display: block;
             }
         }
     </style>
@@ -406,17 +502,18 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                 <!-- TAB UTENTI -->
                 <div class="page-tab active" id="tab-utenti">
-                    <button class="animated-button" id="aggiungi-utente-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
-                            <path d="M12 5v14M5 12h14" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" />
-                        </svg>
-                        <span class="text">Aggiungi Utente</span>
-                        <span class="circle"></span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
-                            <path d="M12 5v14M5 12h14" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" />
-                        </svg>
-                    </button>
-
+                    <div class="tab-header-row">
+                        <div class="page-header">
+                            <h1>Utenti</h1>
+                            <p>Elenco iscritti registrati</p>
+                        </div>
+                        <div class="tab-actions">
+                            <button class="btn-add btn-add--primary" id="aggiungi-utente-btn"><span class="btn-add-icon"><svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg></span>Aggiungi Utente</button>
+                        </div>
+                    </div>
                     <!-- Modal Aggiungi Utente -->
                     <div class="modal-box large" id="modalAggiungiUtente">
                         <h3>Aggiungi nuovo utente</h3>
@@ -477,19 +574,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </form>
                     </div>
 
-                    <div class="header-mobile">
-                        <div class="page-header">
-                            <h1>Utenti</h1>
-                            <p>Elenco iscritti registrati</p>
-                        </div>
-                        <button title="Add New" id="aggiungi-utente-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
-                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
-                                <path d="M8 12H16" stroke-width="1"></path>
-                                <path d="M12 16V8" stroke-width="1"></path>
-                            </svg>
-                        </button>
-                    </div>
+                    <button title="Add New" id="aggiungi-utente-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
+                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
+                            <path d="M8 12H16" stroke-width="1"></path>
+                            <path d="M12 16V8" stroke-width="1"></path>
+                        </svg>
+                    </button>
 
                     <div class="users-table-box">
                         <table class="users-table">
@@ -585,9 +676,17 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                 <!-- TAB PRESENZE -->
                 <div class="page-tab" id="tab-presenze">
-                    <div class="page-header">
-                        <h1>Presenze</h1>
-                        <p>Elenco presenze giornaliere</p>
+                    <div class="tab-header-row">
+                        <div class="page-header">
+                            <h1>Presenze</h1>
+                            <p>Elenco presenze giornaliere</p>
+                        </div>
+                        <div class="tab-actions">
+                            <button class="btn-add btn-add--primary" id="aggiungi-presenza-btn"><span class="btn-add-icon"><svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg></span>Aggiungi Presenza</button>
+                        </div>
                     </div>
                     <div class="presenze-day-nav">
                         <button class="week-nav-btn" id="prevDayBtn" title="Giorno precedente">
@@ -602,6 +701,72 @@ $resultResoconti = $conn->query($sqlResoconti);
                             </svg>
                         </button>
                         <button class="week-nav-today" id="todayPresenzeBtn" title="Vai ad oggi">Oggi</button>
+                        <button class="cal-open-btn" id="calOpenBtn" title="Scegli data">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Calendario picker -->
+                    <div class="cal-picker-overlay" id="calPickerOverlay">
+                        <div class="cal-picker" id="calPicker">
+                            <div class="cal-picker-header">
+                                <div class="cal-month-row">
+                                    <button class="cal-nav-btn" id="calPrevMonth">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M15 18l-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <span class="cal-month-label" id="calMonthLabel"></span>
+                                    <button class="cal-nav-btn" id="calNextMonth">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M9 18l6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="cal-weekdays">
+                                    <div class="cal-weekday">Lu</div>
+                                    <div class="cal-weekday">Ma</div>
+                                    <div class="cal-weekday">Me</div>
+                                    <div class="cal-weekday">Gi</div>
+                                    <div class="cal-weekday">Ve</div>
+                                    <div class="cal-weekday">Sa</div>
+                                    <div class="cal-weekday">Do</div>
+                                </div>
+                            </div>
+                            <div class="cal-grid" id="calGrid"></div>
+                        </div>
+                    </div>
+                    <!-- Modal Aggiungi Presenza -->
+                    <div class="modal-box large" id="modalAggiungiPresenza">
+                        <h3 class="modal-title">Aggiungi Presenza</h3>
+                        <form id="formAggiungiPresenza">
+                            <div class="edit-field">
+                                <label>Iscritto</label>
+                                <select id="apIscritto" required>
+                                    <option value="">— Seleziona iscritto —</option>
+                                </select>
+                            </div>
+                            <div class="edit-field">
+                                <label>Data</label>
+                                <input type="date" id="apData" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Ora ingresso</label>
+                                <input type="time" id="apIngresso" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Ora uscita <span style="color:#888;font-weight:400;font-size:0.8rem;">(opzionale)</span></label>
+                                <input type="time" id="apUscita">
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                                <button type="submit" class="btn-primary">Salva</button>
+                            </div>
+                        </form>
                     </div>
                     <div class="users-table-box">
                         <table class="users-table" id="presenzeTable">
@@ -623,27 +788,23 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                 <!-- TAB AGENDA -->
                 <div class="page-tab" id="tab-agenda">
-                    <div class="header-mobile">
+                    <div class="tab-header-row">
                         <div class="page-header">
                             <h1>Agenda</h1>
                             <p>Attività della settimana</p>
                         </div>
-                        <button title="Add New" id="aggiungi-agenda-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
-                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
-                                <path d="M8 12H16" stroke-width="1"></path>
-                                <path d="M12 16V8" stroke-width="1"></path>
-                            </svg>
-                        </button>
+                        <div class="tab-actions">
+                            <button class="btn-add btn-add--primary" id="creaAgendaBtn"><span class="btn-add-icon"><svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg></span>Crea nuova Agenda</button>
+                        </div>
                     </div>
-                    <button class="animated-button" id="creaAgendaBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
-                            <path d="M12 5v14M5 12h14" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" />
-                        </svg>
-                        <span class="text">Crea nuova Agenda</span>
-                        <span class="circle"></span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
-                            <path d="M12 5v14M5 12h14" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" />
+                    <button title="Add New" id="aggiungi-agenda-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
+                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
+                            <path d="M8 12H16" stroke-width="1"></path>
+                            <path d="M12 16V8" stroke-width="1"></path>
                         </svg>
                     </button>
                     <div class="agenda-container" style="margin:0 auto;">
@@ -781,27 +942,23 @@ $resultResoconti = $conn->query($sqlResoconti);
 
                 <!-- TAB ATTIVITA -->
                 <div class="page-tab" id="tab-attivita">
-                    <div class="header-mobile">
+                    <div class="tab-header-row">
                         <div class="page-header">
                             <h1>Attività</h1>
                             <p>Gestione delle attività</p>
                         </div>
-                        <button title="Add New" id="aggiungi-attivita-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
-                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
-                                <path d="M8 12H16" stroke-width="1"></path>
-                                <path d="M12 16V8" stroke-width="1"></path>
-                            </svg>
-                        </button>
+                        <div class="tab-actions">
+                            <button class="btn-add btn-add--primary" id="aggiungiAttivitaBtn"><span class="btn-add-icon"><svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg></span>Aggiungi Attività</button>
+                        </div>
                     </div>
-                    <button class="animated-button" id="aggiungiAttivitaBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24" width="14" height="14">
-                            <path d="M12 5v14M5 12h14" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" />
-                        </svg>
-                        <span class="text">Aggiungi Attività</span>
-                        <span class="circle"></span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24" width="14" height="14">
-                            <path d="M12 5v14M5 12h14" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" />
+                    <button title="Add New" id="aggiungi-attivita-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
+                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
+                            <path d="M8 12H16" stroke-width="1"></path>
+                            <path d="M12 16V8" stroke-width="1"></path>
                         </svg>
                     </button>
                     <div class="users-table-box">
@@ -1374,6 +1531,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById('modalEditTitle').innerText = 'Modifica Presenza - ' + row.dataset.nome + ' ' + row.dataset.cognome;
                 editModal.dataset.editType = 'presenza';
                 editModal.dataset.presenzeId = row.dataset.id;
+                editModal.dataset.presenzaData = ingresso.split(' ')[0] || ''; // data originale della presenza
                 document.getElementById('editIngresso').value = (ingresso.split(' ')[1] || '').slice(0, 5);
                 document.getElementById('editUscita').value = (uscita.split(' ')[1] || '').slice(0, 5);
                 openModal(editModal);
@@ -1704,9 +1862,9 @@ $resultResoconti = $conn->query($sqlResoconti);
             const editType = editModal.dataset.editType || 'utente';
             if (editType === 'presenza') {
                 const id = editModal.dataset.presenzeId;
-                const today = new Date().toISOString().split('T')[0];
-                const ingresso = today + ' ' + document.getElementById("editIngresso").value + ':00';
-                const uscita = today + ' ' + document.getElementById("editUscita").value + ':00';
+                const presenzaData = editModal.dataset.presenzaData || new Date().toISOString().split('T')[0];
+                const ingresso = presenzaData + ' ' + document.getElementById("editIngresso").value + ':00';
+                const uscita = presenzaData + ' ' + document.getElementById("editUscita").value + ':00';
                 fetch('api/api_modifica_presenza.php', {
                         method: 'POST',
                         headers: {
@@ -2150,7 +2308,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             currentMonday = null;
 
         // ── offset in settimane rispetto alla settimana corrente (0 = oggi)
-        let weekOffset = 0;
+        let weekOffset = parseInt(localStorage.getItem('weekOffset') || '0');
 
         function getMondayOfWeek(offset) {
             const today = new Date();
@@ -2283,15 +2441,18 @@ $resultResoconti = $conn->query($sqlResoconti);
         // ── Bottoni navigazione settimane
         document.getElementById('prevWeekBtn').onclick = () => {
             weekOffset--;
+            localStorage.setItem('weekOffset', weekOffset);
             loadAgenda();
         };
         document.getElementById('nextWeekBtn').onclick = () => {
             weekOffset++;
+            localStorage.setItem('weekOffset', weekOffset);
             loadAgenda();
         };
         document.getElementById('todayBtn').onclick = () => {
             if (weekOffset !== 0) {
                 weekOffset = 0;
+                localStorage.setItem('weekOffset', weekOffset);
                 loadAgenda();
             }
         };
@@ -2495,6 +2656,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             .presenze-day-label { min-width: 140px; font-size: 0.78rem; }
             .presenze-day-nav .week-nav-today { font-size: 0.7rem; padding: 5px 9px; }
         }
+
     </style></head><body><h2 style="text-align:center;">Agenda Settimanale - ${new Date().toLocaleDateString('it-IT')}</h2><table><thead><tr><th>Lunedì</th><th>Martedì</th><th>Mercoledì</th><th>Giovedì</th><th>Venerdì</th></tr></thead><tbody>`);
                 timeSlots.forEach(slot => {
                     pw.document.write('<tr>');
@@ -2913,7 +3075,7 @@ $resultResoconti = $conn->query($sqlResoconti);
         // =====================================================================
         // PRESENZE — navigazione per data
         // =====================================================================
-        let presenzeOffset = 0;
+        let presenzeOffset = parseInt(localStorage.getItem('presenzeOffset') || '0');
 
         function getPresenzaDateString(offset) {
             const d = new Date();
@@ -2963,20 +3125,230 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         document.getElementById('prevDayBtn').onclick = () => {
             presenzeOffset--;
+            localStorage.setItem('presenzeOffset', presenzeOffset);
             loadPresenze();
         };
         document.getElementById('nextDayBtn').onclick = () => {
             if (presenzeOffset < 0) {
                 presenzeOffset++;
+                localStorage.setItem('presenzeOffset', presenzeOffset);
                 loadPresenze();
             }
         };
         document.getElementById('todayPresenzeBtn').onclick = () => {
             if (presenzeOffset !== 0) {
                 presenzeOffset = 0;
+                localStorage.setItem('presenzeOffset', presenzeOffset);
                 loadPresenze();
             }
         };
+
+
+        // =====================================================================
+        // CALENDARIO PICKER PRESENZE
+        // =====================================================================
+        (function() {
+            const overlay = document.getElementById('calPickerOverlay');
+            const picker = document.getElementById('calPicker');
+            const openBtn = document.getElementById('calOpenBtn');
+            const grid = document.getElementById('calGrid');
+            const monthLbl = document.getElementById('calMonthLabel');
+            const prevBtn = document.getElementById('calPrevMonth');
+            const nextBtn = document.getElementById('calNextMonth');
+
+            if (!overlay || !openBtn) return;
+
+            let calViewDate = new Date();
+            calViewDate.setDate(1);
+
+            const TODAY = new Date();
+            TODAY.setHours(0, 0, 0, 0);
+
+            function pad(n) {
+                return String(n).padStart(2, '0');
+            }
+
+            function toDateStr(d) {
+                return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+            }
+
+            function getSelectedStr() {
+                const d = new Date(TODAY);
+                d.setDate(d.getDate() + presenzeOffset);
+                return toDateStr(d);
+            }
+
+            function renderCalendar() {
+                const year = calViewDate.getFullYear();
+                const month = calViewDate.getMonth();
+                const selectedStr = getSelectedStr();
+
+                monthLbl.textContent = new Date(year, month, 1)
+                    .toLocaleDateString('it-IT', {
+                        month: 'long',
+                        year: 'numeric'
+                    });
+
+                nextBtn.disabled = (year > TODAY.getFullYear() ||
+                    (year === TODAY.getFullYear() && month >= TODAY.getMonth()));
+                nextBtn.style.opacity = nextBtn.disabled ? '.4' : '1';
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const offset = (firstDay === 0) ? 6 : firstDay - 1;
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                grid.innerHTML = '';
+
+                for (let i = 0; i < offset; i++) {
+                    const el = document.createElement('div');
+                    el.className = 'cal-day cal-empty';
+                    grid.appendChild(el);
+                }
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateObj = new Date(year, month, d);
+                    const dateStr = toDateStr(dateObj);
+                    const isFuture = dateObj > TODAY;
+                    const isToday = dateStr === toDateStr(TODAY);
+                    const isSelected = dateStr === selectedStr;
+
+                    const el = document.createElement('div');
+                    el.className = 'cal-day' +
+                        (isFuture ? ' cal-future' : '') +
+                        (isToday ? ' cal-today' : '') +
+                        (isSelected ? ' cal-selected' : '');
+                    el.textContent = d;
+
+                    if (!isFuture) {
+                        el.addEventListener('click', () => {
+                            const diff = Math.round((dateObj - TODAY) / 86400000);
+                            presenzeOffset = diff;
+                            localStorage.setItem('presenzeOffset', presenzeOffset);
+                            loadPresenze();
+                            closeCalendar();
+                        });
+                    }
+                    grid.appendChild(el);
+                }
+            }
+
+            function openCalendar() {
+                const sel = new Date(TODAY);
+                sel.setDate(sel.getDate() + presenzeOffset);
+                calViewDate = new Date(sel.getFullYear(), sel.getMonth(), 1);
+                renderCalendar();
+                overlay.classList.add('open');
+                const rect = openBtn.getBoundingClientRect();
+                const pickerW = 300;
+                let left = rect.left;
+                if (left + pickerW > window.innerWidth - 8) left = window.innerWidth - pickerW - 8;
+                picker.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+                picker.style.left = left + 'px';
+            }
+
+            function closeCalendar() {
+                overlay.classList.remove('open');
+            }
+
+            openBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                overlay.classList.contains('open') ? closeCalendar() : openCalendar();
+            });
+            overlay.addEventListener('click', (e) => {
+                if (!picker.contains(e.target)) closeCalendar();
+            });
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                calViewDate.setMonth(calViewDate.getMonth() - 1);
+                renderCalendar();
+            });
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!nextBtn.disabled) {
+                    calViewDate.setMonth(calViewDate.getMonth() + 1);
+                    renderCalendar();
+                }
+            });
+        })();
+
+
+        // =====================================================================
+        // AGGIUNGI PRESENZA
+        // =====================================================================
+        (function() {
+            const btnAP = document.getElementById('aggiungi-presenza-btn');
+            const modalAP = document.getElementById('modalAggiungiPresenza');
+            const formAP = document.getElementById('formAggiungiPresenza');
+            const selAP = document.getElementById('apIscritto');
+            const inputData = document.getElementById('apData');
+            if (!btnAP || !modalAP) return;
+
+            function popolaIscritti() {
+                selAP.innerHTML = '<option value="">— Seleziona iscritto —</option>';
+                document.querySelectorAll('#tab-utenti .users-table tbody tr[data-id]').forEach(row => {
+                    const opt = document.createElement('option');
+                    opt.value = row.dataset.id;
+                    opt.textContent = (row.dataset.cognome || '') + ' ' + (row.dataset.nome || '');
+                    selAP.appendChild(opt);
+                });
+                // Usa la data già selezionata nel navigatore presenze
+                inputData.value = getPresenzaDateString(presenzeOffset);
+                // Blocca solo le date future
+                const today = new Date();
+                const yy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                inputData.max = `${yy}-${mm}-${dd}`;
+                // Campo data in sola lettura (cambia solo con il navigatore)
+                inputData.readOnly = true;
+            }
+
+            btnAP.addEventListener('click', () => {
+                popolaIscritti();
+                openModal(modalAP);
+            });
+
+            formAP.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const id_iscritto = selAP.value;
+                const data = document.getElementById('apData').value;
+                const ora_ingresso = document.getElementById('apIngresso').value;
+                const ora_uscita = document.getElementById('apUscita').value;
+                if (!id_iscritto || !data || !ora_ingresso) {
+                    alert('Compila i campi obbligatori: iscritto, data e ora ingresso.');
+                    return;
+                }
+                fetch('api/api_aggiungi_presenza.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            id_iscritto: parseInt(id_iscritto),
+                            data,
+                            ora_ingresso,
+                            ora_uscita
+                        })
+                    })
+                    .then(r => r.json()).then(res => {
+                        if (res.success) {
+                            closeModal();
+                            const st = document.getElementById('success-text');
+                            if (st) st.innerText = 'Presenza aggiunta!!';
+                            const sp = document.getElementById('successPopup');
+                            if (sp) showSuccess(sp, Overlay);
+                            setTimeout(() => {
+                                if (sp) hideSuccess(sp, Overlay);
+                                const presDate = getPresenzaDateString(presenzeOffset);
+                                if (presDate === data) loadPresenze();
+                            }, 1800);
+                        } else {
+                            alert('Errore: ' + res.message);
+                        }
+                    }).catch(() => alert('Errore di rete'));
+            });
+        })();
 
         // SIDEBAR STATE
         // =====================================================================
