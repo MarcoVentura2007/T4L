@@ -99,266 +99,65 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
         }
 
-        /* ── Calendario picker presenze ───────────────────────────── */
-        .cal-picker-overlay {
+        
+
+        /* Bottoni cerchio + : solo mobile */
+        button.group {
             display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 8000;
-            background: rgba(0, 0, 0, 0.25);
-        }
-
-        .cal-picker-overlay.open {
-            display: block;
-        }
-
-        .cal-picker {
-            position: absolute;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 40px rgba(100, 10, 53, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
-            width: 300px;
-            padding: 0 0 12px;
-            overflow: hidden;
-            animation: calPop .18s ease;
-            z-index: 8001;
-        }
-
-        @keyframes calPop {
-            from {
-                opacity: 0;
-                transform: scale(.94) translateY(-6px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .cal-picker-header {
-            background: #640a35;
-            color: #fff;
-            padding: 16px 16px 12px;
-        }
-
-        .cal-picker-header .cal-month-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .cal-picker-header .cal-month-label {
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: .02em;
-            text-transform: capitalize;
-        }
-
-        .cal-nav-btn {
-            background: rgba(255, 255, 255, .18);
-            border: none;
-            border-radius: 8px;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            cursor: pointer;
-            transition: background .15s;
-            flex-shrink: 0;
-        }
-
-        .cal-nav-btn:hover {
-            background: rgba(255, 255, 255, .32);
-        }
-
-        .cal-weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
-        }
-
-        .cal-weekday {
-            text-align: center;
-            font-size: .72rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, .65);
-            padding: 2px 0;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-        }
-
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            padding: 10px 12px 4px;
-        }
-
-        .cal-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: .85rem;
-            font-weight: 500;
-            cursor: pointer;
-            color: #333;
-            transition: background .12s, color .12s, transform .1s;
-            user-select: none;
-        }
-
-        .cal-day:hover:not(.cal-empty):not(.cal-future) {
-            background: #f4e0ea;
-            color: #640a35;
-            transform: scale(1.08);
-        }
-
-        .cal-day.cal-today {
-            border: 2px solid #640a35;
-            color: #640a35;
-            font-weight: 700;
-        }
-
-        .cal-day.cal-selected {
-            background: #640a35 !important;
-            color: #fff !important;
-            font-weight: 700;
-        }
-
-        .cal-day.cal-future {
-            color: #ccc;
-            cursor: default;
-        }
-
-        .cal-day.cal-empty {
-            cursor: default;
-        }
-
-        .cal-open-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 34px;
-            height: 34px;
-            border: 1.5px solid #640a35;
-            border-radius: 8px;
-            background: #fff;
-            color: #640a35;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background .15s, color .15s, transform .1s;
-        }
-
-        .cal-open-btn:hover {
-            background: #640a35;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        .cal-open-btn:active {
-            transform: scale(.97);
-        }
-
-        /* ── Tab header row: titolo sx, bottoni dx ── */
-        .tab-header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 22px;
-        }
-
-        .tab-header-row .page-header {
-            margin-bottom: 0;
-        }
-
-        .tab-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .btn-add {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            height: 34px;
-            padding: 0 16px;
-            background: #fff;
-            color: #640a35;
-            border: 1.5px solid #d4748a;
-            border-radius: 8px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.025em;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.15s ease, color 0.15s ease,
-                border-color 0.15s ease, box-shadow 0.15s ease,
-                transform 0.10s ease;
-        }
-
-        .btn-add:hover {
-            background: #640a35;
-            color: #fff;
-            border-color: #640a35;
-            box-shadow: 0 3px 12px rgba(100, 10, 53, 0.20);
-            transform: translateY(-1px);
-        }
-
-        .btn-add:active {
-            transform: translateY(0);
-            box-shadow: none;
-        }
-
-        .btn-add-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            border: 1.5px solid currentColor;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .btn-add.btn-add--primary {
-            background: #640a35;
-            color: #fff;
-            border-color: #640a35;
-        }
-
-        .btn-add.btn-add--primary:hover {
-            background: #7d0d42;
-            border-color: #7d0d42;
-            box-shadow: 0 3px 14px rgba(100, 10, 53, 0.26);
         }
 
         @media (max-width: 768px) {
-            .btn-add {
-                display: none !important;
+            button.group {
+                display: flex;
             }
 
             .tab-actions {
-                display: none;
+                display: none !important;
             }
 
             .tab-header-row {
                 display: block;
             }
         }
+
+
+        button.group svg {
+            fill: none;
+            stroke: #a1a1aa;
+        }
+
+        button.group:hover svg {
+            fill: #27272a;
+            stroke: #27272a;
+        }
+
+
+        /* ── Bottone mobile allineato al titolo ── */
+        @media (max-width: 768px) {
+            .tab-header-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+            }
+
+            .tab-header-row .page-header {
+                margin-bottom: 0;
+            }
+
+            button.group {
+                flex-shrink: 0;
+            }
+        }
+
     </style>
 </head>
 
 <body>
 
     <script src="js/loader.js"></script>
+
+    <script src="js/custom-select.js"></script>
 
     <header class="navbar">
         <div class="user-box" id="userBox">
@@ -513,6 +312,14 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         <line x1="5" y1="12" x2="19" y2="12" />
                                     </svg></span>Aggiungi Utente</button>
                         </div>
+
+                        <button title="Add New" id="aggiungi-utente-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
+                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
+                                <path d="M8 12H16" stroke-width="1"></path>
+                                <path d="M12 16V8" stroke-width="1"></path>
+                            </svg>
+                        </button>
                     </div>
                     <!-- Modal Aggiungi Utente -->
                     <div class="modal-box large" id="modalAggiungiUtente">
@@ -536,10 +343,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     <span class="file-name" id="nomeFileFoto">Nessun file</span>
                                 </div>
                             </div>
-                            <div class="edit-field"><label>Disabilità</label><input type="text" id="utenteDisabilita"></div>
                             <div class="edit-field"><label>Intolleranze / Allergie</label><input type="text" id="utenteIntolleranze"></div>
                             <div class="edit-field"><label>Prezzo orario (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.1"></div>
                             <div class="edit-field"><label>Prezzo orario Gruppo (€)</label><input type="number" id="utentePrezzoGruppo" placeholder="Prezzo orario gruppo" step="0.1"></div>
+                            <div class="edit-field"><label>Disabilità</label><textarea id="utenteDisabilita"></textarea></div>
                             <div class="edit-field"><label>Note</label><textarea id="utenteNote"></textarea></div>
                             <div class="edit-field">
                                 <label>Tipo di lavoro</label>
@@ -573,15 +380,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                             </div>
                         </form>
                     </div>
-
-                    <button title="Add New" id="aggiungi-utente-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
-                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
-                            <path d="M8 12H16" stroke-width="1"></path>
-                            <path d="M12 16V8" stroke-width="1"></path>
-                        </svg>
-                    </button>
-
                     <div class="users-table-box">
                         <table class="users-table">
                             <thead>
@@ -687,6 +485,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         <line x1="5" y1="12" x2="19" y2="12" />
                                     </svg></span>Aggiungi Presenza</button>
                         </div>
+                        <button title="Add New" id="aggiungi-presenza-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
+                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
+                                <path d="M8 12H16" stroke-width="1"></path>
+                                <path d="M12 16V8" stroke-width="1"></path>
+                            </svg>
+                        </button>
                     </div>
                     <div class="presenze-day-nav">
                         <button class="week-nav-btn" id="prevDayBtn" title="Giorno precedente">
@@ -799,14 +604,14 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         <line x1="5" y1="12" x2="19" y2="12" />
                                     </svg></span>Crea nuova Agenda</button>
                         </div>
+                        <button title="Add New" id="aggiungi-agenda-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
+                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
+                                <path d="M8 12H16" stroke-width="1"></path>
+                                <path d="M12 16V8" stroke-width="1"></path>
+                            </svg>
+                        </button>
                     </div>
-                    <button title="Add New" id="aggiungi-agenda-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
-                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
-                            <path d="M8 12H16" stroke-width="1"></path>
-                            <path d="M12 16V8" stroke-width="1"></path>
-                        </svg>
-                    </button>
                     <div class="agenda-container" style="margin:0 auto;">
                         <div class="agenda-week-nav">
                             <button class="week-nav-btn" id="prevWeekBtn" title="Settimana precedente">
@@ -953,14 +758,14 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         <line x1="5" y1="12" x2="19" y2="12" />
                                     </svg></span>Aggiungi Attività</button>
                         </div>
+                        <button title="Add New" id="aggiungi-attivita-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
+                                <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
+                                <path d="M8 12H16" stroke-width="1"></path>
+                                <path d="M12 16V8" stroke-width="1"></path>
+                            </svg>
+                        </button>
                     </div>
-                    <button title="Add New" id="aggiungi-attivita-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
-                            <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
-                            <path d="M8 12H16" stroke-width="1"></path>
-                            <path d="M12 16V8" stroke-width="1"></path>
-                        </svg>
-                    </button>
                     <div class="users-table-box">
                         <table class="users-table" id="attivitaTable">
                             <thead>
@@ -1122,7 +927,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     </div>
 
                     <div id="overlayAnteprimaResoconto" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;"></div>
-                    <div class="modal-box large" id="modalAnteprimaResoconto" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;max-width:1000px;width:90%;max-height:90vh;overflow-y:auto;pointer-events:auto;background:#f9fafb;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+                    <div class="modal-anteprima-resoconto" id="modalAnteprimaResoconto" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;max-width:1000px;width:90%;max-height:90vh;overflow-y:auto;pointer-events:auto;background:#f9fafb;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:20px;background:linear-gradient(135deg,#f4f6f9 0%,#ffffff 100%);border-bottom:2px solid #e5e7eb;border-radius:8px 8px 0 0;">
                             <h3 class="modal-title" style="margin:0;color:#111827;">Anteprima Resoconto</h3>
                             <label style="display:flex;align-items:center;gap:8px;font-weight:500;color:#4b5563;">
@@ -1175,11 +980,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             <div class="edit-field" id="fieldCF"><label>Codice Fiscale</label><input type="text" id="editCF" placeholder="Codice Fiscale"></div>
             <div class="edit-field" id="fieldEmail"><label>Email</label><input type="email" id="editEmail" placeholder="Email"></div>
             <div class="edit-field" id="fieldTelefono"><label>Telefono</label><input type="tel" id="editTelefono" placeholder="Telefono"></div>
-            <div class="edit-field" id="fieldDisabilita"><label>Disabilità</label><input type="text" id="editDisabilita" placeholder="Disabilità"></div>
             <div class="edit-field" id="fieldIntolleranze"><label>Intolleranze</label><input type="text" id="editIntolleranze" placeholder="Intolleranze"></div>
-            <div class="edit-field" id="fieldPrezzo"><label>Prezzo orario</label><input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.1"></div>
-            <div class="edit-field" id="fieldPrezzoGruppo"><label>Prezzo orario Gruppo</label><input type="number" id="editPrezzoGruppo" placeholder="Prezzo Gruppo in €" step="0.1"></div>
-            <div class="edit-field" id="fieldNote"><label>Note</label><textarea id="editNote" placeholder="Note"></textarea></div>
             <div class="edit-field" id="fieldGruppo">
                 <label>Tipo di lavoro</label>
                 <select id="editGruppo">
@@ -1187,6 +988,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <option value="1">Gruppo</option>
                 </select>
             </div>
+            <div class="edit-field" id="fieldPrezzo"><label>Prezzo orario</label><input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.1"></div>
+            <div class="edit-field" id="fieldPrezzoGruppo"><label>Prezzo orario Gruppo</label><input type="number" id="editPrezzoGruppo" placeholder="Prezzo Gruppo in €" step="0.1"></div>
+            <div class="edit-field" id="fieldDisabilita"><label>Disabilità</label><textarea id="editDisabilita" placeholder="Disabilità"></textarea></div>
+            <div class="edit-field" id="fieldNote"><label>Note</label><textarea id="editNote" placeholder="Note"></textarea></div>
             <div class="edit-field" id="fieldFotografia">
                 <label>Fotografia</label>
                 <div class="file-inline" id="editFileContainer">
@@ -1460,11 +1265,11 @@ $resultResoconti = $conn->query($sqlResoconti);
             <div class="profile-field"><label>Codice Fiscale</label><span>${row.dataset.cf||"—"}</span></div>
             <div class="profile-field"><label>Email</label><span>${row.dataset.email||"—"}</span></div>
             <div class="profile-field"><label>Telefono</label><span>${row.dataset.telefono||"—"}</span></div>
-            <div class="profile-field"><label>Disabilità</label><span>${row.dataset.disabilita||"—"}</span></div>
             <div class="profile-field"><label style="font-weight:bold;">Intolleranze ⚠️</label><span style="font-weight:bold;">${row.dataset.intolleranze||"—"}</span></div>
+            <div class="profile-field"><label>Tipo di lavoro</label><span>${row.dataset.gruppo==='1'||row.dataset.gruppo==='on'?'Gruppo':'Individuale'}</span></div>
             <div class="profile-field"><label>Prezzo orario</label><span>${row.dataset.prezzo||"—"} €</span></div>
             <div class="profile-field"><label>Prezzo orario Gruppo</label><span>${row.dataset.prezzoGruppo||"—"} €</span></div>
-            <div class="profile-field"><label>Tipo di lavoro</label><span>${row.dataset.gruppo==='1'||row.dataset.gruppo==='on'?'Gruppo':'Individuale'}</span></div>
+            <div class="profile-field" style="grid-column:1/-1;"><label>Disabilità</label><span>${row.dataset.disabilita||"—"}</span></div>
             <div class="profile-field" style="grid-column:1/-1;"><label>Note</label><span>${row.dataset.note||"—"}</span></div>
         `;
                 await caricaAllegatiUtente(idIscritto);
@@ -2012,7 +1817,10 @@ $resultResoconti = $conn->query($sqlResoconti);
         // ATTIVITA
         // =====================================================================
         const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
+        const aggiungiAttivitaBtnMobile = document.getElementById("aggiungi-attivita-btn-mobile");
+        
         aggiungiAttivitaBtn.onclick = () => openModal(modalAggiungiAttivita);
+        aggiungiAttivitaBtnMobile.onclick = () => openModal(modalAggiungiAttivita);
 
         document.getElementById("salvaAttivita").onclick = function(e) {
             e.preventDefault();
@@ -3277,11 +3085,13 @@ $resultResoconti = $conn->query($sqlResoconti);
         // =====================================================================
         (function() {
             const btnAP = document.getElementById('aggiungi-presenza-btn');
+            const btnAPM = document.getElementById('aggiungi-presenza-btn-mobile');
             const modalAP = document.getElementById('modalAggiungiPresenza');
             const formAP = document.getElementById('formAggiungiPresenza');
             const selAP = document.getElementById('apIscritto');
             const inputData = document.getElementById('apData');
             if (!btnAP || !modalAP) return;
+            if (!btnAPM || !modalAP) return;
 
             function popolaIscritti() {
                 selAP.innerHTML = '<option value="">— Seleziona iscritto —</option>';
@@ -3304,6 +3114,11 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
 
             btnAP.addEventListener('click', () => {
+                popolaIscritti();
+                openModal(modalAP);
+            });
+
+            btnAPM.addEventListener('click', () => {
                 popolaIscritti();
                 openModal(modalAP);
             });
