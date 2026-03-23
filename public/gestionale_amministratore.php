@@ -95,7 +95,30 @@ $resultResoconti = $conn->query($sqlResoconti);
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="style_mobile_agenda.css">
     <link rel="icon" href="immagini/Icona.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+        // Tooltip celle — appare solo se il testo è troncato
+        (function() {
+            function checkTruncation() {
+                document.querySelectorAll('.cell-truncate').forEach(el => {
+                    el.classList.toggle('is-truncated', el.scrollWidth > el.clientWidth);
+                });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkTruncation);
+            } else {
+                checkTruncation();
+            }
+            window.addEventListener('resize', checkTruncation);
+
+            document.addEventListener('mousemove', e => {
+                const r = document.documentElement;
+                r.style.setProperty('--tt-y',       (e.clientY + 16) + 'px');
+                r.style.setProperty('--tt-x',       (e.clientX - 6)  + 'px');
+                r.style.setProperty('--tt-arrow-y', (e.clientY + 10) + 'px');
+                r.style.setProperty('--tt-arrow-x', (e.clientX + 4)  + 'px');
+            });
+        })();
+</script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
@@ -106,8 +129,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 display: none;
             }
         }
-
-
 
         /* Bottoni cerchio + : solo mobile */
         button.group {
@@ -349,7 +370,21 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <form id="formAggiungiUtente">
                             <div class="edit-field"><label>Nome</label><input type="text" id="utenteNome" placeholder="Nome" required></div>
                             <div class="edit-field"><label>Cognome</label><input type="text" id="utenteCognome" placeholder="Cognome" required></div>
-                            <div class="edit-field"><label>Data di nascita</label><input type="date" id="utenteData" required></div>
+                            <div class="edit-field">
+                                <label>Data di nascita</label>
+                                <div class="birth-picker-wrap">
+                                    <input type="text" id="utenteData" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly required>
+                                    <input type="hidden" id="utenteDataHidden">
+                                    <button type="button" class="birth-cal-btn" id="birthdayCalBtnAdd" aria-label="Apri calendario">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                            <line x1="16" y1="2" x2="16" y2="6" />
+                                            <line x1="8" y1="2" x2="8" y2="6" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="edit-field"><label>Codice Fiscale</label><input type="text" id="utenteCF" placeholder="Codice Fiscale" required></div>
                             <div class="edit-field"><label>Email</label><input type="email" id="utenteEmail" placeholder="Email"></div>
                             <div class="edit-field"><label>Telefono</label><input type="tel" id="utenteTelefono" placeholder="Telefono"></div>
@@ -442,8 +477,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     <td>' . htmlspecialchars($row['nome']) . '</td>
                                     <td>' . htmlspecialchars($row['cognome']) . '</td>
                                     <td>' . htmlspecialchars($row['data_nascita']) . '</td>
-                                    <td>' . htmlspecialchars($row['disabilita']) . '</td>
-                                    <td>' . htmlspecialchars($row['note']) . '</td>
+                                    <td><span class="cell-truncate cell-truncate--lg" data-tooltip="' . htmlspecialchars($row['disabilita']) . '">' . htmlspecialchars($row['disabilita']) . '</span></td>
+                                    <td><span class="cell-truncate cell-truncate--md" data-tooltip="' . htmlspecialchars($row['note']) . '">' . htmlspecialchars($row['note']) . '</span></td>
                                     <td>
                                         <button class="view-btn"><img src="immagini/open-eye.png"></button>
                                         <button class="edit-btn"><img src="immagini/edit.png"></button>
@@ -761,6 +796,76 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                     </div>
 
+
+                    <!-- MODAL MODIFICA AGENDA -->
+                    <div class="modal-box large" id="modalModificaAgenda">
+                        <h3 class="modal-title">Modifica Agenda</h3>
+                        <form id="formModificaAgenda">
+                            <div class="edit-field">
+                                <label>Ora inizio</label>
+                                <input type="time" id="modAgendaOraInizio" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Ora fine</label>
+                                <input type="time" id="modAgendaOraFine" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Attività</label>
+                                <select id="modAgendaAttivita" required>
+                                    <option value="">-- Seleziona attività --</option>
+                                    <?php
+                                    if ($resultAttivitaCombo) $resultAttivitaCombo->data_seek(0);
+                                    if ($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0) {
+                                        while ($row = $resultAttivitaCombo->fetch_assoc()) {
+                                            echo '<option value="' . htmlspecialchars($row['id']) . '">' . htmlspecialchars($row['Nome']) . '</option>';
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="edit-field">
+                                <label>Educatori</label>
+                                <div class="checkbox-group" id="modEducatoriCheckboxes">
+                                    <?php
+                                    if ($resultEducatoriAgenda) $resultEducatoriAgenda->data_seek(0);
+                                    if ($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0) {
+                                        while ($row = $resultEducatoriAgenda->fetch_assoc()) {
+                                            echo '<label class="checkbox-item">';
+                                            echo '<input type="checkbox" class="mod-educatore-checkbox" value="' . htmlspecialchars($row['id']) . '"> ';
+                                            echo '<span>' . htmlspecialchars($row['nome'] . ' ' . $row['cognome']) . '</span>';
+                                            echo '</label>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="edit-field">
+                                <label>Ragazzi partecipanti</label>
+                                <div class="checkbox-group" id="modRagazziCheckboxes">
+                                    <?php
+                                    if ($resultRagazzi) $resultRagazzi->data_seek(0);
+                                    if ($resultRagazzi && $resultRagazzi->num_rows > 0) {
+                                        while ($row = $resultRagazzi->fetch_assoc()) {
+                                            echo '<label class="checkbox-item">';
+                                            echo '<input type="checkbox" class="mod-ragazzo-checkbox" value="' . htmlspecialchars($row['id']) . '"> ';
+                                            echo '<span>' . htmlspecialchars($row['nome'] . ' ' . $row['cognome']) . '</span>';
+                                            echo '<select class="ragazzo-gruppo mod-ragazzo-gruppo" style="margin-left:8px;display:none;">
+                                                <option value="0" selected>Individuale</option>
+                                                <option value="1">Gruppo</option>
+                                              </select>';
+                                            echo '</label>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
+                                <button type="submit" class="btn-primary">Salva</button>
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="modal-box danger" id="modalDeleteAgenda">
                         <h3>Elimina Agenda</h3>
                         <p>Questa azione è definitiva. Vuoi continuare?</p>
@@ -810,7 +915,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     while ($row = $resultAttivita->fetch_assoc()) {
                                         echo '<tr data-id="' . htmlspecialchars($row['id']) . '">
                                     <td>' . htmlspecialchars($row['Nome']) . '</td>
-                                    <td>' . htmlspecialchars($row['Descrizione']) . '</td>
+                                    <td><span class="cell-truncate cell-truncate--sm" data-tooltip="' . htmlspecialchars($row['Descrizione']) . '">' . htmlspecialchars($row['Descrizione']) . '</span></td>
                                     <td>
                                         <button class="edit-attivita-btn"><img src="immagini/edit.png" alt="Modifica"></button>
                                         <button class="delete-attivita-btn"><img src="immagini/delete.png" alt="Elimina"></button>
@@ -999,7 +1104,20 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <form id="formAggiungiEducatore">
                             <div class="edit-field"><label>Nome</label><input type="text" id="educatoreNome" placeholder="Nome" required></div>
                             <div class="edit-field"><label>Cognome</label><input type="text" id="educatoreCognome" placeholder="Cognome" required></div>
-                            <div class="edit-field"><label>Data di nascita</label><input type="date" id="educatoreData" required></div>
+                            <div class="edit-field"><label>Data di nascita</label>
+                                <div class="birth-picker-wrap">
+                                    <input type="text" id="educatoreDataDisplay" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly>
+                                    <input type="hidden" id="educatoreData" required>
+                                    <button type="button" class="birth-cal-btn" id="birthCalBtnEduAdd" aria-label="Apri calendario">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                            <line x1="16" y1="2" x2="16" y2="6" />
+                                            <line x1="8" y1="2" x2="8" y2="6" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="edit-field"><label>Codice Fiscale</label><input type="text" id="educatoreCF" placeholder="Codice Fiscale" required></div>
                             <div class="edit-field"><label>Telefono</label><input type="text" id="educatoreTelefono" placeholder="Telefono"></div>
                             <div class="edit-field"><label>Email</label><input type="email" id="educatoreMail" placeholder="Email"></div>
@@ -1060,7 +1178,20 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <input type="hidden" id="editEducatoreId">
                             <div class="edit-field"><label>Nome</label><input type="text" id="editEducatoreNome" placeholder="Nome" required></div>
                             <div class="edit-field"><label>Cognome</label><input type="text" id="editEducatoreCognome" placeholder="Cognome" required></div>
-                            <div class="edit-field"><label>Data di nascita</label><input type="date" id="editEducatoreData" required></div>
+                            <div class="edit-field"><label>Data di nascita</label>
+                                <div class="birth-picker-wrap">
+                                    <input type="text" id="editEducatoreDataDisplay" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly>
+                                    <input type="hidden" id="editEducatoreData" required>
+                                    <button type="button" class="birth-cal-btn" id="birthCalBtnEduEdit" aria-label="Apri calendario">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                            <line x1="16" y1="2" x2="16" y2="6" />
+                                            <line x1="8" y1="2" x2="8" y2="6" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="edit-field"><label>Codice Fiscale</label><input type="text" id="editEducatoreCF" placeholder="Codice Fiscale" required></div>
                             <div class="edit-field"><label>Telefono</label><input type="text" id="editEducatoreTelefono" placeholder="Telefono"></div>
                             <div class="edit-field"><label>Email</label><input type="email" id="editEducatoreMail" placeholder="Email"></div>
@@ -1221,7 +1352,21 @@ $resultResoconti = $conn->query($sqlResoconti);
         <div class="edit-grid" id="editContent">
             <div class="edit-field" id="fieldNome"><label>Nome</label><input type="text" id="editNome" placeholder="Nome"></div>
             <div class="edit-field" id="fieldCognome"><label>Cognome</label><input type="text" id="editCognome" placeholder="Cognome"></div>
-            <div class="edit-field" id="fieldData"><label>Data di nascita</label><input type="date" id="editData"></div>
+            <div class="edit-field" id="fieldData">
+                <label>Data di nascita</label>
+                <div class="birth-picker-wrap">
+                    <input type="text" id="editData" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly>
+                    <input type="hidden" id="editDataHidden">
+                    <button type="button" class="birth-cal-btn" id="birthdayCalBtnEdit" aria-label="Apri calendario">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
             <div class="edit-field" id="fieldCF"><label>Codice Fiscale</label><input type="text" id="editCF" placeholder="Codice Fiscale"></div>
             <div class="edit-field" id="fieldEmail"><label>Email</label><input type="email" id="editEmail" placeholder="Email"></div>
             <div class="edit-field" id="fieldTelefono"><label>Telefono</label><input type="tel" id="editTelefono" placeholder="Telefono"></div>
@@ -1280,6 +1425,118 @@ $resultResoconti = $conn->query($sqlResoconti);
         </div>
     </div>
 
+    <!-- CALENDARIO NASCITA - AGGIUNGI UTENTE -->
+    <div class="birth-cal-overlay" id="birthCalOverlayAdd">
+        <div class="birth-cal-picker" id="birthCalPickerAdd">
+            <div class="birth-cal-header">
+                <div class="birth-cal-month-row">
+                    <button class="cal-nav-btn" id="birthCalPrevMonthAdd" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <span class="birth-cal-month-label" id="birthCalMonthLabelAdd"></span>
+                    <button class="cal-nav-btn" id="birthCalNextMonthAdd" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="birth-cal-year-row">
+                    <button class="birth-year-nav" id="birthCalPrevYearAdd" type="button">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                            <path d="M9 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <button class="birth-year-nav" id="birthCalPrevDecadeAdd" type="button">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <select class="birth-year-select" id="birthCalYearSelectAdd"></select>
+                    <button class="birth-year-nav" id="birthCalNextDecadeAdd" type="button">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                    <button class="birth-year-nav" id="birthCalNextYearAdd" type="button">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                            <path d="M15 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="cal-weekdays">
+                    <div class="cal-weekday">Lu</div>
+                    <div class="cal-weekday">Ma</div>
+                    <div class="cal-weekday">Me</div>
+                    <div class="cal-weekday">Gi</div>
+                    <div class="cal-weekday">Ve</div>
+                    <div class="cal-weekday">Sa</div>
+                    <div class="cal-weekday">Do</div>
+                </div>
+            </div>
+            <div class="cal-grid" id="birthCalGridAdd"></div>
+        </div>
+    </div>
+
+    <!-- CALENDARIO NASCITA - MODIFICA UTENTE -->
+    <div class="birth-cal-overlay" id="birthCalOverlayEdit">
+        <div class="birth-cal-picker" id="birthCalPickerEdit">
+            <div class="birth-cal-header">
+                <div class="birth-cal-month-row">
+                    <button class="cal-nav-btn" id="birthCalPrevMonthEdit" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <span class="birth-cal-month-label" id="birthCalMonthLabelEdit"></span>
+                    <button class="cal-nav-btn" id="birthCalNextMonthEdit" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="birth-cal-year-row">
+                    <button class="birth-year-nav" id="birthCalPrevYearEdit" type="button">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                            <path d="M9 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <button class="birth-year-nav" id="birthCalPrevDecadeEdit" type="button">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <select class="birth-year-select" id="birthCalYearSelectEdit"></select>
+                    <button class="birth-year-nav" id="birthCalNextDecadeEdit" type="button">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                    <button class="birth-year-nav" id="birthCalNextYearEdit" type="button">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                            <path d="M15 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="cal-weekdays">
+                    <div class="cal-weekday">Lu</div>
+                    <div class="cal-weekday">Ma</div>
+                    <div class="cal-weekday">Me</div>
+                    <div class="cal-weekday">Gi</div>
+                    <div class="cal-weekday">Ve</div>
+                    <div class="cal-weekday">Sa</div>
+                    <div class="cal-weekday">Do</div>
+                </div>
+            </div>
+            <div class="cal-grid" id="birthCalGridEdit"></div>
+        </div>
+    </div>
+
     <!-- DELETE USER -->
     <div class="modal-box danger" id="deleteModal">
         <h3>Elimina utente</h3>
@@ -1328,6 +1585,90 @@ $resultResoconti = $conn->query($sqlResoconti);
     </nav>
 
     <div class="modal-overlay" id="Overlay"></div>
+
+    <!-- Birthday picker — educatore aggiungi -->
+    <div class="birth-cal-overlay" id="birthCalOverlayEduAdd">
+        <div class="birth-cal-picker" id="birthCalPickerEduAdd">
+            <div class="birth-cal-header">
+                <div class="birth-cal-month-row">
+                    <button class="cal-nav-btn" id="birthCalPrevMonthEduAdd" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg></button>
+                    <span class="birth-cal-month-label" id="birthCalMonthLabelEduAdd"></span>
+                    <button class="cal-nav-btn" id="birthCalNextMonthEduAdd" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg></button>
+                </div>
+                <div class="birth-cal-year-row">
+                    <button class="birth-year-nav" id="birthCalPrevDecadeEduAdd" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M18 17l-5-5 5-5M11 17l-5-5 5-5" />
+                        </svg></button>
+                    <button class="birth-year-nav" id="birthCalPrevYearEduAdd" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg></button>
+                    <select class="birth-year-select" id="birthCalYearSelectEduAdd"></select>
+                    <button class="birth-year-nav" id="birthCalNextYearEduAdd" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg></button>
+                    <button class="birth-year-nav" id="birthCalNextDecadeEduAdd" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M6 17l5-5-5-5M13 17l5-5-5-5" />
+                        </svg></button>
+                </div>
+            </div>
+            <div class="cal-weekdays">
+                <div class="cal-weekday">Lu</div>
+                <div class="cal-weekday">Ma</div>
+                <div class="cal-weekday">Me</div>
+                <div class="cal-weekday">Gi</div>
+                <div class="cal-weekday">Ve</div>
+                <div class="cal-weekday">Sa</div>
+                <div class="cal-weekday">Do</div>
+            </div>
+            <div class="cal-grid" id="birthCalGridEduAdd"></div>
+        </div>
+    </div>
+    <!-- Birthday picker — educatore modifica -->
+    <div class="birth-cal-overlay" id="birthCalOverlayEduEdit">
+        <div class="birth-cal-picker" id="birthCalPickerEduEdit">
+            <div class="birth-cal-header">
+                <div class="birth-cal-month-row">
+                    <button class="cal-nav-btn" id="birthCalPrevMonthEduEdit" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg></button>
+                    <span class="birth-cal-month-label" id="birthCalMonthLabelEduEdit"></span>
+                    <button class="cal-nav-btn" id="birthCalNextMonthEduEdit" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg></button>
+                </div>
+                <div class="birth-cal-year-row">
+                    <button class="birth-year-nav" id="birthCalPrevDecadeEduEdit" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M18 17l-5-5 5-5M11 17l-5-5 5-5" />
+                        </svg></button>
+                    <button class="birth-year-nav" id="birthCalPrevYearEduEdit" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg></button>
+                    <select class="birth-year-select" id="birthCalYearSelectEduEdit"></select>
+                    <button class="birth-year-nav" id="birthCalNextYearEduEdit" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg></button>
+                    <button class="birth-year-nav" id="birthCalNextDecadeEduEdit" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M6 17l5-5-5-5M13 17l5-5-5-5" />
+                        </svg></button>
+                </div>
+            </div>
+            <div class="cal-weekdays">
+                <div class="cal-weekday">Lu</div>
+                <div class="cal-weekday">Ma</div>
+                <div class="cal-weekday">Me</div>
+                <div class="cal-weekday">Gi</div>
+                <div class="cal-weekday">Ve</div>
+                <div class="cal-weekday">Sa</div>
+                <div class="cal-weekday">Do</div>
+            </div>
+            <div class="cal-grid" id="birthCalGridEduEdit"></div>
+        </div>
+    </div>
+
 
     <script>
         // =====================================================================
@@ -1894,7 +2235,12 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("viewBirth-mod").innerText = "Nato il " + row.dataset.nascita;
                 document.getElementById("editNome").value = row.dataset.nome;
                 document.getElementById("editCognome").value = row.dataset.cognome;
-                document.getElementById("editData").value = row.dataset.nascita;
+                const editCalBtn = document.getElementById('birthdayCalBtnEdit');
+                if (editCalBtn && editCalBtn._setBirthDate) editCalBtn._setBirthDate(row.dataset.nascita);
+                else {
+                    document.getElementById("editData").value = row.dataset.nascita;
+                    document.getElementById("editDataHidden").value = row.dataset.nascita;
+                }
                 document.getElementById("editCF").value = row.dataset.cf;
                 document.getElementById("editEmail").value = row.dataset.email;
                 document.getElementById("editTelefono").value = row.dataset.telefono;
@@ -1957,7 +2303,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     fd.append("id", id);
                     fd.append("nome", document.getElementById("editNome").value);
                     fd.append("cognome", document.getElementById("editCognome").value);
-                    fd.append("data_nascita", document.getElementById("editData").value);
+                    fd.append("data_nascita", document.getElementById("editDataHidden").value || document.getElementById("editData").value);
                     fd.append("codice_fiscale", document.getElementById("editCF").value);
                     fd.append("email", document.getElementById("editEmail").value);
                     fd.append("telefono", document.getElementById("editTelefono").value);
@@ -1997,7 +2343,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             id,
                             nome: document.getElementById("editNome").value,
                             cognome: document.getElementById("editCognome").value,
-                            data_nascita: document.getElementById("editData").value,
+                            data_nascita: document.getElementById("editDataHidden").value || document.getElementById("editData").value,
                             codice_fiscale: document.getElementById("editCF").value,
                             email: document.getElementById("editEmail").value,
                             telefono: document.getElementById("editTelefono").value,
@@ -2297,15 +2643,28 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
         }
 
-        if (aggiungiUtenteBtn) aggiungiUtenteBtn.onclick = () => openModal(modalAggiungiUtente);
-        if (aggiungiUtenteBtnMobile) aggiungiUtenteBtnMobile.onclick = () => openModal(modalAggiungiUtente);
+        if (aggiungiUtenteBtn) aggiungiUtenteBtn.onclick = () => {
+            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
+            if (addCalBtn && addCalBtn._setBirthDate) addCalBtn._setBirthDate(null);
+            openModal(modalAggiungiUtente);
+        };
+        if (aggiungiUtenteBtnMobile) aggiungiUtenteBtnMobile.onclick = () => {
+            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
+            if (addCalBtn && addCalBtn._setBirthDate) addCalBtn._setBirthDate(null);
+            openModal(modalAggiungiUtente);
+        };
 
         formAggiungiUtente.onsubmit = async function(e) {
             e.preventDefault();
+            const dataNascita = document.getElementById("utenteDataHidden").value;
+            if (!dataNascita) {
+                alert('Seleziona la data di nascita dal calendario.');
+                return;
+            }
             const fd = new FormData();
             fd.append("nome", document.getElementById("utenteNome").value.trim());
             fd.append("cognome", document.getElementById("utenteCognome").value.trim());
-            fd.append("data_nascita", document.getElementById("utenteData").value);
+            fd.append("data_nascita", dataNascita);
             fd.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
             fd.append("email", document.getElementById("utenteEmail").value.trim());
             fd.append("telefono", document.getElementById("utenteTelefono").value.trim());
@@ -2509,7 +2868,13 @@ $resultResoconti = $conn->query($sqlResoconti);
         const modalDeleteEducatore = document.getElementById("modalDeleteEducatore");
         const aggiungiEducatoreBtnMobile = document.getElementById("aggiungi-educatore-btn-mobile");
 
-        if (aggiungiEducatoreBtn) aggiungiEducatoreBtn.onclick = () => openModal(modalAggiungiEducatore);
+        if (aggiungiEducatoreBtn) aggiungiEducatoreBtn.onclick = () => {
+            document.getElementById('educatoreData').value = '';
+            document.getElementById('educatoreDataDisplay').value = '';
+            var _b = document.getElementById('birthCalBtnEduAdd');
+            if (_b && _b._setBirthDate) _b._setBirthDate(null);
+            openModal(modalAggiungiEducatore);
+        };
         if (aggiungiEducatoreBtnMobile) aggiungiEducatoreBtnMobile.onclick = () => openModal(modalAggiungiEducatore);
 
         if (formAggiungiEducatore) {
@@ -2559,7 +2924,16 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("editEducatoreId").value = row.dataset.id;
                 document.getElementById("editEducatoreNome").value = row.children[0].innerText;
                 document.getElementById("editEducatoreCognome").value = row.children[1].innerText;
-                document.getElementById("editEducatoreData").value = row.children[2]?.innerText || "";
+                (function() {
+                    var iso = row.dataset.nascita || '';
+                    document.getElementById('editEducatoreData').value = iso;
+                    var parts = iso.split('-');
+                    document.getElementById('editEducatoreDataDisplay').value = iso ? parts[2] + '/' + parts[1] + '/' + parts[0] : '';
+                    var _b = document.getElementById('birthCalBtnEduEdit');
+                    if (_b && _b._setBirthDate) {
+                        _b._setBirthDate(iso ? new Date(+parts[0], +parts[1] - 1, +parts[2]) : null);
+                    }
+                })();
                 document.getElementById("editEducatoreCF").value = row.children[3]?.innerText || "";
                 document.getElementById("editEducatoreTelefono").value = row.children[4]?.innerText || "";
                 document.getElementById("editEducatoreMail").value = row.children[5]?.innerText || "";
@@ -2715,7 +3089,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         if (def < 0 || def > 4) def = 0;
                         // se siamo sulla settimana corrente ripristina il giorno salvato, altrimenti lunedì
                         const saved = parseInt(localStorage.getItem("selectedDayIndex"));
-                        displayAgenda(weekOffset === 0 && !isNaN(saved) ? saved : (weekOffset === 0 ? def : 0));
+                        displayAgenda(!isNaN(saved) && saved >= 0 && saved <= 4 ? saved : def);
                     } else {
                         div.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
                     }
@@ -2765,7 +3139,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="participant-group"><label>Educatori:</label><span>${edTxt}</span></div>
                 <div class="participant-group"><label>Ragazzi:</label><span class="ragazzi-photos">${ragFotos}</span></div>
             </div>
-            <div class="activity-actions"><button class="delete-agenda-btn" data-id="${att.id}" title="Elimina"><img src="immagini/delete.png" alt="Elimina"></button></div>
+            <div class="activity-actions"><button class="edit-agenda-btn" data-id="${att.id}" title="Modifica"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-agenda-btn" data-id="${att.id}" title="Elimina"><img src="immagini/delete.png" alt="Elimina"></button></div>
         </div>`;
             });
             div.innerHTML = html + '</div>';
@@ -2809,6 +3183,115 @@ $resultResoconti = $conn->query($sqlResoconti);
                 if (sel) sel.style.display = this.checked ? 'inline-block' : 'none';
             });
         });
+
+
+        // ── Modifica Agenda ──────────────────────────────────────────────────
+        const modalModificaAgenda = document.getElementById('modalModificaAgenda');
+        const formModificaAgenda = document.getElementById('formModificaAgenda');
+        let agendaToEdit = null;
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.edit-agenda-btn')) return;
+            const btn = e.target.closest('.edit-agenda-btn');
+            const cardId = btn.dataset.id;
+            const att = agendaData.find(a => String(a.id) === String(cardId));
+            if (!att) return;
+            agendaToEdit = att;
+
+            document.getElementById('modAgendaOraInizio').value = att.ora_inizio.substring(0, 5);
+            document.getElementById('modAgendaOraFine').value = att.ora_fine.substring(0, 5);
+
+            const selAtt = document.getElementById('modAgendaAttivita');
+            selAtt.value = att.attivita_id;
+
+            document.querySelectorAll('.mod-educatore-checkbox').forEach(cb => {
+                cb.checked = att.educatori.some(e => String(e.id) === cb.value);
+            });
+
+            document.querySelectorAll('.mod-ragazzo-checkbox').forEach(cb => {
+                const rag = att.ragazzi.find(r => String(r.id) === cb.value);
+                cb.checked = !!rag;
+                const sel = cb.closest('label').querySelector('.mod-ragazzo-gruppo');
+                if (sel) {
+                    sel.style.display = cb.checked ? 'inline-block' : 'none';
+                    if (rag) sel.value = rag.gruppo == 1 ? '1' : '0';
+                }
+            });
+
+            openModal(modalModificaAgenda);
+        });
+
+        document.querySelectorAll('.mod-ragazzo-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const sel = this.closest('label').querySelector('.mod-ragazzo-gruppo');
+                if (sel) sel.style.display = this.checked ? 'inline-block' : 'none';
+            });
+        });
+
+        if (formModificaAgenda) {
+            formModificaAgenda.onsubmit = function(e) {
+                e.preventDefault();
+                if (!agendaToEdit) return;
+
+                const ora_inizio = document.getElementById('modAgendaOraInizio').value;
+                const ora_fine = document.getElementById('modAgendaOraFine').value;
+                const id_attivita = parseInt(document.getElementById('modAgendaAttivita').value);
+
+                const educatori = Array.from(
+                    document.querySelectorAll('.mod-educatore-checkbox:checked')
+                ).map(cb => parseInt(cb.value)).filter(v => !isNaN(v) && v > 0);
+
+                const ragazziCbs = document.querySelectorAll('.mod-ragazzo-checkbox:checked');
+                const ragazzi = Array.from(ragazziCbs)
+                    .map(cb => parseInt(cb.value)).filter(v => !isNaN(v) && v > 0);
+
+                const ragazzi_gruppo = {};
+                ragazziCbs.forEach(cb => {
+                    const id = parseInt(cb.value);
+                    if (isNaN(id) || id <= 0) return;
+                    const sel = cb.closest('label').querySelector('.mod-ragazzo-gruppo');
+                    ragazzi_gruppo[id] = sel && parseInt(sel.value) === 1 ? 1 : 0;
+                });
+
+                if (!ora_inizio || !ora_fine || !id_attivita || educatori.length === 0 || ragazzi.length === 0) {
+                    alert('Completa tutti i campi obbligatori.');
+                    return;
+                }
+
+                fetch('api/api_modifica_agenda.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            data: agendaToEdit.data,
+                            orig_attivita: agendaToEdit.attivita_id,
+                            orig_ora_inizio: agendaToEdit.ora_inizio.substring(0, 5),
+                            orig_ora_fine: agendaToEdit.ora_fine.substring(0, 5),
+                            ora_inizio,
+                            ora_fine,
+                            id_attivita,
+                            educatori,
+                            ragazzi,
+                            ragazzi_gruppo
+                        })
+                    })
+                    .then(r => r.json()).then(data => {
+                        if (data.success) {
+                            closeModal();
+                            successText.innerText = 'Agenda modificata!';
+                            showSuccess(successPopup, Overlay);
+                            setTimeout(() => {
+                                hideSuccess(successPopup, Overlay);
+                                loadAgenda();
+                            }, 1800);
+                        } else {
+                            alert('Errore: ' + (data.message || 'Sconosciuto'));
+                        }
+                    }).catch(() => alert('Errore di rete'));
+            };
+        }
 
         // Delete Agenda
         const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
@@ -3763,9 +4246,336 @@ $resultResoconti = $conn->query($sqlResoconti);
         });
     </script>
 
+    <script>
+        // =====================================================================
+        // CALENDARIO NASCITA — factory riutilizzabile
+        // =====================================================================
+        (function() {
+            /**
+             * Crea un calendar picker per la data di nascita.
+             * @param {object} cfg
+             *   cfg.openBtnId   – id del bottone che apre il calendario
+             *   cfg.overlayId   – id dell'overlay
+             *   cfg.pickerId    – id del contenitore del picker
+             *   cfg.gridId      – id della griglia giorni
+             *   cfg.monthLblId  – id dello span mese/anno
+             *   cfg.prevMonthId, nextMonthId
+             *   cfg.prevYearId, nextYearId
+             *   cfg.prevDecadeId, nextDecadeId
+             *   cfg.yearSelectId
+             *   cfg.displayInputId  – input text visibile (GG/MM/AAAA)
+             *   cfg.hiddenInputId   – input hidden (YYYY-MM-DD) usato per il submit
+             */
+            function makeBirthdayCal(cfg) {
+                const overlay = document.getElementById(cfg.overlayId);
+                const picker = document.getElementById(cfg.pickerId);
+                const openBtn = document.getElementById(cfg.openBtnId);
+                const displayInput = document.getElementById(cfg.displayInputId);
+                const hiddenInput = document.getElementById(cfg.hiddenInputId);
+
+                if (!overlay || !openBtn || !picker) return;
+
+                // Usa querySelector dentro il picker per evitare conflitti di ID
+                const grid = document.getElementById(cfg.gridId);
+                const monthLbl = document.getElementById(cfg.monthLblId);
+                const prevMonthBtn = document.getElementById(cfg.prevMonthId);
+                const nextMonthBtn = document.getElementById(cfg.nextMonthId);
+                const prevYearBtn = picker.querySelector('.birth-year-nav:nth-child(1)');
+                const prevDecBtn = picker.querySelector('.birth-year-nav:nth-child(2)');
+                const nextDecBtn = picker.querySelector('.birth-year-nav:nth-child(4)');
+                const nextYearBtn = picker.querySelector('.birth-year-nav:nth-child(5)');
+                const yearSelect = picker.querySelector('.birth-year-select');
+
+                const TODAY = new Date();
+                TODAY.setHours(0, 0, 0, 0);
+                const MIN_YEAR = 1900;
+
+                let calViewDate = new Date(TODAY.getFullYear() - 30, 0, 1);
+                let selectedDate = null;
+
+                function pad(n) {
+                    return String(n).padStart(2, '0');
+                }
+
+                function toDateStr(d) {
+                    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+                }
+
+                function toDisplayStr(d) {
+                    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+                }
+
+                function buildYearSelect() {
+                    yearSelect.innerHTML = '';
+                    const curY = calViewDate.getFullYear();
+                    for (let y = TODAY.getFullYear(); y >= MIN_YEAR; y--) {
+                        const opt = document.createElement('option');
+                        opt.value = y;
+                        opt.textContent = y;
+                        if (y === curY) opt.selected = true;
+                        yearSelect.appendChild(opt);
+                    }
+                }
+
+                function renderCalendar() {
+                    const year = calViewDate.getFullYear();
+                    const month = calViewDate.getMonth();
+                    const selStr = selectedDate ? toDateStr(selectedDate) : null;
+
+                    monthLbl.textContent = new Date(year, month, 1)
+                        .toLocaleDateString('it-IT', {
+                            month: 'long'
+                        })
+                        .replace(/^./, c => c.toUpperCase());
+
+                    buildYearSelect();
+
+                    // disabilita navigazione futura
+                    const isMaxMonth = (year === TODAY.getFullYear() && month >= TODAY.getMonth());
+                    nextMonthBtn.disabled = isMaxMonth;
+                    nextMonthBtn.style.opacity = isMaxMonth ? '.3' : '1';
+                    nextYearBtn.disabled = (year >= TODAY.getFullYear());
+                    nextYearBtn.style.opacity = nextYearBtn.disabled ? '.3' : '1';
+                    nextDecBtn.disabled = (year + 10 > TODAY.getFullYear());
+                    nextDecBtn.style.opacity = nextDecBtn.disabled ? '.3' : '1';
+
+                    prevMonthBtn.disabled = (year === MIN_YEAR && month === 0);
+                    prevYearBtn.disabled = (year <= MIN_YEAR);
+                    prevDecBtn.disabled = (year - 10 < MIN_YEAR);
+
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const offset = (firstDay === 0) ? 6 : firstDay - 1;
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                    grid.innerHTML = '';
+                    for (let i = 0; i < offset; i++) {
+                        const el = document.createElement('div');
+                        el.className = 'cal-day cal-empty';
+                        grid.appendChild(el);
+                    }
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        const dateObj = new Date(year, month, d);
+                        const dateStr = toDateStr(dateObj);
+                        const isFuture = dateObj > TODAY;
+                        const isSelected = (selStr === dateStr);
+
+                        const el = document.createElement('div');
+                        el.className = 'cal-day' +
+                            (isFuture ? ' cal-future' : '') +
+                            (isSelected ? ' cal-selected' : '');
+                        el.textContent = d;
+                        if (!isFuture) {
+                            el.addEventListener('click', () => {
+                                selectedDate = new Date(year, month, d);
+                                displayInput.value = toDisplayStr(selectedDate);
+                                hiddenInput.value = dateStr;
+                                closeCal();
+                            });
+                        }
+                        grid.appendChild(el);
+                    }
+                }
+
+                function openCal() {
+                    // se c'è già un valore selezionato, vai a quel mese
+                    if (selectedDate) {
+                        calViewDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                    }
+                    renderCalendar();
+                    overlay.classList.add('open');
+
+                    const rect = openBtn.getBoundingClientRect();
+                    const pickerW = 300;
+                    // Cerca di aprire sotto il bottone, ma verifica spazio
+                    let left = rect.left;
+                    if (left + pickerW > window.innerWidth - 8) left = window.innerWidth - pickerW - 8;
+                    if (left < 8) left = 8;
+
+                    // Verifica se c'è spazio sotto, altrimenti apri sopra
+                    const spaceBelow = window.innerHeight - rect.bottom;
+                    const pickerH = 380;
+                    let top;
+                    if (spaceBelow >= pickerH || spaceBelow > window.innerHeight - rect.top) {
+                        top = rect.bottom + window.scrollY + 6;
+                    } else {
+                        top = rect.top + window.scrollY - pickerH - 6;
+                    }
+                    picker.style.top = top + 'px';
+                    picker.style.left = left + 'px';
+                }
+
+                function closeCal() {
+                    overlay.classList.remove('open');
+                }
+
+                // Apre/chiude
+                openBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    overlay.classList.contains('open') ? closeCal() : openCal();
+                });
+                overlay.addEventListener('click', e => {
+                    if (!picker.contains(e.target)) closeCal();
+                });
+
+                // Navigazione mese
+                prevMonthBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    calViewDate.setMonth(calViewDate.getMonth() - 1);
+                    renderCalendar();
+                });
+                nextMonthBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!nextMonthBtn.disabled) {
+                        calViewDate.setMonth(calViewDate.getMonth() + 1);
+                        renderCalendar();
+                    }
+                });
+
+                // Navigazione anno
+                prevYearBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (calViewDate.getFullYear() > MIN_YEAR) {
+                        calViewDate.setFullYear(calViewDate.getFullYear() - 1);
+                        renderCalendar();
+                    }
+                });
+                nextYearBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (calViewDate.getFullYear() < TODAY.getFullYear()) {
+                        calViewDate.setFullYear(calViewDate.getFullYear() + 1);
+                        renderCalendar();
+                    }
+                });
+
+                // Navigazione decennio
+                prevDecBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const ny = Math.max(MIN_YEAR, calViewDate.getFullYear() - 10);
+                    calViewDate.setFullYear(ny);
+                    renderCalendar();
+                });
+                nextDecBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const ny = Math.min(TODAY.getFullYear(), calViewDate.getFullYear() + 10);
+                    calViewDate.setFullYear(ny);
+                    renderCalendar();
+                });
+
+                // Selezione anno da dropdown
+                yearSelect.addEventListener('change', e => {
+                    e.stopPropagation();
+                    calViewDate.setFullYear(parseInt(yearSelect.value));
+                    renderCalendar();
+                });
+
+                // Esponi metodo per pre-caricare un valore (es. in modifica utente)
+                openBtn._setBirthDate = function(isoStr) {
+                    if (!isoStr) {
+                        selectedDate = null;
+                        displayInput.value = '';
+                        hiddenInput.value = '';
+                        return;
+                    }
+                    const parts = isoStr.split('-');
+                    if (parts.length === 3) {
+                        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                        selectedDate = d;
+                        displayInput.value = toDisplayStr(d);
+                        hiddenInput.value = isoStr;
+                        calViewDate = new Date(d.getFullYear(), d.getMonth(), 1);
+                    }
+                };
+            }
+
+            // Istanzia calendario per AGGIUNGI UTENTE
+            makeBirthdayCal({
+                openBtnId: 'birthdayCalBtnAdd',
+                overlayId: 'birthCalOverlayAdd',
+                pickerId: 'birthCalPickerAdd',
+                gridId: 'birthCalGridAdd',
+                monthLblId: 'birthCalMonthLabelAdd',
+                prevMonthId: 'birthCalPrevMonthAdd',
+                nextMonthId: 'birthCalNextMonthAdd',
+                prevYearId: 'birthCalPrevYearAdd',
+                nextYearId: 'birthCalNextYearAdd',
+                prevDecadeId: 'birthCalPrevDecadeAdd',
+                nextDecadeId: 'birthCalNextDecadeAdd',
+                yearSelectId: 'birthCalYearSelectAdd',
+                displayInputId: 'utenteData',
+                hiddenInputId: 'utenteDataHidden'
+            });
+
+            // Istanzia calendario per MODIFICA UTENTE
+            makeBirthdayCal({
+                openBtnId: 'birthdayCalBtnEdit',
+                overlayId: 'birthCalOverlayEdit',
+                pickerId: 'birthCalPickerEdit',
+                gridId: 'birthCalGridEdit',
+                monthLblId: 'birthCalMonthLabelEdit',
+                prevMonthId: 'birthCalPrevMonthEdit',
+                nextMonthId: 'birthCalNextMonthEdit',
+                prevYearId: 'birthCalPrevYearEdit',
+                nextYearId: 'birthCalNextYearEdit',
+                prevDecadeId: 'birthCalPrevDecadeEdit',
+                nextDecadeId: 'birthCalNextDecadeEdit',
+                yearSelectId: 'birthCalYearSelectEdit',
+                displayInputId: 'editData',
+                hiddenInputId: 'editDataHidden'
+            });
+
+            makeBirthdayCal({
+                openBtnId: 'birthCalBtnEduAdd',
+                overlayId: 'birthCalOverlayEduAdd',
+                pickerId: 'birthCalPickerEduAdd',
+                gridId: 'birthCalGridEduAdd',
+                monthLblId: 'birthCalMonthLabelEduAdd',
+                prevMonthId: 'birthCalPrevMonthEduAdd',
+                nextMonthId: 'birthCalNextMonthEduAdd',
+                prevYearId: 'birthCalPrevYearEduAdd',
+                nextYearId: 'birthCalNextYearEduAdd',
+                prevDecadeId: 'birthCalPrevDecadeEduAdd',
+                nextDecadeId: 'birthCalNextDecadeEduAdd',
+                yearSelectId: 'birthCalYearSelectEduAdd',
+                displayInputId: 'educatoreDataDisplay',
+                hiddenInputId: 'educatoreData',
+            });
+
+            makeBirthdayCal({
+                openBtnId: 'birthCalBtnEduEdit',
+                overlayId: 'birthCalOverlayEduEdit',
+                pickerId: 'birthCalPickerEduEdit',
+                gridId: 'birthCalGridEduEdit',
+                monthLblId: 'birthCalMonthLabelEduEdit',
+                prevMonthId: 'birthCalPrevMonthEduEdit',
+                nextMonthId: 'birthCalNextMonthEduEdit',
+                prevYearId: 'birthCalPrevYearEduEdit',
+                nextYearId: 'birthCalNextYearEduEdit',
+                prevDecadeId: 'birthCalPrevDecadeEduEdit',
+                nextDecadeId: 'birthCalNextDecadeEduEdit',
+                yearSelectId: 'birthCalYearSelectEduEdit',
+                displayInputId: 'editEducatoreDataDisplay',
+                hiddenInputId: 'editEducatoreData',
+            });
+        })();
+
+        document.addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--tt-y', (e.clientY + 14) + 'px');
+            document.documentElement.style.setProperty('--tt-x', (e.clientX - 10) + 'px');
+            document.documentElement.style.setProperty('--tt-arrow-y', (e.clientY + 8) + 'px');
+            document.documentElement.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
+        });
+    </script>
+
     <script src="js/mobile-calendar.js"></script>
 
     <script src="js/custom-select.js"></script>
+
 </body>
 
 </html>

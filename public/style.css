@@ -7691,4 +7691,203 @@
      font-weight: 400;
  }
 
- 
+ /* ══════════════════════════════════════════════════════════════
+   TABLE CELL TRUNCATION — aggiungere in coda a style.css
+══════════════════════════════════════════════════════════════ */
+
+.cell-truncate {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    cursor: help;
+}
+
+.cell-truncate--sm  { max-width: 100px; }
+.cell-truncate--md  { max-width: 160px; }
+.cell-truncate--lg  { max-width: 220px; }
+
+/* Tooltip */
+.cell-truncate:hover::after {
+    content: attr(data-tooltip);
+    position: fixed;
+    top:  var(--tt-y,  40px);
+    left: var(--tt-x,  40px);
+    z-index: 9999;
+
+    background: #fff;
+    color: #2a0a16;
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.6;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border-left: 3px solid #640a35;
+    border-top: 1px solid #e8d0d9;
+    border-right: 1px solid #e8d0d9;
+    border-bottom: 1px solid #e8d0d9;
+    box-shadow:
+        0 4px 12px rgba(100, 10, 53, 0.10),
+        0 12px 32px rgba(100, 10, 53, 0.08);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-width: 240px;
+    pointer-events: none;
+}
+
+/* Freccia */
+.cell-truncate:hover::before {
+    content: '';
+    position: fixed;
+    top:  var(--tt-arrow-y, 34px);
+    left: var(--tt-arrow-x, 44px);
+    z-index: 10000;
+    border: 5px solid transparent;
+    border-bottom-color: #640a35;
+    pointer-events: none;
+}
+
+
+ /* ── Birthday Date Picker ── */
+ .birth-picker-wrap {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+ }
+
+ .birth-picker-input {
+     flex: 1;
+     min-width: 0;
+     cursor: pointer;
+ }
+
+ .birth-cal-btn {
+     flex-shrink: 0;
+     background: var(--bg-secondary, #f4f4f5);
+     border: 1px solid #640a35;
+     border-radius: 6px;
+     padding: 8px 10px;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     color: #640a35;
+     transition: background .15s, color .15s;
+ }
+
+ .birth-cal-btn:hover {
+     background: #640a35;
+     color: #fff;
+     border-color: #640a35;
+ }
+
+ .birth-cal-overlay {
+     position: fixed;
+     inset: 0;
+     z-index: 10500;
+     display: none;
+ }
+
+ .birth-cal-overlay.open {
+     display: block;
+ }
+
+ .birth-cal-picker {
+     position: absolute;
+     background: var(--bg-primary, #fff);
+     border: 1px solid var(--border-color, #e4e4e7);
+     border-radius: 12px;
+     box-shadow: 0 8px 32px rgba(0, 0, 0, .14);
+     width: 300px;
+     padding: 12px;
+     z-index: 10501;
+ }
+
+ .birth-cal-header {
+     margin-bottom: 8px;
+ }
+
+ .birth-cal-month-row {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     margin-bottom: 6px;
+ }
+
+ .birth-cal-month-label {
+     font-size: 14px;
+     font-weight: 600;
+     text-transform: capitalize;
+     color: var(--text-primary, #18181b);
+ }
+
+ .birth-cal-year-row {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 4px;
+     margin-bottom: 8px;
+     background: #640a35;
+     border-radius: 8px;
+     padding: 5px 8px;
+ }
+
+ .birth-year-nav {
+     background: none;
+     border: none;
+     cursor: pointer;
+     padding: 3px 5px;
+     border-radius: 5px;
+     display: flex;
+     align-items: center;
+     color: white;
+     transition: background .15s;
+ }
+
+ .birth-year-nav:hover {
+     background: var(--border-color, #e4e4e7);
+     color: var(--text-primary, #18181b);
+ }
+
+ .birth-year-select {
+     flex: 1;
+     font-size: 14px;
+     font-weight: 700;
+     border: none;
+     background: transparent;
+     text-align: center;
+     cursor: pointer;
+     color: white;
+     outline: none;
+     max-width: 90px;
+ }
+
+ /* ── Bottoni navigazione mese nel birth picker ── */
+ .birth-cal-month-row .cal-nav-btn {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     width: 28px;
+     height: 28px;
+     border: 1.5px solid #640a35;
+     border-radius: 6px;
+     background: #fff;
+     color: #640a35;
+     cursor: pointer;
+     flex-shrink: 0;
+     transition: background .15s, color .15s, border-color .15s;
+     padding: 0;
+ }
+
+ .birth-cal-month-row .cal-nav-btn:hover {
+     background: #640a35;
+     border-color: #640a35;
+     color: #fff;
+ }
+
+ .birth-cal-month-row .cal-nav-btn:disabled,
+ .birth-cal-month-row .cal-nav-btn[disabled] {
+     opacity: 0.3;
+     cursor: default;
+     pointer-events: none;
+ }

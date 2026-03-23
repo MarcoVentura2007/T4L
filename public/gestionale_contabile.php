@@ -87,7 +87,30 @@ $resultResoconti = $conn->query($sqlResoconti);
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="style_mobile_agenda.css">
     <link rel="icon" href="immagini/Icona.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+        // Tooltip celle — appare solo se il testo è troncato
+        (function() {
+            function checkTruncation() {
+                document.querySelectorAll('.cell-truncate').forEach(el => {
+                    el.classList.toggle('is-truncated', el.scrollWidth > el.clientWidth);
+                });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkTruncation);
+            } else {
+                checkTruncation();
+            }
+            window.addEventListener('resize', checkTruncation);
+
+            document.addEventListener('mousemove', e => {
+                const r = document.documentElement;
+                r.style.setProperty('--tt-y', (e.clientY + 16) + 'px');
+                r.style.setProperty('--tt-x', (e.clientX - 6) + 'px');
+                r.style.setProperty('--tt-arrow-y', (e.clientY + 10) + 'px');
+                r.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
+            });
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
@@ -99,7 +122,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
         }
 
-        
+
 
         /* Bottoni cerchio + : solo mobile */
         button.group {
@@ -150,6 +173,160 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
         }
 
+
+        /* ── Navigatore mese resoconti ── */
+        .mese-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .mese-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #444;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
+
+        .mese-nav-btn:hover {
+            background: #640a35;
+            border-color: #640a35;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .mese-nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        .mese-label-btn {
+            height: 34px;
+            padding: 0 16px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #333;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 160px;
+            text-align: center;
+            transition: border-color 0.15s, color 0.15s;
+        }
+
+        .mese-label-btn:hover {
+            border-color: #640a35;
+            color: #640a35;
+        }
+
+        .mese-label-btn.is-current {
+            background: #640a35;
+            color: #fff;
+            border-color: #640a35;
+        }
+
+        /* Picker griglia mesi */
+        .mese-picker-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 8000;
+            background: rgba(0, 0, 0, 0.20);
+        }
+
+        .mese-picker-overlay.open {
+            display: block;
+        }
+
+        .mese-picker {
+            position: absolute;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(100, 10, 53, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+            width: 300px;
+            overflow: hidden;
+            z-index: 8001;
+            animation: calPop .18s ease;
+        }
+
+        .mese-picker-header {
+            background: #640a35;
+            color: #fff;
+            padding: 14px 16px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mese-picker-year {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .mese-year-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: none;
+            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .mese-year-btn:hover {
+            background: rgba(255, 255, 255, 0.32);
+        }
+
+        .mese-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            padding: 14px;
+        }
+
+        .mese-option {
+            padding: 9px 4px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.12s, color 0.12s;
+            user-select: none;
+        }
+
+        .mese-option:hover {
+            background: #f4e0ea;
+            color: #640a35;
+        }
+
+        .mese-option.mese-selected {
+            background: #640a35;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .mese-option.mese-future {
+            color: #ccc;
+            cursor: default;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -417,8 +594,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     <td>' . htmlspecialchars($row['nome']) . '</td>
                                     <td>' . htmlspecialchars($row['cognome']) . '</td>
                                     <td>' . htmlspecialchars($row['data_nascita']) . '</td>
-                                    <td>' . htmlspecialchars($row['disabilita']) . '</td>
-                                    <td>' . htmlspecialchars($row['note']) . '</td>
+                                    <td><span class="cell-truncate cell-truncate--lg" data-tooltip="' . htmlspecialchars($row['disabilita']) . '">' . htmlspecialchars($row['disabilita']) . '</span></td>
+                                    <td><span class="cell-truncate cell-truncate--md" data-tooltip="' . htmlspecialchars($row['note']) . '">' . htmlspecialchars($row['note']) . '</span></td>
                                     <td>
                                         <button class="view-btn"><img src="immagini/open-eye.png"></button>
                                         <button class="edit-btn"><img src="immagini/edit.png"></button>
@@ -735,6 +912,76 @@ $resultResoconti = $conn->query($sqlResoconti);
                         </div>
                     </div>
 
+
+                    <!-- MODAL MODIFICA AGENDA -->
+                    <div class="modal-box large" id="modalModificaAgenda">
+                        <h3 class="modal-title">Modifica Agenda</h3>
+                        <form id="formModificaAgenda">
+                            <div class="edit-field">
+                                <label>Ora inizio</label>
+                                <input type="time" id="modAgendaOraInizio" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Ora fine</label>
+                                <input type="time" id="modAgendaOraFine" required>
+                            </div>
+                            <div class="edit-field">
+                                <label>Attività</label>
+                                <select id="modAgendaAttivita" required>
+                                    <option value="">-- Seleziona attività --</option>
+                                    <?php
+                                    if ($resultAttivitaCombo) $resultAttivitaCombo->data_seek(0);
+                                    if ($resultAttivitaCombo && $resultAttivitaCombo->num_rows > 0) {
+                                        while ($row = $resultAttivitaCombo->fetch_assoc()) {
+                                            echo '<option value="' . htmlspecialchars($row['id']) . '">' . htmlspecialchars($row['Nome']) . '</option>';
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="edit-field">
+                                <label>Educatori</label>
+                                <div class="checkbox-group" id="modEducatoriCheckboxes">
+                                    <?php
+                                    if ($resultEducatoriAgenda) $resultEducatoriAgenda->data_seek(0);
+                                    if ($resultEducatoriAgenda && $resultEducatoriAgenda->num_rows > 0) {
+                                        while ($row = $resultEducatoriAgenda->fetch_assoc()) {
+                                            echo '<label class="checkbox-item">';
+                                            echo '<input type="checkbox" class="mod-educatore-checkbox" value="' . htmlspecialchars($row['id']) . '"> ';
+                                            echo '<span>' . htmlspecialchars($row['nome'] . ' ' . $row['cognome']) . '</span>';
+                                            echo '</label>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="edit-field">
+                                <label>Ragazzi partecipanti</label>
+                                <div class="checkbox-group" id="modRagazziCheckboxes">
+                                    <?php
+                                    if ($resultRagazzi) $resultRagazzi->data_seek(0);
+                                    if ($resultRagazzi && $resultRagazzi->num_rows > 0) {
+                                        while ($row = $resultRagazzi->fetch_assoc()) {
+                                            echo '<label class="checkbox-item">';
+                                            echo '<input type="checkbox" class="mod-ragazzo-checkbox" value="' . htmlspecialchars($row['id']) . '"> ';
+                                            echo '<span>' . htmlspecialchars($row['nome'] . ' ' . $row['cognome']) . '</span>';
+                                            echo '<select class="ragazzo-gruppo mod-ragazzo-gruppo" style="margin-left:8px;display:none;">
+                                                <option value="0" selected>Individuale</option>
+                                                <option value="1">Gruppo</option>
+                                              </select>';
+                                            echo '</label>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
+                                <button type="submit" class="btn-primary">Salva</button>
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="modal-box danger" id="modalDeleteAgenda">
                         <h3>Elimina Agenda</h3>
                         <p>Questa azione è definitiva. Vuoi continuare?</p>
@@ -783,7 +1030,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     while ($row = $resultAttivita->fetch_assoc()) {
                                         echo '<tr data-id="' . htmlspecialchars($row['id']) . '">
                                     <td>' . htmlspecialchars($row['Nome']) . '</td>
-                                    <td>' . htmlspecialchars($row['Descrizione']) . '</td>
+                                    <td><span class="cell-truncate cell-truncate--sm" data-tooltip="' . htmlspecialchars($row['Descrizione']) . '">' . htmlspecialchars($row['Descrizione']) . '</span></td>
                                     <td>
                                         <button class="edit-attivita-btn"><img src="immagini/edit.png" alt="Modifica"></button>
                                         <button class="delete-attivita-btn"><img src="immagini/delete.png" alt="Elimina"></button>
@@ -836,10 +1083,47 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <h1>Resoconti</h1>
                         <p>Riepilogo mensile iscritti</p>
                     </div>
-                    <div class="resoconti-mese-label">
-                        <label>Seleziona mese: </label>
-                        <input type="month" id="resocontiMeseFiltro" value="<?= date('Y-m') ?>">
+                    <div class="presenze-day-nav" id="meseNavContainer" style="margin-bottom:18px;">
+                        <button class="week-nav-btn" id="mesePrevBtn" title="Mese precedente">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span class="presenze-day-label" id="meseLabelSpan" style="min-width:180px;text-align:center;"></span>
+                        <button class="week-nav-btn" id="meseNextBtn" title="Mese successivo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
+                        <button class="cal-open-btn" id="meseCalBtn" title="Scegli mese">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                        </button>
                     </div>
+                    <!-- Picker mesi -->
+                    <div class="mese-picker-overlay" id="mesePickerOverlay">
+                        <div class="mese-picker" id="mesePicker">
+                            <div class="mese-picker-header">
+                                <button class="mese-year-btn" id="mesePrevYear">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M15 18l-6-6 6-6" />
+                                    </svg>
+                                </button>
+                                <span class="mese-picker-year" id="mesePickerYear"></span>
+                                <button class="mese-year-btn" id="meseNextYear">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="mese-grid" id="meseGrid"></div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="resocontiMeseFiltro" value="<?= date('Y-m') ?>">
                     <div class="users-table-box">
                         <table class="users-table">
                             <thead>
@@ -1818,7 +2102,7 @@ $resultResoconti = $conn->query($sqlResoconti);
         // =====================================================================
         const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
         const aggiungiAttivitaBtnMobile = document.getElementById("aggiungi-attivita-btn-mobile");
-        
+
         aggiungiAttivitaBtn.onclick = () => openModal(modalAggiungiAttivita);
         aggiungiAttivitaBtnMobile.onclick = () => openModal(modalAggiungiAttivita);
 
@@ -2177,7 +2461,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         if (def < 0 || def > 4) def = 0;
                         // se siamo sulla settimana corrente ripristina il giorno salvato, altrimenti lunedì
                         const saved = parseInt(localStorage.getItem("selectedDayIndex"));
-                        displayAgenda(weekOffset === 0 && !isNaN(saved) ? saved : (weekOffset === 0 ? def : 0));
+                        displayAgenda(!isNaN(saved) && saved >= 0 && saved <= 4 ? saved : def);
                     } else {
                         div.innerHTML = '<div class="error-message">Errore: ' + (data.error || 'Sconosciuto') + '</div>';
                     }
@@ -2227,7 +2511,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 <div class="participant-group"><label>Educatori:</label><span>${edTxt}</span></div>
                 <div class="participant-group"><label>Ragazzi:</label><span class="ragazzi-photos">${ragFotos}</span></div>
             </div>
-            <div class="activity-actions"><button class="delete-agenda-btn" data-id="${att.id}" title="Elimina"><img src="immagini/delete.png" alt="Elimina"></button></div>
+            <div class="activity-actions"><button class="edit-agenda-btn" data-id="${att.id}" title="Modifica"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-agenda-btn" data-id="${att.id}" title="Elimina"><img src="immagini/delete.png" alt="Elimina"></button></div>
         </div>`;
             });
             div.innerHTML = html + '</div>';
@@ -2271,6 +2555,123 @@ $resultResoconti = $conn->query($sqlResoconti);
                 if (sel) sel.style.display = this.checked ? 'inline-block' : 'none';
             });
         });
+
+
+        // ── Modifica Agenda ──────────────────────────────────────────────────
+        const modalModificaAgenda = document.getElementById('modalModificaAgenda');
+        const formModificaAgenda = document.getElementById('formModificaAgenda');
+        let agendaToEdit = null;
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.edit-agenda-btn')) return;
+            const btn = e.target.closest('.edit-agenda-btn');
+            const cardId = btn.dataset.id;
+
+            // Trova l'oggetto att corrispondente nei dati caricati
+            const att = agendaData.find(a => String(a.id) === String(cardId));
+            if (!att) return;
+
+            agendaToEdit = att;
+
+            // Pre-popola orari
+            document.getElementById('modAgendaOraInizio').value = att.ora_inizio.substring(0, 5);
+            document.getElementById('modAgendaOraFine').value = att.ora_fine.substring(0, 5);
+
+            // Pre-popola attività
+            const selAtt = document.getElementById('modAgendaAttivita');
+            selAtt.value = att.attivita_id;
+
+            // Pre-popola educatori
+            document.querySelectorAll('.mod-educatore-checkbox').forEach(cb => {
+                cb.checked = att.educatori.some(e => String(e.id) === cb.value);
+            });
+
+            // Pre-popola ragazzi e gruppo
+            document.querySelectorAll('.mod-ragazzo-checkbox').forEach(cb => {
+                const rag = att.ragazzi.find(r => String(r.id) === cb.value);
+                cb.checked = !!rag;
+                const sel = cb.closest('label').querySelector('.mod-ragazzo-gruppo');
+                if (sel) {
+                    sel.style.display = cb.checked ? 'inline-block' : 'none';
+                    if (rag) sel.value = rag.gruppo == 1 ? '1' : '0';
+                }
+            });
+
+            openModal(modalModificaAgenda);
+        });
+
+        // Checkbox ragazzi nel modal modifica
+        document.querySelectorAll('.mod-ragazzo-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const sel = this.closest('label').querySelector('.mod-ragazzo-gruppo');
+                if (sel) sel.style.display = this.checked ? 'inline-block' : 'none';
+            });
+        });
+
+        if (formModificaAgenda) {
+            formModificaAgenda.onsubmit = function(e) {
+                e.preventDefault();
+                if (!agendaToEdit) return;
+
+                const ora_inizio = document.getElementById('modAgendaOraInizio').value;
+                const ora_fine = document.getElementById('modAgendaOraFine').value;
+                const id_attivita = parseInt(document.getElementById('modAgendaAttivita').value);
+
+                const educatori = Array.from(
+                    document.querySelectorAll('.mod-educatore-checkbox:checked')
+                ).map(cb => parseInt(cb.value)).filter(v => !isNaN(v) && v > 0);
+
+                const ragazziCbs = document.querySelectorAll('.mod-ragazzo-checkbox:checked');
+                const ragazzi = Array.from(ragazziCbs)
+                    .map(cb => parseInt(cb.value)).filter(v => !isNaN(v) && v > 0);
+
+                const ragazzi_gruppo = {};
+                ragazziCbs.forEach(cb => {
+                    const id = parseInt(cb.value);
+                    if (isNaN(id) || id <= 0) return;
+                    const sel = cb.closest('label').querySelector('.mod-ragazzo-gruppo');
+                    ragazzi_gruppo[id] = sel && parseInt(sel.value) === 1 ? 1 : 0;
+                });
+
+                if (!ora_inizio || !ora_fine || !id_attivita || educatori.length === 0 || ragazzi.length === 0) {
+                    alert('Completa tutti i campi obbligatori.');
+                    return;
+                }
+
+                fetch('api/api_modifica_agenda.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            data: agendaToEdit.data,
+                            orig_attivita: agendaToEdit.attivita_id,
+                            orig_ora_inizio: agendaToEdit.ora_inizio.substring(0, 5),
+                            orig_ora_fine: agendaToEdit.ora_fine.substring(0, 5),
+                            ora_inizio,
+                            ora_fine,
+                            id_attivita,
+                            educatori,
+                            ragazzi,
+                            ragazzi_gruppo
+                        })
+                    })
+                    .then(r => r.json()).then(data => {
+                        if (data.success) {
+                            closeModal();
+                            successText.innerText = 'Agenda modificata!';
+                            showSuccess(successPopup, Overlay);
+                            setTimeout(() => {
+                                hideSuccess(successPopup, Overlay);
+                                loadAgenda();
+                            }, 1800);
+                        } else {
+                            alert('Errore: ' + (data.message || 'Sconosciuto'));
+                        }
+                    }).catch(() => alert('Errore di rete'));
+            };
+        }
 
         // Delete Agenda
         const modalDeleteAgenda = document.getElementById("modalDeleteAgenda");
@@ -2522,10 +2923,131 @@ $resultResoconti = $conn->query($sqlResoconti);
                 giorniPresenza: 0
             };
 
-            if (resocontiMeseFiltro) caricaResocontiMensili(resocontiMeseFiltro.value);
-            if (resocontiMeseFiltro) resocontiMeseFiltro.addEventListener("change", () => {
-                caricaResocontiMensili(resocontiMeseFiltro.value);
-            });
+            // ── Navigatore mese resoconti ────────────────────────────
+            (function() {
+                const MESI = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+                    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+                ];
+                const TODAY = new Date();
+                let curYear = TODAY.getFullYear();
+                let curMonth = TODAY.getMonth();
+                let pickerYear = curYear;
+
+                const labelSpan = document.getElementById('meseLabelSpan');
+                const prevBtn = document.getElementById('mesePrevBtn');
+                const nextBtn = document.getElementById('meseNextBtn');
+                const calBtn = document.getElementById('meseCalBtn');
+                const overlay = document.getElementById('mesePickerOverlay');
+                const picker = document.getElementById('mesePicker');
+                const yearLbl = document.getElementById('mesePickerYear');
+                const grid = document.getElementById('meseGrid');
+                const prevYearBtn = document.getElementById('mesePrevYear');
+                const nextYearBtn = document.getElementById('meseNextYear');
+                const hidden = document.getElementById('resocontiMeseFiltro');
+
+                if (!labelSpan) return;
+
+                function pad(n) {
+                    return String(n).padStart(2, '0');
+                }
+
+                function getMeseStr(y, m) {
+                    return `${y}-${pad(m+1)}`;
+                }
+
+                function updateLabel() {
+                    labelSpan.textContent = MESI[curMonth] + ' ' + curYear;
+                    const atMax = curYear > TODAY.getFullYear() ||
+                        (curYear === TODAY.getFullYear() && curMonth >= TODAY.getMonth());
+                    nextBtn.disabled = atMax;
+                    nextBtn.style.opacity = atMax ? '0.4' : '1';
+                    hidden.value = getMeseStr(curYear, curMonth);
+                }
+
+                function doLoad() {
+                    updateLabel();
+                    caricaResocontiMensili(hidden.value);
+                }
+
+                prevBtn.addEventListener('click', () => {
+                    if (curMonth === 0) {
+                        curMonth = 11;
+                        curYear--;
+                    } else curMonth--;
+                    doLoad();
+                });
+                nextBtn.addEventListener('click', () => {
+                    if (nextBtn.disabled) return;
+                    if (curMonth === 11) {
+                        curMonth = 0;
+                        curYear++;
+                    } else curMonth++;
+                    doLoad();
+                });
+
+                function renderPicker() {
+                    yearLbl.textContent = pickerYear;
+                    nextYearBtn.disabled = pickerYear >= TODAY.getFullYear();
+                    nextYearBtn.style.opacity = pickerYear >= TODAY.getFullYear() ? '0.4' : '1';
+                    grid.innerHTML = '';
+                    MESI.forEach((nome, i) => {
+                        const isFuture = pickerYear > TODAY.getFullYear() ||
+                            (pickerYear === TODAY.getFullYear() && i > TODAY.getMonth());
+                        const isSelected = pickerYear === curYear && i === curMonth;
+                        const el = document.createElement('div');
+                        el.className = 'mese-option' +
+                            (isFuture ? ' mese-future' : '') +
+                            (isSelected ? ' mese-selected' : '');
+                        el.textContent = nome.substring(0, 3);
+                        if (!isFuture) {
+                            el.addEventListener('click', () => {
+                                curYear = pickerYear;
+                                curMonth = i;
+                                doLoad();
+                                closePicker();
+                            });
+                        }
+                        grid.appendChild(el);
+                    });
+                }
+
+                function openPicker() {
+                    pickerYear = curYear;
+                    renderPicker();
+                    overlay.classList.add('open');
+                    const rect = calBtn.getBoundingClientRect();
+                    let left = rect.left;
+                    if (left + 300 > window.innerWidth - 8) left = window.innerWidth - 308;
+                    picker.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+                    picker.style.left = left + 'px';
+                }
+
+                function closePicker() {
+                    overlay.classList.remove('open');
+                }
+
+                calBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    overlay.classList.contains('open') ? closePicker() : openPicker();
+                });
+                overlay.addEventListener('click', e => {
+                    if (!picker.contains(e.target)) closePicker();
+                });
+                prevYearBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    pickerYear--;
+                    renderPicker();
+                });
+                nextYearBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (pickerYear < TODAY.getFullYear()) {
+                        pickerYear++;
+                        renderPicker();
+                    }
+                });
+
+                doLoad();
+            })();
 
             document.addEventListener("click", e => {
                 const btn = e.target.closest(".resoconto-btn,.calendario-btn");
@@ -2869,16 +3391,6 @@ $resultResoconti = $conn->query($sqlResoconti);
         // =====================================================================
         // FLATPICKR
         // =====================================================================
-        flatpickr("#resocontiMeseFiltro", {
-            plugins: [new monthSelectPlugin({
-                shorthand: false,
-                dateFormat: "Y-m",
-                altFormat: "F Y"
-            })],
-            defaultDate: new Date(),
-            altInput: true
-        });
-
         // =====================================================================
         // =====================================================================
         // PRESENZE — navigazione per data
@@ -3221,6 +3733,13 @@ $resultResoconti = $conn->query($sqlResoconti);
                 const sc = document.getElementById(savedTab);
                 if (sc) sc.classList.add('active');
             }
+        });
+
+        document.addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--tt-y', (e.clientY + 14) + 'px');
+            document.documentElement.style.setProperty('--tt-x', (e.clientX - 10) + 'px');
+            document.documentElement.style.setProperty('--tt-arrow-y', (e.clientY + 8) + 'px');
+            document.documentElement.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
         });
     </script>
 
