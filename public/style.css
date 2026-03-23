@@ -7695,58 +7695,66 @@
    TABLE CELL TRUNCATION — aggiungere in coda a style.css
 ══════════════════════════════════════════════════════════════ */
 
-.cell-truncate {
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    position: relative;
-    cursor: help;
-}
+ .cell-truncate {
+     display: block;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+     position: relative;
+     cursor: help;
+ }
 
-.cell-truncate--sm  { max-width: 100px; }
-.cell-truncate--md  { max-width: 160px; }
-.cell-truncate--lg  { max-width: 220px; }
+ .cell-truncate--sm {
+     max-width: 100px;
+ }
 
-/* Tooltip */
-.cell-truncate:hover::after {
-    content: attr(data-tooltip);
-    position: fixed;
-    top:  var(--tt-y,  40px);
-    left: var(--tt-x,  40px);
-    z-index: 9999;
+ .cell-truncate--md {
+     max-width: 160px;
+ }
 
-    background: #fff;
-    color: #2a0a16;
-    font-size: 0.82rem;
-    font-weight: 500;
-    line-height: 1.6;
-    padding: 10px 14px;
-    border-radius: 10px;
-    border-left: 3px solid #640a35;
-    border-top: 1px solid #e8d0d9;
-    border-right: 1px solid #e8d0d9;
-    border-bottom: 1px solid #e8d0d9;
-    box-shadow:
-        0 4px 12px rgba(100, 10, 53, 0.10),
-        0 12px 32px rgba(100, 10, 53, 0.08);
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-width: 240px;
-    pointer-events: none;
-}
+ .cell-truncate--lg {
+     max-width: 220px;
+ }
 
-/* Freccia */
-.cell-truncate:hover::before {
-    content: '';
-    position: fixed;
-    top:  var(--tt-arrow-y, 34px);
-    left: var(--tt-arrow-x, 44px);
-    z-index: 10000;
-    border: 5px solid transparent;
-    border-bottom-color: #640a35;
-    pointer-events: none;
-}
+ /* Tooltip */
+ .cell-truncate:hover::after {
+     content: attr(data-tooltip);
+     position: fixed;
+     top: var(--tt-y, 40px);
+     left: var(--tt-x, 40px);
+     z-index: 9999;
+
+     background: #fff;
+     color: #2a0a16;
+     font-size: 0.82rem;
+     font-weight: 500;
+     line-height: 1.6;
+     padding: 10px 14px;
+     border-radius: 10px;
+     border-left: 3px solid #640a35;
+     border-top: 1px solid #e8d0d9;
+     border-right: 1px solid #e8d0d9;
+     border-bottom: 1px solid #e8d0d9;
+     box-shadow:
+         0 4px 12px rgba(100, 10, 53, 0.10),
+         0 12px 32px rgba(100, 10, 53, 0.08);
+     white-space: pre-wrap;
+     word-break: break-word;
+     max-width: 240px;
+     pointer-events: none;
+ }
+
+ /* Freccia */
+ .cell-truncate:hover::before {
+     content: '';
+     position: fixed;
+     top: var(--tt-arrow-y, 34px);
+     left: var(--tt-arrow-x, 44px);
+     z-index: 10000;
+     border: 5px solid transparent;
+     border-bottom-color: #640a35;
+     pointer-events: none;
+ }
 
 
  /* ── Birthday Date Picker ── */
@@ -7862,6 +7870,8 @@
      max-width: 90px;
  }
 
+ 
+
  /* ── Bottoni navigazione mese nel birth picker ── */
  .birth-cal-month-row .cal-nav-btn {
      display: flex;
@@ -7891,3 +7901,4 @@
      cursor: default;
      pointer-events: none;
  }
+
