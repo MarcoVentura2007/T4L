@@ -4623,7 +4623,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 });
 
                 // Esponi metodo per pre-caricare un valore (es. in modifica utente)
-                openBtn._setBirthDate = function(isoStr) {
+                openBtn.setBirthDate = function(isoStr) {
                     if (!isoStr) {
                         selectedDate = null;
                         displayInput.value = '';

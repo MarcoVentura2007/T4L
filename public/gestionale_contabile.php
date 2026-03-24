@@ -1389,7 +1389,21 @@ $resultResoconti = $conn->query($sqlResoconti);
         <div class="edit-grid" id="editContent">
             <div class="edit-field" id="fieldNome"><label>Nome</label><input type="text" id="editNome" placeholder="Nome"></div>
             <div class="edit-field" id="fieldCognome"><label>Cognome</label><input type="text" id="editCognome" placeholder="Cognome"></div>
-            <div class="edit-field" id="fieldData"><label>Data di nascita</label><input type="date" id="editData"></div>
+            <div class="edit-field" id="fieldData">
+                <label>Data di nascita</label>
+                <div class="birth-picker-wrap">
+                    <input type="text" id="editData" class="birth-picker-input" placeholder="GG/MM/AAAA">
+                    <input type="hidden" id="editDataHidden">
+                    <button type="button" class="birth-cal-btn" id="birthdayCalBtnEdit" aria-label="Apri calendario">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
             <div class="edit-field" id="fieldCF"><label>Codice Fiscale</label><input type="text" id="editCF" placeholder="Codice Fiscale"></div>
             <div class="edit-field" id="fieldEmail"><label>Email</label><input type="email" id="editEmail" placeholder="Email"></div>
             <div class="edit-field" id="fieldTelefono"><label>Telefono</label><input type="tel" id="editTelefono" placeholder="Telefono"></div>
