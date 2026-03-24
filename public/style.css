@@ -7159,9 +7159,7 @@
  }
 
  .modal-box.large .edit-field#fieldFotografia,
- .modal-box.large .edit-field#fieldAllegatiEdit,
- .modal-box.large .edit-field#fieldIngresso,
- .modal-box.large .edit-field#fieldUscita {
+ .modal-box.large .edit-field#fieldAllegatiEdit {
      grid-column: 1 / -1;
  }
 
