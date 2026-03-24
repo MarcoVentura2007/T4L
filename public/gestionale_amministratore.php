@@ -175,160 +175,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                 flex-shrink: 0;
             }
         }
-
-        /* ── Navigatore mese resoconti ── */
-        .mese-nav {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .mese-nav-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 34px;
-            height: 34px;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 8px;
-            background: #fff;
-            color: #444;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
-        }
-
-        .mese-nav-btn:hover {
-            background: #640a35;
-            border-color: #640a35;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        .mese-nav-btn:active {
-            transform: scale(0.97);
-        }
-
-        .mese-label-btn {
-            height: 34px;
-            padding: 0 16px;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 8px;
-            background: #fff;
-            color: #333;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            min-width: 160px;
-            text-align: center;
-            transition: border-color 0.15s, color 0.15s;
-        }
-
-        .mese-label-btn:hover {
-            border-color: #640a35;
-            color: #640a35;
-        }
-
-        .mese-label-btn.is-current {
-            background: #640a35;
-            color: #fff;
-            border-color: #640a35;
-        }
-
-        /* Picker griglia mesi */
-        .mese-picker-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 8000;
-            background: rgba(0, 0, 0, 0.20);
-        }
-
-        .mese-picker-overlay.open {
-            display: block;
-        }
-
-        .mese-picker {
-            position: absolute;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 8px 32px rgba(100, 10, 53, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
-            width: 300px;
-            overflow: hidden;
-            z-index: 8001;
-            animation: calPop .18s ease;
-        }
-
-        .mese-picker-header {
-            background: #640a35;
-            color: #fff;
-            padding: 14px 16px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .mese-picker-year {
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-        }
-
-        .mese-year-btn {
-            background: rgba(255, 255, 255, 0.18);
-            border: none;
-            border-radius: 8px;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-
-        .mese-year-btn:hover {
-            background: rgba(255, 255, 255, 0.32);
-        }
-
-        .mese-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            padding: 14px;
-        }
-
-        .mese-option {
-            padding: 9px 4px;
-            text-align: center;
-            border-radius: 8px;
-            font-size: 0.84rem;
-            font-weight: 500;
-            color: #333;
-            cursor: pointer;
-            transition: background 0.12s, color 0.12s;
-            user-select: none;
-        }
-
-        .mese-option:hover {
-            background: #f4e0ea;
-            color: #640a35;
-        }
-
-        .mese-option.mese-selected {
-            background: #640a35;
-            color: #fff;
-            font-weight: 700;
-        }
-
-        .mese-option.mese-future {
-            color: #ccc;
-            cursor: default;
-            pointer-events: none;
-        }
     </style>
 </head>
 
@@ -524,7 +370,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="edit-field">
                                 <label>Data di nascita</label>
                                 <div class="birth-picker-wrap">
-                                    <input type="text" id="utenteData" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly required>
+                                    <input type="text" id="utenteData" class="birth-picker-input" placeholder="GG/MM/AAAA" required>
                                     <input type="hidden" id="utenteDataHidden">
                                     <button type="button" class="birth-cal-btn" id="birthdayCalBtnAdd" aria-label="Apri calendario">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -539,7 +385,19 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="edit-field"><label>Codice Fiscale</label><input type="text" id="utenteCF" placeholder="Codice Fiscale" required></div>
                             <div class="edit-field"><label>Email</label><input type="email" id="utenteEmail" placeholder="Email"></div>
                             <div class="edit-field"><label>Telefono</label><input type="tel" id="utenteTelefono" placeholder="Telefono"></div>
+                            <div class="edit-field"><label>Intolleranze / Allergie</label><input type="text" id="utenteIntolleranze"></div>
                             <div class="edit-field">
+                                <label>Tipo di lavoro</label>
+                                <select id="utenteGruppo">
+                                    <option value="0">Individuale</option>
+                                    <option value="1">Gruppo</option>
+                                </select>
+                            </div>
+                            <div class="edit-field"><label>Prezzo orario (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.1"></div>
+                            <div class="edit-field"><label>Prezzo orario Gruppo (€)</label><input type="number" id="utentePrezzoGruppo" placeholder="Prezzo orario gruppo" step="0.1"></div>
+                            <div class="edit-field"><label>Disabilità</label><textarea id="utenteDisabilita"></textarea></div>
+                            <div class="edit-field"><label>Note</label><textarea id="utenteNote"></textarea></div>
+                            <div class="edit-field" id="fieldFotografiaAdd">
                                 <label>Fotografia</label>
                                 <div class="file-inline" id="fileContainer">
                                     <input type="file" id="utenteFoto" accept="image/*" hidden>
@@ -551,19 +409,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     <span class="file-name" id="nomeFileFoto">Nessun file</span>
                                 </div>
                             </div>
-                            <div class="edit-field"><label>Intolleranze / Allergie</label><input type="text" id="utenteIntolleranze"></div>
-                            <div class="edit-field"><label>Prezzo orario (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.1"></div>
-                            <div class="edit-field"><label>Prezzo orario Gruppo (€)</label><input type="number" id="utentePrezzoGruppo" placeholder="Prezzo orario gruppo" step="0.1"></div>
-                            <div class="edit-field"><label>Disabilità</label><textarea id="utenteDisabilita"></textarea></div>
-                            <div class="edit-field"><label>Note</label><textarea id="utenteNote"></textarea></div>
-                            <div class="edit-field">
-                                <label>Tipo di lavoro</label>
-                                <select id="utenteGruppo">
-                                    <option value="0">Individuale</option>
-                                    <option value="1">Gruppo</option>
-                                </select>
-                            </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldAllegati">
                                 <label>Allegati</label>
                                 <div class="allegati-upload-container" id="allegatiContainer">
                                     <input type="file" id="utenteAllegati" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xls,.xlsx" hidden>
@@ -587,6 +433,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <button type="submit" class="btn-primary">Salva</button>
                             </div>
                         </form>
+
                     </div>
 
 
@@ -1085,11 +932,11 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <form id="formAttivita">
                             <div class="edit-field"><label>Nome</label><input type="text" id="attivitaNome" placeholder="Nome attività" required></div>
                             <div class="edit-field"><label>Descrizione</label><textarea id="attivitaDescrizione" placeholder="Descrizione" required></textarea></div>
-                            <div class="modal-actions">
-                                <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
-                                <button class="btn-primary" id="salvaAttivita">Salva</button>
-                            </div>
                         </form>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                            <button class="btn-primary" id="salvaAttivita">Salva</button>
+                        </div>
                     </div>
                     <div class="modal-box large" id="modalModificaAttivita">
                         <h3 class="modal-title">Modifica attività</h3>
@@ -1293,7 +1140,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="edit-field"><label>Cognome</label><input type="text" id="educatoreCognome" placeholder="Cognome" required></div>
                             <div class="edit-field"><label>Data di nascita</label>
                                 <div class="birth-picker-wrap">
-                                    <input type="text" id="educatoreDataDisplay" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly>
+                                    <input type="text" id="educatoreDataDisplay" class="birth-picker-input" placeholder="GG/MM/AAAA">
                                     <input type="hidden" id="educatoreData" required>
                                     <button type="button" class="birth-cal-btn" id="birthCalBtnEduAdd" aria-label="Apri calendario">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1313,6 +1160,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <button type="submit" class="btn-primary">Salva</button>
                             </div>
                         </form>
+
                     </div>
 
                     <div class="users-table-box">
@@ -1367,7 +1215,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="edit-field"><label>Cognome</label><input type="text" id="editEducatoreCognome" placeholder="Cognome" required></div>
                             <div class="edit-field"><label>Data di nascita</label>
                                 <div class="birth-picker-wrap">
-                                    <input type="text" id="editEducatoreDataDisplay" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly>
+                                    <input type="text" id="editEducatoreDataDisplay" class="birth-picker-input" placeholder="GG/MM/AAAA">
                                     <input type="hidden" id="editEducatoreData" required>
                                     <button type="button" class="birth-cal-btn" id="birthCalBtnEduEdit" aria-label="Apri calendario">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1437,8 +1285,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="modal-actions">
                                 <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
                                 <button type="submit" class="btn-primary">Salva</button>
+                      
                             </div>
                         </form>
+
                     </div>
 
                     <div class="users-table-box">
@@ -1542,7 +1392,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             <div class="edit-field" id="fieldData">
                 <label>Data di nascita</label>
                 <div class="birth-picker-wrap">
-                    <input type="text" id="editData" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly>
+                    <input type="text" id="editData" class="birth-picker-input" placeholder="GG/MM/AAAA">
                     <input type="hidden" id="editDataHidden">
                     <button type="button" class="birth-cal-btn" id="birthdayCalBtnEdit" aria-label="Apri calendario">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

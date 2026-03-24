@@ -489,7 +489,6 @@ $resultResoconti = $conn->query($sqlResoconti);
                                         <line x1="5" y1="12" x2="19" y2="12" />
                                     </svg></span>Aggiungi Utente</button>
                         </div>
-
                         <button title="Add New" id="aggiungi-utente-btn-mobile" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
                             <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" class="stroke-zinc-400 fill-none group-hover:fill-zinc-800 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0 duration-300">
                                 <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke-width="1"></path>
@@ -504,11 +503,37 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <form id="formAggiungiUtente">
                             <div class="edit-field"><label>Nome</label><input type="text" id="utenteNome" placeholder="Nome" required></div>
                             <div class="edit-field"><label>Cognome</label><input type="text" id="utenteCognome" placeholder="Cognome" required></div>
-                            <div class="edit-field"><label>Data di nascita</label><input type="date" id="utenteData" required></div>
+                            <div class="edit-field">
+                                <label>Data di nascita</label>
+                                <div class="birth-picker-wrap">
+                                    <input type="text" id="utenteData" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly required>
+                                    <input type="hidden" id="utenteDataHidden">
+                                    <button type="button" class="birth-cal-btn" id="birthdayCalBtnAdd" aria-label="Apri calendario">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                            <line x1="16" y1="2" x2="16" y2="6" />
+                                            <line x1="8" y1="2" x2="8" y2="6" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="edit-field"><label>Codice Fiscale</label><input type="text" id="utenteCF" placeholder="Codice Fiscale" required></div>
                             <div class="edit-field"><label>Email</label><input type="email" id="utenteEmail" placeholder="Email"></div>
                             <div class="edit-field"><label>Telefono</label><input type="tel" id="utenteTelefono" placeholder="Telefono"></div>
+                            <div class="edit-field"><label>Intolleranze / Allergie</label><input type="text" id="utenteIntolleranze"></div>
                             <div class="edit-field">
+                                <label>Tipo di lavoro</label>
+                                <select id="utenteGruppo">
+                                    <option value="0">Individuale</option>
+                                    <option value="1">Gruppo</option>
+                                </select>
+                            </div>
+                            <div class="edit-field"><label>Prezzo orario (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.1"></div>
+                            <div class="edit-field"><label>Prezzo orario Gruppo (€)</label><input type="number" id="utentePrezzoGruppo" placeholder="Prezzo orario gruppo" step="0.1"></div>
+                            <div class="edit-field"><label>Disabilità</label><textarea id="utenteDisabilita"></textarea></div>
+                            <div class="edit-field"><label>Note</label><textarea id="utenteNote"></textarea></div>
+                            <div class="edit-field" id="fieldFotografiaAdd">
                                 <label>Fotografia</label>
                                 <div class="file-inline" id="fileContainer">
                                     <input type="file" id="utenteFoto" accept="image/*" hidden>
@@ -520,19 +545,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     <span class="file-name" id="nomeFileFoto">Nessun file</span>
                                 </div>
                             </div>
-                            <div class="edit-field"><label>Intolleranze / Allergie</label><input type="text" id="utenteIntolleranze"></div>
-                            <div class="edit-field"><label>Prezzo orario (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.1"></div>
-                            <div class="edit-field"><label>Prezzo orario Gruppo (€)</label><input type="number" id="utentePrezzoGruppo" placeholder="Prezzo orario gruppo" step="0.1"></div>
-                            <div class="edit-field"><label>Disabilità</label><textarea id="utenteDisabilita"></textarea></div>
-                            <div class="edit-field"><label>Note</label><textarea id="utenteNote"></textarea></div>
-                            <div class="edit-field">
-                                <label>Tipo di lavoro</label>
-                                <select id="utenteGruppo">
-                                    <option value="0">Individuale</option>
-                                    <option value="1">Gruppo</option>
-                                </select>
-                            </div>
-                            <div class="edit-field">
+                            <div class="edit-field" id="fieldAllegati">
                                 <label>Allegati</label>
                                 <div class="allegati-upload-container" id="allegatiContainer">
                                     <input type="file" id="utenteAllegati" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xls,.xlsx" hidden>
@@ -556,7 +569,9 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <button type="submit" class="btn-primary">Salva</button>
                             </div>
                         </form>
+
                     </div>
+
                     <div class="users-table-box">
                         <table class="users-table">
                             <thead>
@@ -646,6 +661,120 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+
+                <!-- CALENDARIO NASCITA - AGGIUNGI UTENTE -->
+                <div class="birth-cal-overlay" id="birthCalOverlayAdd">
+                    <div class="birth-cal-picker" id="birthCalPickerAdd">
+                        <div class="birth-cal-header">
+                            <div class="birth-cal-month-row">
+                                <button class="cal-nav-btn" id="birthCalPrevMonthAdd" type="button">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M15 18l-6-6 6-6" />
+                                    </svg>
+                                </button>
+                                <span class="birth-cal-month-label" id="birthCalMonthLabelAdd"></span>
+                                <button class="cal-nav-btn" id="birthCalNextMonthAdd" type="button">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="birth-cal-year-row">
+                                <button class="birth-year-nav" id="birthCalPrevYearAdd" type="button">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M15 18l-6-6 6-6" />
+                                        <path d="M9 18l-6-6 6-6" />
+                                    </svg>
+                                </button>
+                                <button class="birth-year-nav" id="birthCalPrevDecadeAdd" type="button">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M15 18l-6-6 6-6" />
+                                    </svg>
+                                </button>
+                                <select class="birth-year-select" id="birthCalYearSelectAdd"></select>
+                                <button class="birth-year-nav" id="birthCalNextDecadeAdd" type="button">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg>
+                                </button>
+                                <button class="birth-year-nav" id="birthCalNextYearAdd" type="button">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M9 18l6-6-6-6" />
+                                        <path d="M15 18l6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="cal-weekdays">
+                                <div class="cal-weekday">Lu</div>
+                                <div class="cal-weekday">Ma</div>
+                                <div class="cal-weekday">Me</div>
+                                <div class="cal-weekday">Gi</div>
+                                <div class="cal-weekday">Ve</div>
+                                <div class="cal-weekday">Sa</div>
+                                <div class="cal-weekday">Do</div>
+                            </div>
+                        </div>
+                        <div class="cal-grid" id="birthCalGridAdd"></div>
+                    </div>
+                </div>
+
+
+                <!-- CALENDARIO NASCITA - MODIFICA UTENTE -->
+                <div class="birth-cal-overlay" id="birthCalOverlayEdit">
+                    <div class="birth-cal-picker" id="birthCalPickerEdit">
+                        <div class="birth-cal-header">
+                            <div class="birth-cal-month-row">
+                                <button class="cal-nav-btn" id="birthCalPrevMonthEdit" type="button">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M15 18l-6-6 6-6" />
+                                    </svg>
+                                </button>
+                                <span class="birth-cal-month-label" id="birthCalMonthLabelEdit"></span>
+                                <button class="cal-nav-btn" id="birthCalNextMonthEdit" type="button">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="birth-cal-year-row">
+                                <button class="birth-year-nav" id="birthCalPrevYearEdit" type="button">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M15 18l-6-6 6-6" />
+                                        <path d="M9 18l-6-6 6-6" />
+                                    </svg>
+                                </button>
+                                <button class="birth-year-nav" id="birthCalPrevDecadeEdit" type="button">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M15 18l-6-6 6-6" />
+                                    </svg>
+                                </button>
+                                <select class="birth-year-select" id="birthCalYearSelectEdit"></select>
+                                <button class="birth-year-nav" id="birthCalNextDecadeEdit" type="button">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg>
+                                </button>
+                                <button class="birth-year-nav" id="birthCalNextYearEdit" type="button">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M9 18l6-6-6-6" />
+                                        <path d="M15 18l6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="cal-weekdays">
+                                <div class="cal-weekday">Lu</div>
+                                <div class="cal-weekday">Ma</div>
+                                <div class="cal-weekday">Me</div>
+                                <div class="cal-weekday">Gi</div>
+                                <div class="cal-weekday">Ve</div>
+                                <div class="cal-weekday">Sa</div>
+                                <div class="cal-weekday">Do</div>
+                            </div>
+                        </div>
+                        <div class="cal-grid" id="birthCalGridEdit"></div>
                     </div>
                 </div>
 
@@ -1925,7 +2054,12 @@ $resultResoconti = $conn->query($sqlResoconti);
                 document.getElementById("viewBirth-mod").innerText = "Nato il " + row.dataset.nascita;
                 document.getElementById("editNome").value = row.dataset.nome;
                 document.getElementById("editCognome").value = row.dataset.cognome;
-                document.getElementById("editData").value = row.dataset.nascita;
+                const editCalBtn = document.getElementById('birthdayCalBtnEdit');
+                if (editCalBtn && editCalBtn._setBirthDate) editCalBtn._setBirthDate(row.dataset.nascita);
+                else {
+                    document.getElementById("editData").value = row.dataset.nascita;
+                    document.getElementById("editDataHidden").value = row.dataset.nascita;
+                }
                 document.getElementById("editCF").value = row.dataset.cf;
                 document.getElementById("editEmail").value = row.dataset.email;
                 document.getElementById("editTelefono").value = row.dataset.telefono;
@@ -1988,7 +2122,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                     fd.append("id", id);
                     fd.append("nome", document.getElementById("editNome").value);
                     fd.append("cognome", document.getElementById("editCognome").value);
-                    fd.append("data_nascita", document.getElementById("editData").value);
+                    fd.append("data_nascita", document.getElementById("editDataHidden").value || document.getElementById("editData").value);
                     fd.append("codice_fiscale", document.getElementById("editCF").value);
                     fd.append("email", document.getElementById("editEmail").value);
                     fd.append("telefono", document.getElementById("editTelefono").value);
@@ -2028,7 +2162,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             id,
                             nome: document.getElementById("editNome").value,
                             cognome: document.getElementById("editCognome").value,
-                            data_nascita: document.getElementById("editData").value,
+                            data_nascita: document.getElementById("editDataHidden").value || document.getElementById("editData").value,
                             codice_fiscale: document.getElementById("editCF").value,
                             email: document.getElementById("editEmail").value,
                             telefono: document.getElementById("editTelefono").value,
@@ -2328,15 +2462,28 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
         }
 
-        if (aggiungiUtenteBtn) aggiungiUtenteBtn.onclick = () => openModal(modalAggiungiUtente);
-        if (aggiungiUtenteBtnMobile) aggiungiUtenteBtnMobile.onclick = () => openModal(modalAggiungiUtente);
+        if (aggiungiUtenteBtn) aggiungiUtenteBtn.onclick = () => {
+            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
+            if (addCalBtn && addCalBtn._setBirthDate) addCalBtn._setBirthDate(null);
+            openModal(modalAggiungiUtente);
+        };
+        if (aggiungiUtenteBtnMobile) aggiungiUtenteBtnMobile.onclick = () => {
+            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
+            if (addCalBtn && addCalBtn._setBirthDate) addCalBtn._setBirthDate(null);
+            openModal(modalAggiungiUtente);
+        };
 
         formAggiungiUtente.onsubmit = async function(e) {
             e.preventDefault();
+            const dataNascita = document.getElementById("utenteDataHidden").value;
+            if (!dataNascita) {
+                alert('Seleziona la data di nascita dal calendario.');
+                return;
+            }
             const fd = new FormData();
             fd.append("nome", document.getElementById("utenteNome").value.trim());
             fd.append("cognome", document.getElementById("utenteCognome").value.trim());
-            fd.append("data_nascita", document.getElementById("utenteData").value);
+            fd.append("data_nascita", dataNascita);
             fd.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
             fd.append("email", document.getElementById("utenteEmail").value.trim());
             fd.append("telefono", document.getElementById("utenteTelefono").value.trim());
@@ -2566,27 +2713,20 @@ $resultResoconti = $conn->query($sqlResoconti);
             if (!e.target.closest('.edit-agenda-btn')) return;
             const btn = e.target.closest('.edit-agenda-btn');
             const cardId = btn.dataset.id;
-
-            // Trova l'oggetto att corrispondente nei dati caricati
             const att = agendaData.find(a => String(a.id) === String(cardId));
             if (!att) return;
-
             agendaToEdit = att;
 
-            // Pre-popola orari
             document.getElementById('modAgendaOraInizio').value = att.ora_inizio.substring(0, 5);
             document.getElementById('modAgendaOraFine').value = att.ora_fine.substring(0, 5);
 
-            // Pre-popola attività
             const selAtt = document.getElementById('modAgendaAttivita');
             selAtt.value = att.attivita_id;
 
-            // Pre-popola educatori
             document.querySelectorAll('.mod-educatore-checkbox').forEach(cb => {
                 cb.checked = att.educatori.some(e => String(e.id) === cb.value);
             });
 
-            // Pre-popola ragazzi e gruppo
             document.querySelectorAll('.mod-ragazzo-checkbox').forEach(cb => {
                 const rag = att.ragazzi.find(r => String(r.id) === cb.value);
                 cb.checked = !!rag;
@@ -2600,7 +2740,6 @@ $resultResoconti = $conn->query($sqlResoconti);
             openModal(modalModificaAgenda);
         });
 
-        // Checkbox ragazzi nel modal modifica
         document.querySelectorAll('.mod-ragazzo-checkbox').forEach(cb => {
             cb.addEventListener('change', function() {
                 const sel = this.closest('label').querySelector('.mod-ragazzo-gruppo');
@@ -2900,6 +3039,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 pw.print();
             };
         }
+
 
         // =====================================================================
         // RESOCONTI
@@ -3392,77 +3532,6 @@ $resultResoconti = $conn->query($sqlResoconti);
         // FLATPICKR
         // =====================================================================
         // =====================================================================
-        // =====================================================================
-        // PRESENZE — navigazione per data
-        // =====================================================================
-        let presenzeOffset = parseInt(localStorage.getItem('presenzeOffset') || '0');
-
-        function getPresenzaDateString(offset) {
-            const d = new Date();
-            d.setDate(d.getDate() + offset);
-            return getLocalDateString(d);
-        }
-
-        function updatePresenzeDayLabel() {
-            const d = new Date();
-            d.setDate(d.getDate() + presenzeOffset);
-            const label = d.toLocaleDateString('it-IT', {
-                weekday: 'long',
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
-            });
-            document.getElementById('presenzeDayLabel').innerText = label.charAt(0).toUpperCase() + label.slice(1);
-            const todayBtn = document.getElementById('todayPresenzeBtn');
-            if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
-            const nextBtn = document.getElementById('nextDayBtn');
-            if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
-        }
-
-        function loadPresenze() {
-            const dataStr = getPresenzaDateString(presenzeOffset);
-            const tbody = document.querySelector('#presenzeTable tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Caricamento...</td></tr>';
-            updatePresenzeDayLabel();
-            fetch(`api/api_get_presenze.php?data=${dataStr}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.success) {
-                        tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento</td></tr>';
-                        return;
-                    }
-                    if (data.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Nessuna presenza registrata per questo giorno.</td></tr>';
-                        return;
-                    }
-                    tbody.innerHTML = data.data.map(row => `<tr data-id="${row.id}" data-nome="${row.nome}" data-cognome="${row.cognome}" data-ingresso="${row.ingresso}" data-uscita="${row.uscita || ''}"><td><img class="user-avatar" src="${row.fotografia}"></td><td>${row.nome}</td><td>${row.cognome}</td><td>${row.ingresso}</td><td>${row.uscita || '—'}</td><td><button class="edit-presenza-btn" data-id="${row.id}"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-presenza-btn" data-id="${row.id}"><img src="immagini/delete.png" alt="Elimina"></button></td></tr>`).join('');
-                })
-                .catch(() => {
-                    tbody.innerHTML = '<tr><td colspan="6">Errore di rete</td></tr>';
-                });
-        }
-
-        document.getElementById('prevDayBtn').onclick = () => {
-            presenzeOffset--;
-            localStorage.setItem('presenzeOffset', presenzeOffset);
-            loadPresenze();
-        };
-        document.getElementById('nextDayBtn').onclick = () => {
-            if (presenzeOffset < 0) {
-                presenzeOffset++;
-                localStorage.setItem('presenzeOffset', presenzeOffset);
-                loadPresenze();
-            }
-        };
-        document.getElementById('todayPresenzeBtn').onclick = () => {
-            if (presenzeOffset !== 0) {
-                presenzeOffset = 0;
-                localStorage.setItem('presenzeOffset', presenzeOffset);
-                loadPresenze();
-            }
-        };
-
 
         // =====================================================================
         // CALENDARIO PICKER PRESENZE
@@ -3714,6 +3783,77 @@ $resultResoconti = $conn->query($sqlResoconti);
             localStorage.setItem("activeTab", tabId);
         }
 
+        // =====================================================================
+        // PRESENZE — navigazione per data
+        // =====================================================================
+        let presenzeOffset = parseInt(localStorage.getItem('presenzeOffset') || '0');
+
+        function getPresenzaDateString(offset) {
+            const d = new Date();
+            d.setDate(d.getDate() + offset);
+            return getLocalDateString(d);
+        }
+
+        function updatePresenzeDayLabel() {
+            const d = new Date();
+            d.setDate(d.getDate() + presenzeOffset);
+            const label = d.toLocaleDateString('it-IT', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            document.getElementById('presenzeDayLabel').innerText = label.charAt(0).toUpperCase() + label.slice(1);
+            const todayBtn = document.getElementById('todayPresenzeBtn');
+            if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
+            const nextBtn = document.getElementById('nextDayBtn');
+            if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
+        }
+
+        function loadPresenze() {
+            const dataStr = getPresenzaDateString(presenzeOffset);
+            const tbody = document.querySelector('#presenzeTable tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Caricamento...</td></tr>';
+            updatePresenzeDayLabel();
+            fetch(`api/api_get_presenze.php?data=${dataStr}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento</td></tr>';
+                        return;
+                    }
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Nessuna presenza registrata per questo giorno.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = data.data.map(row => `<tr data-id="${row.id}" data-nome="${row.nome}" data-cognome="${row.cognome}" data-ingresso="${row.ingresso}" data-uscita="${row.uscita || ''}"><td><img class="user-avatar" src="${row.fotografia}"></td><td>${row.nome}</td><td>${row.cognome}</td><td>${row.ingresso}</td><td>${row.uscita || '—'}</td><td><button class="edit-presenza-btn" data-id="${row.id}"><img src="immagini/edit.png" alt="Modifica"></button><button class="delete-presenza-btn" data-id="${row.id}"><img src="immagini/delete.png" alt="Elimina"></button></td></tr>`).join('');
+                })
+                .catch(() => {
+                    tbody.innerHTML = '<tr><td colspan="6">Errore di rete</td></tr>';
+                });
+        }
+
+        document.getElementById('prevDayBtn').onclick = () => {
+            presenzeOffset--;
+            localStorage.setItem('presenzeOffset', presenzeOffset);
+            loadPresenze();
+        };
+        document.getElementById('nextDayBtn').onclick = () => {
+            if (presenzeOffset < 0) {
+                presenzeOffset++;
+                localStorage.setItem('presenzeOffset', presenzeOffset);
+                loadPresenze();
+            }
+        };
+        document.getElementById('todayPresenzeBtn').onclick = () => {
+            if (presenzeOffset !== 0) {
+                presenzeOffset = 0;
+                localStorage.setItem('presenzeOffset', presenzeOffset);
+                loadPresenze();
+            }
+        };
+
         window.addEventListener("DOMContentLoaded", () => {
             loadPresenze();
             // Carica agenda
@@ -3734,6 +3874,291 @@ $resultResoconti = $conn->query($sqlResoconti);
                 if (sc) sc.classList.add('active');
             }
         });
+    </script>
+
+    <script>
+        // =====================================================================
+        // CALENDARIO NASCITA — factory riutilizzabile
+        // =====================================================================
+        (function() {
+            /**
+             * Crea un calendar picker per la data di nascita.
+             * @param {object} cfg
+             *   cfg.openBtnId   – id del bottone che apre il calendario
+             *   cfg.overlayId   – id dell'overlay
+             *   cfg.pickerId    – id del contenitore del picker
+             *   cfg.gridId      – id della griglia giorni
+             *   cfg.monthLblId  – id dello span mese/anno
+             *   cfg.prevMonthId, nextMonthId
+             *   cfg.prevYearId, nextYearId
+             *   cfg.prevDecadeId, nextDecadeId
+             *   cfg.yearSelectId
+             *   cfg.displayInputId  – input text visibile (GG/MM/AAAA)
+             *   cfg.hiddenInputId   – input hidden (YYYY-MM-DD) usato per il submit
+             */
+            function makeBirthdayCal(cfg) {
+                const overlay = document.getElementById(cfg.overlayId);
+                const picker = document.getElementById(cfg.pickerId);
+                const openBtn = document.getElementById(cfg.openBtnId);
+                const displayInput = document.getElementById(cfg.displayInputId);
+                const hiddenInput = document.getElementById(cfg.hiddenInputId);
+
+                if (!overlay || !openBtn || !picker) return;
+
+                // Usa querySelector dentro il picker per evitare conflitti di ID
+                const grid = document.getElementById(cfg.gridId);
+                const monthLbl = document.getElementById(cfg.monthLblId);
+                const prevMonthBtn = document.getElementById(cfg.prevMonthId);
+                const nextMonthBtn = document.getElementById(cfg.nextMonthId);
+                const prevYearBtn = picker.querySelector('.birth-year-nav:nth-child(1)');
+                const prevDecBtn = picker.querySelector('.birth-year-nav:nth-child(2)');
+                const nextDecBtn = picker.querySelector('.birth-year-nav:nth-child(4)');
+                const nextYearBtn = picker.querySelector('.birth-year-nav:nth-child(5)');
+                const yearSelect = picker.querySelector('.birth-year-select');
+
+                const TODAY = new Date();
+                TODAY.setHours(0, 0, 0, 0);
+                const MIN_YEAR = 1900;
+
+                let calViewDate = new Date(TODAY.getFullYear() - 30, 0, 1);
+                let selectedDate = null;
+
+                function pad(n) {
+                    return String(n).padStart(2, '0');
+                }
+
+                function toDateStr(d) {
+                    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+                }
+
+                function toDisplayStr(d) {
+                    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+                }
+
+                function buildYearSelect() {
+                    yearSelect.innerHTML = '';
+                    const curY = calViewDate.getFullYear();
+                    for (let y = TODAY.getFullYear(); y >= MIN_YEAR; y--) {
+                        const opt = document.createElement('option');
+                        opt.value = y;
+                        opt.textContent = y;
+                        if (y === curY) opt.selected = true;
+                        yearSelect.appendChild(opt);
+                    }
+                }
+
+                function renderCalendar() {
+                    const year = calViewDate.getFullYear();
+                    const month = calViewDate.getMonth();
+                    const selStr = selectedDate ? toDateStr(selectedDate) : null;
+
+                    monthLbl.textContent = new Date(year, month, 1)
+                        .toLocaleDateString('it-IT', {
+                            month: 'long'
+                        })
+                        .replace(/^./, c => c.toUpperCase());
+
+                    buildYearSelect();
+
+                    // disabilita navigazione futura
+                    const isMaxMonth = (year === TODAY.getFullYear() && month >= TODAY.getMonth());
+                    nextMonthBtn.disabled = isMaxMonth;
+                    nextMonthBtn.style.opacity = isMaxMonth ? '.3' : '1';
+                    nextYearBtn.disabled = (year >= TODAY.getFullYear());
+                    nextYearBtn.style.opacity = nextYearBtn.disabled ? '.3' : '1';
+                    nextDecBtn.disabled = (year + 10 > TODAY.getFullYear());
+                    nextDecBtn.style.opacity = nextDecBtn.disabled ? '.3' : '1';
+
+                    prevMonthBtn.disabled = (year === MIN_YEAR && month === 0);
+                    prevYearBtn.disabled = (year <= MIN_YEAR);
+                    prevDecBtn.disabled = (year - 10 < MIN_YEAR);
+
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const offset = (firstDay === 0) ? 6 : firstDay - 1;
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                    grid.innerHTML = '';
+                    for (let i = 0; i < offset; i++) {
+                        const el = document.createElement('div');
+                        el.className = 'cal-day cal-empty';
+                        grid.appendChild(el);
+                    }
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        const dateObj = new Date(year, month, d);
+                        const dateStr = toDateStr(dateObj);
+                        const isFuture = dateObj > TODAY;
+                        const isSelected = (selStr === dateStr);
+
+                        const el = document.createElement('div');
+                        el.className = 'cal-day' +
+                            (isFuture ? ' cal-future' : '') +
+                            (isSelected ? ' cal-selected' : '');
+                        el.textContent = d;
+                        if (!isFuture) {
+                            el.addEventListener('click', () => {
+                                selectedDate = new Date(year, month, d);
+                                displayInput.value = toDisplayStr(selectedDate);
+                                hiddenInput.value = dateStr;
+                                closeCal();
+                            });
+                        }
+                        grid.appendChild(el);
+                    }
+                }
+
+                function openCal() {
+                    // se c'è già un valore selezionato, vai a quel mese
+                    if (selectedDate) {
+                        calViewDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                    }
+                    renderCalendar();
+                    overlay.classList.add('open');
+
+                    const rect = openBtn.getBoundingClientRect();
+                    const pickerW = 300;
+                    // Cerca di aprire sotto il bottone, ma verifica spazio
+                    let left = rect.left;
+                    if (left + pickerW > window.innerWidth - 8) left = window.innerWidth - pickerW - 8;
+                    if (left < 8) left = 8;
+
+                    // Verifica se c'è spazio sotto, altrimenti apri sopra
+                    const spaceBelow = window.innerHeight - rect.bottom;
+                    const pickerH = 380;
+                    let top;
+                    if (spaceBelow >= pickerH || spaceBelow > window.innerHeight - rect.top) {
+                        top = rect.bottom + window.scrollY + 6;
+                    } else {
+                        top = rect.top + window.scrollY - pickerH - 6;
+                    }
+                    picker.style.top = top + 'px';
+                    picker.style.left = left + 'px';
+                }
+
+                function closeCal() {
+                    overlay.classList.remove('open');
+                }
+
+                // Apre/chiude
+                openBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    overlay.classList.contains('open') ? closeCal() : openCal();
+                });
+                overlay.addEventListener('click', e => {
+                    if (!picker.contains(e.target)) closeCal();
+                });
+
+                // Navigazione mese
+                prevMonthBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    calViewDate.setMonth(calViewDate.getMonth() - 1);
+                    renderCalendar();
+                });
+                nextMonthBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!nextMonthBtn.disabled) {
+                        calViewDate.setMonth(calViewDate.getMonth() + 1);
+                        renderCalendar();
+                    }
+                });
+
+                // Navigazione anno
+                prevYearBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (calViewDate.getFullYear() > MIN_YEAR) {
+                        calViewDate.setFullYear(calViewDate.getFullYear() - 1);
+                        renderCalendar();
+                    }
+                });
+                nextYearBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (calViewDate.getFullYear() < TODAY.getFullYear()) {
+                        calViewDate.setFullYear(calViewDate.getFullYear() + 1);
+                        renderCalendar();
+                    }
+                });
+
+                // Navigazione decennio
+                prevDecBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const ny = Math.max(MIN_YEAR, calViewDate.getFullYear() - 10);
+                    calViewDate.setFullYear(ny);
+                    renderCalendar();
+                });
+                nextDecBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const ny = Math.min(TODAY.getFullYear(), calViewDate.getFullYear() + 10);
+                    calViewDate.setFullYear(ny);
+                    renderCalendar();
+                });
+
+                // Selezione anno da dropdown
+                yearSelect.addEventListener('change', e => {
+                    e.stopPropagation();
+                    calViewDate.setFullYear(parseInt(yearSelect.value));
+                    renderCalendar();
+                });
+
+                // Esponi metodo per pre-caricare un valore (es. in modifica utente)
+                openBtn._setBirthDate = function(isoStr) {
+                    if (!isoStr) {
+                        selectedDate = null;
+                        displayInput.value = '';
+                        hiddenInput.value = '';
+                        return;
+                    }
+                    const parts = isoStr.split('-');
+                    if (parts.length === 3) {
+                        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                        selectedDate = d;
+                        displayInput.value = toDisplayStr(d);
+                        hiddenInput.value = isoStr;
+                        calViewDate = new Date(d.getFullYear(), d.getMonth(), 1);
+                    }
+                };
+            }
+
+            // Istanzia calendario per AGGIUNGI UTENTE
+            makeBirthdayCal({
+                openBtnId: 'birthdayCalBtnAdd',
+                overlayId: 'birthCalOverlayAdd',
+                pickerId: 'birthCalPickerAdd',
+                gridId: 'birthCalGridAdd',
+                monthLblId: 'birthCalMonthLabelAdd',
+                prevMonthId: 'birthCalPrevMonthAdd',
+                nextMonthId: 'birthCalNextMonthAdd',
+                prevYearId: 'birthCalPrevYearAdd',
+                nextYearId: 'birthCalNextYearAdd',
+                prevDecadeId: 'birthCalPrevDecadeAdd',
+                nextDecadeId: 'birthCalNextDecadeAdd',
+                yearSelectId: 'birthCalYearSelectAdd',
+                displayInputId: 'utenteData',
+                hiddenInputId: 'utenteDataHidden'
+            });
+
+            // Istanzia calendario per MODIFICA UTENTE
+            makeBirthdayCal({
+                openBtnId: 'birthdayCalBtnEdit',
+                overlayId: 'birthCalOverlayEdit',
+                pickerId: 'birthCalPickerEdit',
+                gridId: 'birthCalGridEdit',
+                monthLblId: 'birthCalMonthLabelEdit',
+                prevMonthId: 'birthCalPrevMonthEdit',
+                nextMonthId: 'birthCalNextMonthEdit',
+                prevYearId: 'birthCalPrevYearEdit',
+                nextYearId: 'birthCalNextYearEdit',
+                prevDecadeId: 'birthCalPrevDecadeEdit',
+                nextDecadeId: 'birthCalNextDecadeEdit',
+                yearSelectId: 'birthCalYearSelectEdit',
+                displayInputId: 'editData',
+                hiddenInputId: 'editDataHidden'
+            });
+        })();
 
         document.addEventListener('mousemove', e => {
             document.documentElement.style.setProperty('--tt-y', (e.clientY + 14) + 'px');
@@ -3744,6 +4169,9 @@ $resultResoconti = $conn->query($sqlResoconti);
     </script>
 
     <script src="js/mobile-calendar.js"></script>
+
+    <script src="js/custom-select.js"></script>
+
 </body>
 
 </html>

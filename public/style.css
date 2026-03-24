@@ -3872,6 +3872,7 @@
      display: block;
      pointer-events: auto;
      transform: translate(-50%, -50%) scale(1);
+     padding-bottom: 0 !important;
  }
 
  .modal-box h3 {
@@ -4111,6 +4112,25 @@
      flex-direction: column;
      gap: 20px;
      margin-top: 20px;
+ }
+
+ .modal-box form {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     column-gap: 18px;
+ }
+
+ #formCreaAgenda,
+ #formAttivita,
+ #formModificaAgenda,
+ #formModificaAttivita {
+     grid-template-columns: auto;
+
+ }
+
+ .modal-box.large .edit-field#fieldFotografiaAdd,
+ .modal-box.large .edit-field#fieldAllegati {
+     grid-column: 1 / -1;
  }
 
  .edit-field label {
@@ -7219,6 +7239,7 @@
      bottom: 0;
      background: #fff;
      z-index: 10;
+     grid-column: 1 / -1 !important;
  }
 
  /* Bottoni */
@@ -7394,17 +7415,6 @@
  /* ══════════════════════════════════════════════════════════════════
    CHECKBOX GROUP
 ══════════════════════════════════════════════════════════════════ */
- .checkbox-group {
-     display: flex;
-     flex-direction: column;
-     gap: 2px;
-     max-height: 160px;
-     overflow-y: auto;
-     padding: 8px 10px;
-     border: 1.5px solid #e0e0e0;
-     border-radius: 8px;
-     background: #fff;
- }
 
  .checkbox-group::-webkit-scrollbar {
      width: 3px;
@@ -7870,7 +7880,7 @@
      max-width: 90px;
  }
 
- 
+
 
  /* ── Bottoni navigazione mese nel birth picker ── */
  .birth-cal-month-row .cal-nav-btn {
@@ -7902,3 +7912,156 @@
      pointer-events: none;
  }
 
+ /* ── Navigatore mese resoconti ── */
+ .mese-nav {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+     margin-bottom: 20px;
+ }
+
+ .mese-nav-btn {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     width: 34px;
+     height: 34px;
+     border: 1.5px solid #e0e0e0;
+     border-radius: 8px;
+     background: #fff;
+     color: #444;
+     cursor: pointer;
+     flex-shrink: 0;
+     transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+ }
+
+ .mese-nav-btn:hover {
+     background: #640a35;
+     border-color: #640a35;
+     color: #fff;
+     transform: scale(1.05);
+ }
+
+ .mese-nav-btn:active {
+     transform: scale(0.97);
+ }
+
+ .mese-label-btn {
+     height: 34px;
+     padding: 0 16px;
+     border: 1.5px solid #e0e0e0;
+     border-radius: 8px;
+     background: #fff;
+     color: #333;
+     font-size: 0.875rem;
+     font-weight: 600;
+     cursor: pointer;
+     min-width: 160px;
+     text-align: center;
+     transition: border-color 0.15s, color 0.15s;
+ }
+
+ .mese-label-btn:hover {
+     border-color: #640a35;
+     color: #640a35;
+ }
+
+ .mese-label-btn.is-current {
+     background: #640a35;
+     color: #fff;
+     border-color: #640a35;
+ }
+
+ /* Picker griglia mesi */
+ .mese-picker-overlay {
+     display: none;
+     position: fixed;
+     inset: 0;
+     z-index: 8000;
+     background: rgba(0, 0, 0, 0.20);
+ }
+
+ .mese-picker-overlay.open {
+     display: block;
+ }
+
+ .mese-picker {
+     position: absolute;
+     background: #fff;
+     border-radius: 14px;
+     box-shadow: 0 8px 32px rgba(100, 10, 53, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+     width: 300px;
+     overflow: hidden;
+     z-index: 8001;
+     animation: calPop .18s ease;
+ }
+
+ .mese-picker-header {
+     background: #640a35;
+     color: #fff;
+     padding: 14px 16px 12px;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+ }
+
+ .mese-picker-year {
+     font-size: 1rem;
+     font-weight: 700;
+     letter-spacing: 0.02em;
+ }
+
+ .mese-year-btn {
+     background: rgba(255, 255, 255, 0.18);
+     border: none;
+     border-radius: 8px;
+     width: 30px;
+     height: 30px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     color: #fff;
+     cursor: pointer;
+     transition: background 0.15s;
+ }
+
+ .mese-year-btn:hover {
+     background: rgba(255, 255, 255, 0.32);
+ }
+
+ .mese-grid {
+     display: grid;
+     grid-template-columns: repeat(3, 1fr);
+     gap: 6px;
+     padding: 14px;
+ }
+
+ .mese-option {
+     padding: 9px 4px;
+     text-align: center;
+     border-radius: 8px;
+     font-size: 0.84rem;
+     font-weight: 500;
+     color: #333;
+     cursor: pointer;
+     transition: background 0.12s, color 0.12s;
+     user-select: none;
+ }
+
+ .mese-option:hover {
+     background: #f4e0ea;
+     color: #640a35;
+ }
+
+ .mese-option.mese-selected {
+     background: #640a35;
+     color: #fff;
+     font-weight: 700;
+ }
+
+ .mese-option.mese-future {
+     color: #ccc;
+     cursor: default;
+     pointer-events: none;
+ }
