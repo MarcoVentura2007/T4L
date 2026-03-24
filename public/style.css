@@ -3479,6 +3479,7 @@
          padding: 24px !important;
          max-height: 85vh;
          overflow-y: auto;
+         padding-bottom: 0 !important;
      }
 
 
@@ -7521,6 +7522,12 @@
          height: 44px;
          font-size: 0.95rem;
      }
+
+      .modal-box form {
+        display: grid;
+        grid-template-columns: auto;
+        column-gap: 18px;
+    }
  }
 
  /* ══════════════════════════════════════════════════════════════════
