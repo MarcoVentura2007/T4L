@@ -4129,7 +4129,8 @@
  }
 
  .modal-box.large .edit-field#fieldFotografiaAdd,
- .modal-box.large .edit-field#fieldAllegati {
+ .modal-box.large .edit-field#fieldAllegati,
+ .edit-grid {
      grid-column: 1 / -1;
  }
 
@@ -4614,7 +4615,7 @@
      background-color: #f9f9f9;
      border-radius: 6px;
      border: 1px solid #e0e0e0;
-     max-height: 300px;
+     max-height: 360px;
      overflow-y: auto;
  }
 
