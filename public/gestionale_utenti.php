@@ -401,7 +401,7 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                                 <input type="time" id="apIngresso" required>
                             </div>
                             <div class="edit-field">
-                                <label>Ora uscita <span style="color:#888;font-weight:400;font-size:0.8rem;">(opzionale)</span></label>
+                                <label>Ora uscita <span style="color:#888;font-weight:400;font-size:0.8rem;"></span></label>
                                 <input type="time" id="apUscita">
                             </div>
                             <div class="modal-actions">
@@ -510,8 +510,8 @@ $resultRagazzi = $conn->query($sqlRagazzi);
             </div>
         </div>
         <div class="edit-grid">
-            <div class="edit-field" id="fieldIngresso"><label>Ingresso (ora)</label><input type="time" id="editIngresso"></div>
-            <div class="edit-field" id="fieldUscita"><label>Uscita (ora)</label><input type="time" id="editUscita"></div>
+            <div class="edit-field" id="fieldIngresso"><label>Ora ingresso</label><input type="time" id="editIngresso"></div>
+            <div class="edit-field" id="fieldUscita"><label>Ora uscita</label><input type="time" id="editUscita"></div>
         </div>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
