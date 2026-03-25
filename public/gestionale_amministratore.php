@@ -96,28 +96,7 @@ $resultResoconti = $conn->query($sqlResoconti);
     <link rel="stylesheet" href="style_mobile_agenda.css">
     <link rel="icon" href="immagini/Icona.ico">
     <script src="https://cdn.tailwindcss.com">
-        // Tooltip celle — appare solo se il testo è troncato
-        (function() {
-            function checkTruncation() {
-                document.querySelectorAll('.cell-truncate').forEach(el => {
-                    el.classList.toggle('is-truncated', el.scrollWidth > el.clientWidth);
-                });
-            }
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', checkTruncation);
-            } else {
-                checkTruncation();
-            }
-            window.addEventListener('resize', checkTruncation);
 
-            document.addEventListener('mousemove', e => {
-                const r = document.documentElement;
-                r.style.setProperty('--tt-y', (e.clientY + 16) + 'px');
-                r.style.setProperty('--tt-x', (e.clientX - 6) + 'px');
-                r.style.setProperty('--tt-arrow-y', (e.clientY + 10) + 'px');
-                r.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
-            });
-        })();
     </script>
 
     <style>
@@ -4556,6 +4535,43 @@ $resultResoconti = $conn->query($sqlResoconti);
                     overlay.classList.remove('open');
                 }
 
+                // ── Scrittura manuale: accetta GG/MM/AAAA e aggiorna l'hidden
+                displayInput.addEventListener('input', function() {
+                    const val = this.value;
+                    const digits = val.replace(/\D/g, '');
+                    let formatted = digits;
+                    if (digits.length > 2) formatted = digits.slice(0,2) + '/' + digits.slice(2);
+                    if (digits.length > 4) formatted = digits.slice(0,2) + '/' + digits.slice(2,4) + '/' + digits.slice(4,8);
+                    if (formatted !== val) this.value = formatted;
+
+                    if (formatted.length === 10) {
+                        const parts = formatted.split('/');
+                        const d = parseInt(parts[0]), m = parseInt(parts[1]), y = parseInt(parts[2]);
+                        const dateObj = new Date(y, m - 1, d);
+                        const isValid = !isNaN(dateObj) &&
+                            dateObj.getDate() === d &&
+                            dateObj.getMonth() === m - 1 &&
+                            dateObj.getFullYear() === y &&
+                            y >= 1900 &&
+                            dateObj <= TODAY;
+                        if (isValid) {
+                            selectedDate = dateObj;
+                            hiddenInput.value = y + '-' + pad(m) + '-' + pad(d);
+                            calViewDate = new Date(y, m - 1, 1);
+                        } else {
+                            hiddenInput.value = '';
+                        }
+                    } else {
+                        hiddenInput.value = '';
+                    }
+                });
+
+                displayInput.addEventListener('keydown', function(e) {
+                    const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                    if (allowed.includes(e.key)) return;
+                    if (!/[\d\/]/.test(e.key)) e.preventDefault();
+                });
+
                 // Apre/chiude
                 openBtn.addEventListener('click', e => {
                     e.stopPropagation();
@@ -4718,6 +4734,8 @@ $resultResoconti = $conn->query($sqlResoconti);
             document.documentElement.style.setProperty('--tt-arrow-y', (e.clientY + 8) + 'px');
             document.documentElement.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
         });
+
+        
     </script>
 
     <script src="js/mobile-calendar.js"></script>

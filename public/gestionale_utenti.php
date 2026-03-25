@@ -69,7 +69,8 @@ $resultRagazzi = $conn->query($sqlRagazzi);
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="style_mobile_agenda.css">
     <link rel="icon" href="immagini/Icona.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
     <style>
         @media (max-width: 768px) {
             .footer-bar {
@@ -81,8 +82,6 @@ $resultRagazzi = $conn->query($sqlRagazzi);
         button.group {
             display: none;
         }
-
-        
 
         @media (max-width: 768px) {
             .btn-add {
@@ -272,8 +271,8 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                                     <td>' . htmlspecialchars($row['nome']) . '</td>
                                     <td>' . htmlspecialchars($row['cognome']) . '</td>
                                     <td>' . htmlspecialchars($row['data_nascita']) . '</td>
-                                    <td>' . htmlspecialchars($row['disabilita']) . '</td>
-                                    <td>' . htmlspecialchars($row['note']) . '</td>
+                                    <td><span class="cell-truncate cell-truncate--lg" data-tooltip="' . htmlspecialchars($row['disabilita']) . '">' . htmlspecialchars($row['disabilita']) . '</span></td>
+                                    <td><span class="cell-truncate cell-truncate--md" data-tooltip="' . htmlspecialchars($row['note']) . '">' . htmlspecialchars($row['note']) . '</span></td>
                                     <td>
                                         <button class="view-btn"><img src="immagini/open-eye.png"></button>
                                     </td>
@@ -1432,6 +1431,13 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 const sc = document.getElementById(savedTab);
                 if (sc) sc.classList.add('active');
             }
+        });
+
+        document.addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--tt-y', (e.clientY + 14) + 'px');
+            document.documentElement.style.setProperty('--tt-x', (e.clientX - 10) + 'px');
+            document.documentElement.style.setProperty('--tt-arrow-y', (e.clientY + 8) + 'px');
+            document.documentElement.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
         });
     </script>
 
