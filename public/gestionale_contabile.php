@@ -3648,7 +3648,10 @@ $resultResoconti = $conn->query($sqlResoconti);
             const todayBtn = document.getElementById('todayPresenzeBtn');
             if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
             const nextBtn = document.getElementById('nextDayBtn');
-            if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
+            if (nextBtn) {
+                nextBtn.disabled = presenzeOffset >= 0;
+                nextBtn.style.opacity = nextBtn.disabled ? '.4' : '1';
+            }
         }
 
         function loadPresenze() {

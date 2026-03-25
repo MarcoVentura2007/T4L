@@ -88,7 +88,7 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 display: none !important;
             }
 
-            button.group{
+            button.group {
                 display: inline-flex;
             }
 
@@ -96,6 +96,7 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 fill: none;
                 stroke: #a1a1aa;
             }
+
             button.group:hover svg {
                 fill: #27272a;
                 stroke: #27272a;
@@ -991,7 +992,7 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                 loadAgenda();
             }
         };
-    
+
         // Stampa Agenda
         const stampaAgendaBtn = document.getElementById("stampaAgendaBtn");
         if (stampaAgendaBtn) {
@@ -1368,7 +1369,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
             const todayBtn = document.getElementById('todayPresenzeBtn');
             if (todayBtn) todayBtn.classList.toggle('is-today', presenzeOffset === 0);
             const nextBtn = document.getElementById('nextDayBtn');
-            if (nextBtn) nextBtn.disabled = presenzeOffset >= 0;
+            if (nextBtn) {
+                nextBtn.disabled = presenzeOffset >= 0;
+                nextBtn.style.opacity = nextBtn.disabled ? '.4' : '1';
+            }
         }
 
         function loadPresenze() {
