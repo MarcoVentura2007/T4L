@@ -1264,7 +1264,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="modal-actions">
                                 <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
                                 <button type="submit" class="btn-primary">Salva</button>
-                      
+
                             </div>
                         </form>
 
@@ -4543,13 +4543,15 @@ $resultResoconti = $conn->query($sqlResoconti);
                     const val = this.value;
                     const digits = val.replace(/\D/g, '');
                     let formatted = digits;
-                    if (digits.length > 2) formatted = digits.slice(0,2) + '/' + digits.slice(2);
-                    if (digits.length > 4) formatted = digits.slice(0,2) + '/' + digits.slice(2,4) + '/' + digits.slice(4,8);
+                    if (digits.length > 2) formatted = digits.slice(0, 2) + '/' + digits.slice(2);
+                    if (digits.length > 4) formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4, 8);
                     if (formatted !== val) this.value = formatted;
 
                     if (formatted.length === 10) {
                         const parts = formatted.split('/');
-                        const d = parseInt(parts[0]), m = parseInt(parts[1]), y = parseInt(parts[2]);
+                        const d = parseInt(parts[0]),
+                            m = parseInt(parts[1]),
+                            y = parseInt(parts[2]);
                         const dateObj = new Date(y, m - 1, d);
                         const isValid = !isNaN(dateObj) &&
                             dateObj.getDate() === d &&
@@ -4570,7 +4572,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 });
 
                 displayInput.addEventListener('keydown', function(e) {
-                    const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                    const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
                     if (allowed.includes(e.key)) return;
                     if (!/[\d\/]/.test(e.key)) e.preventDefault();
                 });
@@ -4737,8 +4739,6 @@ $resultResoconti = $conn->query($sqlResoconti);
             document.documentElement.style.setProperty('--tt-arrow-y', (e.clientY + 8) + 'px');
             document.documentElement.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
         });
-
-        
     </script>
 
     <script src="js/mobile-calendar.js"></script>
