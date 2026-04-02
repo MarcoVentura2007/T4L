@@ -1311,7 +1311,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                         <form id="formModificaAccount">
                             <input type="hidden" id="editAccountNomeUtente">
                             <div class="edit-field"><label>Nome Utente</label><input type="text" id="editAccountNomeUtenteDisplay" placeholder="Nome utente" disabled></div>
-                            <div class="edit-field"><label>Password (lascia vuoto per non modificare)</label><input type="password" id="editAccountPassword" placeholder="Password" autocomplete="off"></div>
+                            <div class="edit-field"><label>Password</label><input type="password" id="editAccountPassword" placeholder="Password" autocomplete="off"></div>
                             <div class="edit-field">
                                 <label>Classe</label>
                                 <select id="editAccountClasse" required>
@@ -1323,7 +1323,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             </div>
                             <div class="edit-field"><label>Codice Univoco</label><input type="text" id="editAccountCodice" placeholder="Codice univoco" required></div>
                             <div class="modal-actions">
-                                <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                                <button type="button" class="btn-seconary" onclick="closeModal()">Chiudi</button>
                                 <button class="btn-primary" id="salvaModificaAccount">Salva</button>
                             </div>
                         </form>
