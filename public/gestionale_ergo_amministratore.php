@@ -91,6 +91,52 @@ $result = $conn->query($sql);
             border-color: #0b516c;
             box-shadow: 0 0 0 3px rgba(11, 81, 108, .12);
         }
+        .custom-select-wrapper .cs-trigger.cs-open {
+            border-color: #0b516c;
+            box-shadow: 0 0 0 3px rgba(11, 81, 108, .10);
+            border-bottom-color: transparent;
+        }
+        .custom-select-wrapper .cs-trigger.cs-open .cs-arrow {
+            color: #0b516c;
+        }
+        .custom-select-wrapper .cs-panel {
+            border-color: #0b516c;
+            box-shadow: 0 8px 24px rgba(11, 81, 108, .12), 0 2px 8px rgba(0, 0, 0, .06);
+        }
+        .custom-select-wrapper .cs-header {
+            background: #0b516c;
+        }
+        .custom-select-wrapper .cs-option:hover {
+            color: #0b516c;
+        }
+        .custom-select-wrapper .cs-option.cs-selected {
+            background: #0b516c;
+            color: #fff;
+        }
+        .custom-select-wrapper .cs-option.cs-selected:hover {
+            background: #0d6a8a;
+        }
+        .birth-cal-btn {
+            background: #f4f4f5;
+            border-color: #0b516c;
+            color: #0b516c;
+        }
+        .birth-cal-btn:hover {
+            background: #0b516c;
+            border-color: #0b516c;
+            color: #fff;
+        }
+        .birth-cal-year-row,
+        .birth-cal-month-row .cal-nav-btn {
+            background: #0b516c;
+            color: #fff;
+            border-color: #0b516c;
+        }
+        .birth-cal-month-row .cal-nav-btn:hover {
+            background: #0b516c;
+            border-color: #0b516c;
+            color: #fff;
+        }
 
         #modalResocontoGiorni .summary-value {
             color: #0b516c;
@@ -298,15 +344,6 @@ $result = $conn->query($sql);
 </head>
 
 <body>
-    <div id="page-loader" class="show">
-        <div class="logo-pulse-loader">
-            <div class="logo-pulse-ring"></div>
-            <div class="logo-pulse-ring"></div>
-            <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
-        </div>
-        <p style="margin-top:30px;color:#0b516c;font-size:.9rem;font-weight:500;letter-spacing:1px;">Caricamento...</p>
-    </div>
-    <script src="js/loader.js"></script>
 
     <header class="navbar">
         <div class="user-box" id="userBox">
@@ -438,12 +475,25 @@ $result = $conn->query($sql);
                         <form id="formAggiungiUtente">
                             <div class="edit-field"><label>Nome</label><input type="text" id="utenteNome" placeholder="Nome" required></div>
                             <div class="edit-field"><label>Cognome</label><input type="text" id="utenteCognome" placeholder="Cognome" required></div>
-                            <div class="edit-field"><label>Data di nascita</label><input type="date" id="utenteData" required></div>
+                            <div class="edit-field">
+                                <label>Data di nascita</label>
+                                <div class="birth-picker-wrap">
+                                    <input type="text" id="utenteData" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly required>
+                                    <input type="hidden" id="utenteDataHidden">
+                                    <button type="button" class="birth-cal-btn" id="birthdayCalBtnAdd" aria-label="Apri calendario">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                            <line x1="16" y1="2" x2="16" y2="6" />
+                                            <line x1="8" y1="2" x2="8" y2="6" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="edit-field"><label>Codice Fiscale</label><input type="text" id="utenteCF" placeholder="Codice Fiscale" required></div>
                             <div class="edit-field"><label>Email</label><input type="email" id="utenteEmail" placeholder="Email"></div>
                             <div class="edit-field"><label>Telefono</label><input type="tel" id="utenteTelefono" placeholder="Telefono"></div>
                             <div class="edit-field"><label>Disabilità</label><input type="text" id="utenteDisabilita" placeholder="Disabilità"></div>
-                            <div class="edit-field"><label>Intolleranze / Allergie</label><input type="text" id="utenteIntolleranze"></div>
                             <div class="edit-field"><label>Stipendio orario (€)</label><input type="number" id="utentePrezzo" placeholder="Stipendio orario" step="0.01"></div>
                             <div class="edit-field"><label>Note</label><textarea id="utenteNote"></textarea></div>
                             <div class="edit-field" style="grid-column:1/-1">
@@ -489,7 +539,6 @@ $result = $conn->query($sql);
                                             . 'data-email="' . htmlspecialchars($row['Email']) . '" '
                                             . 'data-telefono="' . htmlspecialchars($row['Telefono']) . '" '
                                             . 'data-disabilita="' . htmlspecialchars($row['Disabilita']) . '" '
-                                            . 'data-intolleranze="' . htmlspecialchars($row['Allergie_intolleranze'] ?? '') . '" '
                                             . 'data-prezzo="' . htmlspecialchars($row['Stipendio_Orario']) . '" '
                                             . 'data-note="' . htmlspecialchars($row['Note']) . '">'
                                             . '<td><img class="user-avatar" src="' . $row['Fotografia'] . '"></td>'
@@ -529,12 +578,25 @@ $result = $conn->query($sql);
                             <input type="hidden" id="editUtenteId">
                             <div class="edit-field"><label>Nome</label><input type="text" id="editUtenteNome" required></div>
                             <div class="edit-field"><label>Cognome</label><input type="text" id="editUtenteCognome" required></div>
-                            <div class="edit-field"><label>Data di nascita</label><input type="date" id="editUtenteData" required></div>
+                            <div class="edit-field">
+                                <label>Data di nascita</label>
+                                <div class="birth-picker-wrap">
+                                    <input type="text" id="editUtenteData" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly required>
+                                    <input type="hidden" id="editUtenteDataHidden">
+                                    <button type="button" class="birth-cal-btn" id="birthdayCalBtnEdit" aria-label="Apri calendario">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                            <line x1="16" y1="2" x2="16" y2="6" />
+                                            <line x1="8" y1="2" x2="8" y2="6" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="edit-field"><label>Codice Fiscale</label><input type="text" id="editUtenteCF" required></div>
                             <div class="edit-field"><label>Email</label><input type="email" id="editUtenteEmail"></div>
                             <div class="edit-field"><label>Telefono</label><input type="tel" id="editUtenteTelefono"></div>
                             <div class="edit-field"><label>Disabilità</label><input type="text" id="editUtenteDisabilita"></div>
-                            <div class="edit-field"><label>Intolleranze / Allergie</label><input type="text" id="editUtenteIntolleranze"></div>
                             <div class="edit-field"><label>Stipendio orario (€)</label><input type="number" id="editUtentePrezzo" step="0.01"></div>
                             <div class="edit-field"><label>Note</label><textarea id="editUtenteNote"></textarea></div>
                             <div class="modal-actions"><button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button><button type="button" class="btn-primary" id="salvaModificaUtente">Salva</button></div>
@@ -545,6 +607,116 @@ $result = $conn->query($sql);
                         <h3>Elimina utente</h3>
                         <p>Questa azione è definitiva. Vuoi continuare?</p>
                         <div class="modal-actions"><button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button><button type="button" class="btn-danger" id="confirmDeleteUtente">Elimina</button></div>
+                    </div>
+
+                    <div class="birth-cal-overlay" id="birthCalOverlayAdd">
+                        <div class="birth-cal-picker" id="birthCalPickerAdd">
+                            <div class="birth-cal-header">
+                                <div class="birth-cal-month-row">
+                                    <button class="cal-nav-btn" id="birthCalPrevMonthAdd" type="button">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M15 18l-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <span class="birth-cal-month-label" id="birthCalMonthLabelAdd"></span>
+                                    <button class="cal-nav-btn" id="birthCalNextMonthAdd" type="button">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M9 18l6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="birth-cal-year-row">
+                                    <button class="birth-year-nav" id="birthCalPrevYearAdd" type="button">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M15 18l-6-6 6-6" />
+                                            <path d="M9 18l-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <button class="birth-year-nav" id="birthCalPrevDecadeAdd" type="button">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M15 18l-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <select class="birth-year-select" id="birthCalYearSelectAdd"></select>
+                                    <button class="birth-year-nav" id="birthCalNextDecadeAdd" type="button">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M9 18l6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                    <button class="birth-year-nav" id="birthCalNextYearAdd" type="button">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M9 18l6-6-6-6" />
+                                            <path d="M15 18l6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="cal-weekdays">
+                                    <div class="cal-weekday">Lu</div>
+                                    <div class="cal-weekday">Ma</div>
+                                    <div class="cal-weekday">Me</div>
+                                    <div class="cal-weekday">Gi</div>
+                                    <div class="cal-weekday">Ve</div>
+                                    <div class="cal-weekday">Sa</div>
+                                    <div class="cal-weekday">Do</div>
+                                </div>
+                            </div>
+                            <div class="cal-grid" id="birthCalGridAdd"></div>
+                        </div>
+                    </div>
+
+                    <div class="birth-cal-overlay" id="birthCalOverlayEdit">
+                        <div class="birth-cal-picker" id="birthCalPickerEdit">
+                            <div class="birth-cal-header">
+                                <div class="birth-cal-month-row">
+                                    <button class="cal-nav-btn" id="birthCalPrevMonthEdit" type="button">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M15 18l-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <span class="birth-cal-month-label" id="birthCalMonthLabelEdit"></span>
+                                    <button class="cal-nav-btn" id="birthCalNextMonthEdit" type="button">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M9 18l6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="birth-cal-year-row">
+                                    <button class="birth-year-nav" id="birthCalPrevYearEdit" type="button">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M15 18l-6-6 6-6" />
+                                            <path d="M9 18l-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <button class="birth-year-nav" id="birthCalPrevDecadeEdit" type="button">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M15 18l-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <select class="birth-year-select" id="birthCalYearSelectEdit"></select>
+                                    <button class="birth-year-nav" id="birthCalNextDecadeEdit" type="button">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M9 18l6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                    <button class="birth-year-nav" id="birthCalNextYearEdit" type="button">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                            <path d="M9 18l6-6-6-6" />
+                                            <path d="M15 18l6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="cal-weekdays">
+                                    <div class="cal-weekday">Lu</div>
+                                    <div class="cal-weekday">Ma</div>
+                                    <div class="cal-weekday">Me</div>
+                                    <div class="cal-weekday">Gi</div>
+                                    <div class="cal-weekday">Ve</div>
+                                    <div class="cal-weekday">Sa</div>
+                                    <div class="cal-weekday">Do</div>
+                                </div>
+                            </div>
+                            <div class="cal-grid" id="birthCalGridEdit"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -885,7 +1057,9 @@ $result = $conn->query($sql);
 
     <div class="modal-overlay" id="Overlay"></div>
     <script src="js/mobile-calendar.js"></script>
+    <script src="js/custom-select.js"></script>
     <script>
+
         function getLocalDateString(d) {
             const y = d.getFullYear(),
                 m = (d.getMonth() + 1).toString().padStart(2, '0'),
@@ -982,6 +1156,7 @@ $result = $conn->query($sql);
 
         function hideSuccess() {
             successPopup.classList.remove('show');
+            if (Overlay) Overlay.classList.remove('show');
         }
         if (Overlay) Overlay.onclick = closeModal;
         document.querySelectorAll('.view-btn').forEach(btn => btn.onclick = e => {
@@ -997,7 +1172,6 @@ $result = $conn->query($sql);
         <div class="profile-field"><label>Email</label><span>${row.dataset.email||'—'}</span></div>
         <div class="profile-field"><label>Telefono</label><span>${row.dataset.telefono||'—'}</span></div>
         <div class="profile-field"><label>Disabilità</label><span>${row.dataset.disabilita||'—'}</span></div>
-        <div class="profile-field"><label>Intolleranze</label><span>${row.dataset.intolleranze||'—'}</span></div>
         <div class="profile-field"><label>Stipendio orario</label><span>${row.dataset.prezzo?row.dataset.prezzo+' €':'—'}</span></div>
         <div class="profile-field" style="grid-column:1/-1"><label>Note</label><span>${row.dataset.note||'—'}</span></div>`;
             openModal(document.getElementById('viewModal'));
@@ -1324,19 +1498,31 @@ $result = $conn->query($sql);
             modalModificaUtente = document.getElementById('modalModificaUtente'),
             modalDeleteUtente = document.getElementById('modalDeleteUtente'),
             formAggiungiUtente = document.getElementById('formAggiungiUtente');
-        aggiungiUtenteBtn?.addEventListener('click', () => openModal(modalAggiungiUtente));
-        aggiungiUtenteBtnMob?.addEventListener('click', () => openModal(modalAggiungiUtente));
+        aggiungiUtenteBtn?.addEventListener('click', () => {
+            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
+            if (addCalBtn && typeof addCalBtn._setBirthDate === 'function') addCalBtn._setBirthDate(null);
+            openModal(modalAggiungiUtente);
+        });
+        aggiungiUtenteBtnMob?.addEventListener('click', () => {
+            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
+            if (addCalBtn && typeof addCalBtn._setBirthDate === 'function') addCalBtn._setBirthDate(null);
+            openModal(modalAggiungiUtente);
+        });
         formAggiungiUtente.onsubmit = function(e) {
             e.preventDefault();
+            const dataNascita = document.getElementById('utenteDataHidden').value;
+            if (!dataNascita) {
+                alert('Seleziona la data di nascita dal calendario.');
+                return;
+            }
             const fd = new FormData();
             fd.append('nome', document.getElementById('utenteNome').value.trim());
             fd.append('cognome', document.getElementById('utenteCognome').value.trim());
-            fd.append('data_nascita', document.getElementById('utenteData').value);
+            fd.append('data_nascita', dataNascita);
             fd.append('codice_fiscale', document.getElementById('utenteCF').value.trim());
             fd.append('email', document.getElementById('utenteEmail').value.trim());
             fd.append('telefono', document.getElementById('utenteTelefono').value.trim());
             fd.append('disabilita', document.getElementById('utenteDisabilita').value.trim());
-            fd.append('intolleranze', document.getElementById('utenteIntolleranze').value.trim());
             fd.append('prezzo_orario', parseFloat(document.getElementById('utentePrezzo').value) || 0);
             fd.append('note', document.getElementById('utenteNote').value.trim());
             const fi = document.getElementById('utenteFoto');
@@ -1360,12 +1546,17 @@ $result = $conn->query($sql);
             document.getElementById('editUtenteId').value = row.dataset.id;
             document.getElementById('editUtenteNome').value = row.dataset.nome;
             document.getElementById('editUtenteCognome').value = row.dataset.cognome;
-            document.getElementById('editUtenteData').value = row.dataset.nascita;
             document.getElementById('editUtenteCF').value = row.dataset.cf;
+            const editCalBtn = document.getElementById('birthdayCalBtnEdit');
+            if (editCalBtn && typeof editCalBtn._setBirthDate === 'function') {
+                editCalBtn._setBirthDate(row.dataset.nascita);
+            } else {
+                document.getElementById('editUtenteData').value = row.dataset.nascita;
+                document.getElementById('editUtenteDataHidden').value = row.dataset.nascita;
+            }
             document.getElementById('editUtenteEmail').value = row.dataset.email;
             document.getElementById('editUtenteTelefono').value = row.dataset.telefono;
             document.getElementById('editUtenteDisabilita').value = row.dataset.disabilita;
-            document.getElementById('editUtenteIntolleranze').value = row.dataset.intolleranze;
             document.getElementById('editUtentePrezzo').value = row.dataset.prezzo;
             document.getElementById('editUtenteNote').value = row.dataset.note;
             openModal(modalModificaUtente);
@@ -1380,12 +1571,11 @@ $result = $conn->query($sql);
                     id: document.getElementById('editUtenteId').value,
                     nome: document.getElementById('editUtenteNome').value.trim(),
                     cognome: document.getElementById('editUtenteCognome').value.trim(),
-                    data_nascita: document.getElementById('editUtenteData').value,
+                    data_nascita: document.getElementById('editUtenteDataHidden').value || document.getElementById('editUtenteData').value,
                     codice_fiscale: document.getElementById('editUtenteCF').value.trim(),
                     email: document.getElementById('editUtenteEmail').value.trim(),
                     telefono: document.getElementById('editUtenteTelefono').value.trim(),
                     disabilita: document.getElementById('editUtenteDisabilita').value.trim(),
-                    intolleranze: document.getElementById('editUtenteIntolleranze').value.trim(),
                     prezzo_orario: parseFloat(document.getElementById('editUtentePrezzo').value) || 0,
                     note: document.getElementById('editUtenteNote').value.trim()
                 })
@@ -1427,6 +1617,220 @@ $result = $conn->query($sql);
                 } else alert('Errore: ' + data.message);
             });
         });
+
+        (function() {
+            function makeBirthdayCal(cfg) {
+                const overlay = document.getElementById(cfg.overlayId);
+                const picker = document.getElementById(cfg.pickerId);
+                const openBtn = document.getElementById(cfg.openBtnId);
+                const displayInput = document.getElementById(cfg.displayInputId);
+                const hiddenInput = document.getElementById(cfg.hiddenInputId);
+                if (!overlay || !picker || !openBtn || !displayInput || !hiddenInput) return;
+                const grid = document.getElementById(cfg.gridId);
+                const monthLbl = document.getElementById(cfg.monthLblId);
+                const prevMonthBtn = document.getElementById(cfg.prevMonthId);
+                const nextMonthBtn = document.getElementById(cfg.nextMonthId);
+                const prevYearBtn = document.getElementById(cfg.prevYearId);
+                const nextYearBtn = document.getElementById(cfg.nextYearId);
+                const prevDecBtn = document.getElementById(cfg.prevDecadeId);
+                const nextDecBtn = document.getElementById(cfg.nextDecadeId);
+                const yearSelect = document.getElementById(cfg.yearSelectId);
+                const TODAY = new Date();
+                TODAY.setHours(0, 0, 0, 0);
+                const MIN_YEAR = 1900;
+                let calViewDate = new Date(TODAY.getFullYear() - 30, 0, 1);
+                let selectedDate = null;
+                function pad(n) {
+                    return String(n).padStart(2, '0');
+                }
+                function toDateStr(d) {
+                    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+                }
+                function toDisplayStr(d) {
+                    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+                }
+                function buildYearSelect() {
+                    yearSelect.innerHTML = '';
+                    const curY = calViewDate.getFullYear();
+                    for (let y = TODAY.getFullYear(); y >= MIN_YEAR; y--) {
+                        const opt = document.createElement('option');
+                        opt.value = y;
+                        opt.textContent = y;
+                        if (y === curY) opt.selected = true;
+                        yearSelect.appendChild(opt);
+                    }
+                }
+                function renderCalendar() {
+                    const year = calViewDate.getFullYear();
+                    const month = calViewDate.getMonth();
+                    const selStr = selectedDate ? toDateStr(selectedDate) : null;
+                    monthLbl.textContent = new Date(year, month, 1).toLocaleDateString('it-IT', { month: 'long' }).replace(/^./, c => c.toUpperCase());
+                    buildYearSelect();
+                    const isMaxMonth = (year === TODAY.getFullYear() && month >= TODAY.getMonth());
+                    nextMonthBtn.disabled = isMaxMonth;
+                    nextMonthBtn.style.opacity = isMaxMonth ? '.3' : '1';
+                    nextYearBtn.disabled = year >= TODAY.getFullYear();
+                    nextYearBtn.style.opacity = nextYearBtn.disabled ? '.3' : '1';
+                    nextDecBtn.disabled = year + 10 > TODAY.getFullYear();
+                    nextDecBtn.style.opacity = nextDecBtn.disabled ? '.3' : '1';
+                    prevMonthBtn.disabled = year === MIN_YEAR && month === 0;
+                    prevYearBtn.disabled = year <= MIN_YEAR;
+                    prevDecBtn.disabled = year - 10 < MIN_YEAR;
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const offset = firstDay === 0 ? 6 : firstDay - 1;
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    grid.innerHTML = '';
+                    for (let i = 0; i < offset; i++) {
+                        const el = document.createElement('div');
+                        el.className = 'cal-day cal-empty';
+                        grid.appendChild(el);
+                    }
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        const dateObj = new Date(year, month, d);
+                        const dateStr = toDateStr(dateObj);
+                        const isFuture = dateObj > TODAY;
+                        const isSelected = selStr === dateStr;
+                        const el = document.createElement('div');
+                        el.className = 'cal-day' + (isFuture ? ' cal-future' : '') + (isSelected ? ' cal-selected' : '');
+                        el.textContent = d;
+                        if (!isFuture) {
+                            el.addEventListener('click', () => {
+                                selectedDate = new Date(year, month, d);
+                                displayInput.value = toDisplayStr(selectedDate);
+                                hiddenInput.value = dateStr;
+                                closeCal();
+                            });
+                        }
+                        grid.appendChild(el);
+                    }
+                }
+                function openCal() {
+                    if (selectedDate) {
+                        calViewDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                    }
+                    renderCalendar();
+                    overlay.classList.add('open');
+                    const rect = openBtn.getBoundingClientRect();
+                    const pickerW = 300;
+                    let left = rect.left;
+                    if (left + pickerW > window.innerWidth - 8) left = window.innerWidth - pickerW - 8;
+                    if (left < 8) left = 8;
+                    const spaceBelow = window.innerHeight - rect.bottom;
+                    const pickerH = 380;
+                    let top = rect.bottom + window.scrollY + 6;
+                    if (spaceBelow < pickerH && rect.top > pickerH) {
+                        top = rect.top + window.scrollY - pickerH - 6;
+                    }
+                    picker.style.top = top + 'px';
+                    picker.style.left = left + 'px';
+                }
+                function closeCal() {
+                    overlay.classList.remove('open');
+                }
+                openBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    overlay.classList.contains('open') ? closeCal() : openCal();
+                });
+                overlay.addEventListener('click', e => {
+                    if (!picker.contains(e.target)) closeCal();
+                });
+                prevMonthBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    calViewDate.setMonth(calViewDate.getMonth() - 1);
+                    renderCalendar();
+                });
+                nextMonthBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!nextMonthBtn.disabled) {
+                        calViewDate.setMonth(calViewDate.getMonth() + 1);
+                        renderCalendar();
+                    }
+                });
+                prevYearBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (calViewDate.getFullYear() > MIN_YEAR) {
+                        calViewDate.setFullYear(calViewDate.getFullYear() - 1);
+                        renderCalendar();
+                    }
+                });
+                nextYearBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (calViewDate.getFullYear() < TODAY.getFullYear()) {
+                        calViewDate.setFullYear(calViewDate.getFullYear() + 1);
+                        renderCalendar();
+                    }
+                });
+                prevDecBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    calViewDate.setFullYear(Math.max(MIN_YEAR, calViewDate.getFullYear() - 10));
+                    renderCalendar();
+                });
+                nextDecBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    calViewDate.setFullYear(Math.min(TODAY.getFullYear(), calViewDate.getFullYear() + 10));
+                    renderCalendar();
+                });
+                yearSelect.addEventListener('change', e => {
+                    e.stopPropagation();
+                    calViewDate.setFullYear(parseInt(yearSelect.value, 10));
+                    renderCalendar();
+                });
+                openBtn._setBirthDate = function(isoStr) {
+                    if (!isoStr) {
+                        selectedDate = null;
+                        displayInput.value = '';
+                        hiddenInput.value = '';
+                        return;
+                    }
+                    const parts = isoStr.split('-');
+                    if (parts.length === 3) {
+                        const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                        selectedDate = d;
+                        displayInput.value = toDisplayStr(d);
+                        hiddenInput.value = isoStr;
+                        calViewDate = new Date(d.getFullYear(), d.getMonth(), 1);
+                    }
+                };
+            }
+            makeBirthdayCal({
+                openBtnId: 'birthdayCalBtnAdd',
+                overlayId: 'birthCalOverlayAdd',
+                pickerId: 'birthCalPickerAdd',
+                gridId: 'birthCalGridAdd',
+                monthLblId: 'birthCalMonthLabelAdd',
+                prevMonthId: 'birthCalPrevMonthAdd',
+                nextMonthId: 'birthCalNextMonthAdd',
+                prevYearId: 'birthCalPrevYearAdd',
+                nextYearId: 'birthCalNextYearAdd',
+                prevDecadeId: 'birthCalPrevDecadeAdd',
+                nextDecadeId: 'birthCalNextDecadeAdd',
+                yearSelectId: 'birthCalYearSelectAdd',
+                displayInputId: 'utenteData',
+                hiddenInputId: 'utenteDataHidden'
+            });
+            makeBirthdayCal({
+                openBtnId: 'birthdayCalBtnEdit',
+                overlayId: 'birthCalOverlayEdit',
+                pickerId: 'birthCalPickerEdit',
+                gridId: 'birthCalGridEdit',
+                monthLblId: 'birthCalMonthLabelEdit',
+                prevMonthId: 'birthCalPrevMonthEdit',
+                nextMonthId: 'birthCalNextMonthEdit',
+                prevYearId: 'birthCalPrevYearEdit',
+                nextYearId: 'birthCalNextYearEdit',
+                prevDecadeId: 'birthCalPrevDecadeEdit',
+                nextDecadeId: 'birthCalNextDecadeEdit',
+                yearSelectId: 'birthCalYearSelectEdit',
+                displayInputId: 'editUtenteData',
+                hiddenInputId: 'editUtenteDataHidden'
+            });
+        })();
         const utenteFoto = document.getElementById('utenteFoto'),
             preview = document.getElementById('previewFotoMini'),
             fileNameSpan = document.getElementById('nomeFileFoto'),
@@ -1688,6 +2092,47 @@ $result = $conn->query($sql);
                 });
             }
         });
+    
+        // ── SIDEBAR + SCROLL LOCK + RESTORE
+        const checkboxInput = document.getElementById('checkbox-input');
+        if (checkboxInput) {
+            const s = localStorage.getItem('sidebarOpen');
+            if (s !== null) checkboxInput.checked = s === 'true';
+            checkboxInput.addEventListener('change', () => localStorage.setItem('sidebarOpen', checkboxInput.checked));
+        }
+
+        function syncBodyScrollLock() {
+            document.body.classList.toggle('popup-open', Boolean(document.querySelector('.modal-box.show,.popup.show,.logout-modal.show,.success-popup.show,.modal-overlay.show,.logout-overlay.show')));
+        }
+        new MutationObserver(() => syncBodyScrollLock()).observe(document.body, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class']
+        });
+        syncBodyScrollLock();
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPresenze();
+            const savedTab = localStorage.getItem('activeTab');
+            if (savedTab) {
+                document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+                const mn = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
+                if (mn) mn.classList.add('active');
+                document.querySelectorAll('.tab-link').forEach(l => {
+                    l.classList.remove('active');
+                    if (l.dataset.tab === savedTab) l.classList.add('active');
+                });
+                document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+                const sc = document.getElementById(savedTab);
+                if (sc) sc.classList.add('active');
+            }
+        });
+        document.addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--tt-y', (e.clientY + 14) + 'px');
+            document.documentElement.style.setProperty('--tt-x', (e.clientX - 10) + 'px');
+            document.documentElement.style.setProperty('--tt-arrow-y', (e.clientY + 8) + 'px');
+            document.documentElement.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
+        });
+        
         // ── ACCOUNT CRUD
         const aggiungiAccountBtn = document.getElementById('aggiungi-account-btn'),
             aggiungiAccountBtnMob = document.getElementById('aggiungi-account-btn-mobile'),
@@ -1792,45 +2237,6 @@ $result = $conn->query($sql);
                 } else alert('Errore: ' + data.message);
             });
         };
-        // ── SIDEBAR + SCROLL LOCK + RESTORE
-        const checkboxInput = document.getElementById('checkbox-input');
-        if (checkboxInput) {
-            const s = localStorage.getItem('sidebarOpen');
-            if (s !== null) checkboxInput.checked = s === 'true';
-            checkboxInput.addEventListener('change', () => localStorage.setItem('sidebarOpen', checkboxInput.checked));
-        }
-
-        function syncBodyScrollLock() {
-            document.body.classList.toggle('popup-open', Boolean(document.querySelector('.modal-box.show,.popup.show,.logout-modal.show,.success-popup.show,.modal-overlay.show,.logout-overlay.show')));
-        }
-        new MutationObserver(() => syncBodyScrollLock()).observe(document.body, {
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['class']
-        });
-        syncBodyScrollLock();
-        window.addEventListener('DOMContentLoaded', () => {
-            loadPresenze();
-            const savedTab = localStorage.getItem('activeTab');
-            if (savedTab) {
-                document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-                const mn = document.querySelector(`.mobile-nav-item[data-tab="${savedTab}"]`);
-                if (mn) mn.classList.add('active');
-                document.querySelectorAll('.tab-link').forEach(l => {
-                    l.classList.remove('active');
-                    if (l.dataset.tab === savedTab) l.classList.add('active');
-                });
-                document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
-                const sc = document.getElementById(savedTab);
-                if (sc) sc.classList.add('active');
-            }
-        });
-        document.addEventListener('mousemove', e => {
-            document.documentElement.style.setProperty('--tt-y', (e.clientY + 14) + 'px');
-            document.documentElement.style.setProperty('--tt-x', (e.clientX - 10) + 'px');
-            document.documentElement.style.setProperty('--tt-arrow-y', (e.clientY + 8) + 'px');
-            document.documentElement.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
-        });
     </script>
 </body>
 

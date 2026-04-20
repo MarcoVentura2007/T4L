@@ -3,17 +3,6 @@ session_start();
 header('Content-Type: application/json');
 header("Cache-Control: no-cache");
 
-// --- BLOCCO ACCESSO DIRETTO ---
-if (
-    $_SERVER['REQUEST_METHOD'] !== 'POST' ||
-    empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
-    $_SERVER['HTTP_X_REQUESTED_WITH'] !== 'XMLHttpRequest'
-) {
-    echo json_encode(['success' => false, 'message' => 'Accesso non autorizzato']);
-    exit;
-}
-// --- FINE BLOCCO ---
-
 if (!isset($_SESSION['username'])) {
     echo json_encode(['success' => false, 'message' => 'Non autorizzato']);
     exit;
@@ -28,7 +17,12 @@ if ($conn->connect_error) {
 }
 
 // --- CONTROLLO RUOLO: solo Contabile o Amministratore possono eliminare utenti ---
-$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+$connAccount = getDbConnection('time4all');
+if ($connAccount->connect_error) {
+    echo json_encode(['success' => false, 'message' => 'Connessione DB account fallita']);
+    exit;
+}
+$stmtClasse = $connAccount->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
 if ($stmtClasse) {
     $stmtClasse->bind_param("s", $_SESSION['username']);
     $stmtClasse->execute();
@@ -37,21 +31,25 @@ if ($stmtClasse) {
         if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
             echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono eliminare utenti.']);
             $stmtClasse->close();
+            $connAccount->close();
             $conn->close();
             exit;
         }
     } else {
         echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
         $stmtClasse->close();
+        $connAccount->close();
         $conn->close();
         exit;
     }
     $stmtClasse->close();
 } else {
     echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $connAccount->close();
     $conn->close();
     exit;
 }
+$connAccount->close();
 // --- FINE CONTROLLO RUOLO ---
 
 $data = json_decode(file_get_contents("php://input"), true);
@@ -80,7 +78,6 @@ if ($resultSelect && $resultSelect->num_rows > 0) {
 
 $stmt = $conn->prepare("DELETE FROM iscritto WHERE id=?");
 
-
 $stmt->bind_param("i", $id);
 if ($stmt->execute()) {
     // Se esiste una fotografia, eliminala dal filesystem
@@ -88,10 +85,12 @@ if ($stmt->execute()) {
         $fotografia = str_replace("\\", "/", $fotografia);
         // Non eliminare l'immagine di default
         if ($fotografia !== "immagini/default-user.png" && $fotografia !== "default-user.png") {
-            if (strpos($fotografia, "immagini/") === 0) {
-                $filePath = __DIR__ . '/../' . $fotografia;
+            if (strpos($fotografia, "public/immagini/") === 0) {
+                // Percorso con "public/" - rimuovi il prefisso
+                $filePath = __DIR__ . '/../' . str_replace("public/", "", $fotografia);
             } else {
-                $filePath = __DIR__ . '/../immagini/' . $fotografia;
+                // Percorso senza "public/"
+                $filePath = __DIR__ . '/../' . $fotografia;
             }
             if (file_exists($filePath)) {
                 unlink($filePath);

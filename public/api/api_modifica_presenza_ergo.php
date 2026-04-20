@@ -1,4 +1,5 @@
 <?php
+session_start();
 header('Content-Type: application/json');
 
 // Connessione al DB time4allergo
@@ -6,6 +7,13 @@ require __DIR__ . '/../../data/db_connection.php';
 $conn = getDbConnection('time4allergo');
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]);
+    exit;
+}
+
+// Controllo login
+if (!isset($_SESSION['username'])) {
+    echo json_encode(['success' => false, 'message' => 'Non autorizzato']);
+    $conn->close();
     exit;
 }
 
@@ -46,3 +54,4 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
+exit;

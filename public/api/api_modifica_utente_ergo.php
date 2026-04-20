@@ -26,7 +26,12 @@ if ($conn->connect_error) {
 }
 
 // --- CONTROLLO RUOLO: solo Contabile o Amministratore possono modificare utente ergo ---
-$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+$connAccount = getDbConnection('time4all');
+if ($connAccount->connect_error) {
+    echo json_encode(['success' => false, 'message' => 'Connessione DB account fallita']);
+    exit;
+}
+$stmtClasse = $connAccount->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
 if ($stmtClasse) {
     $stmtClasse->bind_param("s", $_SESSION['username']);
     $stmtClasse->execute();
@@ -35,21 +40,25 @@ if ($stmtClasse) {
         if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
             echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono modificare utenti ergo.']);
             $stmtClasse->close();
+            $connAccount->close();
             $conn->close();
             exit;
         }
     } else {
         echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
         $stmtClasse->close();
+        $connAccount->close();
         $conn->close();
         exit;
     }
     $stmtClasse->close();
 } else {
     echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $connAccount->close();
     $conn->close();
     exit;
 }
+$connAccount->close();
 // --- FINE CONTROLLO RUOLO ---
 
 $id = intval($input['id']);

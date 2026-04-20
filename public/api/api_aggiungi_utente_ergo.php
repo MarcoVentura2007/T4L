@@ -23,7 +23,12 @@ if ($conn->connect_error) {
 
 
 // --- CONTROLLO RUOLO: solo Contabile o Amministratore possono accedere ---
-$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+$connAccount = getDbConnection('time4all');
+if ($connAccount->connect_error) {
+    echo json_encode(['success' => false, 'message' => 'Connessione DB account fallita']);
+    exit;
+}
+$stmtClasse = $connAccount->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
 if ($stmtClasse) {
     $stmtClasse->bind_param("s", $_SESSION['username']);
     $stmtClasse->execute();
@@ -32,21 +37,25 @@ if ($stmtClasse) {
         if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
             echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono aggiornare gli utenti.']);
             $stmtClasse->close();
+            $connAccount->close();
             $conn->close();
             exit;
         }
     } else {
         echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
         $stmtClasse->close();
+        $connAccount->close();
         $conn->close();
         exit;
     }
     $stmtClasse->close();
 } else {
     echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $connAccount->close();
     $conn->close();
     exit;
 }
+$connAccount->close();
 // --- FINE CONTROLLO RUOLO ---
 
 $required = ['nome', 'cognome', 'data_nascita', 'codice_fiscale', 'email', 'telefono'];
@@ -85,7 +94,7 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
     $name = time() . "_" . basename($_FILES['foto']['name']);
     if (!move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $name)) {
-        echo json_encode(['success' => false, 'message' => 'Errore nel salvare il file']);
+        echo json_encode(['success' => false, 'message' => 'Errore nel salvare il file: ' . error_get_last()['message']]);
         exit;
     }
     $fotografia = "immagini/" . $name;

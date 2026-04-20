@@ -17,62 +17,65 @@ if (!isset($data['id']) || !isset($data['mese'])) {
 $idIscritto = intval($data['id']);
 list($anno, $mese) = explode('-', $data['mese']);
 
-// Connessione al DB
 require __DIR__ . '/../../data/db_connection.php';
-$conn = getDbConnection('time4allergo');
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'error' => 'Connessione DB fallita']);
+
+// ── Controllo ruolo sul DB degli account (time4all) ──
+$connAccount = getDbConnection('time4all');
+if ($connAccount->connect_error) {
+    echo json_encode(['success' => false, 'error' => 'Connessione DB account fallita']);
     exit;
 }
 
-// --- CONTROLLO RUOLO: solo Contabile o Amministratore possono visualizzare resoconto ---
-$stmtClasse = $conn->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
-if ($stmtClasse) {
-    $stmtClasse->bind_param("s", $_SESSION['username']);
-    $stmtClasse->execute();
-    $stmtClasse->bind_result($userClasse);
-    if ($stmtClasse->fetch()) {
-        if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
-            echo json_encode(['success' => false, 'message' => 'Accesso negato. Solo Contabile o Amministratore possono visualizzare resoconti.']);
-            $stmtClasse->close();
-            $conn->close();
-            exit;
-        }
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+$stmtClasse = $connAccount->prepare("SELECT classe FROM Account WHERE nome_utente = ?");
+if (!$stmtClasse) {
+    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
+    $connAccount->close();
+    exit;
+}
+$stmtClasse->bind_param("s", $_SESSION['username']);
+$stmtClasse->execute();
+$stmtClasse->bind_result($userClasse);
+if ($stmtClasse->fetch()) {
+    if ($userClasse !== 'Contabile' && $userClasse !== 'Amministratore') {
+        echo json_encode(['success' => false, 'message' => 'Accesso negato.']);
         $stmtClasse->close();
-        $conn->close();
+        $connAccount->close();
         exit;
     }
-    $stmtClasse->close();
 } else {
-    echo json_encode(['success' => false, 'message' => 'Errore nel controllo dei permessi']);
-    $conn->close();
+    echo json_encode(['success' => false, 'message' => 'Utente non trovato']);
+    $stmtClasse->close();
+    $connAccount->close();
     exit;
 }
-// --- FINE CONTROLLO RUOLO ---
+$stmtClasse->close();
+$connAccount->close();
 
-// Get hourly rate for the user
-$sqlPrezzo = "SELECT Stipendio_Orario FROM iscritto WHERE id = ?";
-$stmtPrezzo = $conn->prepare($sqlPrezzo);
+// ── Query sui dati ergo ──
+$conn = getDbConnection('time4allergo');
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'error' => 'Connessione DB ergo fallita']);
+    exit;
+}
+
+// Stipendio orario dell'iscritto
+$stmtPrezzo = $conn->prepare("SELECT Stipendio_Orario FROM iscritto WHERE id = ?");
 $stmtPrezzo->bind_param("i", $idIscritto);
 $stmtPrezzo->execute();
-$resPrezzo = $stmtPrezzo->get_result();
-$prezzoRow = $resPrezzo->fetch_assoc();
-$prezzo = $prezzoRow ? floatval($prezzoRow['Stipendio_Orario']) : 0;
+$resPrezzo = $stmtPrezzo->get_result()->fetch_assoc();
+$prezzo    = $resPrezzo ? floatval($resPrezzo['Stipendio_Orario']) : 0;
 $stmtPrezzo->close();
 
-// Get all presences for the user in the specified month
+// Presenze del mese
 $sql = "
-SELECT 
-    id,
-    Ingresso,
-    Uscita
+SELECT id, Ingresso, Uscita
 FROM presenza
 WHERE ID_Iscritto = ?
-    AND MONTH(Ingresso) = ?
-    AND YEAR(Ingresso) = ?
-    AND Ingresso <= NOW()
+  AND MONTH(Ingresso) = ?
+  AND YEAR(Ingresso)  = ?
+  AND Ingresso <= NOW()
+  AND Uscita IS NOT NULL
+  AND Uscita != '0000-00-00 00:00:00'
 ORDER BY Ingresso ASC
 ";
 
@@ -83,41 +86,24 @@ $res = $stmt->get_result();
 
 $days = [];
 while ($p = $res->fetch_assoc()) {
-    // Skip if Uscita is NULL or empty - presence not yet completed
-    if (empty($p['Uscita'])) continue;
-
-    $giorno = date('Y-m-d', strtotime($p['Ingresso']));
+    $giorno  = date('Y-m-d', strtotime($p['Ingresso']));
+    $ore     = (strtotime($p['Uscita']) - strtotime($p['Ingresso'])) / 3600;
 
     if (!isset($days[$giorno])) {
-        $days[$giorno] = [
-            'ore' => 0,
-            'costo' => 0
-        ];
+        $days[$giorno] = ['ore' => 0, 'costo' => 0];
     }
-
-    // Calculate hours for this presence
-    $ingresso = strtotime($p['Ingresso']);
-    $uscita = strtotime($p['Uscita']);
-    $ore = ($uscita - $ingresso) / 3600; // Convert seconds to hours
-
     $days[$giorno]['ore'] += $ore;
 }
 
-
-// Round values and calculate costs
-foreach ($days as $giorno => &$data) {
-    $data['ore'] = round($data['ore'], 2);
-    $data['costo'] = round($data['ore'] * $prezzo, 2);
-}
-
-// Format for JSON response
 $rows = [];
-foreach ($days as $giorno => $data) {
+foreach ($days as $giorno => $d) {
+    $ore   = round($d['ore'], 2);
+    $costo = round($ore * $prezzo, 2);
     $rows[] = [
-        'giorno' => $giorno,
-        'ore' => $data['ore'],
-        'costo' => $data['costo'],
-        'attivita' => [] // Empty array for compatibility with existing JS
+        'giorno'   => $giorno,
+        'ore'      => $ore,
+        'costo'    => $costo,
+        'attivita' => []   // compatibilità con il JS esistente
     ];
 }
 
