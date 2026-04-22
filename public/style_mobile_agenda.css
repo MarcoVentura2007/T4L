@@ -126,6 +126,11 @@
     flex-direction: column;
     gap: 16px;
     padding-bottom: 100px;
+    padding-left: 0;
+  }
+
+  .activities-list::before {
+    display: none;
   }
 
   /* ========== CARD ATTIVITÀ MOBILE ========== */
@@ -395,11 +400,6 @@
     background: #ffffff;
     margin: 0;
     width: 100%;
-  }
-
-  /* Pulsante stampa nascosto su mobile */
-  .print-btn {
-    display: none;
   }
 
   /* ========== ANIMAZIONI ========== */

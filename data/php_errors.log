@@ -224,3 +224,4 @@ Stack trace:
 #0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(272): mysqli_stmt->bind_param('ssssssssddssi', 'Jacopo', 'Bertolasi', '2000-01-01', '-------', '-', '3292618521', '-', 'Glutine', 9.0, 0.0, '---', 0, 28)
 #1 {main}
   thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
+[22-Apr-2026 09:56:05 Europe/Berlin] api_aggiorna_utente exception: Duplicate entry '------------' for key 'Codice_fiscale'

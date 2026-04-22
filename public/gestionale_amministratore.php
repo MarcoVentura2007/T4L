@@ -349,7 +349,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="edit-field">
                                 <label>Data di nascita</label>
                                 <div class="birth-picker-wrap">
-                                    <input type="text" id="utenteData" class="birth-picker-input" placeholder="GG/MM/AAAA" required>
+                                    <input type="text" id="utenteData" class="birth-picker-input" placeholder="GG/MM/AAAA" readonly required>
                                     <input type="hidden" id="utenteDataHidden">
                                     <button type="button" class="birth-cal-btn" id="birthdayCalBtnAdd" aria-label="Apri calendario">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
