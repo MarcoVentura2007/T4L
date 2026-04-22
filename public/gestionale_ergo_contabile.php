@@ -921,7 +921,44 @@ $result = $conn->query($sql);
                                 <tbody id="resocontoGiorniBody"></tbody>
                             </table>
                         </div>
-                        <div class="modal-actions"><button class="btn-secondary" onclick="closeModal()">Chiudi</button></div>
+                        <div class="modal-actions">
+                            <button class="print-btn" id="stampaResocontoErgoBtn" style="margin-right:auto;">
+                                <span class="printer-wrapper">
+                                    <span class="printer-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 92 75">
+                                            <path stroke-width="5" stroke="black" d="M12 37.5H80C85.2467 37.5 89.5 41.7533 89.5 47V69C89.5 70.933 87.933 72.5 86 72.5H6C4.067 72.5 2.5 70.933 2.5 69V47C2.5 41.7533 6.75329 37.5 12 37.5Z"></path>
+                                            <mask fill="white" id="path-2-inside-1_30_7">
+                                                <path d="M12 12C12 5.37258 17.3726 0 24 0H57C70.2548 0 81 10.7452 81 24V29H12V12Z"></path>
+                                            </mask>
+                                            <path mask="url(#path-2-inside-1_30_7)" fill="black" d="M7 12C7 2.61116 14.6112 -5 24 -5H57C73.0163 -5 86 7.98374 86 24H76C76 13.5066 67.4934 5 57 5H24C20.134 5 17 8.13401 17 12H7ZM81 29H12H81ZM7 29V12C7 2.61116 14.6112 -5 24 -5V5C20.134 5 17 8.13401 17 12V29H7ZM57 -5C73.0163 -5 86 7.98374 86 24V29H76V24C76 13.5066 67.4934 5 57 5V-5Z"></path>
+                                            <circle fill="black" r="3" cy="49" cx="78"></circle>
+                                        </svg>
+                                    </span>
+                                    <span class="printer-page-wrapper"><span class="printer-page"></span></span>
+                                </span>
+                                Stampa
+                            </button>
+                            <button class="btn-secondary" onclick="closeModal()">Chiudi</button>
+                        </div>
+                    </div>
+
+                    <div id="overlayAnteprimaResocontoErgo" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;"></div>
+                    <div class="modal-anteprima-resoconto" id="modalAnteprimaResocontoErgo" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;max-width:1000px;width:90%;max-height:90vh;overflow-y:auto;pointer-events:auto;background:#f9fafb;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:20px;background:linear-gradient(135deg,#f4f6f9 0%,#ffffff 100%);border-bottom:2px solid #e5e7eb;border-radius:8px 8px 0 0;">
+                            <h3 class="modal-title" style="margin:0;color:#111827;">Anteprima Resoconto</h3>
+                            <label style="display:flex;align-items:center;gap:8px;font-weight:500;color:#4b5563;">
+                                Salva come:
+                                <select id="formatoDownloadErgo" style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;background-color:white;cursor:pointer;color:#111827;font-weight:500;">
+                                    <option value="pdf">PDF</option>
+                                    <option value="csv">CSV</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div id="anteprimaContenutErgo" style="border:1px solid #e5e7eb;padding:30px;background:white;max-height:600px;overflow-y:auto;margin:20px;border-radius:8px;font-family:'Courier New',monospace;font-size:14px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 2px 8px rgba(0,0,0,0.05);"></div>
+                        <div class="modal-actions" style="gap:15px;padding:20px;margin-top:0;background:#f9fafb;border-top:1px solid #e5e7eb;">
+                            <button class="print-btn" id="scaricaResocontoErgoBtn" style="flex:1;padding:12px 20px;background:white;color:#333;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-weight:500;">Scarica</button>
+                            <button class="btn-secondary" id="chiudiAnteprimaErgoBtn" style="padding:12px 20px;background:#e5e7eb;color:#111827;border:none;border-radius:6px;cursor:pointer;font-weight:500;">Chiudi</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1974,6 +2011,15 @@ $result = $conn->query($sql);
                     if (summaryOre) summaryOre.textContent = totalOre.toFixed(2);
                     if (summaryStipendio) summaryStipendio.textContent = totalCosto.toFixed(2) + ' €';
                     if (summaryGiorni) summaryGiorni.textContent = giorniPresenza;
+                    resocontoCurrentData = {
+                        nome: titoloResoconto.textContent.split(' — ')[1]?.split(' ').slice(-1)[0] || '',
+                        cognome: titoloResoconto.textContent.split(' — ')[1]?.split(' ').slice(0, -1).join(' ') || '',
+                        mese: meseDaUsare,
+                        giorniData: json.data,
+                        totalOre,
+                        totalCosto,
+                        giorniPresenza
+                    };
                     const [anno, mese] = meseDaUsare.split('-');
                     if (resocontoContent && window.MobileCalendar) {
                         if (mobileCalendarInstance) {
@@ -1991,6 +2037,138 @@ $result = $conn->query($sql);
                     }
                 }).catch(() => {
                     if (bodyResoconto) bodyResoconto.innerHTML = '<tr><td colspan="4">Errore nel caricamento</td></tr>';
+                });
+            }
+
+            let resocontoCurrentData = {};
+
+            function generaAnteprimaPDF() {
+                let h = '<div style="font-family:Arial,sans-serif;padding:20px;background:white;color:#333;line-height:1.6;">';
+                h += `<h2 style="text-align:center;border-bottom:2px solid #333;padding-bottom:10px;">RESOCONTO MENSILE</h2>`;
+                h += `<p style="text-align:center;font-size:14px;"><strong>${resocontoCurrentData.cognome} ${resocontoCurrentData.nome}</strong></p>`;
+                h += `<p style="text-align:center;font-size:13px;">Mese: ${resocontoCurrentData.mese}</p>`;
+                h += `<p style="text-align:center;font-size:12px;color:#666;">Data Stampa: ${new Date().toLocaleString('it-IT')}</p>`;
+                h += '<h3 style="margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:5px;font-size:14px;">DETTAGLIO GIORNALIERO</h3>';
+                h += '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">';
+                h += '<tr style="background:#f0f0f0;"><th style="padding:8px;border:1px solid #ddd;">Giorno</th><th style="padding:8px;border:1px solid #ddd;">Ore</th><th style="padding:8px;border:1px solid #ddd;text-align:right;">Stipendio</th></tr>';
+                resocontoCurrentData.giorniData.forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    h += `<tr style="border:1px solid #ddd;"><td style="padding:8px;border:1px solid #ddd;">${g}</td><td style="padding:8px;text-align:center;border:1px solid #ddd;">${r.ore.toFixed(2)}h</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">${r.costo.toFixed(2)}€</td></tr>`;
+                });
+                h += '</table>';
+                h += `<h3 style="margin-top:20px;border-bottom:1px solid #ddd;padding-bottom:5px;font-size:14px;">TOTALI</h3>`;
+                h += `<div style="font-size:13px;"><p><strong>Ore Totali:</strong> ${resocontoCurrentData.totalOre.toFixed(2)}h</p><p><strong>Stipendio Totale:</strong> ${resocontoCurrentData.totalCosto.toFixed(2)}€</p><p><strong>Giorni di Presenza:</strong> ${resocontoCurrentData.giorniPresenza}</p></div>`;
+                h += `<div style="margin-top:40px;border-top:1px solid #333;padding-top:15px;"><p style="font-size:12px;">Firma: ___________________________</p><p style="margin-top:20px;font-size:12px;color:#999;">Data: ${new Date().toLocaleDateString('it-IT')}</p></div>`;
+                h += '</div>';
+                return h;
+            }
+
+            function generaAnteprimaCSV() {
+                let h = '<div style="font-family:monospace;font-size:12px;padding:10px;background:white;"><table style="border-collapse:collapse;width:100%;">';
+                h += '<tr style="background:#f0f0f0;"><td style="padding:8px;border:1px solid #ccc;font-weight:bold;">Giorno</td><td style="padding:8px;border:1px solid #ccc;text-align:center;font-weight:bold;">Ore</td><td style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">Stipendio</td></tr>';
+                resocontoCurrentData.giorniData.forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    h += `<tr><td style="padding:6px;border:1px solid #ddd;">${g}</td><td style="padding:6px;border:1px solid #ddd;text-align:center;">${r.ore.toFixed(2)}</td><td style="padding:6px;border:1px solid #ddd;text-align:right;">${r.costo.toFixed(2)}</td></tr>`;
+                });
+                h += `</table><div style="margin-top:20px;padding:15px;background:#f9f9f9;border:1px solid #ddd;"><p style="font-weight:bold;">TOTALI</p><p>Ore: ${resocontoCurrentData.totalOre.toFixed(2)}</p><p>Stipendio: ${resocontoCurrentData.totalCosto.toFixed(2)}</p><p>Giorni: ${resocontoCurrentData.giorniPresenza}</p></div></div>`;
+                return h;
+            }
+
+            const stampaResocontoErgoBtn = document.getElementById('stampaResocontoErgoBtn');
+            if (stampaResocontoErgoBtn) {
+                stampaResocontoErgoBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    document.getElementById('formatoDownloadErgo').value = 'pdf';
+                    document.getElementById('anteprimaContenutErgo').innerHTML = generaAnteprimaPDF();
+                    document.getElementById('modalAnteprimaResocontoErgo').style.display = 'block';
+                    document.getElementById('overlayAnteprimaResocontoErgo').style.display = 'block';
+                });
+            }
+
+            window.chiudiModalAnteprimaErgo = function() {
+                document.getElementById('modalAnteprimaResocontoErgo').style.display = 'none';
+                document.getElementById('overlayAnteprimaResocontoErgo').style.display = 'none';
+            };
+            document.getElementById('chiudiAnteprimaErgoBtn')?.addEventListener('click', () => window.chiudiModalAnteprimaErgo());
+            document.getElementById('overlayAnteprimaResocontoErgo')?.addEventListener('click', () => window.chiudiModalAnteprimaErgo());
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && document.getElementById('modalAnteprimaResocontoErgo').style.display === 'block') window.chiudiModalAnteprimaErgo();
+            });
+
+            const formatoDownloadErgo = document.getElementById('formatoDownloadErgo');
+            if (formatoDownloadErgo) {
+                formatoDownloadErgo.addEventListener('change', () => {
+                    const f = formatoDownloadErgo.value;
+                    document.getElementById('anteprimaContenutErgo').innerHTML = f === 'pdf' ? generaAnteprimaPDF() : generaAnteprimaCSV();
+                });
+            }
+
+            function generaResocontoCSV() {
+                if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
+                    alert('Nessun dato da scaricare');
+                    return;
+                }
+                let csv = 'Giorno,Ore,Stipendio\n';
+                resocontoCurrentData.giorniData.forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    csv += `${g},${r.ore.toFixed(2)},${r.costo.toFixed(2)}\n`;
+                });
+                csv += `\n\nTOTALI\nOre Totali,${resocontoCurrentData.totalOre.toFixed(2)}\nStipendio Totale,${resocontoCurrentData.totalCosto.toFixed(2)}\nGiorni di Presenza,${resocontoCurrentData.giorniPresenza}\n`;
+                const blob = new Blob([csv], {
+                    type: 'text/csv;charset=utf-8;'
+                });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `resoconto_ergo_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.csv`;
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            function generaResoconsoPDFErgo() {
+                if (!resocontoCurrentData.nome || resocontoCurrentData.giorniData.length === 0) {
+                    alert('Nessun dato da scaricare');
+                    return;
+                }
+                if (typeof html2pdf === 'undefined') {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                    s.onload = () => generaResoconsoPDFInternoErgo();
+                    document.head.appendChild(s);
+                } else {
+                    generaResoconsoPDFInternoErgo();
+                }
+            }
+
+            function generaResoconsoPDFInternoErgo() {
+                const div = document.createElement('div');
+                div.innerHTML = generaAnteprimaPDF();
+                div.style.padding = '20px';
+                html2pdf().set({
+                    margin: 10,
+                    filename: `resoconto_ergo_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`,
+                    image: {
+                        type: 'jpeg',
+                        quality: 0.98
+                    },
+                    html2canvas: {
+                        scale: 2
+                    },
+                    jsPDF: {
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    }
+                }).from(div).save();
+            }
+
+            const scaricaResocontoErgoBtn = document.getElementById('scaricaResocontoErgoBtn');
+            if (scaricaResocontoErgoBtn) {
+                scaricaResocontoErgoBtn.addEventListener('click', () => {
+                    const f = document.getElementById('formatoDownloadErgo').value;
+                    if (f === 'csv') generaResocontoCSV();
+                    else generaResoconsoPDFErgo();
                 });
             }
         });
