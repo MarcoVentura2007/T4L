@@ -14,7 +14,7 @@ $username = $_SESSION['username'];
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>T4L | Privacy Policy</title>
     <link rel="icon" href="immagini/Icona.ico">
     <link rel="stylesheet" href="style.css">
