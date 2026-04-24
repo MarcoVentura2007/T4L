@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Redirect a login.php
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit;
@@ -9,21 +8,18 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-// Connessione al DB
 require __DIR__ . '/../data/db_connection.php';
 $conn = getDbConnection('time4all');
 
-// Prendi la classe dell'utente loggato
 $resultClasse = $conn->query("SELECT classe, codice_univoco FROM Account WHERE nome_utente = '$username'");
 if ($resultClasse && $resultClasse->num_rows > 0) {
     $rowClasse = $resultClasse->fetch_assoc();
     $classe = $rowClasse['classe'];
     $codice = $rowClasse['codice_univoco'];
 } else {
-    $classe = ""; // default se non trovato
+    $classe = "";
 }
 
-// Preleva i profili dal DB
 $oggi = date('Y-m-d');
 
 $sql = "
@@ -39,12 +35,14 @@ $sql = "
 ";
 $result = $conn->query($sql);
 
-// Crea un array per mappare nome completo a ID
 $userMap = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $fullName = $row['nome'] . " " . $row['cognome'];
-        $userMap[$fullName] = $row['id'];
+        $userMap[$fullName] = [
+            'id'         => $row['id'],
+            'fotografia' => $row['fotografia']
+        ];
     }
 }
 
@@ -77,7 +75,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        /* Fallback: evita SVG gigantesche se il CSS principale non viene caricato */
         .faceid-header-icon svg,
         .faceid-capture-btn svg,
         .faceid-result-icon svg,
@@ -91,27 +88,10 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
 <body>
 
-
-    <!-- LOADER TIKTOK-STYLE - Time4All Branded 
-<div id="page-loader" class="show">
-<div class="logo-pulse-loader">
-    <div class="logo-pulse-ring"></div>
-    <div class="logo-pulse-ring"></div>
-    <img src="immagini/TIME4ALL_LOGO-removebg-preview.png" alt="Time4All">
-</div>
-
-    <p style="margin-top: 30px; color: #640a35; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;">Caricamento...</p>
-</div>
-
--->
-
-
     <script src="js/loader.js"></script>
-
 
     <!-- NAVBAR -->
     <header class="navbar">
-
 
         <div class="user-box" id="userBox">
             <img src="immagini/profile-picture.png" alt="Profile">
@@ -130,7 +110,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         <div class="logout-modal" id="logoutModal">
             <h3>Conferma logout</h3>
             <p>Sei sicuro di voler uscire dal tuo account?</p>
-
             <div class="logout-actions">
                 <button class="btn-cancel" id="cancelLogout">Annulla</button>
                 <button class="btn-logout" id="confirmLogout">Logout</button>
@@ -152,12 +131,10 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         <div class="dropdown" id="dropdown">
 
             <div class="menu-group">
-
                 <div class="menu-main" data-target="centroMenu">
                     <img src="immagini/Logo-centrodiurno.png">
                     Centro Diurno
                 </div>
-
                 <div class="submenu" id="centroMenu">
                     <div class="menu-item" data-link="fogliofirme-centro.php">
                         <img src="immagini/foglio-over.png" alt="">
@@ -169,7 +146,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                     } elseif ($classe === 'Contabile') {
                         $gestionalePage = "gestionale_contabile.php";
                     } else {
-                        $gestionalePage = "#"; // default se classe sconosciuta
+                        $gestionalePage = "#";
                     }
                     ?>
                     <div class="menu-item" id="cardGestionale" data-link=<?php echo $gestionalePage; ?>>
@@ -177,17 +154,13 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                         Gestionale
                     </div>
                 </div>
-
             </div>
 
-
             <div class="menu-group">
-
                 <div class="menu-main" data-target="ergoMenu">
                     <img src="immagini/Logo-Cooperativa-Ergaterapeutica.png">
                     Ergoterapeutica
                 </div>
-
                 <div class="submenu" id="ergoMenu">
                     <div class="menu-item" data-link="presenze-ergo.php">
                         <img src="immagini/presenze-ergo.png" alt="">
@@ -204,25 +177,19 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                         $gestionalePageErgo = "#";
                     }
                     ?>
-
                     <div class="menu-item" data-link=<?php echo $gestionalePageErgo; ?>>
                         <img src="immagini/gestionale-ergo.png" alt="">
                         Gestionale
                     </div>
                 </div>
-
             </div>
 
         </div>
 
     </header>
 
-
-
     <!-- CONTENUTO PRINCIPALE -->
     <main class="carousel-dashboard">
-
-
 
         <!-- FACE ID MODERN CONTAINER -->
         <div class="faceid-container">
@@ -238,8 +205,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
             <div class="faceid-video-wrapper">
                 <video id="video" width="320" height="240" autoplay></video>
-
-                <!-- Scanning overlay -->
                 <div class="faceid-scan-overlay" id="scanOverlay">
                     <div class="faceid-scan-line"></div>
                     <div class="faceid-corners">
@@ -253,7 +218,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
             <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
 
-            <!-- Modern Capture Button -->
             <button id="snap" class="faceid-capture-btn">
                 <svg viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7v-2z" />
@@ -261,7 +225,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 <span>Scatta e verifica</span>
             </button>
 
-            <!-- Result Display -->
             <div id="faceidResult" class="faceid-result">
                 <div class="faceid-result-icon">
                     <svg id="resultIcon" viewBox="0 0 24 24">
@@ -279,14 +242,12 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         <div class="popup-overlay" id="popupOverlay"></div>
 
         <!-- ORARI -->
-        <div class="popup big" id="timePopup">
+        <div class="popup big show" id="timePopup">
             <div class="popup-content">
                 <div class="popup-left">
                     <img id="popupUserImg">
                     <h3 id="popupUserName"></h3>
                 </div>
-
-
                 <div class="popup-right">
                     <h2 class="popup-title">Inserisci orari</h2>
                     <div class="time-box">
@@ -299,40 +260,27 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                             <input type="time" id="timeOut">
                         </div>
                     </div>
-
-
-                    <button class="btn-next" id="goSignature" style="background-color: aqua;">Continua</button>
+                    <button class="btn-next" id="goSignature" style="background-color: #3d3d3d;">Continua</button>
                 </div>
             </div>
         </div>
 
         <!-- FIRMA -->
         <div class="popup big" id="signaturePopup">
-
             <div class="popup-content">
                 <div class="popup-left">
-
                     <img id="popupUserImg2">
                     <h3 id="popupUserName2"></h3>
                 </div>
-
                 <div class="popup-right">
-
                     <button class="close-popup" id="closeSignaturePopup">✖</button>
-
                     <button class="button" id="backToTimePopup">
                         <svg class="svgIcon" viewBox="0 0 24 24">
                             <path fill="white" d="M19 11H7.8l4.6-4.6a1 1 0 1 0-1.4-1.4l-6.3 6.3a1 1 0 0 0 0 1.4l6.3 6.3a1 1 0 1 0 1.4-1.4L7.8 13H19a1 1 0 1 0 0-2z" />
                         </svg>
                     </button>
-
-
-
-
                     <h2 class="popup-title">Firma nella casella qua sotto</h2>
-
                     <canvas id="signatureCanvas"></canvas>
-
                     <div class="sign-actions">
                         <button id="clearSign" style="background-color: aqua;">Pulisci</button>
                         <button id="confirmSign" class="btn-confirm" style="background-color: aqua;">Conferma</button>
@@ -340,6 +288,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 </div>
             </div>
         </div>
+
         <!-- POPUP CONFERMA FIRMA -->
         <div class="popup success-popup" id="successPopup">
             <div class="success-content">
@@ -352,11 +301,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 <p class="success-text">Firma completata!!</p>
             </div>
         </div>
-
-
-
-
-
 
     </main>
 
@@ -372,21 +316,19 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 autocomplete="off"
                 required
                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-
-
             <button class="learn-more" id="button-gestionale-ergo">
                 <span class="circle" aria-hidden="true">
                     <span class="icon arrow"></span>
                 </span>
                 <span class="button-text">Continua</span>
             </button>
-
-            <div id="notify" class="notify hidden">
-                <div class="icon" id="notify-icon"></div>
-                <div class="text" id="notify-text"></div>
+            <div id="notify-ergo" class="notify hidden">
+                <div class="icon" id="notify-icon-ergo"></div>
+                <div class="text" id="notify-text-ergo"></div>
             </div>
         </div>
     </div>
+
     <!-- POPUP CODICE GESTIONALE -->
     <div id="code-popup" class="popup">
         <div class="content">
@@ -400,15 +342,12 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 autocomplete="off"
                 required
                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-
-
             <button class="learn-more" id="button-gestionale" style="background-color: aqua;">
                 <span class="circle" aria-hidden="true">
                     <span class="icon arrow"></span>
                 </span>
                 <span class="button-text">Continua</span>
             </button>
-
             <div id="notify" class="notify hidden">
                 <div class="icon" id="notify-icon"></div>
                 <div class="text" id="notify-text"></div>
@@ -428,43 +367,30 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
     <script>
         // FACEID ELEMENTS
-        const video = document.getElementById("video");
-        const canvas = document.getElementById("canvas");
-        const snap = document.getElementById("snap");
+        const video       = document.getElementById("video");
+        const canvas      = document.getElementById("canvas");
+        const snap        = document.getElementById("snap");
         const scanOverlay = document.getElementById("scanOverlay");
 
-        // Result elements
-        const faceidResult = document.getElementById("faceidResult");
-        const resultIcon = document.getElementById("resultIcon");
-        const resultTitle = document.getElementById("resultTitle");
+        const faceidResult  = document.getElementById("faceidResult");
+        const resultIcon    = document.getElementById("resultIcon");
+        const resultTitle   = document.getElementById("resultTitle");
         const resultMessage = document.getElementById("resultMessage");
 
-        // WEBCAM ACCESS
-        navigator.mediaDevices.getUserMedia({
-                video: true
-            })
-            .then(stream => {
-                video.srcObject = stream;
-            })
+        // WEBCAM
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
             .catch(err => {
                 console.error("Errore accesso webcam:", err);
                 showFaceIDResult('error', 'Errore webcam', 'Impossibile accedere alla fotocamera. Verifica i permessi.');
             });
 
-        // Function to show Face ID results
         function showFaceIDResult(type, title, message) {
-            // Remove old classes
             faceidResult.classList.remove('success', 'error', 'info');
-
-            // Add new class and show
-            faceidResult.classList.add(type);
-            faceidResult.classList.add('show');
-
-            // Update content
-            resultTitle.textContent = title;
+            faceidResult.classList.add(type, 'show');
+            resultTitle.textContent   = title;
             resultMessage.textContent = message;
 
-            // Update icon based on type
             if (type === 'success') {
                 resultIcon.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
             } else if (type === 'error') {
@@ -473,17 +399,13 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 resultIcon.innerHTML = '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>';
             }
 
-            // Auto hide after 8 seconds for success
             if (type === 'success') {
-                setTimeout(() => {
-                    faceidResult.classList.remove('show');
-                }, 8000);
+                setTimeout(() => faceidResult.classList.remove('show'), 8000);
             }
         }
 
         // SNAP AND VERIFY
         snap.addEventListener("click", () => {
-            // Show scanning animation
             scanOverlay.classList.add('active');
             snap.classList.add('capturing');
 
@@ -494,10 +416,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 const formData = new FormData();
                 formData.append("image", blob, "photo.png");
 
-                fetch("../faceid/public/upload.php", {
-                        method: "POST",
-                        body: formData
-                    })
+                fetch("../faceid/public/upload.php", { method: "POST", body: formData })
                     .then(res => {
                         console.log("DEBUG: Response status:", res.status);
                         return res.text();
@@ -505,7 +424,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                     .then(text => {
                         console.log("DEBUG: Response text:", text);
 
-                        // Hide scanning animation
                         scanOverlay.classList.remove('active');
                         snap.classList.remove('capturing');
 
@@ -515,15 +433,11 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
                             if (data.result && data.result.error) {
                                 showFaceIDResult('error', 'Errore', data.result.error || 'Si è verificato un errore durante il riconoscimento.');
-                                console.error("DEBUG: Error in result:", data.result);
-                                if (data.result.raw) {
-                                    console.log("DEBUG: Raw Python output:", data.result.raw);
-                                }
+                                if (data.result.raw) console.log("DEBUG: Raw Python output:", data.result.raw);
                                 return;
                             }
                             if (!data.result) {
                                 showFaceIDResult('error', 'Errore server', 'Risposta non valida dal server');
-                                console.error("DEBUG: No result in response:", data);
                                 return;
                             }
 
@@ -531,28 +445,25 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                                 const recognizedName = data.result.name;
                                 console.log("DEBUG: Face recognized:", recognizedName);
 
-                                // Check if recognized name is in userMap
                                 if (userMap[recognizedName]) {
-                                    const userId = userMap[recognizedName];
-                                    console.log("DEBUG: User authorized, opening popup for ID:", userId);
+                                    const user   = userMap[recognizedName];
+                                    const userId = user.id;
+                                    const foto   = user.fotografia
+                                                   ? 'immagini/' + user.fotografia
+                                                   : 'immagini/profile-picture.png';
 
-                                    // Show success result first
                                     showFaceIDResult('success', 'Volto riconosciuto!', 'Ciao ' + recognizedName + ', attendi un momento...');
 
-                                    // Then open the time popup after a short delay
                                     setTimeout(() => {
-                                        const imgSrc = "immagini/profile-picture.png";
-                                        img1.src = imgSrc;
-                                        name1.textContent = recognizedName;
-                                        img2.src = imgSrc;
-                                        name2.textContent = recognizedName;
-                                        selectedIdIscritto = userId;
+                                        img1.src              = foto;
+                                        img2.src              = foto;
+                                        name1.textContent     = recognizedName;
+                                        name2.textContent     = recognizedName;
+                                        selectedIdIscritto    = userId;
 
                                         overlay.classList.add("show");
                                         timePopup.classList.add("show");
                                         document.body.classList.add("popup-open");
-
-                                        // Hide Face ID result when popup opens
                                         faceidResult.classList.remove('show');
                                     }, 1500);
                                 } else {
@@ -577,36 +488,27 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             }, "image/png");
         });
 
-        // ELEMENTI
-        const cardGestionale = document.getElementById("cardGestionale");
-        const overlay = document.getElementById("popupOverlay");
-        const codePopup = document.getElementById("code-popup");
+        // ELEMENTI POPUP
+        const cardGestionale  = document.getElementById("cardGestionale");
+        const overlay         = document.getElementById("popupOverlay");
+        const codePopup       = document.getElementById("code-popup");
         const buttonGestionale = document.getElementById("button-gestionale");
-        const passwordField = document.getElementById("password");
-        const hamGestionale = document.getElementById("ham-gestionale");
+        const passwordField   = document.getElementById("password");
 
-
-
-
-
-        // FUNZIONE NOTIFICATION
+        // NOTIFICATION
         function showNotification(success = true, message = "Messaggio") {
             const notify = document.createElement('div');
-            notify.classList.add('notify');
-            notify.classList.add(success ? 'success' : 'error');
+            notify.classList.add('notify', success ? 'success' : 'error');
 
             const iconWrapper = document.createElement('div');
             iconWrapper.classList.add('icon-wrapper');
-
             const circle = document.createElement('div');
             circle.classList.add('circle');
             iconWrapper.appendChild(circle);
-
             const icon = document.createElement('span');
             icon.classList.add('icon');
             icon.textContent = success ? "✔" : "✖";
             iconWrapper.appendChild(icon);
-
             notify.appendChild(iconWrapper);
 
             const text = document.createElement('span');
@@ -614,11 +516,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             notify.appendChild(text);
 
             document.body.appendChild(notify);
-
-            // Mostra con animazione
             setTimeout(() => notify.classList.add('show'), 10);
-
-            // Nascondi dopo 3 secondi con animazione uscita
             setTimeout(() => {
                 notify.classList.remove('show');
                 notify.classList.add('hide');
@@ -635,130 +533,80 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             return false;
         });
 
-        // CHIUDI POPUP CLICCANDO FUORI
-        overlay.addEventListener("click", () => {
-            overlay.classList.remove("show");
-            codePopup.classList.remove("show");
-            document.body.classList.remove("popup-open");
-        });
-
         const passwordFieldErgo = document.getElementById("password-ergo");
-        const codePopupErgo = document.getElementById("code-popup-ergo");
-
+        const codePopupErgo     = document.getElementById("code-popup-ergo");
         const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
+
         buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
 
-        // FUNZIONE DI CONTROLLO CODICE
         async function verificaCodiceErgo() {
             const codice = passwordFieldErgo.value.trim();
-
-            if (!codice) {
-                showNotification(false, "Inserisci il codice");
-                return;
-            }
+            if (!codice) { showNotification(false, "Inserisci il codice"); return; }
 
             try {
                 const response = await fetch("api/api_codice_gestionale_ergo.php", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: `codice=${encodeURIComponent(codice)}`
                 });
-
                 const result = await response.json();
 
                 if (result.success) {
                     showNotification(true, "Accesso consentito");
-
                     passwordFieldErgo.value = "";
-
-                    // Chiudi popup
                     overlay.classList.remove("show");
                     codePopupErgo.classList.remove("show");
                     document.body.classList.remove("popup-open");
-
-                    // Redirect alla pagina di gestionale
-                    setTimeout(() => {
-                        window.location.href = result.redirect;
-                    }, 2000);
+                    setTimeout(() => { window.location.href = result.redirect; }, 2000);
                 } else {
                     showNotification(false, result.message);
-                    passwordFieldErgo.value = ""; // pulisci input se sbagliato
+                    passwordFieldErgo.value = "";
                 }
-
             } catch (err) {
                 showNotification(false, "Errore server");
                 console.error(err);
             }
         }
 
-        overlay.onclick = closePopups;
-
         passwordFieldErgo.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                e.preventDefault(); // evita submit involontario
-                verificaCodiceErgo();
-            }
+            if (e.key === "Enter") { e.preventDefault(); verificaCodiceErgo(); }
         });
 
-
-        // FUNZIONE DI CONTROLLO CODICE
         async function verificaCodice() {
             const codice = passwordField.value.trim();
-
-            if (!codice) {
-                showNotification(false, "Inserisci il codice");
-                return;
-            }
+            if (!codice) { showNotification(false, "Inserisci il codice"); return; }
 
             try {
                 const response = await fetch("api/api_codice_gestionale.php", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: `codice=${encodeURIComponent(codice)}`
                 });
-
                 const result = await response.json();
 
                 if (result.success) {
                     showNotification(true, "Accesso consentito");
-
-
                     overlay.classList.remove("show");
                     codePopup.classList.remove("show");
                     document.body.classList.remove("popup-open");
-
-                    setTimeout(() => {
-                        window.location.href = result.redirect;
-                    }, 2000);
+                    setTimeout(() => { window.location.href = result.redirect; }, 2000);
                 } else {
                     showNotification(false, result.message);
                     passwordField.value = "";
                 }
-
             } catch (err) {
                 showNotification(false, "Errore server");
                 console.error(err);
             }
         }
 
-        // BOTTONE CONTINUA
         buttonGestionale.addEventListener("click", verificaCodice);
-
-        // INVIO DALL'INPUT
         passwordField.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                verificaCodice();
-            }
+            if (e.key === "Enter") { e.preventDefault(); verificaCodice(); }
         });
 
-
         /* HAMBURGER */
-        const ham = document.getElementById("hamburger");
+        const ham  = document.getElementById("hamburger");
         const drop = document.getElementById("dropdown");
         ham.onclick = () => {
             ham.classList.toggle("active");
@@ -767,77 +615,58 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
         document.querySelectorAll(".menu-main").forEach(main => {
             main.addEventListener("click", () => {
-
-                const targetId = main.dataset.target;
+                const targetId   = main.dataset.target;
                 const targetMenu = document.getElementById(targetId);
-
-                // chiudi tutti gli altri submenu
                 document.querySelectorAll(".submenu").forEach(menu => {
                     if (menu !== targetMenu) {
                         menu.classList.remove("open");
-                        menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                        menu.previousElementSibling.classList.remove("open");
                     }
                 });
-
-                // toggle quello cliccato
                 targetMenu.classList.toggle("open");
-                main.classList.toggle("open"); // per la freccetta
+                main.classList.toggle("open");
             });
-
         });
-
 
         document.querySelectorAll(".menu-item[data-link]").forEach(item => {
             const link = item.dataset.link;
             if (link.includes("gestionale_ergo")) {
-                // Ergoterapeutica Gestionale - usa popup ergo
                 item.addEventListener("click", (e) => {
-                    e.preventDefault(); // previeni redirect
+                    e.preventDefault();
                     overlay.classList.add("show");
                     codePopupErgo.classList.add("show");
                     document.body.classList.add("popup-open");
-                    passwordFieldErgo.focus(); // focus input
+                    passwordFieldErgo.focus();
                 });
             } else if (link.includes("gestionale")) {
-                // Centro Diurno Gestionale - usa popup standard
                 item.addEventListener("click", (e) => {
-                    e.preventDefault(); // previeni redirect
+                    e.preventDefault();
                     overlay.classList.add("show");
                     codePopup.classList.add("show");
                     document.body.classList.add("popup-open");
-                    passwordField.focus(); // focus input
+                    passwordField.focus();
                 });
             } else {
-                // link normali
-                item.addEventListener("click", () => {
-                    window.location.href = link;
-                });
+                item.addEventListener("click", () => { window.location.href = link; });
             }
         });
 
-
-
-
-
-
         /* USER DROPDOWN */
-        const userBox = document.getElementById("userBox");
+        const userBox      = document.getElementById("userBox");
         const userDropdown = document.getElementById("userDropdown");
         userBox.addEventListener("click", (e) => {
             e.stopPropagation();
             userDropdown.classList.toggle("show");
         });
         document.addEventListener("click", (e) => {
-            if (!userBox.contains(e.target)) {
-                userDropdown.classList.remove("show");
-            }
+            if (!userBox.contains(e.target)) userDropdown.classList.remove("show");
         });
 
         /* LOGOUT */
-        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutBtn     = document.getElementById("logoutBtn");
         const logoutOverlay = document.getElementById("logoutOverlay");
-        const logoutModal = document.getElementById("logoutModal");
-        const cancelLogout = document.getElementById("cancelLogout");
+        const logoutModal   = document.getElementById("logoutModal");
+        const cancelLogout  = document.getElementById("cancelLogout");
         const confirmLogout = document.getElementById("confirmLogout");
 
         logoutBtn.addEventListener("click", (e) => {
@@ -846,7 +675,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             logoutModal.classList.add("show");
         });
 
-        cancelLogout.onclick = closeLogout;
+        cancelLogout.onclick  = closeLogout;
         logoutOverlay.onclick = closeLogout;
 
         function closeLogout() {
@@ -854,13 +683,11 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             logoutModal.classList.remove("show");
         }
 
-        confirmLogout.onclick = () => {
-            window.location.href = "logout.php";
-        };
+        confirmLogout.onclick = () => { window.location.href = "logout.php"; };
 
-        // Blocca scroll del body quando un popup è aperto
+        /* SCROLL LOCK */
         const popupTargetsSelector = ".modal-box, .popup, .logout-modal, .success-popup, .modal-overlay, .popup-overlay, .logout-overlay";
-        const popupShowSelector = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
+        const popupShowSelector    = ".modal-box.show, .popup.show, .logout-modal.show, .success-popup.show, .modal-overlay.show, .popup-overlay.show, .logout-overlay.show";
 
         function syncBodyScrollLock() {
             const anyOpen = document.querySelector(popupShowSelector);
@@ -876,39 +703,32 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 }
             }
         });
-
-        popupObserver.observe(document.body, {
-            subtree: true,
-            attributes: true,
-            attributeFilter: ["class"]
-        });
+        popupObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
         syncBodyScrollLock();
 
-
-
         /* POPUP PROFILI */
-
         const timePopup = document.getElementById("timePopup");
         const signPopup = document.getElementById("signaturePopup");
-        const img1 = document.getElementById("popupUserImg");
-        const name1 = document.getElementById("popupUserName");
-        const img2 = document.getElementById("popupUserImg2");
-        const name2 = document.getElementById("popupUserName2");
+        const img1      = document.getElementById("popupUserImg");
+        const name1     = document.getElementById("popupUserName");
+        const img2      = document.getElementById("popupUserImg2");
+        const name2     = document.getElementById("popupUserName2");
 
         let selectedIdIscritto = null;
 
         document.querySelectorAll(".profile-card").forEach(card => {
             card.onclick = () => {
-                const img = card.querySelector("img").src;
                 const name = card.querySelector("h3").textContent;
+                const user = userMap[name];
+                const foto = user?.fotografia
+                             ? 'immagini/' + user.fotografia
+                             : 'immagini/profile-picture.png';
 
-                img1.src = img;
-                name1.textContent = name;
-                img2.src = img;
-                name2.textContent = name;
-
-                // Salvo l'ID per quando confermo la firma
-                selectedIdIscritto = card.getAttribute("data-id");
+                img1.src              = foto;
+                img2.src              = foto;
+                name1.textContent     = name;
+                name2.textContent     = name;
+                selectedIdIscritto    = user?.id ?? card.getAttribute("data-id");
 
                 overlay.classList.add("show");
                 timePopup.classList.add("show");
@@ -917,44 +737,34 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         });
 
         document.getElementById("goSignature").onclick = () => {
-
-            const timeIn = document.getElementById("timeIn").value;
+            const timeIn  = document.getElementById("timeIn").value;
             const timeOut = document.getElementById("timeOut").value;
-
-            // CONTROLLO PRIMA DI ANDARE ALLA FIRMA
             if (timeIn === "" || timeOut === "") {
                 alert("Inserisci prima l'orario di ingresso e di uscita!");
-                return; // blocca il passaggio alla firma
+                return;
             }
-
-            // se ok → vai alla firma
             timePopup.classList.remove("show");
             signPopup.classList.add("show");
         };
 
-
-
-
-
-        /* PER USCIRE */
+        /* CHIUDI POPUP */
         overlay.onclick = closePopups;
 
         function closePopups() {
             overlay.classList.remove("show");
             codePopup.classList.remove("show");
             codePopupErgo.classList.remove("show");
+            timePopup.classList.remove("show");
+            signPopup.classList.remove("show");
             document.body.classList.remove("popup-open");
         }
 
-
-        const backBtn = document.getElementById("backToTimePopup");
-
-        backBtn.onclick = () => {
-            signPopup.classList.remove("show"); // chiude firma
-            timePopup.classList.add("show"); // riapre orari
+        document.getElementById("backToTimePopup").onclick = () => {
+            signPopup.classList.remove("show");
+            timePopup.classList.add("show");
         };
-    </script>
 
+    </script>
 
 </body>
 

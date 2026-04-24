@@ -368,11 +368,11 @@ $resultResoconti = $conn->query($sqlResoconti);
                             <div class="edit-field">
                                 <label>Tipo di lavoro</label>
                                 <select id="utenteGruppo">
-                                    <option value="0">Individuale</option>
                                     <option value="1">Gruppo</option>
-                                </select>
+                                    <option value="0">Individuale</option>
+                                    </select>
                             </div>
-                            <div class="edit-field"><label>Prezzo orario (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario" step="0.1"></div>
+                            <div class="edit-field"><label>Prezzo orario Individuale (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario individuale" step="0.1"></div>
                             <div class="edit-field"><label>Prezzo orario Gruppo (€)</label><input type="number" id="utentePrezzoGruppo" placeholder="Prezzo orario gruppo" step="0.1"></div>
                             <div class="edit-field"><label>Disabilità</label><textarea id="utenteDisabilita"></textarea></div>
                             <div class="edit-field"><label>Note</label><textarea id="utenteNote"></textarea></div>
@@ -745,8 +745,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                                             echo '<input type="checkbox" class="ragazzo-checkbox" value="' . htmlspecialchars($row['id']) . '"> ';
                                             echo '<span>' . htmlspecialchars($row['nome'] . ' ' . $row['cognome']) . '</span>';
                                             echo '<select class="ragazzo-gruppo" style="margin-left:8px;display:none;">
-                                                <option value="0" selected>Individuale</option>
                                                 <option value="1">Gruppo</option>
+                                                <option value="0">Individuale</option>
                                               </select>';
                                             echo '</label>';
                                         }
@@ -827,8 +827,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                                             echo '<input type="checkbox" class="mod-ragazzo-checkbox" value="' . htmlspecialchars($row['id']) . '"> ';
                                             echo '<span>' . htmlspecialchars($row['nome'] . ' ' . $row['cognome']) . '</span>';
                                             echo '<select class="ragazzo-gruppo mod-ragazzo-gruppo" style="margin-left:8px;display:none;">
-                                                <option value="0" selected>Individuale</option>
                                                 <option value="1">Gruppo</option>
+                                                <option value="0">Individuale</option>
                                               </select>';
                                             echo '</label>';
                                         }
@@ -1390,11 +1390,11 @@ $resultResoconti = $conn->query($sqlResoconti);
             <div class="edit-field" id="fieldGruppo">
                 <label>Tipo di lavoro</label>
                 <select id="editGruppo">
-                    <option value="0">Individuale</option>
                     <option value="1">Gruppo</option>
+                    <option value="0">Individuale</option>
                 </select>
             </div>
-            <div class="edit-field" id="fieldPrezzo"><label>Prezzo orario</label><input type="number" id="editPrezzo" placeholder="Prezzo in €" step="0.1"></div>
+            <div class="edit-field" id="fieldPrezzo"><label>Prezzo orario Individuale</label><input type="number" id="editPrezzo" placeholder="Prezzo Individuale in €" step="0.1"></div>
             <div class="edit-field" id="fieldPrezzoGruppo"><label>Prezzo orario Gruppo</label><input type="number" id="editPrezzoGruppo" placeholder="Prezzo Gruppo in €" step="0.1"></div>
             <div class="edit-field" id="fieldDisabilita"><label>Disabilità</label><textarea id="editDisabilita" placeholder="Disabilità"></textarea></div>
             <div class="edit-field" id="fieldNote"><label>Note</label><textarea id="editNote" placeholder="Note"></textarea></div>
@@ -1877,7 +1877,7 @@ $resultResoconti = $conn->query($sqlResoconti);
             <div class="profile-field"><label>Telefono</label><span>${row.dataset.telefono||"—"}</span></div>
             <div class="profile-field"><label style="font-weight:bold;">Intolleranze ⚠️</label><span style="font-weight:bold;">${row.dataset.intolleranze||"—"}</span></div>
             <div class="profile-field"><label>Tipo di lavoro</label><span>${row.dataset.gruppo==='1'||row.dataset.gruppo==='on'?'Gruppo':'Individuale'}</span></div>
-            <div class="profile-field"><label>Prezzo orario</label><span>${row.dataset.prezzo||"—"} €</span></div>
+            <div class="profile-field"><label>Prezzo orario Individuale</label><span>${row.dataset.prezzo||"—"} €</span></div>
             <div class="profile-field"><label>Prezzo orario Gruppo</label><span>${row.dataset.prezzoGruppo||"—"} €</span></div>
             <div class="profile-field" style="grid-column:1/-1;"><label>Disabilità</label><span>${row.dataset.disabilita||"—"}</span></div>
             <div class="profile-field" style="grid-column:1/-1;"><label>Note</label><span>${row.dataset.note||"—"}</span></div>
