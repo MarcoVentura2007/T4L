@@ -130,7 +130,7 @@
   }
 
   .activities-list::before {
-    display: none;
+    display: none !important;
   }
 
   /* ========== CARD ATTIVITÀ MOBILE ========== */
