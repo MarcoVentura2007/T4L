@@ -70,6 +70,255 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
     </script>
 
     <style>
+        /* ═══════════════════ TIME MODAL ═══════════════════ */
+
+        .time-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -46%) scale(.97);
+            z-index: 900;
+            width: min(720px, calc(100vw - 32px));
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .18);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .22s ease, transform .26s cubic-bezier(.34, 1.2, .64, 1);
+            overflow: hidden;
+            font-family: var(--font);
+        }
+
+        .time-modal.show {
+            opacity: 1;
+            pointer-events: all;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* ── Header ── */
+        .tm-head {
+            padding: 32px 40px 28px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .tm-avatar-ring {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #eaf4f8;
+            border: 2px solid #d4eaf3;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tm-avatar-ring img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tm-head-meta {
+            flex: 1;
+        }
+
+        .tm-head-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #111;
+            margin: 0 0 3px;
+        }
+
+        .tm-head-sub {
+            font-size: 13px;
+            color: #888;
+            margin: 0;
+        }
+
+        .tm-duration-wrap {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .tm-duration-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: #aaa;
+            margin: 0 0 2px;
+        }
+
+        .tm-duration-val {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0b516c;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -1px;
+            margin: 0;
+        }
+
+        /* ── Body ── */
+        .tm-body {
+            padding: 40px 40px 16px;
+        }
+
+        .tm-time-row {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr;
+            align-items: end;
+            margin-bottom: 24px;
+        }
+
+        .tm-divider {
+            background: #e8e8e8;
+            height: 60px;
+            align-self: end;
+            margin-bottom: 12px;
+        }
+
+        .tm-field {
+            padding: 0 40px;
+        }
+
+        .tm-field:first-child {
+            padding-left: 0;
+        }
+
+        .tm-field:last-child {
+            padding-right: 0;
+        }
+
+        .tm-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+
+        .tm-field input[type="time"] {
+            width: 100%;
+            font-size: 52px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -1px;
+            color: #111;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #e5e5e5;
+            border-radius: 0;
+            outline: none;
+            padding: 0 0 10px;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: border-color .18s;
+            color-scheme: light;
+        }
+
+        .tm-field input[type="time"]:focus {
+            border-bottom-color: #0b516c;
+        }
+
+        .tm-field input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 0.3;
+            cursor: pointer;
+            filter: invert(20%) sepia(80%) saturate(400%) hue-rotate(160deg);
+        }
+
+        /* ── Error ── */
+        .tm-err {
+            font-size: 13px;
+            color: #c0392b;
+            margin: 0 0 8px;
+            padding: 10px 14px;
+            background: #fdf2f2;
+            border-radius: 8px;
+            border: 1px solid #f5c6c6;
+        }
+
+        /* ── Footer ── */
+        .tm-footer {
+            padding: 8px 40px 36px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .tm-btn-cancel {
+            flex: 1;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: var(--font);
+            color: #888;
+            background: #fff;
+            border: 1.5px solid #e5e5e5;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background .15s, color .15s, border-color .15s;
+        }
+
+        .tm-btn-cancel:hover {
+            background: #f5f5f5;
+            color: #555;
+            border-color: #ccc;
+        }
+
+        .tm-btn-submit {
+            flex: 3;
+            padding: 15px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: var(--font);
+            color: #fff;
+            background: #0b516c;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background .15s;
+        }
+
+        .tm-btn-submit:hover {
+            background: #0d6a8a;
+        }
+
+        .tm-btn-submit:active {
+            background: #073a52;
+        }
+
+        .tm-btn-submit:disabled {
+            opacity: .7;
+            cursor: not-allowed;
+        }
+
+        /* ── Spinner ── */
+        .tm-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid rgba(255, 255, 255, .3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: tm-spin .7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes tm-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         /* ══════════════════════════════════════════════
    RESET & BASE
 ══════════════════════════════════════════════ */
@@ -510,190 +759,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             margin-top: 1px;
         }
 
-
-        /* ══════════════════════════════════════════════
-   OVERLAY (non dismissible)
-══════════════════════════════════════════════ */
-        .modal-veil {
-            position: fixed;
-            inset: 0;
-            background: rgba(5, 12, 22, .7);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            z-index: 800;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .28s;
-        }
-
-        .modal-veil.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .time-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -46%) scale(.97);
-            z-index: 900;
-            width: min(480px, calc(100vw - 32px));
-            background: var(--navy-mid);
-            /* oppure #fff se vuoi chiaro */
-            border: 1px solid var(--border-mid);
-            border-radius: 16px;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, .45);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .22s ease, transform .26s cubic-bezier(.34, 1.2, .64, 1);
-            overflow: hidden;
-            font-family: var(--font);
-        }
-
-        .time-modal.show {
-            opacity: 1;
-            pointer-events: all;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        /* Header semplice, niente gradiente */
-        .tm-head {
-            padding: 20px 22px 18px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .tm-avatar-ring {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 1px solid var(--border-mid);
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .tm-avatar-ring img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            background: var(--navy-soft);
-        }
-
-        .tm-head-meta {
-            flex: 1;
-        }
-
-        .tm-head-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-1);
-            margin-bottom: 3px;
-        }
-
-        .tm-head-sub {
-            font-size: 12px;
-            color: var(--text-3);
-            font-family: var(--font-mono);
-        }
-
-        /* Body */
-        .tm-body {
-            padding: 22px 22px 24px;
-        }
-
-        .tm-time-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 16px;
-        }
-
-        .tm-field label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            color: var(--text-3);
-            margin-bottom: 7px;
-        }
-
-        .tm-field input[type="time"] {
-            width: 100%;
-            padding: 11px 13px;
-            font-size: 22px;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            color: var(--text-1);
-            background: rgba(255, 255, 255, .04);
-            border: 1px solid var(--border-mid);
-            border-radius: 10px;
-            outline: none;
-            font-family: var(--font-mono);
-            color-scheme: dark;
-            transition: border-color .18s, background .18s;
-            cursor: pointer;
-            -webkit-appearance: none;
-        }
-
-        .tm-field input[type="time"]:focus {
-            border-color: rgba(59, 130, 246, .5);
-            background: rgba(59, 130, 246, .04);
-        }
-
-        /* Durata pill */
-        .tm-duration {
-            background: rgba(255, 255, 255, .04);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-2);
-            margin-bottom: 18px;
-        }
-
-        .tm-duration strong {
-            color: var(--text-1);
-            font-weight: 600;
-        }
-
-        /* Submit */
-        .tm-submit {
-            width: 100%;
-            padding: 13px;
-            background: var(--navy-soft);
-            color: var(--text-1);
-            font-family: var(--font);
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid var(--border-mid);
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: background .15s, border-color .15s;
-        }
-
-        .tm-submit:hover {
-            background: rgba(59, 130, 246, .12);
-            border-color: rgba(59, 130, 246, .35);
-        }
-
-        .tm-submit:active {
-            transform: scale(.99);
-        }
-
-        .tm-submit:disabled {
-            opacity: .45;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 
@@ -889,6 +954,16 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 </div>
             </div>
 
+            <div class="popup success-popup" id="successPopup">
+                <div class="success-content">
+                    <div class="success-icon"><svg viewBox="-2 -2 56 56">
+                            <circle class="check-circle" cx="26" cy="26" r="25" fill="none" />
+                            <path class="check-check" d="M14 27 L22 35 L38 19" fill="none" />
+                        </svg></div>
+                    <p class="success-text" id="success-text">Operazione completata!</p>
+                </div>
+            </div>
+
 
 
         </div>
@@ -899,58 +974,49 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
     <div class="modal-veil" id="modalVeil"></div>
 
     <!-- ═══════════════════ TIME MODAL ═══════════════════ -->
-    <div class="time-modal" id="timeModal" role="dialog" aria-modal="true" aria-labelledby="tmTitle">
+    <div class="time-modal" id="timeModal" role="dialog" aria-modal="true">
 
-        <!-- Main state -->
-        <div id="tmMain">
-            <div class="tm-head">
-                <div class="tm-avatar-ring">
-                    <img id="tmAvatar" src="immagini/profile-picture.png" alt="">
-                </div>
-                <div class="tm-head-meta">
-                    <p class="tm-head-title" id="tmUserName"></p>
-                    <p class="tm-head-sub" id="tmDateText"></p>
-                </div>
+        <div class="tm-head">
+            <div class="tm-avatar-ring">
+                <img id="tmAvatar" src="immagini/profile-picture.png" alt="">
             </div>
-            <div class="tm-body">
-                <div class="tm-time-row">
-                    <div class="tm-field">
-                        <label for="tmTimeIn">Ingresso</label>
-                        <input type="time" id="tmTimeIn" required>
-                    </div>
-                    <div class="tm-field">
-                        <label for="tmTimeOut">Uscita</label>
-                        <input type="time" id="tmTimeOut" required>
-                    </div>
-                </div>
-                <div class="tm-duration" id="tmDuration" style="display:none;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                    Durata: <strong id="tmDurationVal">—</strong>
-                </div>
-                <button class="tm-submit" id="tmSubmit">
-                    <svg id="tmSubmitIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    <div class="tm-spinner" id="tmSpinner"></div>
-                    <span id="tmSubmitLabel">Conferma presenza</span>
-                </button>
-                <div class="tm-err" id="tmErr"></div>
+            <div class="tm-head-meta">
+                <p class="tm-head-title" id="tmUserName"></p>
+                <p class="tm-head-sub" id="tmDateText"></p>
+            </div>
+            <div class="tm-duration-wrap">
+                <p class="tm-duration-label">Durata</p>
+                <p class="tm-duration-val" id="tmDuration">—</p>
             </div>
         </div>
 
-        <!-- Success state -->
-        <div class="tm-success" id="tmSuccess">
-            <div class="tm-check-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <div class="tm-body">
+            <div class="tm-time-row">
+                <div class="tm-field">
+                    <label for="tmTimeIn">Ingresso</label>
+                    <input type="time" id="tmTimeIn" required>
+                </div>
+                <div class="tm-divider"></div>
+                <div class="tm-field">
+                    <label for="tmTimeOut">Uscita</label>
+                    <input type="time" id="tmTimeOut" required>
+                </div>
+            </div>
+
+            <p class="tm-err" id="tmErr" style="display:none;"></p>
+        </div>
+
+        <div class="tm-footer">
+            <button class="tm-btn-cancel" id="tmCancel">Annulla</button>
+            <button class="tm-btn-submit" id="tmSubmit">
+                <svg id="tmSubmitIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
                     <polyline points="20 6 9 17 4 12" />
                 </svg>
-            </div>
-            <p class="tm-success-h">Presenza registrata!</p>
-            <p class="tm-success-p" id="tmSuccessDetail"></p>
+                <span class="tm-spinner" id="tmSpinner" style="display:none;"></span>
+                <span id="tmSubmitLabel">Conferma presenza</span>
+            </button>
         </div>
+
     </div>
 
     <!-- ═══════════════════ CODE MODALS ═══════════════════ -->
@@ -1204,59 +1270,77 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         });
 
         /* ════════════════════════════════════════════
-           TIME MODAL
+           TIME MODAL — versione unificata
         ════════════════════════════════════════════ */
-        const modalVeil = document.getElementById('modalVeil');
-        const timeModal = document.getElementById('timeModal');
-        const tmAvatar = document.getElementById('tmAvatar');
-        const tmUserName = document.getElementById('tmUserName');
-        const tmDateText = document.getElementById('tmDateText');
-        const tmTimeIn = document.getElementById('tmTimeIn');
-        const tmTimeOut = document.getElementById('tmTimeOut');
-        const tmSubmit = document.getElementById('tmSubmit');
-        const tmSubmitIcon = document.getElementById('tmSubmitIcon');
+        const modalVeil     = document.getElementById('modalVeil');
+        const timeModal     = document.getElementById('timeModal');
+        const tmAvatar      = document.getElementById('tmAvatar');
+        const tmUserName    = document.getElementById('tmUserName');
+        const tmDateText    = document.getElementById('tmDateText');
+        const tmDuration    = document.getElementById('tmDuration');
+        const tmTimeIn      = document.getElementById('tmTimeIn');
+        const tmTimeOut     = document.getElementById('tmTimeOut');
+        const tmSubmit      = document.getElementById('tmSubmit');
+        const tmSubmitIcon  = document.getElementById('tmSubmitIcon');
         const tmSubmitLabel = document.getElementById('tmSubmitLabel');
-        const tmSpinner = document.getElementById('tmSpinner');
-        const tmErr = document.getElementById('tmErr');
-        const tmMain = document.getElementById('tmMain');
-        const tmSuccess = document.getElementById('tmSuccess');
-        const tmSuccessDetail = document.getElementById('tmSuccessDetail');
+        const tmSpinner     = document.getElementById('tmSpinner');
+        const tmErr         = document.getElementById('tmErr');
+        const tmCancel      = document.getElementById('tmCancel');
 
         let currentUserId = null;
 
+        // Calcolo durata in tempo reale
+        function calcDuration() {
+            const inVal  = tmTimeIn.value;
+            const outVal = tmTimeOut.value;
+            if (!inVal || !outVal) { tmDuration.textContent = '—'; return; }
+            const [ih, im] = inVal.split(':').map(Number);
+            const [oh, om] = outVal.split(':').map(Number);
+            const diff = (oh * 60 + om) - (ih * 60 + im);
+            if (diff <= 0) { tmDuration.textContent = '—'; return; }
+            const h = Math.floor(diff / 60);
+            const m = diff % 60;
+            tmDuration.textContent = m === 0 ? `${h}h` : `${h}h ${m}m`;
+        }
+
+        tmTimeIn.addEventListener('input', calcDuration);
+        tmTimeOut.addEventListener('input', calcDuration);
+
+        // Apri modal — usa fotoPath dal database
         function openTimeModal(userId, name, fotoPath) {
             currentUserId = userId;
 
-            /* avatar */
-            tmAvatar.src = fotoPath;
+            // Avatar dal database
+            tmAvatar.src = fotoPath && fotoPath !== '' ? fotoPath : 'immagini/profile-picture.png';
             tmUserName.textContent = name;
 
-            /* date */
+            // Data
             const now = new Date();
             tmDateText.textContent = formatDateIT(now);
 
-            /* pre-fill entry time */
+            // Pre-compila ora ingresso con orario attuale
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
-            tmTimeIn.value = hh + ':' + mm;
+            tmTimeIn.value  = hh + ':' + mm;
             tmTimeOut.value = '';
 
-            /* reset UI */
-            tmMain.style.display = '';
-            tmSuccess.style.display = 'none';
+            // Reset UI
+            tmDuration.textContent = '—';
             tmErr.style.display = 'none';
+            tmErr.textContent = '';
+            tmSubmit.disabled = false;
             tmSubmitLabel.textContent = 'Conferma presenza';
             tmSubmitIcon.style.display = '';
             tmSpinner.style.display = 'none';
-            tmSubmit.disabled = false;
 
-            /* open */
+            // Apri
             modalVeil.classList.add('show');
             timeModal.classList.add('show');
             document.body.classList.add('popup-open');
             setTimeout(() => tmTimeOut.focus(), 350);
         }
 
+        // Chiudi modal
         function closeTimeModal() {
             timeModal.classList.remove('show');
             modalVeil.classList.remove('show');
@@ -1264,34 +1348,31 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             currentUserId = null;
         }
 
-        /* overlay intentionally NOT dismissible */
+        tmCancel.addEventListener('click', closeTimeModal);
 
+        // Submit
         tmSubmit.addEventListener('click', async () => {
-            const tIn = tmTimeIn.value;
+            const tIn  = tmTimeIn.value;
             const tOut = tmTimeOut.value;
 
             if (!tIn || !tOut) {
-                tmErr.textContent = 'Inserisci sia l\'ora di ingresso che di uscita.';
-                tmErr.style.display = '';
+                showErr('Inserisci sia l\'ora di ingresso che di uscita.');
                 return;
             }
             if (tIn >= tOut) {
-                tmErr.textContent = 'L\'ora di uscita deve essere successiva all\'ora di ingresso.';
-                tmErr.style.display = '';
+                showErr('L\'ora di uscita deve essere successiva all\'ora di ingresso.');
                 return;
             }
             if (!currentUserId) {
-                tmErr.textContent = 'Errore: nessun utente selezionato.';
-                tmErr.style.display = '';
+                showErr('Errore: nessun utente selezionato.');
                 return;
             }
 
-            /* loading */
+            tmErr.style.display = 'none';
             tmSubmit.disabled = true;
             tmSubmitLabel.textContent = 'Registrazione…';
             tmSubmitIcon.style.display = 'none';
             tmSpinner.style.display = '';
-            tmErr.style.display = 'none';
 
             try {
                 const res = await fetch('api/api_firma_ergo.php', {
@@ -1301,36 +1382,43 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify({
-                        id_iscritto: currentUserId,
-                        ora_ingresso: tIn,
-                        ora_uscita: tOut,
+                        id_iscritto:   currentUserId,
+                        ora_ingresso:  tIn,
+                        ora_uscita:    tOut,
                         face_verified: true
                     })
                 });
                 const data = await res.json();
 
                 if (data.success) {
-                    tmMain.style.display = 'none';
-                    tmSuccess.style.display = '';
-                    tmSuccessDetail.textContent = tmUserName.textContent + ' • ' + tIn + ' → ' + tOut;
-                    setTimeout(closeTimeModal, 2800);
+                    const userName = tmUserName.textContent;
+                    closeTimeModal();
+                    showSuccess(`${userName} • ${tIn} → ${tOut}`);
+                    setTimeout(() => {
+                        hideSuccess();
+                        location.reload();
+                    }, 2000);
                 } else {
-                    tmSubmitLabel.textContent = 'Conferma presenza';
-                    tmSubmitIcon.style.display = '';
-                    tmSpinner.style.display = 'none';
-                    tmSubmit.disabled = false;
-                    tmErr.textContent = data.error || 'Si è verificato un errore. Riprova.';
-                    tmErr.style.display = '';
+                    resetSubmitBtn();
+                    showErr(data.error || 'Si è verificato un errore. Riprova.');
                 }
             } catch (err) {
-                tmSubmitLabel.textContent = 'Conferma presenza';
-                tmSubmitIcon.style.display = '';
-                tmSpinner.style.display = 'none';
-                tmSubmit.disabled = false;
-                tmErr.textContent = 'Errore di connessione al server.';
-                tmErr.style.display = '';
+                resetSubmitBtn();
+                showErr('Errore di connessione al server.');
             }
         });
+
+        function showErr(msg) {
+            tmErr.textContent = msg;
+            tmErr.style.display = '';
+        }
+
+        function resetSubmitBtn() {
+            tmSubmit.disabled = false;
+            tmSubmitLabel.textContent = 'Conferma presenza';
+            tmSubmitIcon.style.display = '';
+            tmSpinner.style.display = 'none';
+        }
 
         // ELEMENTI
         const overlay = document.getElementById("popupOverlay");
@@ -1437,6 +1525,17 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 showNotification(false, "Errore server");
                 console.error(err);
             }
+        }
+
+        function showSuccess(text) {
+            const popup = document.getElementById('successPopup');
+            const textEl = document.getElementById('success-text');
+            if (textEl) textEl.textContent = text;
+            popup.classList.add('show');
+        }
+
+        function hideSuccess() {
+            document.getElementById('successPopup').classList.remove('show');
         }
         // FUNZIONE DI CONTROLLO CODICE
         async function verificaCodice() {
