@@ -91,47 +91,58 @@ $result = $conn->query($sql);
             border-color: #0b516c;
             box-shadow: 0 0 0 3px rgba(11, 81, 108, .12);
         }
+
         .custom-select-wrapper .cs-trigger.cs-open {
             border-color: #0b516c;
             box-shadow: 0 0 0 3px rgba(11, 81, 108, .10);
             border-bottom-color: transparent;
         }
+
         .custom-select-wrapper .cs-trigger.cs-open .cs-arrow {
             color: #0b516c;
         }
+
         .custom-select-wrapper .cs-panel {
             border-color: #0b516c;
             box-shadow: 0 8px 24px rgba(11, 81, 108, .12), 0 2px 8px rgba(0, 0, 0, .06);
         }
+
         .custom-select-wrapper .cs-header {
             background: #0b516c;
         }
+
         .custom-select-wrapper .cs-option:hover {
             color: #0b516c;
         }
+
         .custom-select-wrapper .cs-option.cs-selected {
             background: #0b516c;
             color: #fff;
         }
+
         .custom-select-wrapper .cs-option.cs-selected:hover {
             background: #0d6a8a;
         }
+
         .birth-cal-btn {
             background: #f4f4f5;
             border-color: #0b516c;
             color: #0b516c;
         }
+
         .birth-cal-btn:hover {
             background: #0b516c;
             border-color: #0b516c;
             color: #fff;
         }
+
         .birth-cal-year-row,
         .birth-cal-month-row .cal-nav-btn {
             background: #0b516c;
             color: #fff;
             border-color: #0b516c;
         }
+
         .birth-cal-month-row .cal-nav-btn:hover {
             background: #0b516c;
             border-color: #0b516c;
@@ -339,7 +350,7 @@ $result = $conn->query($sql);
         button.group:hover svg {
             fill: #27272a;
             stroke: #27272a;
-        }
+    }
     </style>
 </head>
 
@@ -423,7 +434,7 @@ $result = $conn->query($sql);
                         <li class="sidebar__item item--heading">
                             <h2 class="sidebar__item--heading">Pagine</h2>
                         </li>
-                        <li class="sidebar__item" ><a class="sidebar__link tab-link active" href="#" data-tab="tab-utenti" data-tooltip="Utenti"><span class="sidebar-icon"><img src="immagini/group.png" alt=""></span><span class="text">Utenti</span></a></li>
+                        <li class="sidebar__item"><a class="sidebar__link tab-link active" href="#" data-tab="tab-utenti" data-tooltip="Utenti"><span class="sidebar-icon"><img src="immagini/group.png" alt=""></span><span class="text">Utenti</span></a></li>
                         <li class="sidebar__item"><a class="sidebar__link tab-link" href="#" data-tab="tab-presenze" data-tooltip="Presenze"><span class="sidebar-icon"><img src="immagini/attendance.png" alt=""></span><span class="text">Presenze</span></a></li>
                         <li>
                             <hr />
@@ -1097,7 +1108,6 @@ $result = $conn->query($sql);
     <script src="js/mobile-calendar.js"></script>
     <script src="js/custom-select.js"></script>
     <script>
-
         function getLocalDateString(d) {
             const y = d.getFullYear(),
                 m = (d.getMonth() + 1).toString().padStart(2, '0'),
@@ -1529,13 +1539,27 @@ $result = $conn->query($sql);
                     }).catch(() => alert('Errore di rete'));
             });
         })();
-        // ── UTENTI CRUD
+        // ── Helper: metti bottone in stato loading ────────────────────────────────────
+        function setButtonLoading(btn, loading) {
+            if (!btn) return;
+            if (loading) {
+                btn.dataset.originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="btn-spinner"></span> Salvataggio...';
+                btn.disabled = true;
+            } else {
+                btn.innerHTML = btn.dataset.originalText || btn.innerHTML;
+                btn.disabled = false;
+            }
+        }
+
+        // ── UTENTI CRUD ───────────────────────────────────────────────────────────────
         const aggiungiUtenteBtn = document.getElementById('aggiungi-utente-btn'),
             aggiungiUtenteBtnMob = document.getElementById('aggiungi-utente-btn-mobile'),
             modalAggiungiUtente = document.getElementById('modalAggiungiUtente'),
             modalModificaUtente = document.getElementById('modalModificaUtente'),
             modalDeleteUtente = document.getElementById('modalDeleteUtente'),
             formAggiungiUtente = document.getElementById('formAggiungiUtente');
+
         aggiungiUtenteBtn?.addEventListener('click', () => {
             const addCalBtn = document.getElementById('birthdayCalBtnAdd');
             if (addCalBtn && typeof addCalBtn._setBirthDate === 'function') addCalBtn._setBirthDate(null);
@@ -1546,29 +1570,38 @@ $result = $conn->query($sql);
             if (addCalBtn && typeof addCalBtn._setBirthDate === 'function') addCalBtn._setBirthDate(null);
             openModal(modalAggiungiUtente);
         });
-        formAggiungiUtente.onsubmit = function(e) {
+
+        formAggiungiUtente.onsubmit = async function(e) {
             e.preventDefault();
             const dataNascita = document.getElementById('utenteDataHidden').value;
             if (!dataNascita) {
                 alert('Seleziona la data di nascita dal calendario.');
                 return;
             }
-            const fd = new FormData();
-            fd.append('nome', document.getElementById('utenteNome').value.trim());
-            fd.append('cognome', document.getElementById('utenteCognome').value.trim());
-            fd.append('data_nascita', dataNascita);
-            fd.append('codice_fiscale', document.getElementById('utenteCF').value.trim());
-            fd.append('email', document.getElementById('utenteEmail').value.trim());
-            fd.append('telefono', document.getElementById('utenteTelefono').value.trim());
-            fd.append('disabilita', document.getElementById('utenteDisabilita').value.trim());
-            fd.append('prezzo_orario', parseFloat(document.getElementById('utentePrezzo').value) || 0);
-            fd.append('note', document.getElementById('utenteNote').value.trim());
-            const fi = document.getElementById('utenteFoto');
-            if (fi.files.length > 0) fd.append('foto', fi.files[0]);
-            fetch('api/api_aggiungi_utente_ergo.php', {
-                method: 'POST',
-                body: fd
-            }).then(r => r.json()).then(data => {
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            setButtonLoading(submitBtn, true);
+
+            try {
+                const fd = new FormData();
+                fd.append('nome', document.getElementById('utenteNome').value.trim());
+                fd.append('cognome', document.getElementById('utenteCognome').value.trim());
+                fd.append('data_nascita', dataNascita);
+                fd.append('codice_fiscale', document.getElementById('utenteCF').value.trim());
+                fd.append('email', document.getElementById('utenteEmail').value.trim());
+                fd.append('telefono', document.getElementById('utenteTelefono').value.trim());
+                fd.append('disabilita', document.getElementById('utenteDisabilita').value.trim());
+                fd.append('prezzo_orario', parseFloat(document.getElementById('utentePrezzo').value) || 0);
+                fd.append('note', document.getElementById('utenteNote').value.trim());
+                const fi = document.getElementById('utenteFoto');
+                if (fi.files.length > 0) fd.append('foto', fi.files[0]);
+
+                const r = await fetch('api/api_aggiungi_utente_ergo.php', {
+                    method: 'POST',
+                    body: fd
+                });
+                const data = await r.json();
+
                 if (data.success) {
                     closeModal();
                     showSuccess('Utente aggiunto!!');
@@ -1576,9 +1609,16 @@ $result = $conn->query($sql);
                         hideSuccess();
                         location.reload();
                     }, 1800);
-                } else alert('Errore: ' + data.message);
-            });
+                } else {
+                    alert('Errore: ' + data.message);
+                    setButtonLoading(submitBtn, false);
+                }
+            } catch (err) {
+                alert('Errore di rete. Riprova.');
+                setButtonLoading(submitBtn, false);
+            }
         };
+
         document.querySelectorAll('.edit-utente-btn').forEach(btn => btn.addEventListener('click', () => {
             const row = btn.closest('tr');
             document.getElementById('editUtenteId').value = row.dataset.id;
@@ -1599,25 +1639,32 @@ $result = $conn->query($sql);
             document.getElementById('editUtenteNote').value = row.dataset.note;
             openModal(modalModificaUtente);
         }));
-        document.getElementById('salvaModificaUtente')?.addEventListener('click', () => {
-            fetch('api/api_modifica_utente_ergo.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: document.getElementById('editUtenteId').value,
-                    nome: document.getElementById('editUtenteNome').value.trim(),
-                    cognome: document.getElementById('editUtenteCognome').value.trim(),
-                    data_nascita: document.getElementById('editUtenteDataHidden').value || document.getElementById('editUtenteData').value,
-                    codice_fiscale: document.getElementById('editUtenteCF').value.trim(),
-                    email: document.getElementById('editUtenteEmail').value.trim(),
-                    telefono: document.getElementById('editUtenteTelefono').value.trim(),
-                    disabilita: document.getElementById('editUtenteDisabilita').value.trim(),
-                    prezzo_orario: parseFloat(document.getElementById('editUtentePrezzo').value) || 0,
-                    note: document.getElementById('editUtenteNote').value.trim()
-                })
-            }).then(r => r.json()).then(data => {
+
+        document.getElementById('salvaModificaUtente')?.addEventListener('click', async function() {
+            const saveBtn = this;
+            setButtonLoading(saveBtn, true);
+
+            try {
+                const r = await fetch('api/api_modifica_utente_ergo.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: document.getElementById('editUtenteId').value,
+                        nome: document.getElementById('editUtenteNome').value.trim(),
+                        cognome: document.getElementById('editUtenteCognome').value.trim(),
+                        data_nascita: document.getElementById('editUtenteDataHidden').value || document.getElementById('editUtenteData').value,
+                        codice_fiscale: document.getElementById('editUtenteCF').value.trim(),
+                        email: document.getElementById('editUtenteEmail').value.trim(),
+                        telefono: document.getElementById('editUtenteTelefono').value.trim(),
+                        disabilita: document.getElementById('editUtenteDisabilita').value.trim(),
+                        prezzo_orario: parseFloat(document.getElementById('editUtentePrezzo').value) || 0,
+                        note: document.getElementById('editUtenteNote').value.trim()
+                    })
+                });
+                const data = await r.json();
+
                 if (data.success) {
                     closeModal();
                     showSuccess('Utente modificato!!');
@@ -1625,26 +1672,40 @@ $result = $conn->query($sql);
                         hideSuccess();
                         location.reload();
                     }, 1800);
-                } else alert('Errore: ' + data.message);
-            });
+                } else {
+                    alert('Errore: ' + data.message);
+                    setButtonLoading(saveBtn, false);
+                }
+            } catch (err) {
+                alert('Errore di rete. Riprova.');
+                setButtonLoading(saveBtn, false);
+            }
         });
+
         let rowToDeleteUtente = null;
         document.querySelectorAll('.delete-utente-btn').forEach(btn => btn.addEventListener('click', () => {
             rowToDeleteUtente = btn.closest('tr');
             document.querySelector('#modalDeleteUtente h3').innerText = 'Elimina utente: ' + rowToDeleteUtente.dataset.nome;
             openModal(modalDeleteUtente);
         }));
-        document.getElementById('confirmDeleteUtente')?.addEventListener('click', () => {
+
+        document.getElementById('confirmDeleteUtente')?.addEventListener('click', async function() {
             if (!rowToDeleteUtente) return;
-            fetch('api/api_elimina_utente_ergo.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: rowToDeleteUtente.dataset.id
-                })
-            }).then(r => r.json()).then(data => {
+            const deleteBtn = this;
+            setButtonLoading(deleteBtn, true);
+
+            try {
+                const r = await fetch('api/api_elimina_utente_ergo.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: rowToDeleteUtente.dataset.id
+                    })
+                });
+                const data = await r.json();
+
                 if (data.success) {
                     closeModal();
                     showSuccess('Utente eliminato!!');
@@ -1652,10 +1713,17 @@ $result = $conn->query($sql);
                         hideSuccess();
                         location.reload();
                     }, 1800);
-                } else alert('Errore: ' + data.message);
-            });
+                } else {
+                    alert('Errore: ' + data.message);
+                    setButtonLoading(deleteBtn, false);
+                }
+            } catch (err) {
+                alert('Errore di rete. Riprova.');
+                setButtonLoading(deleteBtn, false);
+            }
         });
 
+        // ── Calendario compleanno ─────────────────────────────────────────────────────
         (function() {
             function makeBirthdayCal(cfg) {
                 const overlay = document.getElementById(cfg.overlayId);
@@ -1678,15 +1746,10 @@ $result = $conn->query($sql);
                 const MIN_YEAR = 1900;
                 let calViewDate = new Date(TODAY.getFullYear() - 30, 0, 1);
                 let selectedDate = null;
-                function pad(n) {
-                    return String(n).padStart(2, '0');
-                }
-                function toDateStr(d) {
-                    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-                }
-                function toDisplayStr(d) {
-                    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
-                }
+                const pad = n => String(n).padStart(2, '0');
+                const toDateStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+                const toDisplayStr = d => `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+
                 function buildYearSelect() {
                     yearSelect.innerHTML = '';
                     const curY = calViewDate.getFullYear();
@@ -1698,11 +1761,14 @@ $result = $conn->query($sql);
                         yearSelect.appendChild(opt);
                     }
                 }
+
                 function renderCalendar() {
-                    const year = calViewDate.getFullYear();
-                    const month = calViewDate.getMonth();
+                    const year = calViewDate.getFullYear(),
+                        month = calViewDate.getMonth();
                     const selStr = selectedDate ? toDateStr(selectedDate) : null;
-                    monthLbl.textContent = new Date(year, month, 1).toLocaleDateString('it-IT', { month: 'long' }).replace(/^./, c => c.toUpperCase());
+                    monthLbl.textContent = new Date(year, month, 1).toLocaleDateString('it-IT', {
+                        month: 'long'
+                    }).replace(/^./, c => c.toUpperCase());
                     buildYearSelect();
                     const isMaxMonth = (year === TODAY.getFullYear() && month >= TODAY.getMonth());
                     nextMonthBtn.disabled = isMaxMonth;
@@ -1724,44 +1790,40 @@ $result = $conn->query($sql);
                         grid.appendChild(el);
                     }
                     for (let d = 1; d <= daysInMonth; d++) {
-                        const dateObj = new Date(year, month, d);
-                        const dateStr = toDateStr(dateObj);
-                        const isFuture = dateObj > TODAY;
-                        const isSelected = selStr === dateStr;
+                        const dateObj = new Date(year, month, d),
+                            dateStr = toDateStr(dateObj);
+                        const isFuture = dateObj > TODAY,
+                            isSelected = selStr === dateStr;
                         const el = document.createElement('div');
                         el.className = 'cal-day' + (isFuture ? ' cal-future' : '') + (isSelected ? ' cal-selected' : '');
                         el.textContent = d;
-                        if (!isFuture) {
-                            el.addEventListener('click', () => {
-                                selectedDate = new Date(year, month, d);
-                                displayInput.value = toDisplayStr(selectedDate);
-                                hiddenInput.value = dateStr;
-                                closeCal();
-                            });
-                        }
+                        if (!isFuture) el.addEventListener('click', () => {
+                            selectedDate = new Date(year, month, d);
+                            displayInput.value = toDisplayStr(selectedDate);
+                            hiddenInput.value = dateStr;
+                            closeCal();
+                        });
                         grid.appendChild(el);
                     }
                 }
+
                 function openCal() {
-                    if (selectedDate) {
-                        calViewDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-                    }
+                    if (selectedDate) calViewDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
                     renderCalendar();
                     overlay.classList.add('open');
-                    const rect = openBtn.getBoundingClientRect();
-                    const pickerW = 300;
+                    const rect = openBtn.getBoundingClientRect(),
+                        pickerW = 300;
                     let left = rect.left;
                     if (left + pickerW > window.innerWidth - 8) left = window.innerWidth - pickerW - 8;
                     if (left < 8) left = 8;
-                    const spaceBelow = window.innerHeight - rect.bottom;
-                    const pickerH = 380;
+                    const spaceBelow = window.innerHeight - rect.bottom,
+                        pickerH = 380;
                     let top = rect.bottom + window.scrollY + 6;
-                    if (spaceBelow < pickerH && rect.top > pickerH) {
-                        top = rect.top + window.scrollY - pickerH - 6;
-                    }
+                    if (spaceBelow < pickerH && rect.top > pickerH) top = rect.top + window.scrollY - pickerH - 6;
                     picker.style.top = top + 'px';
                     picker.style.left = left + 'px';
                 }
+
                 function closeCal() {
                     overlay.classList.remove('open');
                 }
@@ -1869,6 +1931,8 @@ $result = $conn->query($sql);
                 hiddenInputId: 'editUtenteDataHidden'
             });
         })();
+
+        // ── Preview foto ──────────────────────────────────────────────────────────────
         const utenteFoto = document.getElementById('utenteFoto'),
             preview = document.getElementById('previewFotoMini'),
             fileNameSpan = document.getElementById('nomeFileFoto'),
@@ -2271,7 +2335,7 @@ $result = $conn->query($sql);
                 });
             }
         });
-    
+
         // ── SIDEBAR + SCROLL LOCK + RESTORE
         const checkboxInput = document.getElementById('checkbox-input');
         if (checkboxInput) {
@@ -2311,7 +2375,7 @@ $result = $conn->query($sql);
             document.documentElement.style.setProperty('--tt-arrow-y', (e.clientY + 8) + 'px');
             document.documentElement.style.setProperty('--tt-arrow-x', (e.clientX + 4) + 'px');
         });
-        
+
         // ── ACCOUNT CRUD
         const aggiungiAccountBtn = document.getElementById('aggiungi-account-btn'),
             aggiungiAccountBtnMob = document.getElementById('aggiungi-account-btn-mobile'),
