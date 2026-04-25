@@ -431,12 +431,7 @@ $result = $conn->query($sql);
                             <h2 class="sidebar__item--heading">Gestione</h2>
                         </li>
                         <li class="sidebar__item"><a class="sidebar__link tab-link" href="#" data-tab="tab-resoconti" data-tooltip="Resoconti"><span class="sidebar-icon"><img src="immagini/resoconti.png" alt=""></span><span class="text">Resoconti</span></a></li>
-                        <li>
-                            <hr />
-                        </li>
-                        <li class="sidebar__item item--heading">
-                            <h2 class="sidebar__item--heading">Amministrazione</h2>
-                        </li>
+                       
                     </ul>
                 </section>
             </nav>

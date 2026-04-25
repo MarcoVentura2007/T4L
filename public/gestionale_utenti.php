@@ -711,8 +711,8 @@ $resultRagazzi = $conn->query($sqlRagazzi);
             <div class="profile-field"><label>Telefono</label><span>${row.dataset.telefono||"—"}</span></div>
             <div class="profile-field"><label style="font-weight:bold;">Intolleranze ⚠️</label><span style="font-weight:bold;">${row.dataset.intolleranze||"—"}</span></div>
             <div class="profile-field"><label>Tipo di lavoro</label><span>${row.dataset.gruppo==='1'||row.dataset.gruppo==='on'?'Gruppo':'Individuale'}</span></div>
-            <div class="profile-field"><label>Prezzo orario</label><span>${row.dataset.prezzo||"—"} €</span></div>
             <div class="profile-field"><label>Prezzo orario Gruppo</label><span>${row.dataset.prezzoGruppo||"—"} €</span></div>
+            <div class="profile-field"><label>Prezzo orario individuale</label><span>${row.dataset.prezzo||"—"} €</span></div>
             <div class="profile-field" style="grid-column:1/-1;"><label>Disabilità</label><span>${row.dataset.disabilita||"—"}</span></div>
             <div class="profile-field" style="grid-column:1/-1;"><label>Note</label><span>${row.dataset.note||"—"}</span></div>
         `;
@@ -949,9 +949,10 @@ $resultRagazzi = $conn->query($sqlRagazzi);
                     fine = att.ora_fine.substring(0, 5);
                 const edTxt = Array.from(new Map(att.educatori.map(e => [e.id, e])).values()).map(e => `${e.nome} ${e.cognome}`).join(', ');
                 const ragFotos = Array.from(new Map(att.ragazzi.map(r => [r.id, r])).values()).map(r => `<div class="ragazzo-item"><img src="${r.fotografia}" class="ragazzo-avatar"><span class="ragazzo-cognome">${r.cognome}</span><span style="display:block;font-size:0.85em;color:#666;">${r.gruppo==1?'(Gruppo)':'(Individuale)'}</span></div>`).join('') || '—';
-                html += `<div class="activity-card" data-id="${att.id}">
+                 html += `<div class="activity-card" data-id="${att.id}">
             <div class="activity-header"><h3>${att.attivita_nome}</h3><span class="activity-time"><img class="resoconti-icon" src="immagini/rescheduling.png" style="width:22px;height:22px;margin-right:8px;"> ${inizio} - ${fine}</span></div>
             <div class="activity-description">${att.descrizione}</div>
+            ${att.note ? `<div class="activity-note" style="margin:6px 0;padding:6px 10px;background:#f5f5f5;border-left:3px solid #640a35;border-radius:0 4px 4px 0;font-size:0.88em;color:#555;"><strong>Note:</strong> ${att.note}</div>` : ''}
             <div class="activity-participants">
                 <div class="participant-group"><label>Educatori:</label><span>${edTxt}</span></div>
                 <div class="participant-group"><label>Ragazzi:</label><span class="ragazzi-photos">${ragFotos}</span></div>

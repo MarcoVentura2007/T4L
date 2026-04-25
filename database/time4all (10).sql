@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Apr 24, 2026 alle 14:05
+-- Creato il: Apr 25, 2026 alle 15:30
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -161,14 +161,14 @@ CREATE TABLE `partecipa` (
   `ID_Educatore` int(11) NOT NULL,
   `presenza_effettiva` tinyint(1) NOT NULL,
   `ID_Ragazzo` int(11) NOT NULL,
-  `ID_Educatore_assegnato` int(11) DEFAULT NULL
+  `Note` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dump dei dati per la tabella `partecipa`
 --
 
-INSERT INTO `partecipa` (`id`, `Data`, `Ora_Inizio`, `Ora_Fine`, `Gruppo`, `ID_Presenza`, `ID_Attivita`, `ID_Educatore`, `presenza_effettiva`, `ID_Ragazzo`, `ID_Educatore_assegnato`) VALUES
+INSERT INTO `partecipa` (`id`, `Data`, `Ora_Inizio`, `Ora_Fine`, `Gruppo`, `ID_Presenza`, `ID_Attivita`, `ID_Educatore`, `presenza_effettiva`, `ID_Ragazzo`, `Note`) VALUES
 (272, '2026-02-10', '10:00:00', '15:30:00', 0, NULL, 30, 1, 0, 28, NULL),
 (274, '2026-02-10', '10:00:00', '15:30:00', 0, 56, 30, 1, 0, 45, NULL),
 (275, '2026-02-10', '10:00:00', '15:30:00', 0, NULL, 30, 1, 0, 36, NULL),
@@ -191,12 +191,6 @@ INSERT INTO `partecipa` (`id`, `Data`, `Ora_Inizio`, `Ora_Fine`, `Gruppo`, `ID_P
 (357, '2026-02-12', '14:30:00', '17:00:00', 0, 70, 30, 1, 0, 36, NULL),
 (358, '2026-02-12', '14:30:00', '17:00:00', 0, NULL, 30, 1, 0, 50, NULL),
 (359, '2026-02-12', '14:30:00', '17:00:00', 0, NULL, 30, 1, 0, 38, NULL),
-(360, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 28, NULL),
-(361, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 49, NULL),
-(362, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 45, NULL),
-(363, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 36, NULL),
-(364, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 50, NULL),
-(365, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 38, NULL),
 (372, '2026-02-16', '12:00:00', '13:30:00', 0, NULL, 29, 1, 0, 28, NULL),
 (373, '2026-02-16', '12:00:00', '13:30:00', 0, NULL, 29, 1, 0, 49, NULL),
 (374, '2026-02-16', '12:00:00', '13:30:00', 0, NULL, 29, 1, 0, 36, NULL),
@@ -234,7 +228,13 @@ INSERT INTO `partecipa` (`id`, `Data`, `Ora_Inizio`, `Ora_Fine`, `Gruppo`, `ID_P
 (478, '2026-02-20', '11:30:00', '14:30:00', 0, NULL, 32, 1, 0, 45, NULL),
 (479, '2026-02-20', '11:30:00', '14:30:00', 0, NULL, 32, 1, 0, 36, NULL),
 (493, '2026-03-06', '08:00:00', '13:00:00', 1, 85, 30, 1, 0, 28, NULL),
-(494, '2026-03-06', '08:00:00', '13:00:00', 1, 85, 30, 3, 0, 28, NULL);
+(494, '2026-03-06', '08:00:00', '13:00:00', 1, 85, 30, 3, 0, 28, NULL),
+(495, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 28, NULL),
+(496, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 49, NULL),
+(497, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 45, NULL),
+(498, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 36, NULL),
+(499, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 50, NULL),
+(500, '2026-02-13', '10:00:00', '21:00:00', 0, NULL, 32, 1, 0, 38, NULL);
 
 -- --------------------------------------------------------
 
@@ -365,13 +365,13 @@ ALTER TABLE `educatore`
 -- AUTO_INCREMENT per la tabella `iscritto`
 --
 ALTER TABLE `iscritto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT per la tabella `partecipa`
 --
 ALTER TABLE `partecipa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=495;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=501;
 
 --
 -- AUTO_INCREMENT per la tabella `presenza`

@@ -13,8 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Connessione DB
 require __DIR__ . '/../../data/db_connection.php';
+require_once __DIR__ . '/../../data/image_utils.php';
+
 $conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connessione DB fallita: ' . $conn->connect_error]);
@@ -47,7 +48,7 @@ if ($stmtClasse) {
     exit;
 }
 
-// Recupera campi obbligatori
+// Campi obbligatori
 $requiredFields = ['nome', 'cognome', 'data_nascita', 'codice_fiscale'];
 foreach ($requiredFields as $field) {
     if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
@@ -56,41 +57,49 @@ foreach ($requiredFields as $field) {
     }
 }
 
-$nome               = trim($_POST['nome']);
-$cognome            = trim($_POST['cognome']);
-$data_nascita       = trim($_POST['data_nascita']);
-$codice_fiscale     = trim($_POST['codice_fiscale']);
-$email              = trim($_POST['email']              ?? '');
-$telefono           = trim($_POST['telefono']           ?? '');
-$disabilita         = trim($_POST['disabilita']         ?? '');
-$intolleranze       = trim($_POST['intolleranze']       ?? '');
-$prezzo_orario      = floatval($_POST['prezzo_orario']       ?? 0);
+$nome                 = trim($_POST['nome']);
+$cognome              = trim($_POST['cognome']);
+$data_nascita         = trim($_POST['data_nascita']);
+$codice_fiscale       = trim($_POST['codice_fiscale']);
+$email                = trim($_POST['email']                ?? '');
+$telefono             = trim($_POST['telefono']             ?? '');
+$disabilita           = trim($_POST['disabilita']           ?? '');
+$intolleranze         = trim($_POST['intolleranze']         ?? '');
+$prezzo_orario        = floatval($_POST['prezzo_orario']        ?? 0);
 $prezzo_orario_gruppo = floatval($_POST['prezzo_orario_gruppo'] ?? 0);
-$note               = trim($_POST['note']               ?? '');
-$gruppo             = intval($_POST['gruppo']            ?? 0) === 1 ? 1 : 0;
+$note                 = trim($_POST['note']                 ?? '');
+$gruppo               = intval($_POST['gruppo']             ?? 0) === 1 ? 1 : 0;
 
-// Gestione foto
+// ── Gestione foto ──────────────────────────────────────────────────────────
 $fotografia = "immagini/default-user.png";
+
 if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+
     $uploadDir = __DIR__ . "/../immagini/";
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-    $nomeFile  = basename($_FILES['foto']['name']);
-    $targetFile = $uploadDir . $nomeFile;
+    // Leggi MIME reale
+    $finfo    = finfo_open(FILEINFO_MIME_TYPE);
+    $fileType = finfo_file($finfo, $_FILES['foto']['tmp_name']);
+    finfo_close($finfo);
 
-    if (file_exists($targetFile)) {
-        $nomeFile   = time() . "_" . $nomeFile;
-        $targetFile = $uploadDir . $nomeFile;
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!in_array($fileType, $allowedTypes, true)) {
+        echo json_encode(['success' => false, 'message' => 'Tipo file non valido. Solo immagini.']);
+        exit;
     }
 
-    if (move_uploaded_file($_FILES['foto']['tmp_name'], $targetFile)) {
-        $fotografia = "immagini/" . $nomeFile;
+    $nomeFile   = time() . "_" . basename($_FILES['foto']['name']);
+    $targetFile = $uploadDir . $nomeFile;
+
+    // Passa il MIME già letto alla funzione (identico all'altro progetto)
+    $savedPath = compressAndSaveImage($_FILES['foto']['tmp_name'], $targetFile, $fileType);
+    if ($savedPath !== false) {
+        $fotografia = "immagini/" . basename($savedPath);
     }
 }
 
-// INSERT
-// Tipi: s s s s s s s s d d s s i
-//        n c d cf em tel dis int pr prg not foto grp
+// ── INSERT ─────────────────────────────────────────────────────────────────
 $stmt = $conn->prepare(
     "INSERT INTO iscritto
         (Nome, Cognome, Data_nascita, Codice_fiscale, Email, Telefono,
@@ -106,19 +115,10 @@ if (!$stmt) {
 
 $stmt->bind_param(
     "ssssssssddssi",
-    $nome,
-    $cognome,
-    $data_nascita,
-    $codice_fiscale,
-    $email,
-    $telefono,
-    $disabilita,
-    $intolleranze,
-    $prezzo_orario,
-    $prezzo_orario_gruppo,
-    $note,
-    $fotografia,
-    $gruppo
+    $nome, $cognome, $data_nascita, $codice_fiscale,
+    $email, $telefono, $disabilita, $intolleranze,
+    $prezzo_orario, $prezzo_orario_gruppo,
+    $note, $fotografia, $gruppo
 );
 
 if ($stmt->execute()) {

@@ -18,8 +18,9 @@ if (!isset($_SESSION['username'])) {
     exit;
 }
 
-// Connessione al DB
 require __DIR__ . '/../../data/db_connection.php';
+require_once __DIR__ . '/../../data/image_utils.php';
+
 $conn = getDbConnection('time4all');
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Connessione fallita: ' . $conn->connect_error]);
@@ -53,7 +54,7 @@ if ($stmtClasse) {
 }
 
 // ─── Lettura parametri ────────────────────────────────────────────────────────
-$contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
+$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
 $id                   = 0;
 $nome                 = '';
@@ -67,35 +68,35 @@ $intolleranze         = '';
 $prezzo_orario        = 0.0;
 $prezzo_orario_gruppo = 0.0;
 $note                 = '';
-$gruppo               = null;   // null = non fornito dal client
-$fotografia           = null;   // null = non cambiare foto
+$gruppo               = null;
+$fotografia           = null;
 
 if (strpos($contentType, 'multipart/form-data') !== false) {
 
     // ── Richiesta con file upload ────────────────────────────────────────────
-    $id                   = intval($_POST['id']                    ?? 0);
-    $nome                 = trim($_POST['nome']                    ?? '');
-    $cognome              = trim($_POST['cognome']                 ?? '');
-    $data_nascita         = trim($_POST['data_nascita']            ?? '');
-    $codice_fiscale       = trim($_POST['codice_fiscale']          ?? '');
-    $email                = trim($_POST['email']                   ?? '');
-    $telefono             = trim($_POST['telefono']                ?? '');
-    $disabilita           = trim($_POST['disabilita']              ?? '');
-    $intolleranze         = trim($_POST['intolleranze']            ?? '');
-    $prezzo_orario        = floatval($_POST['prezzo_orario']       ?? 0);
+    $id                   = intval($_POST['id']                     ?? 0);
+    $nome                 = trim($_POST['nome']                     ?? '');
+    $cognome              = trim($_POST['cognome']                  ?? '');
+    $data_nascita         = trim($_POST['data_nascita']             ?? '');
+    $codice_fiscale       = trim($_POST['codice_fiscale']           ?? '');
+    $email                = trim($_POST['email']                    ?? '');
+    $telefono             = trim($_POST['telefono']                 ?? '');
+    $disabilita           = trim($_POST['disabilita']               ?? '');
+    $intolleranze         = trim($_POST['intolleranze']             ?? '');
+    $prezzo_orario        = floatval($_POST['prezzo_orario']        ?? 0);
     $prezzo_orario_gruppo = floatval($_POST['prezzo_orario_gruppo'] ?? 0);
-    $note                 = trim($_POST['note']                    ?? '');
+    $note                 = trim($_POST['note']                     ?? '');
 
     if (isset($_POST['gruppo'])) {
         $gruppo = intval($_POST['gruppo']) === 1 ? 1 : 0;
     }
 
-    // Gestione file foto
+    // ── Gestione file foto ───────────────────────────────────────────────────
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
 
-        // Recupera foto precedente per eliminarla dopo
+        // Recupera foto precedente
         $oldFotografia = null;
-        $stmtOldFoto = $conn->prepare("SELECT Fotografia FROM iscritto WHERE id = ?");
+        $stmtOldFoto   = $conn->prepare("SELECT Fotografia FROM iscritto WHERE id = ?");
         if ($stmtOldFoto) {
             $stmtOldFoto->bind_param("i", $id);
             $stmtOldFoto->execute();
@@ -104,29 +105,16 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
             $stmtOldFoto->close();
         }
 
-        $uploadDir = '../immagini/';
+        $uploadDir = __DIR__ . "/../immagini/";
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
+        // Leggi MIME reale
+        $finfo    = finfo_open(FILEINFO_MIME_TYPE);
+        $fileType = finfo_file($finfo, $_FILES['foto']['tmp_name']);
+        finfo_close($finfo);
+
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        $fileType     = 'application/octet-stream';
-
-        if (function_exists('finfo_file')) {
-            $finfo    = finfo_open(FILEINFO_MIME_TYPE);
-            $fileType = finfo_file($finfo, $_FILES['foto']['tmp_name']);
-            finfo_close($finfo);
-        } else {
-            $ext      = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-            $map      = [
-                'jpg' => 'image/jpeg',
-                'jpeg' => 'image/jpeg',
-                'png' => 'image/png',
-                'gif' => 'image/gif',
-                'webp' => 'image/webp'
-            ];
-            $fileType = $map[$ext] ?? 'application/octet-stream';
-        }
-
-        if (!in_array($fileType, $allowedTypes)) {
+        if (!in_array($fileType, $allowedTypes, true)) {
             echo json_encode(['success' => false, 'message' => 'Tipo file non valido. Solo immagini.']);
             exit;
         }
@@ -134,8 +122,11 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
         $fileName   = time() . '_' . basename($_FILES['foto']['name']);
         $targetPath = $uploadDir . $fileName;
 
-        if (move_uploaded_file($_FILES['foto']['tmp_name'], $targetPath)) {
-            $fotografia = 'immagini/' . $fileName;
+        // Passa il MIME già letto alla funzione (identico all'altro progetto)
+        $savedPath = compressAndSaveImage($_FILES['foto']['tmp_name'], $targetPath, $fileType);
+
+        if ($savedPath !== false) {
+            $fotografia = 'immagini/' . basename($savedPath);
 
             // Elimina vecchia foto
             if (
@@ -151,23 +142,24 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
             exit;
         }
     }
+
 } else {
 
     // ── Richiesta JSON (senza file) ──────────────────────────────────────────
     $data = json_decode(file_get_contents('php://input'), true);
 
-    $id                   = intval($data['id']                    ?? 0);
-    $nome                 = trim($data['nome']                    ?? '');
-    $cognome              = trim($data['cognome']                 ?? '');
-    $data_nascita         = trim($data['data_nascita']            ?? '');
-    $codice_fiscale       = trim($data['codice_fiscale']          ?? '');
-    $email                = trim($data['email']                   ?? '');
-    $telefono             = trim($data['telefono']                ?? '');
-    $disabilita           = trim($data['disabilita']              ?? '');
-    $intolleranze         = trim($data['intolleranze']            ?? '');
-    $prezzo_orario        = floatval($data['prezzo_orario']       ?? 0);
+    $id                   = intval($data['id']                     ?? 0);
+    $nome                 = trim($data['nome']                     ?? '');
+    $cognome              = trim($data['cognome']                  ?? '');
+    $data_nascita         = trim($data['data_nascita']             ?? '');
+    $codice_fiscale       = trim($data['codice_fiscale']           ?? '');
+    $email                = trim($data['email']                    ?? '');
+    $telefono             = trim($data['telefono']                 ?? '');
+    $disabilita           = trim($data['disabilita']               ?? '');
+    $intolleranze         = trim($data['intolleranze']             ?? '');
+    $prezzo_orario        = floatval($data['prezzo_orario']        ?? 0);
     $prezzo_orario_gruppo = floatval($data['prezzo_orario_gruppo'] ?? 0);
-    $note                 = trim($data['note']                    ?? '');
+    $note                 = trim($data['note']                     ?? '');
 
     if (isset($data['gruppo'])) {
         $gruppo = intval($data['gruppo']) === 1 ? 1 : 0;
@@ -180,7 +172,7 @@ if (empty($id)) {
     exit;
 }
 
-// Se gruppo non è stato fornito, leggo il valore attuale dal DB
+// Se gruppo non fornito, leggo dal DB
 if ($gruppo === null) {
     $stmtTmp = $conn->prepare("SELECT Gruppo FROM iscritto WHERE id = ?");
     if ($stmtTmp) {
@@ -197,14 +189,6 @@ if ($gruppo === null) {
 // ─── Costruzione query ────────────────────────────────────────────────────────
 if ($fotografia !== null) {
 
-    // UPDATE con foto
-    // Colonne: Nome, Cognome, Data_nascita, Codice_fiscale, Email, Telefono,
-    //          Disabilita, Allergie_Intolleranze,
-    //          Prezzo_Orario (d), Prezzo_Orario_Gruppo (d),
-    //          Note, Fotografia,
-    //          Gruppo (i)
-    //          WHERE id (i)
-    // Tipi:    s s s s s s s s d d s s i i   → 14 caratteri
     $sql = "UPDATE iscritto SET
                 Nome                  = ?,
                 Cognome               = ?,
@@ -227,34 +211,16 @@ if ($fotografia !== null) {
         exit;
     }
 
-    // 8 stringhe + 2 double + 2 stringhe + 1 int (gruppo) + 1 int (id) = "ssssssssddssii"
     $stmt->bind_param(
         "ssssssssddssii",
-        $nome,
-        $cognome,
-        $data_nascita,
-        $codice_fiscale,
-        $email,
-        $telefono,
-        $disabilita,
-        $intolleranze,
-        $prezzo_orario,
-        $prezzo_orario_gruppo,
-        $note,
-        $fotografia,
-        $gruppo,
-        $id
+        $nome, $cognome, $data_nascita, $codice_fiscale,
+        $email, $telefono, $disabilita, $intolleranze,
+        $prezzo_orario, $prezzo_orario_gruppo,
+        $note, $fotografia, $gruppo, $id
     );
+
 } else {
 
-    // UPDATE senza foto
-    // Colonne: Nome, Cognome, Data_nascita, Codice_fiscale, Email, Telefono,
-    //          Disabilita, Allergie_Intolleranze,
-    //          Prezzo_Orario (d), Prezzo_Orario_Gruppo (d),
-    //          Note,
-    //          Gruppo (i)
-    //          WHERE id (i)
-    // Tipi:    s s s s s s s s d d s i i   → 13 caratteri
     $sql = "UPDATE iscritto SET
                 Nome                  = ?,
                 Cognome               = ?,
@@ -276,22 +242,12 @@ if ($fotografia !== null) {
         exit;
     }
 
-    // 8 stringhe + 2 double + 1 stringa + 1 int (gruppo) + 1 int (id) = "ssssssssddsi i"
     $stmt->bind_param(
         "ssssssssddsii",
-        $nome,
-        $cognome,
-        $data_nascita,
-        $codice_fiscale,
-        $email,
-        $telefono,
-        $disabilita,
-        $intolleranze,
-        $prezzo_orario,
-        $prezzo_orario_gruppo,
-        $note,
-        $gruppo,
-        $id
+        $nome, $cognome, $data_nascita, $codice_fiscale,
+        $email, $telefono, $disabilita, $intolleranze,
+        $prezzo_orario, $prezzo_orario_gruppo,
+        $note, $gruppo, $id
     );
 }
 

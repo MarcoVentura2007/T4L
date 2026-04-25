@@ -10,19 +10,18 @@ if (!isset($_SESSION['username'])) {
 
 $input = json_decode(file_get_contents('php://input'), true);
 
-// Chiave composita per identificare lo slot originale
 $data            = trim($input['data']            ?? '');
 $orig_attivita   = intval($input['orig_attivita'] ?? 0);
 $orig_ora_inizio = trim($input['orig_ora_inizio'] ?? '');
 $orig_ora_fine   = trim($input['orig_ora_fine']   ?? '');
 
-// Nuovi valori
-$ora_inizio      = trim($input['ora_inizio']      ?? '');
-$ora_fine        = trim($input['ora_fine']         ?? '');
-$id_attivita     = intval($input['id_attivita']   ?? 0);
-$educatori       = $input['educatori']             ?? [];
-$ragazzi         = $input['ragazzi']               ?? [];
-$ragazzi_gruppo  = $input['ragazzi_gruppo']        ?? [];
+$ora_inizio     = trim($input['ora_inizio']     ?? '');
+$ora_fine       = trim($input['ora_fine']        ?? '');
+$id_attivita    = intval($input['id_attivita']  ?? 0);
+$educatori      = $input['educatori']            ?? [];
+$ragazzi        = $input['ragazzi']              ?? [];
+$ragazzi_gruppo = $input['ragazzi_gruppo']       ?? [];
+$note           = trim($input['note']            ?? '');   // <-- NOTE
 
 if (
     !$data || !$orig_attivita || !$orig_ora_inizio || !$orig_ora_fine
@@ -40,9 +39,8 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Verifica che lo slot esista
 $stmtCheck = $conn->prepare(
-    "SELECT COUNT(*) as cnt FROM partecipa
+    "SELECT COUNT(*) AS cnt FROM partecipa
      WHERE Data = ? AND ID_Attivita = ? AND Ora_Inizio = ? AND Ora_Fine = ?"
 );
 $stmtCheck->bind_param("siss", $data, $orig_attivita, $orig_ora_inizio, $orig_ora_fine);
@@ -56,7 +54,6 @@ if ($cnt == 0) {
     exit;
 }
 
-// Elimina tutte le righe del vecchio slot
 $stmtDel = $conn->prepare(
     "DELETE FROM partecipa
      WHERE Data = ? AND ID_Attivita = ? AND Ora_Inizio = ? AND Ora_Fine = ?"
@@ -65,29 +62,37 @@ $stmtDel->bind_param("siss", $data, $orig_attivita, $orig_ora_inizio, $orig_ora_
 $stmtDel->execute();
 $stmtDel->close();
 
-// Reinserisce con i nuovi valori (ogni educatore × ogni ragazzo)
 $stmtIns = $conn->prepare(
     "INSERT INTO partecipa
-     (Data, Ora_Inizio, Ora_Fine, ID_Attivita, ID_Educatore, ID_Ragazzo, gruppo)
-     VALUES (?, ?, ?, ?, ?, ?, ?)"
+     (Data, Ora_Inizio, Ora_Fine, ID_Attivita, ID_Educatore, ID_Ragazzo, Gruppo, Note)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 );
+if (!$stmtIns) {
+    echo json_encode(['success' => false, 'message' => 'Prepare fallito: ' . $conn->error]);
+    $conn->close();
+    exit;
+}
 
 foreach ($educatori as $id_edu) {
     $id_edu = intval($id_edu);
     if ($id_edu <= 0) continue;
+
     foreach ($ragazzi as $id_rag) {
         $id_rag = intval($id_rag);
         if ($id_rag <= 0) continue;
+
         $gruppo = intval($ragazzi_gruppo[$id_rag] ?? 0);
+
         $stmtIns->bind_param(
-            "sssiiii",
+            "sssiiiss",
             $data,
             $ora_inizio,
             $ora_fine,
             $id_attivita,
             $id_edu,
             $id_rag,
-            $gruppo
+            $gruppo,
+            $note
         );
         if (!$stmtIns->execute()) {
             echo json_encode(['success' => false, 'message' => 'Errore inserimento: ' . $stmtIns->error]);

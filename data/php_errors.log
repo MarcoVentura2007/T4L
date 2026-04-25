@@ -225,3 +225,8 @@ Stack trace:
 #1 {main}
   thrown in C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php on line 272
 [22-Apr-2026 09:56:05 Europe/Berlin] api_aggiorna_utente exception: Duplicate entry '------------' for key 'Codice_fiscale'
+[25-Apr-2026 14:32:24 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function imagecreatefromjpeg() in C:\xampp\htdocs\T4L\data\image_utils.php:17
+Stack trace:
+#0 C:\xampp\htdocs\T4L\public\api\api_aggiorna_utente.php(140): compressAndSaveImage('C:\\xampp\\tmp\\ph...', 'C:\\xampp\\htdocs...')
+#1 {main}
+  thrown in C:\xampp\htdocs\T4L\data\image_utils.php on line 17

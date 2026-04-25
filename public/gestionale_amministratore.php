@@ -370,10 +370,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                                 <select id="utenteGruppo">
                                     <option value="1">Gruppo</option>
                                     <option value="0">Individuale</option>
-                                    </select>
+                                </select>
                             </div>
-                            <div class="edit-field"><label>Prezzo orario Individuale (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario individuale" step="0.1"></div>
                             <div class="edit-field"><label>Prezzo orario Gruppo (€)</label><input type="number" id="utentePrezzoGruppo" placeholder="Prezzo orario gruppo" step="0.1"></div>
+                            <div class="edit-field"><label>Prezzo orario Individuale (€)</label><input type="number" id="utentePrezzo" placeholder="Prezzo orario individuale" step="0.1"></div>
                             <div class="edit-field"><label>Disabilità</label><textarea id="utenteDisabilita"></textarea></div>
                             <div class="edit-field"><label>Note</label><textarea id="utenteNote"></textarea></div>
                             <div class="edit-field" id="fieldFotografiaAdd">
@@ -754,6 +754,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     ?>
                                 </div>
                             </div>
+                            <div class="edit-field">
+                                <label>Note</label>
+                                <textarea id="agendaNote" placeholder="Note sull'attività..." rows="3"></textarea>
+                            </div>
                             <div class="modal-actions">
                                 <button type="button" class="btn-secondary" onclick="closeModal()">Chiudi</button>
                                 <button type="submit" class="btn-primary">Salva</button>
@@ -835,6 +839,10 @@ $resultResoconti = $conn->query($sqlResoconti);
                                     }
                                     ?>
                                 </div>
+                            </div>
+                            <div class="edit-field">
+                                <label>Note</label>
+                                <textarea id="modAgendaNote" placeholder="Note sull'attività..." rows="3"></textarea>
                             </div>
                             <div class="modal-actions">
                                 <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
@@ -1394,8 +1402,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                     <option value="0">Individuale</option>
                 </select>
             </div>
-            <div class="edit-field" id="fieldPrezzo"><label>Prezzo orario Individuale</label><input type="number" id="editPrezzo" placeholder="Prezzo Individuale in €" step="0.1"></div>
             <div class="edit-field" id="fieldPrezzoGruppo"><label>Prezzo orario Gruppo</label><input type="number" id="editPrezzoGruppo" placeholder="Prezzo Gruppo in €" step="0.1"></div>
+            <div class="edit-field" id="fieldPrezzo"><label>Prezzo orario Individuale</label><input type="number" id="editPrezzo" placeholder="Prezzo Individuale in €" step="0.1"></div>
             <div class="edit-field" id="fieldDisabilita"><label>Disabilità</label><textarea id="editDisabilita" placeholder="Disabilità"></textarea></div>
             <div class="edit-field" id="fieldNote"><label>Note</label><textarea id="editNote" placeholder="Note"></textarea></div>
             <div class="edit-field" id="fieldFotografia">
@@ -1877,8 +1885,8 @@ $resultResoconti = $conn->query($sqlResoconti);
             <div class="profile-field"><label>Telefono</label><span>${row.dataset.telefono||"—"}</span></div>
             <div class="profile-field"><label style="font-weight:bold;">Intolleranze ⚠️</label><span style="font-weight:bold;">${row.dataset.intolleranze||"—"}</span></div>
             <div class="profile-field"><label>Tipo di lavoro</label><span>${row.dataset.gruppo==='1'||row.dataset.gruppo==='on'?'Gruppo':'Individuale'}</span></div>
+            <div class="profile-field"><label>Prezzo orario Gruppo</label><span>${row.dataset.prezzoGruppo||"—"} €</span></div>            
             <div class="profile-field"><label>Prezzo orario Individuale</label><span>${row.dataset.prezzo||"—"} €</span></div>
-            <div class="profile-field"><label>Prezzo orario Gruppo</label><span>${row.dataset.prezzoGruppo||"—"} €</span></div>
             <div class="profile-field" style="grid-column:1/-1;"><label>Disabilità</label><span>${row.dataset.disabilita||"—"}</span></div>
             <div class="profile-field" style="grid-column:1/-1;"><label>Note</label><span>${row.dataset.note||"—"}</span></div>
         `;
@@ -2226,6 +2234,225 @@ $resultResoconti = $conn->query($sqlResoconti);
         }
 
         // =====================================================================
+        // AGGIUNGI UTENTE
+        // =====================================================================
+        const formAggiungiUtente = document.getElementById("formAggiungiUtente");
+        const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
+        const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
+        const allegatiInput = document.getElementById("utenteAllegati");
+        const allegatiDropZone = document.getElementById("allegatiDropZone");
+        const allegatiList = document.getElementById("allegatiList");
+        const allegatiItems = document.getElementById("allegatiItems");
+        const clearAllAllegati = document.getElementById("clearAllAllegati");
+        let selectedAllegati = [];
+
+        function updateAllegatiList() {
+            if (selectedAllegati.length === 0) {
+                allegatiList.style.display = 'none';
+                return;
+            }
+            allegatiList.style.display = 'block';
+            allegatiItems.innerHTML = '';
+            selectedAllegati.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'allegato-item';
+                li.innerHTML = `<div class="allegato-info">
+    <span class="allegato-icon">${getFileIcon(file.name)}</span>
+    <div class="allegato-details">
+        <span class="allegato-name" title="${file.name}">${file.name}</span>
+        <span class="allegato-size">${formatFileSize(file.size)}</span>
+        <div class="allegato-progress" id="progress-${index}" style="display:none;"><div class="allegato-progress-bar" id="progress-bar-${index}"></div></div>
+        <div class="allegato-status" id="status-${index}"></div>
+    </div></div>
+    <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>`;
+                allegatiItems.appendChild(li);
+            });
+            document.querySelectorAll('.allegato-remove').forEach(btn => {
+                btn.onclick = function() {
+                    selectedAllegati.splice(parseInt(this.dataset.index), 1);
+                    updateAllegatiList();
+                };
+            });
+        }
+
+        if (allegatiInput) {
+            allegatiInput.addEventListener('change', function() {
+                const maxSize = 10 * 1024 * 1024;
+                const valid = Array.from(this.files).filter(f => {
+                    if (f.size > maxSize) {
+                        alert(`File "${f.name}" troppo grande`);
+                        return false;
+                    }
+                    return true;
+                });
+                selectedAllegati = [...selectedAllegati, ...valid];
+                updateAllegatiList();
+            });
+        }
+        if (allegatiDropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => allegatiDropZone.addEventListener(ev, e => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false));
+            ['dragenter', 'dragover'].forEach(ev => allegatiDropZone.addEventListener(ev, () => allegatiDropZone.classList.add('dragover'), false));
+            ['dragleave', 'drop'].forEach(ev => allegatiDropZone.addEventListener(ev, () => allegatiDropZone.classList.remove('dragover'), false));
+            allegatiDropZone.addEventListener('drop', function(e) {
+                const maxSize = 10 * 1024 * 1024;
+                const valid = Array.from(e.dataTransfer.files).filter(f => {
+                    if (f.size > maxSize) {
+                        alert(`File "${f.name}" troppo grande`);
+                        return false;
+                    }
+                    return true;
+                });
+                selectedAllegati = [...selectedAllegati, ...valid];
+                updateAllegatiList();
+            });
+        }
+        if (clearAllAllegati) {
+            clearAllAllegati.onclick = () => {
+                selectedAllegati = [];
+                updateAllegatiList();
+            };
+        }
+
+        async function uploadAllegati(idIscritto) {
+            for (let i = 0; i < selectedAllegati.length; i++) {
+                const file = selectedAllegati[i];
+                const progressContainer = document.getElementById(`progress-${i}`);
+                const statusDiv = document.getElementById(`status-${i}`);
+                if (progressContainer) progressContainer.style.display = 'block';
+                if (statusDiv) statusDiv.textContent = 'Caricamento...';
+                const fd = new FormData();
+                fd.append('id_iscritto', idIscritto);
+                fd.append('allegato', file);
+                try {
+                    const res = await fetch('api/api_carica_allegato.php', {
+                        method: 'POST',
+                        body: fd,
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+                    if (data.success && statusDiv) {
+                        statusDiv.textContent = '✓ Caricato';
+                        statusDiv.classList.add('complete');
+                    } else if (statusDiv) {
+                        statusDiv.textContent = '✗ Errore: ' + (data.message || '');
+                        statusDiv.classList.add('error');
+                    }
+                } catch (err) {
+                    if (statusDiv) {
+                        statusDiv.textContent = '✗ Errore di rete';
+                        statusDiv.classList.add('error');
+                    }
+                }
+            }
+        }
+
+        if (aggiungiUtenteBtn) aggiungiUtenteBtn.onclick = () => {
+            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
+            if (addCalBtn && addCalBtn._setBirthDate) addCalBtn._setBirthDate(null);
+            openModal(modalAggiungiUtente);
+        };
+        if (aggiungiUtenteBtnMobile) aggiungiUtenteBtnMobile.onclick = () => {
+            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
+            if (addCalBtn && addCalBtn._setBirthDate) addCalBtn._setBirthDate(null);
+            openModal(modalAggiungiUtente);
+        };
+
+        // ── Helper: metti bottone in stato loading ────────────────────────────────────
+        function setButtonLoading(btn, loading) {
+            if (!btn) return;
+            if (loading) {
+                btn.dataset.originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="btn-spinner"></span> Salvataggio...';
+                btn.disabled = true;
+            } else {
+                btn.innerHTML = btn.dataset.originalText || btn.innerHTML;
+                btn.disabled = false;
+            }
+        }
+
+        formAggiungiUtente.onsubmit = async function(e) {
+            e.preventDefault();
+            const dataNascita = document.getElementById("utenteDataHidden").value;
+            if (!dataNascita) {
+                alert('Seleziona la data di nascita dal calendario.');
+                return;
+            }
+
+            // ── Disabilita bottone e mostra spinner ───────────────────────────────────
+            const submitBtn = this.querySelector('button[type="submit"]');
+            setButtonLoading(submitBtn, true);
+
+            try {
+                const fd = new FormData();
+                fd.append("nome", document.getElementById("utenteNome").value.trim());
+                fd.append("cognome", document.getElementById("utenteCognome").value.trim());
+                fd.append("data_nascita", dataNascita);
+                fd.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
+                fd.append("email", document.getElementById("utenteEmail").value.trim());
+                fd.append("telefono", document.getElementById("utenteTelefono").value.trim());
+                fd.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
+                fd.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
+                fd.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value) || 0);
+                fd.append("prezzo_orario_gruppo", parseFloat(document.getElementById("utentePrezzoGruppo").value) || 0);
+                fd.append("note", document.getElementById("utenteNote").value.trim());
+                fd.append("gruppo", document.getElementById("utenteGruppo").value);
+                const fotoInput = document.getElementById("utenteFoto");
+                if (fotoInput.files.length > 0) fd.append("foto", fotoInput.files[0]);
+
+                const res = await fetch("api/api_aggiungi_utente.php", {
+                    method: "POST",
+                    body: fd
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    await uploadAllegati(data.id);
+                    modalAggiungiUtente.classList.remove("show");
+                    successText.innerText = "Utente Aggiunto!!";
+                    showSuccess(successPopup, Overlay);
+                    setTimeout(() => {
+                        hideSuccess(successPopup, Overlay);
+                        if (Overlay) Overlay.classList.remove("show");
+                        location.reload();
+                    }, 1800);
+                } else {
+                    alert("Errore: " + data.message);
+                    setButtonLoading(submitBtn, false); // riabilita solo in caso di errore
+                }
+            } catch (err) {
+                alert("Errore di rete. Riprova.");
+                setButtonLoading(submitBtn, false);
+            }
+        };
+
+        const utenteFoto = document.getElementById("utenteFoto");
+        const preview = document.getElementById("previewFotoMini");
+        const fileNameSpan = document.getElementById("nomeFileFoto");
+        const clearBtn = document.getElementById("clearFileBtn");
+        utenteFoto.addEventListener("change", function() {
+            if (!this.files.length) {
+                preview.style.display = "none";
+                fileNameSpan.innerText = "Nessun file";
+                clearBtn.style.display = "none";
+                return;
+            }
+            preview.src = URL.createObjectURL(this.files[0]);
+            preview.style.display = "block";
+            fileNameSpan.innerText = this.files[0].name;
+            clearBtn.style.display = "block";
+        });
+        clearBtn.addEventListener("click", () => {
+            utenteFoto.value = "";
+            preview.style.display = "none";
+            fileNameSpan.innerText = "Nessun file";
+            clearBtn.style.display = "none";
+        });
+
+
+        // =====================================================================
         // EDIT UTENTE - apri modal
         // =====================================================================
         let currentEditUserId = null;
@@ -2278,14 +2505,19 @@ $resultResoconti = $conn->query($sqlResoconti);
         });
 
         // SAVE EDIT
-        document.getElementById("saveEdit").onclick = () => {
+        document.getElementById("saveEdit").onclick = async function() {
+            const saveBtn = this;
             const editType = editModal.dataset.editType || 'utente';
+
             if (editType === 'presenza') {
                 const id = editModal.dataset.presenzeId;
                 const presenzaData = editModal.dataset.presenzaData || new Date().toISOString().split('T')[0];
                 const ingresso = presenzaData + ' ' + document.getElementById("editIngresso").value + ':00';
                 const uscita = presenzaData + ' ' + document.getElementById("editUscita").value + ':00';
-                fetch('api/api_modifica_presenza.php', {
+
+                setButtonLoading(saveBtn, true);
+                try {
+                    const r = await fetch('api/api_modifica_presenza.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2296,95 +2528,101 @@ $resultResoconti = $conn->query($sqlResoconti);
                             ingresso,
                             uscita
                         })
-                    })
-                    .then(r => r.json()).then(data => {
-                        if (data.success) {
-                            editModal.classList.remove("show");
-                            if (Overlay) Overlay.classList.remove("show");
-                            successText.innerText = "Presenza modificata!!";
-                            showSuccess(successPopup, Overlay);
-                            setTimeout(() => {
-                                hideSuccess(successPopup, Overlay);
-                                location.reload();
-                            }, 1800);
-                        } else {
-                            alert("Errore: " + data.message);
-                        }
                     });
+                    const data = await r.json();
+                    if (data.success) {
+                        editModal.classList.remove("show");
+                        if (Overlay) Overlay.classList.remove("show");
+                        successText.innerText = "Presenza modificata!!";
+                        showSuccess(successPopup, Overlay);
+                        setTimeout(() => {
+                            hideSuccess(successPopup, Overlay);
+                            location.reload();
+                        }, 1800);
+                    } else {
+                        alert("Errore: " + data.message);
+                        setButtonLoading(saveBtn, false);
+                    }
+                } catch (err) {
+                    alert("Errore di rete. Riprova.");
+                    setButtonLoading(saveBtn, false);
+                }
+
             } else {
                 const id = editModal.dataset.userId;
                 const fotoInput = document.getElementById("editFoto");
-                if (fotoInput && fotoInput.files.length > 0) {
-                    const fd = new FormData();
-                    fd.append("id", id);
-                    fd.append("nome", document.getElementById("editNome").value);
-                    fd.append("cognome", document.getElementById("editCognome").value);
-                    fd.append("data_nascita", document.getElementById("editDataHidden").value || document.getElementById("editData").value);
-                    fd.append("codice_fiscale", document.getElementById("editCF").value);
-                    fd.append("email", document.getElementById("editEmail").value);
-                    fd.append("telefono", document.getElementById("editTelefono").value);
-                    fd.append("disabilita", document.getElementById("editDisabilita").value);
-                    fd.append("intolleranze", document.getElementById("editIntolleranze").value);
-                    fd.append("prezzo_orario", document.getElementById("editPrezzo").value);
-                    fd.append("prezzo_orario_gruppo", document.getElementById("editPrezzoGruppo").value);
-                    fd.append("note", document.getElementById("editNote").value);
-                    fd.append("gruppo", document.getElementById("editGruppo").value);
-                    fd.append("foto", fotoInput.files[0]);
-                    fetch('api/api_aggiorna_utente.php', {
-                        method: 'POST',
-                        body: fd
-                    }).then(r => r.json()).then(async data => {
-                        if (data.success) {
-                            if (selectedAllegatiEdit.length > 0) await uploadAllegatiEdit(id);
-                            editModal.classList.remove("show");
-                            if (Overlay) Overlay.classList.remove("show");
-                            successText.innerText = "Utente modificato!!";
-                            showSuccess(successPopup, Overlay);
-                            setTimeout(() => {
-                                hideSuccess(successPopup, Overlay);
-                                location.reload();
-                            }, 1800);
-                        } else {
-                            alert("Errore: " + data.message);
-                        }
-                    });
-                } else {
-                    fetch('api/api_aggiorna_utente.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({
-                            id,
-                            nome: document.getElementById("editNome").value,
-                            cognome: document.getElementById("editCognome").value,
-                            data_nascita: document.getElementById("editDataHidden").value || document.getElementById("editData").value,
-                            codice_fiscale: document.getElementById("editCF").value,
-                            email: document.getElementById("editEmail").value,
-                            telefono: document.getElementById("editTelefono").value,
-                            disabilita: document.getElementById("editDisabilita").value,
-                            intolleranze: document.getElementById("editIntolleranze").value,
-                            prezzo_orario: document.getElementById("editPrezzo").value,
-                            prezzo_orario_gruppo: document.getElementById("editPrezzoGruppo").value,
-                            note: document.getElementById("editNote").value,
-                            gruppo: document.getElementById("editGruppo").value
-                        })
-                    }).then(r => r.json()).then(async data => {
-                        if (data.success) {
-                            if (selectedAllegatiEdit.length > 0) await uploadAllegatiEdit(id);
-                            editModal.classList.remove("show");
-                            if (Overlay) Overlay.classList.remove("show");
-                            successText.innerText = "Utente modificato!!";
-                            showSuccess(successPopup, Overlay);
-                            setTimeout(() => {
-                                hideSuccess(successPopup, Overlay);
-                                location.reload();
-                            }, 1800);
-                        } else {
-                            alert("Errore: " + data.message);
-                        }
-                    });
+
+                setButtonLoading(saveBtn, true);
+
+                try {
+                    let data;
+
+                    if (fotoInput && fotoInput.files.length > 0) {
+                        // ── Con foto (multipart) ──────────────────────────────────────
+                        const fd = new FormData();
+                        fd.append("id", id);
+                        fd.append("nome", document.getElementById("editNome").value);
+                        fd.append("cognome", document.getElementById("editCognome").value);
+                        fd.append("data_nascita", document.getElementById("editDataHidden").value || document.getElementById("editData").value);
+                        fd.append("codice_fiscale", document.getElementById("editCF").value);
+                        fd.append("email", document.getElementById("editEmail").value);
+                        fd.append("telefono", document.getElementById("editTelefono").value);
+                        fd.append("disabilita", document.getElementById("editDisabilita").value);
+                        fd.append("intolleranze", document.getElementById("editIntolleranze").value);
+                        fd.append("prezzo_orario", document.getElementById("editPrezzo").value);
+                        fd.append("prezzo_orario_gruppo", document.getElementById("editPrezzoGruppo").value);
+                        fd.append("note", document.getElementById("editNote").value);
+                        fd.append("gruppo", document.getElementById("editGruppo").value);
+                        fd.append("foto", fotoInput.files[0]);
+                        const r = await fetch('api/api_aggiorna_utente.php', {
+                            method: 'POST',
+                            body: fd
+                        });
+                        data = await r.json();
+                    } else {
+                        // ── Senza foto (JSON) ─────────────────────────────────────────
+                        const r = await fetch('api/api_aggiorna_utente.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                id,
+                                nome: document.getElementById("editNome").value,
+                                cognome: document.getElementById("editCognome").value,
+                                data_nascita: document.getElementById("editDataHidden").value || document.getElementById("editData").value,
+                                codice_fiscale: document.getElementById("editCF").value,
+                                email: document.getElementById("editEmail").value,
+                                telefono: document.getElementById("editTelefono").value,
+                                disabilita: document.getElementById("editDisabilita").value,
+                                intolleranze: document.getElementById("editIntolleranze").value,
+                                prezzo_orario: document.getElementById("editPrezzo").value,
+                                prezzo_orario_gruppo: document.getElementById("editPrezzoGruppo").value,
+                                note: document.getElementById("editNote").value,
+                                gruppo: document.getElementById("editGruppo").value
+                            })
+                        });
+                        data = await r.json();
+                    }
+
+                    if (data.success) {
+                        if (selectedAllegatiEdit.length > 0) await uploadAllegatiEdit(id);
+                        editModal.classList.remove("show");
+                        if (Overlay) Overlay.classList.remove("show");
+                        successText.innerText = "Utente modificato!!";
+                        showSuccess(successPopup, Overlay);
+                        setTimeout(() => {
+                            hideSuccess(successPopup, Overlay);
+                            location.reload();
+                        }, 1800);
+                    } else {
+                        alert("Errore: " + data.message);
+                        setButtonLoading(saveBtn, false);
+                    }
+                } catch (err) {
+                    alert("Errore di rete. Riprova.");
+                    setButtonLoading(saveBtn, false);
                 }
             }
         };
@@ -2543,197 +2781,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                 });
         };
 
-        // =====================================================================
-        // AGGIUNGI UTENTE
-        // =====================================================================
-        const formAggiungiUtente = document.getElementById("formAggiungiUtente");
-        const aggiungiUtenteBtn = document.getElementById("aggiungi-utente-btn");
-        const aggiungiUtenteBtnMobile = document.getElementById("aggiungi-utente-btn-mobile");
-        const allegatiInput = document.getElementById("utenteAllegati");
-        const allegatiDropZone = document.getElementById("allegatiDropZone");
-        const allegatiList = document.getElementById("allegatiList");
-        const allegatiItems = document.getElementById("allegatiItems");
-        const clearAllAllegati = document.getElementById("clearAllAllegati");
-        let selectedAllegati = [];
 
-        function updateAllegatiList() {
-            if (selectedAllegati.length === 0) {
-                allegatiList.style.display = 'none';
-                return;
-            }
-            allegatiList.style.display = 'block';
-            allegatiItems.innerHTML = '';
-            selectedAllegati.forEach((file, index) => {
-                const li = document.createElement('li');
-                li.className = 'allegato-item';
-                li.innerHTML = `<div class="allegato-info">
-            <span class="allegato-icon">${getFileIcon(file.name)}</span>
-            <div class="allegato-details">
-                <span class="allegato-name" title="${file.name}">${file.name}</span>
-                <span class="allegato-size">${formatFileSize(file.size)}</span>
-                <div class="allegato-progress" id="progress-${index}" style="display:none;"><div class="allegato-progress-bar" id="progress-bar-${index}"></div></div>
-                <div class="allegato-status" id="status-${index}"></div>
-            </div></div>
-            <button type="button" class="allegato-remove" data-index="${index}" title="Rimuovi">×</button>`;
-                allegatiItems.appendChild(li);
-            });
-            document.querySelectorAll('.allegato-remove').forEach(btn => {
-                btn.onclick = function() {
-                    selectedAllegati.splice(parseInt(this.dataset.index), 1);
-                    updateAllegatiList();
-                };
-            });
-        }
-
-        if (allegatiInput) {
-            allegatiInput.addEventListener('change', function() {
-                const maxSize = 10 * 1024 * 1024;
-                const valid = Array.from(this.files).filter(f => {
-                    if (f.size > maxSize) {
-                        alert(`File "${f.name}" troppo grande`);
-                        return false;
-                    }
-                    return true;
-                });
-                selectedAllegati = [...selectedAllegati, ...valid];
-                updateAllegatiList();
-            });
-        }
-        if (allegatiDropZone) {
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => allegatiDropZone.addEventListener(ev, e => {
-                e.preventDefault();
-                e.stopPropagation();
-            }, false));
-            ['dragenter', 'dragover'].forEach(ev => allegatiDropZone.addEventListener(ev, () => allegatiDropZone.classList.add('dragover'), false));
-            ['dragleave', 'drop'].forEach(ev => allegatiDropZone.addEventListener(ev, () => allegatiDropZone.classList.remove('dragover'), false));
-            allegatiDropZone.addEventListener('drop', function(e) {
-                const maxSize = 10 * 1024 * 1024;
-                const valid = Array.from(e.dataTransfer.files).filter(f => {
-                    if (f.size > maxSize) {
-                        alert(`File "${f.name}" troppo grande`);
-                        return false;
-                    }
-                    return true;
-                });
-                selectedAllegati = [...selectedAllegati, ...valid];
-                updateAllegatiList();
-            });
-        }
-        if (clearAllAllegati) {
-            clearAllAllegati.onclick = () => {
-                selectedAllegati = [];
-                updateAllegatiList();
-            };
-        }
-
-        async function uploadAllegati(idIscritto) {
-            for (let i = 0; i < selectedAllegati.length; i++) {
-                const file = selectedAllegati[i];
-                const progressContainer = document.getElementById(`progress-${i}`);
-                const statusDiv = document.getElementById(`status-${i}`);
-                if (progressContainer) progressContainer.style.display = 'block';
-                if (statusDiv) statusDiv.textContent = 'Caricamento...';
-                const fd = new FormData();
-                fd.append('id_iscritto', idIscritto);
-                fd.append('allegato', file);
-                try {
-                    const res = await fetch('api/api_carica_allegato.php', {
-                        method: 'POST',
-                        body: fd,
-                        credentials: 'include'
-                    });
-                    const data = await res.json();
-                    if (data.success && statusDiv) {
-                        statusDiv.textContent = '✓ Caricato';
-                        statusDiv.classList.add('complete');
-                    } else if (statusDiv) {
-                        statusDiv.textContent = '✗ Errore: ' + (data.message || '');
-                        statusDiv.classList.add('error');
-                    }
-                } catch (err) {
-                    if (statusDiv) {
-                        statusDiv.textContent = '✗ Errore di rete';
-                        statusDiv.classList.add('error');
-                    }
-                }
-            }
-        }
-
-        if (aggiungiUtenteBtn) aggiungiUtenteBtn.onclick = () => {
-            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
-            if (addCalBtn && addCalBtn._setBirthDate) addCalBtn._setBirthDate(null);
-            openModal(modalAggiungiUtente);
-        };
-        if (aggiungiUtenteBtnMobile) aggiungiUtenteBtnMobile.onclick = () => {
-            const addCalBtn = document.getElementById('birthdayCalBtnAdd');
-            if (addCalBtn && addCalBtn._setBirthDate) addCalBtn._setBirthDate(null);
-            openModal(modalAggiungiUtente);
-        };
-
-        formAggiungiUtente.onsubmit = async function(e) {
-            e.preventDefault();
-            const dataNascita = document.getElementById("utenteDataHidden").value;
-            if (!dataNascita) {
-                alert('Seleziona la data di nascita dal calendario.');
-                return;
-            }
-            const fd = new FormData();
-            fd.append("nome", document.getElementById("utenteNome").value.trim());
-            fd.append("cognome", document.getElementById("utenteCognome").value.trim());
-            fd.append("data_nascita", dataNascita);
-            fd.append("codice_fiscale", document.getElementById("utenteCF").value.trim());
-            fd.append("email", document.getElementById("utenteEmail").value.trim());
-            fd.append("telefono", document.getElementById("utenteTelefono").value.trim());
-            fd.append("disabilita", document.getElementById("utenteDisabilita").value.trim());
-            fd.append("intolleranze", document.getElementById("utenteIntolleranze").value.trim());
-            fd.append("prezzo_orario", parseFloat(document.getElementById("utentePrezzo").value) || 0);
-            fd.append("prezzo_orario_gruppo", parseFloat(document.getElementById("utentePrezzoGruppo").value) || 0);
-            fd.append("note", document.getElementById("utenteNote").value.trim());
-            fd.append("gruppo", document.getElementById("utenteGruppo").value);
-            const fotoInput = document.getElementById("utenteFoto");
-            if (fotoInput.files.length > 0) fd.append("foto", fotoInput.files[0]);
-            const res = await fetch("api/api_aggiungi_utente.php", {
-                method: "POST",
-                body: fd
-            });
-            const data = await res.json();
-            if (data.success) {
-                await uploadAllegati(data.id);
-                modalAggiungiUtente.classList.remove("show");
-                successText.innerText = "Utente Aggiunto!!";
-                showSuccess(successPopup, Overlay);
-                setTimeout(() => {
-                    hideSuccess(successPopup, Overlay);
-                    if (Overlay) Overlay.classList.remove("show");
-                    location.reload();
-                }, 1800);
-            } else {
-                alert("Errore: " + data.message);
-            }
-        };
-
-        const utenteFoto = document.getElementById("utenteFoto");
-        const preview = document.getElementById("previewFotoMini");
-        const fileNameSpan = document.getElementById("nomeFileFoto");
-        const clearBtn = document.getElementById("clearFileBtn");
-        utenteFoto.addEventListener("change", function() {
-            if (!this.files.length) {
-                preview.style.display = "none";
-                fileNameSpan.innerText = "Nessun file";
-                clearBtn.style.display = "none";
-                return;
-            }
-            preview.src = URL.createObjectURL(this.files[0]);
-            preview.style.display = "block";
-            fileNameSpan.innerText = this.files[0].name;
-            clearBtn.style.display = "block";
-        });
-        clearBtn.addEventListener("click", () => {
-            utenteFoto.value = "";
-            preview.style.display = "none";
-            fileNameSpan.innerText = "Nessun file";
-            clearBtn.style.display = "none";
-        });
 
         // =====================================================================
         // ACCOUNT
@@ -3147,10 +3195,23 @@ $resultResoconti = $conn->query($sqlResoconti);
                 const inizio = att.ora_inizio.substring(0, 5),
                     fine = att.ora_fine.substring(0, 5);
                 const edTxt = Array.from(new Map(att.educatori.map(e => [e.id, e])).values()).map(e => `${e.nome} ${e.cognome}`).join(', ');
-                const ragFotos = Array.from(new Map(att.ragazzi.map(r => [r.id, r])).values()).map(r => `<div class="ragazzo-item"><img src="${r.fotografia}" class="ragazzo-avatar"><span class="ragazzo-cognome">${r.cognome}</span><span style="display:block;font-size:0.85em;color:#666;">${r.gruppo==1?'(Gruppo)':'(Individuale)'}</span></div>`).join('') || '—';
-                html += `<div class="activity-card" data-id="${att.id}">
+
+                // Crea una mappa dei educatori per cercare il nome dell'istruttore
+                const educatoriMap = {};
+                att.educatori.forEach(e => {
+                    educatoriMap[e.id] = `${e.nome} ${e.cognome}`;
+                });
+
+                const ragFotos = Array.from(new Map(att.ragazzi.map(r => [r.id, r])).values()).map(r => {
+                    const tipoLabel = r.gruppo == 1 ? '(Gruppo)' : '(Individuale)';
+                    return `<div class="ragazzo-item"><img src="${r.fotografia}" class="ragazzo-avatar"><span class="ragazzo-cognome">${r.cognome}</span><span style="display:block;font-size:0.85em;color:#666;">${tipoLabel}</span></div>`;
+                }).join('') || '—';
+
+
+                 html += `<div class="activity-card" data-id="${att.id}">
             <div class="activity-header"><h3>${att.attivita_nome}</h3><span class="activity-time"><img class="resoconti-icon" src="immagini/rescheduling.png" style="width:22px;height:22px;margin-right:8px;"> ${inizio} - ${fine}</span></div>
             <div class="activity-description">${att.descrizione}</div>
+            ${att.note ? `<div class="activity-note" style="margin:6px 0;padding:6px 10px;background:#f5f5f5;border-left:3px solid #640a35;border-radius:0 4px 4px 0;font-size:0.88em;color:#555;"><strong>Note:</strong> ${att.note}</div>` : ''}
             <div class="activity-participants">
                 <div class="participant-group"><label>Educatori:</label><span>${edTxt}</span></div>
                 <div class="participant-group"><label>Ragazzi:</label><span class="ragazzi-photos">${ragFotos}</span></div>
@@ -3195,8 +3256,24 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         document.querySelectorAll('.ragazzo-checkbox').forEach(cb => {
             cb.addEventListener('change', function() {
-                const sel = this.closest('label').querySelector('.ragazzo-gruppo');
-                if (sel) sel.style.display = this.checked ? 'inline-block' : 'none';
+                const label = this.closest('label');
+                const selGruppo = label.querySelector('.ragazzo-gruppo');
+                const selIstruttore = label.querySelector('.ragazzo-istruttore');
+
+                if (this.checked) {
+                    if (selGruppo) selGruppo.style.display = 'inline-block';
+                    // Il select istruttore appare solo se è già Individuale
+                    if (selGruppo && parseInt(selGruppo.value) === 0) {
+                        updateIstruttoriSelects();
+                        if (selIstruttore) selIstruttore.style.display = 'inline-block';
+                    }
+                } else {
+                    if (selGruppo) selGruppo.style.display = 'none';
+                    if (selIstruttore) {
+                        selIstruttore.style.display = 'none';
+                        selIstruttore.value = '';
+                    }
+                }
             });
         });
 
@@ -3205,6 +3282,45 @@ $resultResoconti = $conn->query($sqlResoconti);
         const modalModificaAgenda = document.getElementById('modalModificaAgenda');
         const formModificaAgenda = document.getElementById('formModificaAgenda');
         let agendaToEdit = null;
+
+        function updateModIstruttoriSelects() {
+            const educatori = Array.from(document.querySelectorAll(".mod-educatore-checkbox:checked"))
+                .map(cb => ({
+                    id: parseInt(cb.value, 10),
+                    label: cb.closest('label').querySelector('span').textContent.trim()
+                }))
+                .filter(e => !isNaN(e.id) && e.id > 0);
+
+            document.querySelectorAll('.mod-ragazzo-istruttore').forEach(select => {
+                const lbl = select.closest('label');
+                const cb = lbl.querySelector('.mod-ragazzo-checkbox');
+                const selGruppo = lbl.querySelector('.mod-ragazzo-gruppo');
+                const isChecked = cb && cb.checked;
+                const isIndividuale = selGruppo && parseInt(selGruppo.value) === 0;
+
+                const currentValue = select.value;
+                while (select.options.length > 1) select.remove(1);
+                educatori.forEach(edu => {
+                    const opt = document.createElement('option');
+                    opt.value = edu.id;
+                    opt.textContent = edu.label;
+                    select.appendChild(opt);
+                });
+                if (educatori.find(e => String(e.id) === String(currentValue))) {
+                    select.value = currentValue;
+                }
+
+                select.style.display = (isChecked && isIndividuale && educatori.length > 0) ? 'inline-block' : 'none';
+            });
+        }
+
+
+
+        document.querySelectorAll(".mod-educatore-checkbox").forEach(cb => {
+            cb.addEventListener("change", () => {
+                updateModIstruttoriSelects();
+            });
+        });
 
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.edit-agenda-btn')) return;
@@ -3220,17 +3336,29 @@ $resultResoconti = $conn->query($sqlResoconti);
             const selAtt = document.getElementById('modAgendaAttivita');
             selAtt.value = att.attivita_id;
 
+            document.getElementById('modAgendaNote').value = att.note || '';
+
             document.querySelectorAll('.mod-educatore-checkbox').forEach(cb => {
                 cb.checked = att.educatori.some(e => String(e.id) === cb.value);
             });
+
+            updateModIstruttoriSelects();
 
             document.querySelectorAll('.mod-ragazzo-checkbox').forEach(cb => {
                 const rag = att.ragazzi.find(r => String(r.id) === cb.value);
                 cb.checked = !!rag;
                 const sel = cb.closest('label').querySelector('.mod-ragazzo-gruppo');
+                const selIst = cb.closest('label').querySelector('.mod-ragazzo-istruttore');
                 if (sel) {
                     sel.style.display = cb.checked ? 'inline-block' : 'none';
                     if (rag) sel.value = rag.gruppo == 1 ? '1' : '0';
+                }
+                if (selIst && rag) {
+                    const isIndividual = rag.gruppo == 0;
+                    selIst.style.display = isIndividual ? 'inline-block' : 'none';
+                    if (isIndividual && rag.istruttore_id) {
+                        selIst.value = rag.istruttore_id;
+                    }
                 }
             });
 
@@ -3239,8 +3367,27 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         document.querySelectorAll('.mod-ragazzo-checkbox').forEach(cb => {
             cb.addEventListener('change', function() {
-                const sel = this.closest('label').querySelector('.mod-ragazzo-gruppo');
+                const label = this.closest('label');
+                const sel = label.querySelector('.mod-ragazzo-gruppo');
+                const selIst = label.querySelector('.mod-ragazzo-istruttore');
                 if (sel) sel.style.display = this.checked ? 'inline-block' : 'none';
+                if (selIst) {
+                    if (this.checked && sel && parseInt(sel.value) === 0) {
+                        selIst.style.display = 'inline-block';
+                    } else {
+                        selIst.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.mod-ragazzo-gruppo').forEach(select => {
+            select.addEventListener('change', function() {
+                const label = this.closest('label');
+                const selIst = label.querySelector('.mod-ragazzo-istruttore');
+                if (selIst) {
+                    selIst.style.display = parseInt(this.value) === 0 ? 'inline-block' : 'none';
+                }
             });
         });
 
@@ -3280,7 +3427,7 @@ $resultResoconti = $conn->query($sqlResoconti);
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         },
-                        body: JSON.stringify({
+                         body: JSON.stringify({
                             data: agendaToEdit.data,
                             orig_attivita: agendaToEdit.attivita_id,
                             orig_ora_inizio: agendaToEdit.ora_inizio.substring(0, 5),
@@ -3290,7 +3437,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                             id_attivita,
                             educatori,
                             ragazzi,
-                            ragazzi_gruppo
+                            ragazzi_gruppo,
+                            note: document.getElementById('modAgendaNote').value.trim()
                         })
                     })
                     .then(r => r.json()).then(data => {
@@ -3370,12 +3518,86 @@ $resultResoconti = $conn->query($sqlResoconti);
 
         if (creaAgendaBtn) creaAgendaBtn.onclick = () => {
             popolaSelectDate();
+            updateIstruttoriSelects();
             openModal(modalCreaAgenda);
         };
         if (aggiungiAgendaBtnMobile) aggiungiAgendaBtnMobile.onclick = () => {
             popolaSelectDate();
+            updateIstruttoriSelects();
             openModal(modalCreaAgenda);
         };
+
+        // ── Gestione selettore istruttore per ragazzi in modalità individuale ──
+        function updateIstruttoriSelects() {
+            const educatori = Array.from(document.querySelectorAll(".educatore-checkbox:checked"))
+                .map(cb => ({
+                    id: parseInt(cb.value, 10),
+                    label: cb.closest('label').querySelector('span').textContent.trim()
+                }))
+                .filter(e => !isNaN(e.id) && e.id > 0);
+
+            document.querySelectorAll('.ragazzo-istruttore').forEach(select => {
+                const lbl = select.closest('label');
+                const cb = lbl.querySelector('.ragazzo-checkbox');
+                const selGruppo = lbl.querySelector('.ragazzo-gruppo');
+                const isChecked = cb && cb.checked;
+                const isIndividuale = selGruppo && parseInt(selGruppo.value) === 0;
+
+                const currentValue = select.value;
+                while (select.options.length > 1) select.remove(1);
+                educatori.forEach(edu => {
+                    const opt = document.createElement('option');
+                    opt.value = edu.id;
+                    opt.textContent = edu.label;
+                    select.appendChild(opt);
+                });
+                if (educatori.find(e => String(e.id) === String(currentValue))) {
+                    select.value = currentValue;
+                }
+
+                select.style.display = (isChecked && isIndividuale && educatori.length > 0) ? 'inline-block' : 'none';
+            });
+        }
+
+
+
+        document.querySelectorAll(".educatore-checkbox").forEach(cb => {
+            cb.addEventListener("change", () => {
+                updateIstruttoriSelects();
+            });
+        });
+
+        document.querySelectorAll('.ragazzo-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const label = this.closest('label');
+                const selGruppo = label.querySelector('.ragazzo-gruppo');
+                const selIstruttore = label.querySelector('.ragazzo-istruttore');
+
+                if (this.checked) {
+                    if (selGruppo) selGruppo.style.display = 'inline-block';
+                    updateIstruttoriSelects();
+                } else {
+                    if (selGruppo) selGruppo.style.display = 'none';
+                    if (selIstruttore) selIstruttore.style.display = 'none';
+                }
+            });
+        });
+
+        document.querySelectorAll('.ragazzo-gruppo').forEach(select => {
+            select.addEventListener('change', function() {
+                const label = this.closest('label');
+                const selIstruttore = label.querySelector('.ragazzo-istruttore');
+                if (selIstruttore) {
+                    if (parseInt(this.value) === 0) {
+                        updateIstruttoriSelects();
+                        selIstruttore.style.display = 'inline-block';
+                    } else {
+                        selIstruttore.style.display = 'none';
+                        selIstruttore.value = '';
+                    }
+                }
+            });
+        });
 
         if (formCreaAgenda) {
             formCreaAgenda.onsubmit = function(e) {
@@ -3415,7 +3637,8 @@ $resultResoconti = $conn->query($sqlResoconti);
                             id_attivita: parseInt(id_attivita),
                             educatori,
                             ragazzi,
-                            ragazzi_gruppo
+                            ragazzi_gruppo,
+                            note: document.getElementById('agendaNote').value.trim()
                         })
                     })
                     .then(r => r.json()).then(data => {
