@@ -758,7 +758,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             display: block;
             margin-top: 1px;
         }
-
     </style>
 </head>
 
@@ -1272,32 +1271,38 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         /* ════════════════════════════════════════════
            TIME MODAL — versione unificata
         ════════════════════════════════════════════ */
-        const modalVeil     = document.getElementById('modalVeil');
-        const timeModal     = document.getElementById('timeModal');
-        const tmAvatar      = document.getElementById('tmAvatar');
-        const tmUserName    = document.getElementById('tmUserName');
-        const tmDateText    = document.getElementById('tmDateText');
-        const tmDuration    = document.getElementById('tmDuration');
-        const tmTimeIn      = document.getElementById('tmTimeIn');
-        const tmTimeOut     = document.getElementById('tmTimeOut');
-        const tmSubmit      = document.getElementById('tmSubmit');
-        const tmSubmitIcon  = document.getElementById('tmSubmitIcon');
+        const modalVeil = document.getElementById('modalVeil');
+        const timeModal = document.getElementById('timeModal');
+        const tmAvatar = document.getElementById('tmAvatar');
+        const tmUserName = document.getElementById('tmUserName');
+        const tmDateText = document.getElementById('tmDateText');
+        const tmDuration = document.getElementById('tmDuration');
+        const tmTimeIn = document.getElementById('tmTimeIn');
+        const tmTimeOut = document.getElementById('tmTimeOut');
+        const tmSubmit = document.getElementById('tmSubmit');
+        const tmSubmitIcon = document.getElementById('tmSubmitIcon');
         const tmSubmitLabel = document.getElementById('tmSubmitLabel');
-        const tmSpinner     = document.getElementById('tmSpinner');
-        const tmErr         = document.getElementById('tmErr');
-        const tmCancel      = document.getElementById('tmCancel');
+        const tmSpinner = document.getElementById('tmSpinner');
+        const tmErr = document.getElementById('tmErr');
+        const tmCancel = document.getElementById('tmCancel');
 
         let currentUserId = null;
 
         // Calcolo durata in tempo reale
         function calcDuration() {
-            const inVal  = tmTimeIn.value;
+            const inVal = tmTimeIn.value;
             const outVal = tmTimeOut.value;
-            if (!inVal || !outVal) { tmDuration.textContent = '—'; return; }
+            if (!inVal || !outVal) {
+                tmDuration.textContent = '—';
+                return;
+            }
             const [ih, im] = inVal.split(':').map(Number);
             const [oh, om] = outVal.split(':').map(Number);
             const diff = (oh * 60 + om) - (ih * 60 + im);
-            if (diff <= 0) { tmDuration.textContent = '—'; return; }
+            if (diff <= 0) {
+                tmDuration.textContent = '—';
+                return;
+            }
             const h = Math.floor(diff / 60);
             const m = diff % 60;
             tmDuration.textContent = m === 0 ? `${h}h` : `${h}h ${m}m`;
@@ -1321,7 +1326,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             // Pre-compila ora ingresso con orario attuale
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
-            tmTimeIn.value  = hh + ':' + mm;
+            tmTimeIn.value = hh + ':' + mm;
             tmTimeOut.value = '';
 
             // Reset UI
@@ -1341,18 +1346,22 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         }
 
         // Chiudi modal
-        function closeTimeModal() {
+        // 1. closeTimeModal — aggiungi parametro keepVeil
+        function closeTimeModal(keepVeil = false) {
             timeModal.classList.remove('show');
-            modalVeil.classList.remove('show');
+            if (!keepVeil) {
+                modalVeil.classList.remove('show');
+            }
             document.body.classList.remove('popup-open');
             currentUserId = null;
         }
 
-        tmCancel.addEventListener('click', closeTimeModal);
+        // 2. tmCancel — passa false (comportamento invariato)
+        tmCancel.addEventListener('click', () => closeTimeModal(false));
 
         // Submit
         tmSubmit.addEventListener('click', async () => {
-            const tIn  = tmTimeIn.value;
+            const tIn = tmTimeIn.value;
             const tOut = tmTimeOut.value;
 
             if (!tIn || !tOut) {
@@ -1382,20 +1391,22 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify({
-                        id_iscritto:   currentUserId,
-                        ora_ingresso:  tIn,
-                        ora_uscita:    tOut,
+                        id_iscritto: currentUserId,
+                        ora_ingresso: tIn,
+                        ora_uscita: tOut,
                         face_verified: true
                     })
                 });
                 const data = await res.json();
 
+                // 3. Blocco data.success — chiudi modal, tieni veil, poi dopo 2s togli veil
                 if (data.success) {
                     const userName = tmUserName.textContent;
-                    closeTimeModal();
+                    closeTimeModal(true); // ← chiude modal, MA tiene il veil
                     showSuccess(`${userName} • ${tIn} → ${tOut}`);
                     setTimeout(() => {
                         hideSuccess();
+                        modalVeil.classList.remove('show'); // ← toglie il veil insieme al success
                         location.reload();
                     }, 2000);
                 } else {
