@@ -64,12 +64,36 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="style.css">
     <script>
         var userMap = <?php echo json_encode($userMap); ?>;
     </script>
 
     <style>
+
+        .check-check {
+            stroke: #0b516c;
+        }
+
+        .check-circle {
+            stroke: #0b516c;
+        }
+
+        /* ═══════════════════ MODAL VEIL ═══════════════════ */
+        #modalVeil {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 800;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        #modalVeil.show {
+            display: block;
+        }
+
         /* ═══════════════════ TIME MODAL ═══════════════════ */
 
         .time-modal {
@@ -105,8 +129,8 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         }
 
         .tm-avatar-ring {
-            width: 52px;
-            height: 52px;
+            width: 82px;
+            height: 82px;
             border-radius: 50%;
             background: #eaf4f8;
             border: 2px solid #d4eaf3;
@@ -777,18 +801,6 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             </div>
         </div>
 
-        <div class="logout-overlay" id="logoutOverlay"></div>
-
-        <div class="logout-modal" id="logoutModal">
-            <h3>Conferma logout</h3>
-            <p>Sei sicuro di voler uscire dal tuo account?</p>
-
-            <div class="logout-actions">
-                <button class="btn-cancel" id="cancelLogout">Annulla</button>
-                <button class="btn-logout" id="confirmLogout">Logout</button>
-            </div>
-        </div>
-
         <div class="logo-area">
             <a href="centrodiurno.php"><img src="immagini/Logo-centrodiurno.png"></a>
             <a href="index.php"><img src="immagini/TIME4ALL_LOGO-removebg-preview.png"></a>
@@ -873,7 +885,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
     </header>
 
-    <!-- Logout overlay + modal -->
+    <!-- Logout overlay + modal (unici, non duplicati) -->
     <div class="logout-overlay" id="logoutOverlay"></div>
     <div class="logout-modal" id="logoutModal">
         <h3>Conferma logout</h3>
@@ -969,8 +981,9 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
     </main>
 
 
-    <!-- ═══════════════════ MODAL VEIL (non dismissible) ═══════════════════ -->
-    <div class="modal-veil" id="modalVeil"></div>
+    <!-- ═══════════════════ MODAL VEIL ═══════════════════ -->
+    <!-- FIX: era class="overlya" (typo), ora è id="modalVeil" con stili CSS corretti -->
+    <div id="modalVeil"></div>
 
     <!-- ═══════════════════ TIME MODAL ═══════════════════ -->
     <div class="time-modal" id="timeModal" role="dialog" aria-modal="true">
@@ -1070,9 +1083,9 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 <span class="button-text">Continua</span>
             </button>
 
-            <div id="notify" class="notify hidden">
-                <div class="icon" id="notify-icon"></div>
-                <div class="text" id="notify-text"></div>
+            <div id="notify-ergo" class="notify hidden">
+                <div class="icon" id="notify-icon-ergo"></div>
+                <div class="text" id="notify-text-ergo"></div>
             </div>
         </div>
     </div>
@@ -1269,7 +1282,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         });
 
         /* ════════════════════════════════════════════
-           TIME MODAL — versione unificata
+           TIME MODAL
         ════════════════════════════════════════════ */
         const modalVeil = document.getElementById('modalVeil');
         const timeModal = document.getElementById('timeModal');
@@ -1311,25 +1324,21 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         tmTimeIn.addEventListener('input', calcDuration);
         tmTimeOut.addEventListener('input', calcDuration);
 
-        // Apri modal — usa fotoPath dal database
+        // Apri modal
         function openTimeModal(userId, name, fotoPath) {
             currentUserId = userId;
 
-            // Avatar dal database
             tmAvatar.src = fotoPath && fotoPath !== '' ? fotoPath : 'immagini/profile-picture.png';
             tmUserName.textContent = name;
 
-            // Data
             const now = new Date();
             tmDateText.textContent = formatDateIT(now);
 
-            // Pre-compila ora ingresso con orario attuale
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
             tmTimeIn.value = hh + ':' + mm;
             tmTimeOut.value = '';
 
-            // Reset UI
             tmDuration.textContent = '—';
             tmErr.style.display = 'none';
             tmErr.textContent = '';
@@ -1338,25 +1347,23 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             tmSubmitIcon.style.display = '';
             tmSpinner.style.display = 'none';
 
-            // Apri
-            modalVeil.classList.add('show');
+            // FIX: apre sia il modal che il veil
             timeModal.classList.add('show');
+            modalVeil.classList.add('show');
             document.body.classList.add('popup-open');
             setTimeout(() => tmTimeOut.focus(), 350);
         }
 
         // Chiudi modal
-        // 1. closeTimeModal — aggiungi parametro keepVeil
         function closeTimeModal(keepVeil = false) {
             timeModal.classList.remove('show');
+            document.body.classList.remove('popup-open');
             if (!keepVeil) {
                 modalVeil.classList.remove('show');
             }
-            document.body.classList.remove('popup-open');
             currentUserId = null;
         }
 
-        // 2. tmCancel — passa false (comportamento invariato)
         tmCancel.addEventListener('click', () => closeTimeModal(false));
 
         // Submit
@@ -1399,14 +1406,13 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
                 });
                 const data = await res.json();
 
-                // 3. Blocco data.success — chiudi modal, tieni veil, poi dopo 2s togli veil
                 if (data.success) {
                     const userName = tmUserName.textContent;
-                    closeTimeModal(true); // ← chiude modal, MA tiene il veil
+                    closeTimeModal(true); // chiude modal ma tiene il veil
                     showSuccess(`${userName} • ${tIn} → ${tOut}`);
                     setTimeout(() => {
                         hideSuccess();
-                        modalVeil.classList.remove('show'); // ← toglie il veil insieme al success
+                        modalVeil.classList.remove('show');
                         location.reload();
                     }, 2000);
                 } else {
@@ -1431,15 +1437,11 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             tmSpinner.style.display = 'none';
         }
 
-        // ELEMENTI
+        // ELEMENTI CODE POPUP
         const overlay = document.getElementById("popupOverlay");
         const codePopup = document.getElementById("code-popup");
         const buttonGestionale = document.getElementById("button-gestionale");
         const passwordField = document.getElementById("password");
-        const hamGestionale = document.getElementById("ham-gestionale");
-
-
-
 
         // FUNZIONE NOTIFICATION
         function showNotification(success = true, message = "Messaggio") {
@@ -1467,18 +1469,14 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
             document.body.appendChild(notify);
 
-            // Mostra con animazione
             setTimeout(() => notify.classList.add('show'), 10);
 
-            // Nascondi dopo 3 secondi con animazione uscita
             setTimeout(() => {
                 notify.classList.remove('show');
                 notify.classList.add('hide');
                 notify.addEventListener('animationend', () => notify.remove());
             }, 2000);
         }
-
-
 
         // CHIUDI POPUP CLICCANDO FUORI
         overlay.addEventListener("click", () => {
@@ -1489,11 +1487,10 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
         const passwordFieldErgo = document.getElementById("password-ergo");
         const codePopupErgo = document.getElementById("code-popup-ergo");
-
         const buttonGestionaleErgo = document.getElementById("button-gestionale-ergo");
+
         buttonGestionaleErgo.addEventListener("click", verificaCodiceErgo);
 
-        // FUNZIONE DI CONTROLLO CODICE
         async function verificaCodiceErgo() {
             const codice = passwordFieldErgo.value.trim();
 
@@ -1515,21 +1512,16 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
                 if (result.success) {
                     showNotification(true, "Accesso consentito");
-
                     passwordFieldErgo.value = "";
-
-                    // Chiudi popup
                     overlay.classList.remove("show");
                     codePopupErgo.classList.remove("show");
                     document.body.classList.remove("popup-open");
-
-                    // Redirect alla pagina di gestionale
                     setTimeout(() => {
                         window.location.href = result.redirect;
                     }, 2000);
                 } else {
                     showNotification(false, result.message);
-                    passwordFieldErgo.value = ""; // pulisci input se sbagliato
+                    passwordFieldErgo.value = "";
                 }
 
             } catch (err) {
@@ -1548,7 +1540,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
         function hideSuccess() {
             document.getElementById('successPopup').classList.remove('show');
         }
-        // FUNZIONE DI CONTROLLO CODICE
+
         async function verificaCodice() {
             const codice = passwordField.value.trim();
 
@@ -1570,21 +1562,16 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
                 if (result.success) {
                     showNotification(true, "Accesso consentito");
-
                     passwordField.value = "";
-
-                    // Chiudi popup
                     overlay.classList.remove("show");
                     codePopup.classList.remove("show");
                     document.body.classList.remove("popup-open");
-
-                    // Redirect alla pagina di gestionale
                     setTimeout(() => {
                         window.location.href = result.redirect;
                     }, 2000);
                 } else {
                     showNotification(false, result.message);
-                    passwordField.value = ""; // pulisci input se sbagliato
+                    passwordField.value = "";
                 }
 
             } catch (err) {
@@ -1593,28 +1580,21 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             }
         }
 
-        // BOTTONE CONTINUA
         buttonGestionale.addEventListener("click", verificaCodice);
 
-        // INVIO DALL'INPUT
         passwordField.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                e.preventDefault(); // evita submit involontario
+                e.preventDefault();
                 verificaCodice();
             }
         });
-        overlay.onclick = closePopups;
 
         passwordFieldErgo.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                e.preventDefault(); // evita submit involontario
+                e.preventDefault();
                 verificaCodiceErgo();
             }
         });
-
-
-        // CHIUDI POPUP CLICCANDO FUORI
-        overlay.onclick = closePopups;
 
         function closePopups() {
             overlay.classList.remove("show");
@@ -1623,6 +1603,7 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
             document.body.classList.remove("popup-open");
         }
 
+        overlay.onclick = closePopups;
 
         /* HAMBURGER */
         const ham = document.getElementById("hamburger");
@@ -1634,55 +1615,45 @@ $faviconHref = ($assetBase !== '' ? $assetBase : '') . '/immagini/Icona.ico';
 
         document.querySelectorAll(".menu-main").forEach(main => {
             main.addEventListener("click", () => {
-
                 const targetId = main.dataset.target;
                 const targetMenu = document.getElementById(targetId);
 
-                // chiudi tutti gli altri submenu
                 document.querySelectorAll(".submenu").forEach(menu => {
                     if (menu !== targetMenu) {
                         menu.classList.remove("open");
-                        menu.previousElementSibling.classList.remove("open"); // reset freccetta
+                        menu.previousElementSibling.classList.remove("open");
                     }
                 });
 
-                // toggle quello cliccato
                 targetMenu.classList.toggle("open");
-                main.classList.toggle("open"); // per la freccetta
+                main.classList.toggle("open");
             });
-
         });
 
-
-        // Prendi tutti i link "menu-item" con data-link
         document.querySelectorAll(".menu-item[data-link]").forEach(item => {
             const link = item.dataset.link;
             if (link.includes("gestionale_ergo")) {
-                // Ergoterapeutica Gestionale - usa popup ergo
                 item.addEventListener("click", (e) => {
-                    e.preventDefault(); // previeni redirect
+                    e.preventDefault();
                     overlay.classList.add("show");
                     codePopupErgo.classList.add("show");
                     document.body.classList.add("popup-open");
-                    passwordFieldErgo.focus(); // focus input
+                    passwordFieldErgo.focus();
                 });
             } else if (link.includes("gestionale")) {
-                // Centro Diurno Gestionale - usa popup standard
                 item.addEventListener("click", (e) => {
-                    e.preventDefault(); // previeni redirect
+                    e.preventDefault();
                     overlay.classList.add("show");
                     codePopup.classList.add("show");
                     document.body.classList.add("popup-open");
-                    passwordField.focus(); // focus input
+                    passwordField.focus();
                 });
             } else {
-                // link normali
                 item.addEventListener("click", () => {
                     window.location.href = link;
                 });
             }
         });
-
 
         /* USER DROPDOWN */
         const userBox = document.getElementById("userBox");

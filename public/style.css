@@ -6495,36 +6495,6 @@
      border: 1px solid #93c5fd;
  }
 
- .faceid-result-icon {
-     width: 50px;
-     height: 50px;
-     border-radius: 50%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     flex-shrink: 0;
- }
-
- .faceid-result.success .faceid-result-icon {
-     background: #10b981;
-     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
- }
-
- .faceid-result.error .faceid-result-icon {
-     background: #ef4444;
-     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
- }
-
- .faceid-result.info .faceid-result-icon {
-     background: #3b82f6;
-     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
- }
-
- .faceid-result-icon svg {
-     width: 26px;
-     height: 26px;
-     fill: white;
- }
 
  .faceid-result.success .faceid-result-icon svg {
      animation: checkPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);

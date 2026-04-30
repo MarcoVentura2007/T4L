@@ -678,7 +678,7 @@
 }
 
 .mc-day.mc-selected .mc-day-number {
-  color: white;
+  color: white !important;
   font-weight: 700;
 }
 

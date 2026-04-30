@@ -378,15 +378,6 @@ $result = $conn->query($sql);
                         </li>
                         <li class="sidebar__item"><a class="sidebar__link tab-link active" href="#" data-tab="tab-utenti" data-tooltip="Utenti"><span class="sidebar-icon"><img src="immagini/group.png" alt=""></span><span class="text">Utenti</span></a></li>
                         <li class="sidebar__item"><a class="sidebar__link tab-link" href="#" data-tab="tab-presenze" data-tooltip="Presenze"><span class="sidebar-icon"><img src="immagini/attendance.png" alt=""></span><span class="text">Presenze</span></a></li>
-                        <li>
-                            <hr />
-                        </li>
-                        <li class="sidebar__item item--heading">
-                            <h2 class="sidebar__item--heading">Gestione</h2>
-                        </li>
-                        <li class="sidebar__item item--heading">
-                            <h2 class="sidebar__item--heading">Amministrazione</h2>
-                        </li>
                     </ul>
                 </section>
             </nav>
