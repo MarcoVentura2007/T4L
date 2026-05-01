@@ -4217,25 +4217,156 @@ $resultResoconti = $conn->query($sqlResoconti);
             }
 
             function generaResoconsoPDFInternal() {
-                const div = document.createElement('div');
-                div.innerHTML = generaAnteprimaPDF();
-                div.style.padding = '20px';
-                html2pdf().set({
-                    margin: 10,
-                    filename: `resoconto_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`,
-                    image: {
-                        type: 'jpeg',
-                        quality: 0.98
-                    },
-                    html2canvas: {
-                        scale: 2
-                    },
-                    jsPDF: {
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4'
+                if (typeof window.jspdf === 'undefined') {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                    s.onload = () => generaResoconsoPDFInternal();
+                    document.head.appendChild(s);
+                    return;
+                }
+
+                const doc = new window.jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                const W = 190;
+                let y = 15;
+
+                const MESI_IT = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+                const [anno, mese] = resocontoCurrentData.mese.split('-');
+                const meseLabel = MESI_IT[parseInt(mese) - 1] + ' ' + anno;
+
+                function checkY(needed) {
+                    if (y + needed > 277) {
+                        doc.addPage();
+                        y = 15;
                     }
-                }).from(div).save();
+                }
+
+                // Intestazione
+                doc.setFontSize(16).setFont(undefined, 'bold');
+                doc.text('RESOCONTO MENSILE', 105, y, {
+                    align: 'center'
+                });
+                y += 8;
+                doc.setFontSize(12);
+                doc.text(`${resocontoCurrentData.cognome} ${resocontoCurrentData.nome}`, 105, y, {
+                    align: 'center'
+                });
+                y += 6;
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                doc.text(`Mese: ${meseLabel}`, 105, y, {
+                    align: 'center'
+                });
+                y += 5;
+                doc.text(`Data Stampa: ${new Date().toLocaleString('it-IT')}`, 105, y, {
+                    align: 'center'
+                });
+                y += 10;
+
+                // Sezione dettaglio giornaliero
+                doc.setFontSize(11).setFont(undefined, 'bold');
+                doc.text('DETTAGLIO GIORNALIERO', 10, y);
+                y += 6;
+
+                function drawTableHeader() {
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(10, y, W, 8, 'F');
+                    doc.setFont(undefined, 'bold').setFontSize(10);
+                    doc.text('Giorno', 12, y + 5.5);
+                    doc.text('Attività', 60, y + 5.5);
+                    doc.text('Ore', 130, y + 5.5, {
+                        align: 'right'
+                    });
+                    doc.text('Costo', 200, y + 5.5, {
+                        align: 'right'
+                    });
+                    y += 8;
+                }
+                drawTableHeader();
+
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                resocontoCurrentData.giorniData.forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    const attivita = r.attivita && r.attivita.length > 0 ? r.attivita : [{
+                        Nome: 'Presenza',
+                        ore: r.ore,
+                        costo: r.costo
+                    }];
+                    const rowH = attivita.length * 10 + 4;
+
+                    checkY(rowH);
+                    if (y === 15) drawTableHeader();
+
+                    doc.setDrawColor(220, 220, 220);
+                    doc.rect(10, y, W, rowH);
+
+                    attivita.forEach((a, i) => {
+                        const ry = y + 7 + i * 10;
+                        if (i === 0) doc.text(g, 14, ry);
+                        doc.text(a.Nome, 62, ry);
+                        doc.text(a.ore.toFixed(2) + 'h', 130, ry, {
+                            align: 'right'
+                        });
+                        doc.text(a.costo.toFixed(2) + '€', 198, ry, {
+                            align: 'right'
+                        });
+                    });
+                    y += rowH;
+                });
+
+
+                // Riepilogo attività
+                y += 8;
+                checkY(20);
+                doc.setFontSize(11).setFont(undefined, 'bold');
+                doc.text('RIEPILOGO ATTIVITÀ', 10, y);
+                y += 6;
+
+                doc.setFillColor(240, 240, 240);
+                doc.rect(10, y, W, 8, 'F');
+                doc.setFontSize(10);
+                doc.text('Attività', 12, y + 5.5);
+                doc.text('Ore Totali', 200, y + 5.5, {
+                    align: 'right'
+                });
+                y += 8;
+
+                doc.setFont(undefined, 'normal');
+                resocontoCurrentData.attivitaMensili.forEach(([nome, ore]) => {
+                    checkY(10);
+                    doc.setDrawColor(220, 220, 220);
+                    doc.rect(10, y, W, 10);
+                    doc.text(nome, 14, y + 7);
+                    doc.text(ore.toFixed(2) + 'h', 198, y + 7, {
+                        align: 'right'
+                    });
+                    y += 10;
+                });
+
+                // Totali
+                y += 8;
+                checkY(35);
+                doc.setFontSize(11).setFont(undefined, 'bold');
+                doc.text('TOTALI', 10, y);
+                y += 7;
+                doc.setFontSize(10).setFont(undefined, 'normal');
+                doc.text(`Ore Totali: ${resocontoCurrentData.totalOre.toFixed(2)}h`, 10, y);
+                y += 6;
+                doc.text(`Costo Totale: ${resocontoCurrentData.totalCosto.toFixed(2)}€`, 10, y);
+                y += 6;
+                doc.text(`Giorni di Presenza: ${resocontoCurrentData.giorniPresenza}`, 10, y);
+                y += 12;
+
+                // Firma
+                doc.setDrawColor(0);
+                doc.line(10, y, 80, y);
+                y += 5;
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                doc.text('Firma', 10, y);
+
+                doc.save(`resoconto_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`);
             }
 
             const scaricaResocontoBtn = document.getElementById('scaricaResocontoBtn');

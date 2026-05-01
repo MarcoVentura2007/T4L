@@ -350,7 +350,7 @@ $result = $conn->query($sql);
         button.group:hover svg {
             fill: #27272a;
             stroke: #27272a;
-    }
+        }
     </style>
 </head>
 
@@ -2305,25 +2305,116 @@ $result = $conn->query($sql);
             }
 
             function generaResoconsoPDFInternoErgo() {
-                const div = document.createElement('div');
-                div.innerHTML = generaAnteprimaPDF();
-                div.style.padding = '20px';
-                html2pdf().set({
-                    margin: 10,
-                    filename: `resoconto_ergo_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`,
-                    image: {
-                        type: 'jpeg',
-                        quality: 0.98
-                    },
-                    html2canvas: {
-                        scale: 2
-                    },
-                    jsPDF: {
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4'
+                if (typeof window.jspdf === 'undefined') {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                    s.onload = () => generaResoconsoPDFInternoErgo();
+                    document.head.appendChild(s);
+                    return;
+                }
+
+                const doc = new window.jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                const W = 190;
+                let y = 15;
+
+                const MESI_IT = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+                const [anno, mese] = resocontoCurrentData.mese.split('-');
+                const meseLabel = MESI_IT[parseInt(mese) - 1] + ' ' + anno;
+
+                function checkY(needed) {
+                    if (y + needed > 277) {
+                        doc.addPage();
+                        y = 15;
                     }
-                }).from(div).save();
+                }
+
+                // Intestazione
+                doc.setFontSize(16).setFont(undefined, 'bold');
+                doc.text('RESOCONTO MENSILE', 105, y, {
+                    align: 'center'
+                });
+                y += 8;
+                doc.setFontSize(12);
+                doc.text(`${resocontoCurrentData.cognome} ${resocontoCurrentData.nome}`, 105, y, {
+                    align: 'center'
+                });
+                y += 6;
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                doc.text(`Mese: ${meseLabel}`, 105, y, {
+                    align: 'center'
+                });
+                y += 5;
+                doc.text(`Data Stampa: ${new Date().toLocaleString('it-IT')}`, 105, y, {
+                    align: 'center'
+                });
+                y += 10;
+
+                // Dettaglio giornaliero
+                doc.setFontSize(11).setFont(undefined, 'bold');
+                doc.text('DETTAGLIO GIORNALIERO', 10, y);
+                y += 6;
+
+                function drawTableHeader() {
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(10, y, W, 8, 'F');
+                    doc.setFont(undefined, 'bold').setFontSize(10);
+                    doc.text('Giorno', 14, y + 5.5);
+                    doc.text('Ore', 130, y + 5.5, {
+                        align: 'right'
+                    });
+                    doc.text('Stipendio', 198, y + 5.5, {
+                        align: 'right'
+                    });
+                    y += 8;
+                }
+                drawTableHeader();
+
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                (resocontoCurrentData.giorniData || []).forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    const rowH = 10;
+
+                    checkY(rowH);
+                    if (y === 15) drawTableHeader();
+
+                    doc.setDrawColor(220, 220, 220);
+                    doc.rect(10, y, W, rowH);
+                    doc.text(g, 14, y + 7);
+                    doc.text(r.ore.toFixed(2) + 'h', 130, y + 7, {
+                        align: 'right'
+                    });
+                    doc.text(r.costo.toFixed(2) + '€', 198, y + 7, {
+                        align: 'right'
+                    });
+                    y += rowH;
+                });
+
+                // Totali
+                y += 8;
+                checkY(35);
+                doc.setFontSize(11).setFont(undefined, 'bold');
+                doc.text('TOTALI', 10, y);
+                y += 7;
+                doc.setFontSize(10).setFont(undefined, 'normal');
+                doc.text(`Ore Totali: ${resocontoCurrentData.totalOre.toFixed(2)}h`, 10, y);
+                y += 6;
+                doc.text(`Stipendio Totale: ${resocontoCurrentData.totalCosto.toFixed(2)}€`, 10, y);
+                y += 6;
+                doc.text(`Giorni di Presenza: ${resocontoCurrentData.giorniPresenza}`, 10, y);
+                y += 12;
+
+                // Firma
+                doc.setDrawColor(0);
+                doc.line(10, y, 80, y);
+                y += 5;
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                doc.text('Firma', 10, y);
+
+                doc.save(`resoconto_ergo_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`);
             }
 
             const scaricaResocontoErgoBtn = document.getElementById('scaricaResocontoErgoBtn');

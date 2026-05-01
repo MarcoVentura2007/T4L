@@ -91,47 +91,58 @@ $result = $conn->query($sql);
             border-color: #0b516c;
             box-shadow: 0 0 0 3px rgba(11, 81, 108, .12);
         }
+
         .custom-select-wrapper .cs-trigger.cs-open {
             border-color: #0b516c;
             box-shadow: 0 0 0 3px rgba(11, 81, 108, .10);
             border-bottom-color: transparent;
         }
+
         .custom-select-wrapper .cs-trigger.cs-open .cs-arrow {
             color: #0b516c;
         }
+
         .custom-select-wrapper .cs-panel {
             border-color: #0b516c;
             box-shadow: 0 8px 24px rgba(11, 81, 108, .12), 0 2px 8px rgba(0, 0, 0, .06);
         }
+
         .custom-select-wrapper .cs-header {
             background: #0b516c;
         }
+
         .custom-select-wrapper .cs-option:hover {
             color: #0b516c;
         }
+
         .custom-select-wrapper .cs-option.cs-selected {
             background: #0b516c;
             color: #fff;
         }
+
         .custom-select-wrapper .cs-option.cs-selected:hover {
             background: #0d6a8a;
         }
+
         .birth-cal-btn {
             background: #f4f4f5;
             border-color: #0b516c;
             color: #0b516c;
         }
+
         .birth-cal-btn:hover {
             background: #0b516c;
             border-color: #0b516c;
             color: #fff;
         }
+
         .birth-cal-year-row,
         .birth-cal-month-row .cal-nav-btn {
             background: #0b516c;
             color: #fff;
             border-color: #0b516c;
         }
+
         .birth-cal-month-row .cal-nav-btn:hover {
             background: #0b516c;
             border-color: #0b516c;
@@ -431,7 +442,7 @@ $result = $conn->query($sql);
                             <h2 class="sidebar__item--heading">Gestione</h2>
                         </li>
                         <li class="sidebar__item"><a class="sidebar__link tab-link" href="#" data-tab="tab-resoconti" data-tooltip="Resoconti"><span class="sidebar-icon"><img src="immagini/resoconti.png" alt=""></span><span class="text">Resoconti</span></a></li>
-                       
+
                     </ul>
                 </section>
             </nav>
@@ -2191,25 +2202,116 @@ $result = $conn->query($sql);
             }
 
             function generaResoconsoPDFInternoErgo() {
-                const div = document.createElement('div');
-                div.innerHTML = generaAnteprimaPDF();
-                div.style.padding = '20px';
-                html2pdf().set({
-                    margin: 10,
-                    filename: `resoconto_ergo_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`,
-                    image: {
-                        type: 'jpeg',
-                        quality: 0.98
-                    },
-                    html2canvas: {
-                        scale: 2
-                    },
-                    jsPDF: {
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4'
+                if (typeof window.jspdf === 'undefined') {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                    s.onload = () => generaResoconsoPDFInternoErgo();
+                    document.head.appendChild(s);
+                    return;
+                }
+
+                const doc = new window.jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                const W = 190;
+                let y = 15;
+
+                const MESI_IT = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+                const [anno, mese] = resocontoCurrentData.mese.split('-');
+                const meseLabel = MESI_IT[parseInt(mese) - 1] + ' ' + anno;
+
+                function checkY(needed) {
+                    if (y + needed > 277) {
+                        doc.addPage();
+                        y = 15;
                     }
-                }).from(div).save();
+                }
+
+                // Intestazione
+                doc.setFontSize(16).setFont(undefined, 'bold');
+                doc.text('RESOCONTO MENSILE', 105, y, {
+                    align: 'center'
+                });
+                y += 8;
+                doc.setFontSize(12);
+                doc.text(`${resocontoCurrentData.cognome} ${resocontoCurrentData.nome}`, 105, y, {
+                    align: 'center'
+                });
+                y += 6;
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                doc.text(`Mese: ${meseLabel}`, 105, y, {
+                    align: 'center'
+                });
+                y += 5;
+                doc.text(`Data Stampa: ${new Date().toLocaleString('it-IT')}`, 105, y, {
+                    align: 'center'
+                });
+                y += 10;
+
+                // Dettaglio giornaliero
+                doc.setFontSize(11).setFont(undefined, 'bold');
+                doc.text('DETTAGLIO GIORNALIERO', 10, y);
+                y += 6;
+
+                function drawTableHeader() {
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(10, y, W, 8, 'F');
+                    doc.setFont(undefined, 'bold').setFontSize(10);
+                    doc.text('Giorno', 14, y + 5.5);
+                    doc.text('Ore', 130, y + 5.5, {
+                        align: 'right'
+                    });
+                    doc.text('Stipendio', 198, y + 5.5, {
+                        align: 'right'
+                    });
+                    y += 8;
+                }
+                drawTableHeader();
+
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                (resocontoCurrentData.giorniData || []).forEach(r => {
+                    const g = new Date(r.giorno).toLocaleDateString('it-IT');
+                    const rowH = 10;
+
+                    checkY(rowH);
+                    if (y === 15) drawTableHeader();
+
+                    doc.setDrawColor(220, 220, 220);
+                    doc.rect(10, y, W, rowH);
+                    doc.text(g, 14, y + 7);
+                    doc.text(r.ore.toFixed(2) + 'h', 130, y + 7, {
+                        align: 'right'
+                    });
+                    doc.text(r.costo.toFixed(2) + '€', 198, y + 7, {
+                        align: 'right'
+                    });
+                    y += rowH;
+                });
+
+                // Totali
+                y += 8;
+                checkY(35);
+                doc.setFontSize(11).setFont(undefined, 'bold');
+                doc.text('TOTALI', 10, y);
+                y += 7;
+                doc.setFontSize(10).setFont(undefined, 'normal');
+                doc.text(`Ore Totali: ${resocontoCurrentData.totalOre.toFixed(2)}h`, 10, y);
+                y += 6;
+                doc.text(`Stipendio Totale: ${resocontoCurrentData.totalCosto.toFixed(2)}€`, 10, y);
+                y += 6;
+                doc.text(`Giorni di Presenza: ${resocontoCurrentData.giorniPresenza}`, 10, y);
+                y += 12;
+
+                // Firma
+                doc.setDrawColor(0);
+                doc.line(10, y, 80, y);
+                y += 5;
+                doc.setFont(undefined, 'normal').setFontSize(10);
+                doc.text('Firma', 10, y);
+
+                doc.save(`resoconto_ergo_${resocontoCurrentData.cognome}_${resocontoCurrentData.mese}.pdf`);
             }
 
             const scaricaResocontoErgoBtn = document.getElementById('scaricaResocontoErgoBtn');
@@ -2221,7 +2323,7 @@ $result = $conn->query($sql);
                 });
             }
         });
-    
+
         // ── SIDEBAR + SCROLL LOCK + RESTORE
         const checkboxInput = document.getElementById('checkbox-input');
         if (checkboxInput) {
